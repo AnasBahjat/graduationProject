@@ -1,0 +1,4 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="14dp" /> <!-- Adjust the radius as needed for the desired curve -->
+    <solid android:color="#7FE2EF" /> <!-- Specify the background color -->
+</shape>
