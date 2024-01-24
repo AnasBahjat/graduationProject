@@ -1,8 +1,10 @@
 package com.example.graduationproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,10 +32,10 @@ public class LoginActivity extends AppCompatActivity {
 
     public void loginClicked(View view) {
         if(email.getEditText().getText().toString().isEmpty()){
-            email.setError("Fill in this field");
+            email.setError("* Fill in this field");
         }
         if(password.getEditText().getText().toString().isEmpty()){
-            password.setError("Fill in this field");
+            password.setError("* Fill in this field");
         }
 
         email.getEditText().addTextChangedListener(new TextWatcher() {
@@ -74,5 +76,10 @@ public class LoginActivity extends AppCompatActivity {
         if(!email.getEditText().getText().toString().isEmpty() && !password.getEditText().getText().toString().isEmpty()){
             Toast.makeText(LoginActivity.this,"Login done",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void createAccountClicked(View view) {
+        Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
+        startActivity(intent);
     }
 }
