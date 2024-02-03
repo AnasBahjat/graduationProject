@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +66,10 @@ public class RegisterActivity extends AppCompatActivity {
         }
         if(passwordStr.isEmpty()){
             password.setError("* Fill in this field");
+        }
+        else if(passwordStr.length() < 10 || !containsTwoCases()){
+            password.setError("* Password  must be\n  at least 10 characters" +
+                    "\n  one upper case\n  one lower case");
         }
         if(confPasswordStr.isEmpty()){
             confPassword.setError("* Fill in this field");
@@ -211,19 +217,24 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if(checkAll()){
+            firstname.setError(null);
+            lastname.setError(null);
+            email.setError(null);
+            password.setError(null);
+            confPassword.setError(null);
+            phonePrefix.setError(null);
+            phoneNumber.setError(null);
             Toast.makeText(RegisterActivity.this,"Registered ..",Toast.LENGTH_SHORT).show();
         }
-        else {
+        else if(!checkAll()){
             Toast.makeText(RegisterActivity.this,"ERROR ..",Toast.LENGTH_SHORT).show();
         }
     }
     private boolean checkAll(){
-        if (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
-        && !passwordStr.isEmpty() && !confPasswordStr.isEmpty()&& !phoneNumberStr.isEmpty()
-                && !phonePrefixStr.isEmpty() && passwordStr.equals(confPasswordStr) && !isEmailValid()) {
-            return true;
-        }
-        return false;
+        return (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
+                && !passwordStr.isEmpty() && !confPasswordStr.isEmpty() && !phoneNumberStr.isEmpty()
+                && !phonePrefixStr.isEmpty() && passwordStr.equals(confPasswordStr) && isEmailValid() &&
+                passwordStr.trim().length() > 10 && containsTwoCases()) ;
     }
     public boolean isEmailValid() {
         String emailFormat = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
@@ -236,5 +247,16 @@ public class RegisterActivity extends AppCompatActivity {
             email.setError("* Error Email Format");
             return false ;
         }
+    }
+
+    public boolean containsTwoCases(){
+        int flag = 0 ;
+        for (char ch : passwordStr.toCharArray()){
+            if(Character.isUpperCase(ch))
+                flag=1;
+            if(Character.isLowerCase(ch) && flag==1)
+                return true ;
+        }
+        return false;
     }
 }
