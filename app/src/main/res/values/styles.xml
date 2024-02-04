@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="CustomHintTextAppearance" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">18sp</item>
+    </style>
 
+    <style name="passwordText" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">16.5sp</item>
+    </style>
+
+    <style name="ErrorTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textSize">15sp</item>
+    </style>
 </resources>

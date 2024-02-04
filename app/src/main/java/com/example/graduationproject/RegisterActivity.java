@@ -5,33 +5,47 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegisterActivity extends AppCompatActivity {
     private TextInputLayout firstname,lastname,email,password,confPassword,phoneNumber,phonePrefix;
     String firstnameStr,lastnameStr,emailStr,passwordStr,confPasswordStr,phoneNumberStr,phonePrefixStr;
-
-
+    FirebaseAuth firebaseAuth ;
+    boolean dataValidFlag=false;
+    private Spinner genderSpinner ;
+    private String[] genderItems={"Choose Gender","Male","Female"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register);
         wrapViews();
+
     }
 
     private void wrapViews(){
@@ -42,7 +56,13 @@ public class RegisterActivity extends AppCompatActivity {
         confPassword=findViewById(R.id.passwordConfirm);
         phoneNumber=findViewById(R.id.phoneNumber);
         phonePrefix=findViewById(R.id.phonePrefix);
+        genderSpinner=findViewById(R.id.genderSpinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.genderSpinner,R.layout.spinner_custom);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        genderSpinner.setAdapter(adapter);
+
     }
+
 
     @SuppressLint("ResourceAsColor")
     public void registerClicked(View view) {
@@ -64,6 +84,10 @@ public class RegisterActivity extends AppCompatActivity {
         }
         if(passwordStr.isEmpty()){
             password.setError("* Fill in this field");
+        }
+        else if(passwordStr.length() < 10 || !containsTwoCases()){
+            password.setError("* Password  must be\n  at least 10 characters" +
+                    "\n  one upper case\n  one lower case");
         }
         if(confPasswordStr.isEmpty()){
             confPassword.setError("* Fill in this field");
@@ -211,19 +235,25 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if(checkAll()){
-            Toast.makeText(RegisterActivity.this,"Registered ..",Toast.LENGTH_SHORT).show();
+            firstname.setError(null);
+            lastname.setError(null);
+            email.setError(null);
+            password.setError(null);
+            confPassword.setError(null);
+            phonePrefix.setError(null);
+            phoneNumber.setError(null);
+          //  Toast.makeText(RegisterActivity.this,"Registered ..",Toast.LENGTH_SHORT).show();
+            dataValidFlag=true ;
         }
-        else {
+        else if(!checkAll()){
             Toast.makeText(RegisterActivity.this,"ERROR ..",Toast.LENGTH_SHORT).show();
         }
     }
     private boolean checkAll(){
-        if (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
-        && !passwordStr.isEmpty() && !confPasswordStr.isEmpty()&& !phoneNumberStr.isEmpty()
-                && !phonePrefixStr.isEmpty() && passwordStr.equals(confPasswordStr) && !isEmailValid()) {
-            return true;
-        }
-        return false;
+        return (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
+                && !passwordStr.isEmpty() && !confPasswordStr.isEmpty() && !phoneNumberStr.isEmpty()
+                && !phonePrefixStr.isEmpty() && passwordStr.equals(confPasswordStr) && isEmailValid() &&
+                passwordStr.trim().length() > 10 && containsTwoCases()) ;
     }
     public boolean isEmailValid() {
         String emailFormat = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
@@ -236,5 +266,16 @@ public class RegisterActivity extends AppCompatActivity {
             email.setError("* Error Email Format");
             return false ;
         }
+    }
+
+    public boolean containsTwoCases(){
+        int flag = 0 ;
+        for (char ch : passwordStr.toCharArray()){
+            if(Character.isUpperCase(ch))
+                flag=1;
+            if(Character.isLowerCase(ch) && flag==1)
+                return true ;
+        }
+        return false;
     }
 }
