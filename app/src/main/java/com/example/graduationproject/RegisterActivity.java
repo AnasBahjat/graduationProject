@@ -38,6 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth ;
     boolean dataValidFlag=false;
     private Spinner genderSpinner ;
+    private int genderSelected;
     private String[] genderItems={"Choose Gender","Male","Female"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,6 +244,20 @@ public class RegisterActivity extends AppCompatActivity {
             phonePrefix.setError(null);
             phoneNumber.setError(null);
           //  Toast.makeText(RegisterActivity.this,"Registered ..",Toast.LENGTH_SHORT).show();
+
+            Database insertNewProfile=new Database(getApplicationContext());
+            String phoneNumber = phonePrefixStr+" "+phoneNumberStr;
+            Profile profile=new Profile(firstnameStr,lastnameStr,emailStr,passwordStr,"12345555","2000-04-07",genderSelected,3,phoneNumber,"Ramallah","Palestine");
+            int successFlag=insertNewProfile.registerNewProfile(profile);
+            Log.d("Here in register activity","here in register activity");
+
+            Log.d("-----------> "+successFlag,"------------->"+successFlag);
+            if(successFlag == 1){
+                finish();
+            }
+            else if(successFlag == -2){
+                email.setError("Email already registered ...");
+            }
             dataValidFlag=true ;
         }
         else if(!checkAll()){
@@ -250,10 +265,34 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
     private boolean checkAll(){
+        String value=genderSpinner.getSelectedItem().toString();
+        boolean gender=true;
+        if(value.equalsIgnoreCase("Choose gender")){
+            gender=false;
+        }
+        else if(value.equals("Male")){
+            genderSelected=1;
+        }
+        else if(value.equals("Female")){
+            genderSelected=0;
+        }
+        Log.d("firstname--> "+firstnameStr.isEmpty(),"");
+        Log.d("lastname--> "+lastnameStr.isEmpty(),"");
+        Log.d("emailStr--> "+emailStr.isEmpty(),"");
+        Log.d("passwordStr--> "+passwordStr.isEmpty(),"");
+        Log.d("confPasswordStr--> "+confPasswordStr.isEmpty(),"");
+        Log.d("phoneNumberStr--> "+phoneNumberStr.isEmpty(),"");
+        Log.d("phonePrefixStr--> "+phonePrefixStr.isEmpty(),"");
+        Log.d("passwordStr equlas --> "+passwordStr.equals(confPasswordStr),"");
+        Log.d("passwordStr length > 10 --> "+(passwordStr.trim().length() > 10),"");
+        Log.d("containsTwoCases()--> "+containsTwoCases(),"");
+        Log.d("gender--> "+gender,"");
+
+
         return (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
                 && !passwordStr.isEmpty() && !confPasswordStr.isEmpty() && !phoneNumberStr.isEmpty()
                 && !phonePrefixStr.isEmpty() && passwordStr.equals(confPasswordStr) && isEmailValid() &&
-                passwordStr.trim().length() > 10 && containsTwoCases()) ;
+                passwordStr.trim().length() > 10 && containsTwoCases() && gender) ;
     }
     public boolean isEmailValid() {
         String emailFormat = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
@@ -269,13 +308,16 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public boolean containsTwoCases(){
-        int flag = 0 ;
+        boolean uppercaseFlag=false,lowercaseFlag=false;
         for (char ch : passwordStr.toCharArray()){
             if(Character.isUpperCase(ch))
-                flag=1;
-            if(Character.isLowerCase(ch) && flag==1)
-                return true ;
+                uppercaseFlag=true;
+            if(Character.isLowerCase(ch))
+                lowercaseFlag=true;
+            if (uppercaseFlag && lowercaseFlag) {
+                break;
+            }
         }
-        return false;
+        return uppercaseFlag && lowercaseFlag;
     }
 }
