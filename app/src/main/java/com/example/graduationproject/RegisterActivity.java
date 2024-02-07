@@ -3,6 +3,7 @@ package com.example.graduationproject;
 import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -28,20 +29,23 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.json.JSONArray;
+
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity implements RequestResult{
     private TextInputLayout firstname,lastname,email,password,confPassword,phoneNumber,phonePrefix;
     String firstnameStr,lastnameStr,emailStr,passwordStr,confPasswordStr,phoneNumberStr,phonePrefixStr;
     FirebaseAuth firebaseAuth ;
     boolean dataValidFlag=false;
     private Spinner genderSpinner ;
     private int genderSelected;
+    int successFlag;
     private String[] genderItems={"Choose Gender","Male","Female"};
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register);
@@ -248,16 +252,8 @@ public class RegisterActivity extends AppCompatActivity {
             Database insertNewProfile=new Database(getApplicationContext());
             String phoneNumber = phonePrefixStr+" "+phoneNumberStr;
             Profile profile=new Profile(firstnameStr,lastnameStr,emailStr,passwordStr,"12345555","2000-04-07",genderSelected,3,phoneNumber,"Ramallah","Palestine");
-            int successFlag=insertNewProfile.registerNewProfile(profile);
-            Log.d("Here in register activity","here in register activity");
+            insertNewProfile.registerNewProfile(profile,this);
 
-            Log.d("-----------> "+successFlag,"------------->"+successFlag);
-            if(successFlag == 1){
-                finish();
-            }
-            else if(successFlag == -2){
-                email.setError("Email already registered ...");
-            }
             dataValidFlag=true ;
         }
         else if(!checkAll()){
@@ -319,5 +315,24 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
         return uppercaseFlag && lowercaseFlag;
+    }
+
+    @Override
+    public void onSuccess(int result) {
+        Log.d("Here in register activity"+result,"here in register activity"+result);
+        if(result == 1){
+            finish();
+        }
+        else if(result == -2){
+            email.setError("Email already registered ...");
+        }
+        else if (result==0){
+            Toast.makeText(this,"Error registration",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onLoginSuccess(String message, JSONArray loginSuccessData) {
+
     }
 }

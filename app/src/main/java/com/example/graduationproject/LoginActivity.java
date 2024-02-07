@@ -15,7 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 //import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.*;
-public class LoginActivity extends AppCompatActivity {
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class LoginActivity extends AppCompatActivity implements RequestResult{
     private TextInputLayout email;
     private TextInputLayout password;
     private Button loginBtn;
@@ -74,12 +79,50 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         if(!email.getEditText().getText().toString().isEmpty() && !password.getEditText().getText().toString().isEmpty()){
-            Toast.makeText(LoginActivity.this,"Login done",Toast.LENGTH_SHORT).show();
+           // Toast.makeText(LoginActivity.this,"Login done",Toast.LENGTH_SHORT).show();
+            Database loginRequest=new Database(this);
+            loginRequest.loginCheck(email.getEditText().getText().toString(),password.getEditText().getText().toString(),this);
+
         }
     }
 
     public void createAccountClicked(View view) {
         Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onSuccess(int result) {
+
+    }
+
+    @Override
+    public void onLoginSuccess(String message, JSONArray loginSuccessData) {
+        if(message.equals("email does not exist")){
+            email.setError("Email is not registered");
+        }
+        else if(message.equals("wrong password")){
+            password.setError("Wrong password ");
+        }
+        else if(message.equals("ERROR")){
+        }
+        else {
+           for(int i=0;i<loginSuccessData.length();i++){
+                try {
+                    JSONObject jsonObject=loginSuccessData.getJSONObject(i);
+                    String firstName=jsonObject.getString("firstname");
+                    String lastName=jsonObject.getString("lastname");
+                    String password=jsonObject.getString("password");
+                    String birthDate=jsonObject.getString("birthDate");
+                    Log.d("1---> firstname = "+firstName,"1---> firstname = "+firstName);
+                    Log.d("2---> lastname = "+lastName,"2---> lastname = "+lastName);
+                    Log.d("3---> password = "+password,"3---> password = "+password);
+                    Log.d("4---> birthDate = "+birthDate,"4---> password = "+birthDate);
+                }
+                catch (JSONException e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

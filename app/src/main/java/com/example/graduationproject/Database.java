@@ -14,12 +14,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Database {
     String registrationURL = "http://192.168.1.5/graduationProject/registration.php";
-    String loginURL="http://192.168.1.5/graduationProject/selectingData.php";
+    String loginURL="http://192.168.1.5/graduationProject/data.php";
     private Context context;
     private RequestQueue requestQueue ;
     private int successFlag;
@@ -28,17 +31,29 @@ public class Database {
         requestQueue=Volley.newRequestQueue(context);
     }
 
-    public void loginCheck(){
-        StringRequest stringRequest=new StringRequest(Request.Method.GET, loginURL, new Response.Listener<String>() {
+
+
+
+
+    public void loginCheck(String email,String password,final RequestResult requestFlagSetResult){
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, loginURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                if(response.equals("True")){
-                    Toast.makeText(context,"Login successfully ",Toast.LENGTH_SHORT).show();
-                    successFlag=1;
+                if(response.equals("email does not exist")){
+                    requestFlagSetResult.onLoginSuccess("email does not exist",null);
+                }
+                else if(response.equals("wrong password")){
+                    requestFlagSetResult.onLoginSuccess("wrong password",null);
+                }
+                else if(response.equals("ERROR")){
+                    requestFlagSetResult.onLoginSuccess("ERROR",null);
                 }
                 else {
-                    Toast.makeText(context,"Wrong information",Toast.LENGTH_SHORT).show();
-                    successFlag=0;
+                    try {
+                        requestFlagSetResult.onLoginSuccess("success",new JSONArray(response));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }, new Response.ErrorListener() {
@@ -47,31 +62,43 @@ public class Database {
                 Toast.makeText(context,volleyError.toString()+"",Toast.LENGTH_SHORT).show();
                 successFlag=-1;
             }
-        });
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String>data=new HashMap<>();
+                data.put("email",email);
+                data.put("password",password);
+                return data;
+            }
+        };
 
+        requestQueue=Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
     }
 
-    public int getSuccessFlag() {
-        return successFlag;
-    }
 
-    public int registerNewProfile(Profile profile){
+
+
+
+
+    public void registerNewProfile(Profile profile,final RequestResult requestFlagSetResult){
         StringRequest stringRequest=new StringRequest(Request.Method.POST, registrationURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
                 if(s.equals("True")){
-                    successFlag=1;
-                    Toast.makeText(context,"Registration Done !! ..",Toast.LENGTH_SHORT).show();
-                    Log.d("-------iii----> "+getSuccessFlag(),"-----iii-------->"+getSuccessFlag());
+                   // successFlag=1;
+                    requestFlagSetResult.onSuccess(1);
+                    //Toast.makeText(context,"Registration Done !! ..",Toast.LENGTH_SHORT).show();
                 }
                 else if (s.equals("exist")){
-                    successFlag=-2;
-                    Toast.makeText(context,"Email is already exists ..",Toast.LENGTH_SHORT).show();
+                    //successFlag=-2;
+                    requestFlagSetResult.onSuccess(-2);
+                    //Toast.makeText(context,"Email is already exists ..",Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    successFlag=0;
-                    Toast.makeText(context,"Error registration",Toast.LENGTH_SHORT).show();
+                    //successFlag=0;
+                    requestFlagSetResult.onSuccess(0);
+                    //Toast.makeText(context,"Error registration",Toast.LENGTH_SHORT).show();
 
                 }
             }
@@ -79,8 +106,7 @@ public class Database {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 successFlag=-1;
-                Toast.makeText(context,volleyError.toString()+"--->",Toast.LENGTH_SHORT).show();
-
+                requestFlagSetResult.onSuccess(-1);
             }
         }){
             @Nullable
@@ -104,7 +130,5 @@ public class Database {
         };
         requestQueue=Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
-        Log.d("Here in database","here in database");
-        return successFlag;
     }
 }
