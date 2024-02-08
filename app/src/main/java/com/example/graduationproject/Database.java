@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class Database {
     String registrationURL = "http://192.168.1.5/graduationProject/registration.php";
-    String loginURL="http://192.168.1.5/graduationProject/data.php";
+    String loginURL="http://192.168.1.5/graduationProject/login.php";
     private Context context;
     private RequestQueue requestQueue ;
     private int successFlag;
@@ -66,7 +66,7 @@ public class Database {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String>data=new HashMap<>();
-                data.put("email",email);
+                data.put("email",email.toLowerCase());
                 data.put("password",password);
                 return data;
             }
@@ -78,28 +78,18 @@ public class Database {
 
 
 
-
-
-
     public void registerNewProfile(Profile profile,final RequestResult requestFlagSetResult){
         StringRequest stringRequest=new StringRequest(Request.Method.POST, registrationURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
                 if(s.equals("True")){
-                   // successFlag=1;
                     requestFlagSetResult.onSuccess(1);
-                    //Toast.makeText(context,"Registration Done !! ..",Toast.LENGTH_SHORT).show();
                 }
                 else if (s.equals("exist")){
-                    //successFlag=-2;
                     requestFlagSetResult.onSuccess(-2);
-                    //Toast.makeText(context,"Email is already exists ..",Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    //successFlag=0;
                     requestFlagSetResult.onSuccess(0);
-                    //Toast.makeText(context,"Error registration",Toast.LENGTH_SHORT).show();
-
                 }
             }
         }, new Response.ErrorListener() {
@@ -113,7 +103,7 @@ public class Database {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String>data=new HashMap<>();
-                data.put("email",profile.getEmail());
+                data.put("email",profile.getEmail().toLowerCase());
                 data.put("firstname",profile.getFirstname());
                 data.put("lastname",profile.getLastname());
                 data.put("password",profile.getPassword());

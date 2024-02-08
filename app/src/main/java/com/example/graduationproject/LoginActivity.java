@@ -109,6 +109,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
         else {
            for(int i=0;i<loginSuccessData.length();i++){
                 try {
+                    Intent intent=new Intent(this,AfterLoginActivity.class);
                     JSONObject jsonObject=loginSuccessData.getJSONObject(i);
                     String firstName=jsonObject.getString("firstname");
                     String lastName=jsonObject.getString("lastname");
@@ -118,6 +119,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
                     Log.d("2---> lastname = "+lastName,"2---> lastname = "+lastName);
                     Log.d("3---> password = "+password,"3---> password = "+password);
                     Log.d("4---> birthDate = "+birthDate,"4---> password = "+birthDate);
+                    startActivity(intent);
                 }
                 catch (JSONException e){
                     e.printStackTrace();
