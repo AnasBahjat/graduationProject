@@ -24,6 +24,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
     private TextInputLayout email;
     private TextInputLayout password;
     private Button loginBtn;
+    private Database database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
         email=findViewById(R.id.emailText);
         password=findViewById(R.id.passwordText);
         loginBtn=findViewById(R.id.loginBtn);
+        database=new Database(this);
     }
 
     public void loginClicked(View view) {
@@ -60,7 +62,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
             }
         });
 
-
         password.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -80,8 +81,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
 
         if(!email.getEditText().getText().toString().isEmpty() && !password.getEditText().getText().toString().isEmpty()){
            // Toast.makeText(LoginActivity.this,"Login done",Toast.LENGTH_SHORT).show();
-            Database loginRequest=new Database(this);
-            loginRequest.loginCheck(email.getEditText().getText().toString(),password.getEditText().getText().toString(),this);
+            database.loginCheck(email.getEditText().getText().toString(),password.getEditText().getText().toString(),this);
 
         }
     }
@@ -97,7 +97,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
     }
 
     @Override
-    public void onLoginSuccess(String message, JSONArray loginSuccessData) {
+    public void onLoginSuccess(String message,JSONArray loginSuccessData) {
         if(message.equals("email does not exist")){
             email.setError("Email is not registered");
         }
@@ -107,24 +107,46 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
         else if(message.equals("ERROR")){
         }
         else {
-           for(int i=0;i<loginSuccessData.length();i++){
                 try {
                     Intent intent=new Intent(this,AfterLoginActivity.class);
-                    JSONObject jsonObject=loginSuccessData.getJSONObject(i);
+                    JSONObject jsonObject=loginSuccessData.getJSONObject(0);
+                    String email=jsonObject.getString("email");
                     String firstName=jsonObject.getString("firstname");
                     String lastName=jsonObject.getString("lastname");
                     String password=jsonObject.getString("password");
+                    String idNumber=jsonObject.getString("IDnumber");
                     String birthDate=jsonObject.getString("birthDate");
-                    Log.d("1---> firstname = "+firstName,"1---> firstname = "+firstName);
-                    Log.d("2---> lastname = "+lastName,"2---> lastname = "+lastName);
-                    Log.d("3---> password = "+password,"3---> password = "+password);
-                    Log.d("4---> birthDate = "+birthDate,"4---> password = "+birthDate);
-                    startActivity(intent);
+                    String phoneNumber=jsonObject.getString("phoneNumber");
+                    String city=jsonObject.getString("city");
+                    String country=jsonObject.getString("country");
+
+
+
+                    // start activity based on profile type ,,,
+
+                    Log.d("----->"+jsonObject.getInt("signedIn"),"----->"+jsonObject.getInt("signedIn"));
+                    Log.d(email,email);
+
+                    if(jsonObject.getInt("signedIn")==1){
+                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Error Sign In","Your Account Is Already Signed In from another device ..");
+                    }
+                    else {
+                        database.updateLogin(email);
+                        intent.putExtra("email", email);
+                        intent.putExtra("firstname", firstName);
+                        intent.putExtra("lastname", lastName);
+                        intent.putExtra("password", password);
+                        intent.putExtra("birthDate", birthDate);
+                        intent.putExtra("phonenumber", phoneNumber);
+                        intent.putExtra("city", city);
+                        intent.putExtra("country", country);
+                        intent.putExtra("idNumber", idNumber);
+                        startActivity(intent);
+                    }
                 }
                 catch (JSONException e){
                     e.printStackTrace();
                 }
-            }
         }
     }
 }

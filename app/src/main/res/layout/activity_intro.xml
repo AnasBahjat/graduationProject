@@ -11,7 +11,7 @@
         android:id="@+id/logoImg"
         android:layout_width="280dp"
         android:layout_height="204dp"
-        android:layout_marginTop="204dp"
+        android:layout_marginTop="176dp"
         android:src="@drawable/logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,15 +21,30 @@
         android:id="@+id/logoText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="15dp"
         android:fontFamily="monospace"
-        android:text="Since 2024"
+        android:text="Your Way to Success"
         android:textColor="#7F1F57"
         android:textSize="29sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.542"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logoImg"
-        app:layout_constraintVertical_bias="0.364" />
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/since2024"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Since 2024"
+        android:textColor="#7F1F57"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.09"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.859" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

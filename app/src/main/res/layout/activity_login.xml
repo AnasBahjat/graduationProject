@@ -23,13 +23,17 @@
         app:endIconMode="clear_text"
         app:errorEnabled="true"
         app:errorIconDrawable="@drawable/baseline_error_24"
+        app:errorTextAppearance="@style/ErrorTextAppearanceLogin"
         app:startIconDrawable="@drawable/email_login">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="66dp"
+            android:textSize="20sp"
             android:background="@drawable/edit_text_style" />
     </com.google.android.material.textfield.TextInputLayout>
+
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordText"
@@ -43,11 +47,13 @@
         app:errorEnabled="true"
         app:hintTextAppearance="@style/CustomHintTextAppearance"
         app:errorIconDrawable="@drawable/baseline_error_24"
+        app:errorTextAppearance="@style/ErrorTextAppearanceLogin"
         app:startIconDrawable="@drawable/password_login">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="66dp"
+            android:textSize="20sp"
             android:background="@drawable/edit_text_style"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>

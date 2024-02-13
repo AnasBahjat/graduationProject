@@ -13,11 +13,11 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class IntroActivity extends AppCompatActivity {
-    private Animation top,right;
+    private Animation top,right,left;
 
     private ImageView img;
-    private TextView text;
-    @SuppressLint("WrongViewCast")
+    private TextView text,since2024;
+    @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,12 +25,17 @@ public class IntroActivity extends AppCompatActivity {
         setContentView(R.layout.activity_intro);
         top= AnimationUtils.loadAnimation(this,R.anim.top_animation);
         right=AnimationUtils.loadAnimation(this,R.anim.right_animation);
+        left=AnimationUtils.loadAnimation(this,R.anim.left_animation);
 
         img=findViewById(R.id.logoImg);
         text=findViewById(R.id.logoText);
+        since2024=findViewById(R.id.since2024);
+
+
 
         img.setAnimation(top);
         text.setAnimation(right);
+        since2024.setAnimation(left);
 
         Handler handler=new Handler();
 
