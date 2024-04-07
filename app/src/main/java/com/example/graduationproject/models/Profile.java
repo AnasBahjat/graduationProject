@@ -1,4 +1,4 @@
-package com.example.graduationproject;
+package com.example.graduationproject.models;
 
 public class Profile {
     private String firstname,lastname,email,password,idNumber,birthDate,phoneNumber,city,country;

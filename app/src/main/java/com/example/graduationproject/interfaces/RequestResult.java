@@ -1,4 +1,4 @@
-package com.example.graduationproject;
+package com.example.graduationproject.interfaces;
 
 import org.json.JSONArray;
 

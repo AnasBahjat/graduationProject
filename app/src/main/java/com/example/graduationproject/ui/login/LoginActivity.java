@@ -1,4 +1,4 @@
-package com.example.graduationproject;
+package com.example.graduationproject.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,20 +7,24 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 //import com.google.android.material.textfield.TextInputEditText;
+import com.example.graduationproject.database.Database;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
+import com.example.graduationproject.R;
+import com.example.graduationproject.ui.register.RegisterActivity;
+import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.ui.afterLogin.AfterLoginActivity;
 import com.google.android.material.textfield.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LoginActivity extends AppCompatActivity implements RequestResult{
+public class LoginActivity extends AppCompatActivity implements RequestResult {
     private TextInputLayout email;
     private TextInputLayout password;
     private Button loginBtn;
@@ -31,9 +35,15 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
+        wrapViews();
+       initialize();
+    }
+    private void wrapViews(){
         email=findViewById(R.id.emailText);
         password=findViewById(R.id.passwordText);
         loginBtn=findViewById(R.id.loginBtn);
+    }
+    private void initialize(){
         database=new Database(this);
     }
 
@@ -80,14 +90,13 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
         });
 
         if(!email.getEditText().getText().toString().isEmpty() && !password.getEditText().getText().toString().isEmpty()){
-           // Toast.makeText(LoginActivity.this,"Login done",Toast.LENGTH_SHORT).show();
             database.loginCheck(email.getEditText().getText().toString(),password.getEditText().getText().toString(),this);
 
         }
     }
 
     public void createAccountClicked(View view) {
-        Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
+        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
     }
 
@@ -108,7 +117,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult{
         }
         else {
                 try {
-                    Intent intent=new Intent(this,AfterLoginActivity.class);
+                    Intent intent=new Intent(this, AfterLoginActivity.class);
                     JSONObject jsonObject=loginSuccessData.getJSONObject(0);
                     String email=jsonObject.getString("email");
                     String firstName=jsonObject.getString("firstname");

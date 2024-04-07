@@ -1,9 +1,7 @@
-package com.example.graduationproject;
+package com.example.graduationproject.ui.afterLogin;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -11,6 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.graduationproject.database.Database;
+import com.example.graduationproject.R;
+import com.example.graduationproject.ui.login.LoginActivity;
 
 public class AfterLoginActivity extends AppCompatActivity {
     private Database database;

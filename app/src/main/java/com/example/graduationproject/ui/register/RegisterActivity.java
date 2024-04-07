@@ -1,16 +1,13 @@
-package com.example.graduationproject;
+package com.example.graduationproject.ui.register;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
@@ -24,29 +21,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.navigation.NavigationBarView;
+import com.example.graduationproject.database.Database;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
+import com.example.graduationproject.R;
+import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.models.Profile;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Calendar;
 
-public class RegisterActivity extends AppCompatActivity implements RequestResult{
+public class RegisterActivity extends AppCompatActivity implements RequestResult {
     private TextInputLayout firstname,lastname,email,password,confPassword,phoneNumber,phonePrefix,
             genderSpinnerLayout,city,country,birthDateLayout,idNumberLayout;
     private ScrollView scrollView;

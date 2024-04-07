@@ -1,4 +1,4 @@
-package com.example.graduationproject;
+package com.example.graduationproject.database;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +13,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.models.Profile;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,11 +34,6 @@ public class Database {
         this.context=context;
         requestQueue=Volley.newRequestQueue(context);
     }
-
-
-
-
-
     public void loginCheck(String email,String password,final RequestResult requestFlagSetResult){
         StringRequest stringRequest=new StringRequest(Request.Method.POST, loginURL, new Response.Listener<String>() {
             @Override
@@ -58,12 +55,9 @@ public class Database {
                     }
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Toast.makeText(context,volleyError.toString()+"",Toast.LENGTH_SHORT).show();
-                successFlag=-1;
-            }
+        }, volleyError -> {
+            Toast.makeText(context,volleyError.toString()+"",Toast.LENGTH_SHORT).show();
+            successFlag=-1;
         }){
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -80,28 +74,21 @@ public class Database {
 
 
 
-    public void registerNewProfile(Profile profile,final RequestResult requestFlagSetResult){
-        StringRequest stringRequest=new StringRequest(Request.Method.POST, registrationURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                if(s.equals("True")){
-                    requestFlagSetResult.onSuccess(1);
-                }
-                else if (s.equals("exist")){
-                    requestFlagSetResult.onSuccess(-2);
-                }
-                else {
-                    requestFlagSetResult.onSuccess(0);
-                }
+    public void registerNewProfile(Profile profile, final RequestResult requestFlagSetResult){
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, registrationURL, s -> {
+            if(s.equals("True")){
+                requestFlagSetResult.onSuccess(1);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                successFlag=-1;
-                requestFlagSetResult.onSuccess(-1);
+            else if (s.equals("exist")){
+                requestFlagSetResult.onSuccess(-2);
             }
+            else {
+                requestFlagSetResult.onSuccess(0);
+            }
+        }, volleyError -> {
+            successFlag=-1;
+            requestFlagSetResult.onSuccess(-1);
         }){
-            @Nullable
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String>data=new HashMap<>();

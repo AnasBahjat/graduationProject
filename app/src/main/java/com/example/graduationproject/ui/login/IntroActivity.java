@@ -1,4 +1,4 @@
-package com.example.graduationproject;
+package com.example.graduationproject.ui.login;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.graduationproject.R;
 
 public class IntroActivity extends AppCompatActivity {
     private Animation top,right,left;

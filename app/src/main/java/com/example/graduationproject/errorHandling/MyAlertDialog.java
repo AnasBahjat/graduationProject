@@ -1,4 +1,4 @@
-package com.example.graduationproject;
+package com.example.graduationproject.errorHandling;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.graduationproject.R;
 
 public class MyAlertDialog {
 
