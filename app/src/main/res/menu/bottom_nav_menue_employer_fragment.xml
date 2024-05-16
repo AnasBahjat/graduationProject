@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeMovies"
+        android:icon="@drawable/home_icon"
+        android:title=""/>
+
+    <item
+        android:id="@+id/emptyIcon"
+        android:title=""/>
+
+    <item
+        android:id="@+id/bookmarkMovies"
+        android:icon="@drawable/bookmarked_icon"
+        android:title=""/>
+</menu>

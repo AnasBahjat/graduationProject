@@ -2,6 +2,7 @@ package com.example.graduationproject.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 //import com.google.android.material.textfield.TextInputEditText;
 import com.example.graduationproject.database.Database;
+import com.example.graduationproject.databinding.ActivityLoginBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.R;
 import com.example.graduationproject.ui.register.RegisterActivity;
@@ -25,37 +27,30 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity implements RequestResult {
-    private TextInputLayout email;
-    private TextInputLayout password;
-    private Button loginBtn;
     private Database database;
+    private ActivityLoginBinding binding ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_login);
-        wrapViews();
-       initialize();
-    }
-    private void wrapViews(){
-        email=findViewById(R.id.emailText);
-        password=findViewById(R.id.passwordText);
-        loginBtn=findViewById(R.id.loginBtn);
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        initialize();
     }
     private void initialize(){
         database=new Database(this);
     }
 
     public void loginClicked(View view) {
-        if(email.getEditText().getText().toString().isEmpty()){
-            email.setError("* Fill in this field");
+        if(binding.emailText.getEditText().getText().toString().isEmpty()){
+            binding.emailText.setError("* Fill in this field");
         }
-        if(password.getEditText().getText().toString().isEmpty()){
-            password.setError("* Fill in this field");
+        if(binding.passwordText.getEditText().getText().toString().isEmpty()){
+            binding.passwordText.setError("* Fill in this field");
         }
 
-        email.getEditText().addTextChangedListener(new TextWatcher() {
+        binding.emailText.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -63,7 +58,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                email.setError("");
+                binding.emailText.setError("");
             }
 
             @Override
@@ -72,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
             }
         });
 
-        password.getEditText().addTextChangedListener(new TextWatcher() {
+        binding.passwordText.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -80,7 +75,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                password.setError("");
+                binding.passwordText.setError("");
             }
 
             @Override
@@ -89,8 +84,8 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
             }
         });
 
-        if(!email.getEditText().getText().toString().isEmpty() && !password.getEditText().getText().toString().isEmpty()){
-            database.loginCheck(email.getEditText().getText().toString(),password.getEditText().getText().toString(),this);
+        if(!binding.emailText.getEditText().getText().toString().isEmpty() && !binding.passwordText.getEditText().getText().toString().isEmpty()){
+            database.loginCheck(binding.emailText.getEditText().getText().toString(),binding.passwordText.getEditText().getText().toString(),this);
 
         }
     }
@@ -108,10 +103,10 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     @Override
     public void onLoginSuccess(String message,JSONArray loginSuccessData) {
         if(message.equals("email does not exist")){
-            email.setError("Email is not registered");
+            binding.emailText.setError("Email is not registered");
         }
         else if(message.equals("wrong password")){
-            password.setError("Wrong password ");
+            binding.passwordText.setError("Wrong password ");
         }
         else if(message.equals("ERROR")){
         }

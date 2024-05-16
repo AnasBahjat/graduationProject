@@ -9,27 +9,42 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
+import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
+import com.example.graduationproject.ui.employer.EmployerFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 
 public class AfterLoginActivity extends AppCompatActivity {
     private Database database;
 
+    private ActivityAfterLoginBinding binding ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_after_login);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        database=new Database(this);
+        binding = ActivityAfterLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        initialize();
     }
 
+    private void initialize(){
+       loadFragment(new EmployerFragment());
+    }
+
+
+    private void loadFragment(Fragment fragment){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragments_container,fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
     public void logoutOnClick(View view) {
         String email=getIntent().getStringExtra("email");
         database.updateLogout(email);

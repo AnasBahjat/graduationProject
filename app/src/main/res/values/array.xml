@@ -5,4 +5,12 @@
         <item>Male</item>
         <item>Female</item>
     </array>
+
+    <array name="profileTypeSpinner">
+        <item>Choose Type</item>
+        <item>Graduate</item>
+        <item>Undergraduate</item>
+        <item>Employer</item>
+        <item>Parent</item>
+    </array>
 </resources>

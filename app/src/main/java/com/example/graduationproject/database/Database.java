@@ -15,18 +15,27 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.models.Profile;
+import com.example.graduationproject.network.ApiService;
+import com.example.graduationproject.network.RetrofitInitializer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+
 public class Database {
-    String registrationURL = "http://192.168.1.5/graduationProject/registration.php";
-    String loginURL="http://192.168.1.5/graduationProject/login.php";
-    String updateLoginURL="http://192.168.1.5/graduationProject/updateLoginState.php";
-    String updateLogoutURL="http://192.168.1.5/graduationProject/updateLogoutState.php";
+    String registrationURL = "http://192.168.1.13/graduationProject/registration.php/";
+    String loginURL = "http://192.168.1.13/graduationProject/";
+    String updateLoginURL = "http://192.168.1.13/graduationProject/updateLoginState.php/";
+    String updateLogoutURL="http://192.168.1.13/graduationProject/updateLogoutState.php/";
+
+    private String URL = "http://192.168.1.13/graduationProject/";
     private Context context;
     private RequestQueue requestQueue ;
     private int successFlag;
@@ -34,25 +43,66 @@ public class Database {
         this.context=context;
         requestQueue=Volley.newRequestQueue(context);
     }
+
+
+    public void loginCheckRetrofit(String email,String password, final RequestResult requestResult){
+        ApiService apiService = RetrofitInitializer.getClient(URL).create(ApiService.class);
+        Call<ResponseBody> call = apiService.loginCheck(email,password);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    try {
+                        if(response.body().string().equals("email does not exist")){
+                            requestResult.onLoginSuccess("email does not exist",null);
+                        }
+                        else if(response.body().string().equals("wrong password")){
+                            requestResult.onLoginSuccess("wrong password",null);
+                        }
+                        else if(response.body().string().equals("ERROR")){
+                            requestResult.onLoginSuccess("ERROR",null);
+                        }
+                        else {
+                            requestResult.onLoginSuccess("success",new JSONArray(response.body().string()));
+                        }
+                    }
+                    catch (JSONException | IOException e){
+                        throw new RuntimeException(e);
+                    }
+                }
+                else {
+                    Toast.makeText(context,"--------------------------",Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(context,t.toString(),Toast.LENGTH_LONG).show();
+                successFlag=-1;
+            }
+        });
+    }
     public void loginCheck(String email,String password,final RequestResult requestFlagSetResult){
         StringRequest stringRequest=new StringRequest(Request.Method.POST, loginURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                if(response.equals("email does not exist")){
-                    requestFlagSetResult.onLoginSuccess("email does not exist",null);
-                }
-                else if(response.equals("wrong password")){
-                    requestFlagSetResult.onLoginSuccess("wrong password",null);
-                }
-                else if(response.equals("ERROR")){
-                    requestFlagSetResult.onLoginSuccess("ERROR",null);
-                }
-                else {
-                    try {
-                        requestFlagSetResult.onLoginSuccess("success",new JSONArray(response));
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
+                switch (response) {
+                    case "email does not exist":
+                        requestFlagSetResult.onLoginSuccess("email does not exist", null);
+                        break;
+                    case "wrong password":
+                        requestFlagSetResult.onLoginSuccess("wrong password", null);
+                        break;
+                    case "ERROR":
+                        requestFlagSetResult.onLoginSuccess("ERROR", null);
+                        break;
+                    default:
+                        try {
+                            requestFlagSetResult.onLoginSuccess("success", new JSONArray(response));
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
                 }
             }
         }, volleyError -> {
@@ -73,6 +123,53 @@ public class Database {
     }
 
 
+    public void registerRetrofitRequest(Profile profile, final RequestResult requestResult){
+        ApiService apiService = RetrofitInitializer.getClient(URL).create(ApiService.class);
+
+        Call<ResponseBody> call = apiService.insertNewProfile(profile.getFirstname(),
+                profile.getLastname(),
+                profile.getEmail(),
+                profile.getBirthDate(),
+                profile.getGender(),
+                profile.getPassword(),
+                profile.getPhoneNumber(),
+                profile.getProfileType());
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    try {
+                        String message = response.body().string();
+                        Log.d("--------> "+message,"--------> "+message);
+                        if ("True".equals(message)) {
+                            requestResult.onSuccess(1);
+                        } else if ("exist".equals(message)) {
+                            requestResult.onSuccess(-2);
+                        } else {
+                            requestResult.onSuccess(0);
+                        }
+                    }
+                    catch (IOException e) {
+                        throw new RuntimeException(e);
+                        }
+                    }
+                else {
+                    Log.d("Database", "Request failed");
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                successFlag=-1;
+                requestResult.onSuccess(-1);
+                Log.e("MainActivity", "Request failed", t);
+                Toast.makeText(context,t.toString(),Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
 
     public void registerNewProfile(Profile profile, final RequestResult requestFlagSetResult){
         StringRequest stringRequest=new StringRequest(Request.Method.POST, registrationURL, s -> {
@@ -83,6 +180,7 @@ public class Database {
                 requestFlagSetResult.onSuccess(-2);
             }
             else {
+                Log.d("sssssssssssss----> "+s,"sssssssssssss----> "+s);
                 requestFlagSetResult.onSuccess(0);
             }
         }, volleyError -> {
@@ -96,19 +194,43 @@ public class Database {
                 data.put("firstname",profile.getFirstname().trim());
                 data.put("lastname",profile.getLastname().trim());
                 data.put("password",profile.getPassword());
-                data.put("gender",String.valueOf(profile.getGender()));
-                data.put("profileType",String.valueOf(profile.getProfileType()));
-                data.put("date",profile.getBirthDate());
-                data.put("IDnumber",profile.getFirstname().trim());
-                data.put("phonenumber",profile.getPhoneNumber().trim());
-                data.put("city",profile.getCity().trim());
-                data.put("country",profile.getCountry().trim());
+                data.put("gender",profile.getGender());
+                data.put("profileType",profile.getProfileType());
+                data.put("birthDate",profile.getBirthDate());
+                data.put("idNumber",profile.getFirstname().trim());
+                data.put("phoneNumber",profile.getPhoneNumber().trim());
                 return data;
             }
 
         };
         requestQueue=Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
+    }
+
+
+    public void updateLoginRetrofit(String email){
+        ApiService apiService = RetrofitInitializer.getClient(URL).create(ApiService.class);
+
+        Call<String> call = apiService.updateLogin(email);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    if(response.body().equals("done")){
+                        Log.d("Data updated ---->","Data updated ---->");
+                    }
+                    else {
+                        Log.d("ERRRRORRRRRRRR !!!!1","ERRRRRRRORRRRRR!!!!!");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+
     }
 
     public void updateLogin(String email) {

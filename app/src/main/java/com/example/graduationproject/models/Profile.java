@@ -1,20 +1,24 @@
 package com.example.graduationproject.models;
 
 public class Profile {
-    private String firstname,lastname,email,password,idNumber,birthDate,phoneNumber,city,country;
-    int gender,profileType;
-    public Profile(String firstname,String lastname,String email,String password,String idNumber,String birthDate,int gender,int profileType,String phoneNumber,String city,String country){
+    private String firstname;
+    private String lastname;
+    private String email;
+    private String birthDate;
+    private String gender;
+    private String password;
+    private String phoneNumber;
+    private String profileType;
+
+    public Profile(String firstname,String lastname,String email,String password,String birthDate,String gender,String profileType,String phoneNumber){
         this.firstname=firstname;
         this.lastname=lastname;
         this.email=email;
         this.password=password;
-        this.idNumber=idNumber;
         this.birthDate=birthDate;
         this.gender=gender;
         this.profileType=profileType;
         this.phoneNumber=phoneNumber;
-        this.city=city;
-        this.country=country;
     }
 
     public String getFirstname() {
@@ -41,22 +45,6 @@ public class Profile {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getIdNumber() {
-        return idNumber;
-    }
-
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
-    }
-
     public String getBirthDate() {
         return birthDate;
     }
@@ -65,20 +53,20 @@ public class Profile {
         this.birthDate = birthDate;
     }
 
-    public int getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(int gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
-    public int getProfileType() {
-        return profileType;
+    public String getPassword() {
+        return password;
     }
 
-    public void setProfileType(int profileType) {
-        this.profileType = profileType;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getPhoneNumber() {
@@ -89,19 +77,12 @@ public class Profile {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getCity() {
-        return city;
+    public String getProfileType() {
+        return profileType;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setProfileType(String profileType) {
+        this.profileType = profileType;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
 }
