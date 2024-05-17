@@ -6,9 +6,6 @@ import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -16,7 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
-import com.example.graduationproject.ui.employer.EmployerFragment;
+import com.example.graduationproject.ui.employer.UnderGraduateFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 
 public class AfterLoginActivity extends AppCompatActivity {
@@ -34,7 +31,7 @@ public class AfterLoginActivity extends AppCompatActivity {
     }
 
     private void initialize(){
-       loadFragment(new EmployerFragment());
+       loadFragment(new UnderGraduateFragment());
     }
 
 
