@@ -6,4 +6,5 @@
     <color name="red">#FFFF0000</color>
     <color name="gray">#E3E2E2</color>
     <color name="usedColor">#7FE2EF</color>
+    <color name="navBar">#0899AC</color>
 </resources>

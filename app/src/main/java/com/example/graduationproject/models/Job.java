@@ -5,6 +5,13 @@ public class Job {
     private String jobTitle;
     private String jobCategory ;
 
+
+    public Job(int jobId,String jobTitle , String jobCategory){
+        this.jobId=jobId;
+        this.jobTitle=jobTitle;
+        this.jobCategory= jobCategory;
+    }
+
     public String getJobTitle() {
         return jobTitle;
     }

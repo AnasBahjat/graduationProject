@@ -15,4 +15,9 @@
     <string name="category_text">Category :</string>
     <string name="rate_image">Rate Image</string>
     <string name="saved_image">saved_image</string>
+    <string name="log_out_text">Log out</string>
+    <string name="settings_text">Settings</string>
+    <string name="profile_text">Profile</string>
+    <string name="open_navigation">Open</string>
+    <string name="close_navigation">Close</string>
 </resources>

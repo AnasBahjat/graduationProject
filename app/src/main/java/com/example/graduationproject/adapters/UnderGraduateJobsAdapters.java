@@ -1,5 +1,6 @@
 package com.example.graduationproject.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -12,8 +13,14 @@ import com.example.graduationproject.models.Job;
 import java.util.List;
 
 public class UnderGraduateJobsAdapters extends RecyclerView.Adapter<UnderGraduateJobsAdapters.ViewHolder>{
-    private List<Job> jobsList ;
     public CustomJobCardViewBinding binding;
+    private List<Job> jobsList;
+    private final Context context ;
+
+    public UnderGraduateJobsAdapters(List<Job> jobsList, Context context){
+        this.jobsList=jobsList;
+        this.context=context;
+    }
      @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -25,7 +32,7 @@ public class UnderGraduateJobsAdapters extends RecyclerView.Adapter<UnderGraduat
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Job job = jobsList.get(position);
-        holder.bind(job);
+        holder.bind(job,context);
     }
 
     @Override
@@ -40,8 +47,9 @@ public class UnderGraduateJobsAdapters extends RecyclerView.Adapter<UnderGraduat
             super(binding.getRoot());
             this.binding = binding;
         }
-        public void bind(Job job){
-            binding.jobTitle.setText(job.);
+        public void bind(Job job,Context context){
+            binding.jobTitle.setText(job.getJobTitle());
+            binding.teacherRate.setText("000000000");
         }
     }
 }
