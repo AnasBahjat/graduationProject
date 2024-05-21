@@ -20,4 +20,5 @@
     <string name="profile_text">Profile</string>
     <string name="open_navigation">Open</string>
     <string name="close_navigation">Close</string>
+    <string name="Search" />
 </resources>
