@@ -8,9 +8,7 @@
 
     <array name="profileTypeSpinner">
         <item>Choose Type</item>
-        <item>Graduate</item>
-        <item>Undergraduate</item>
-        <item>Employer</item>
+        <item>Teacher</item>
         <item>Parent</item>
     </array>
 </resources>

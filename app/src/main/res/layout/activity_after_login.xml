@@ -38,7 +38,7 @@
 
       <androidx.fragment.app.FragmentContainerView
           android:id="@+id/fragments_container"
-          android:name="com.example.graduationproject.ui.employer.UnderGraduateFragment"
+          android:name="com.example.graduationproject.ui.teacherFragment.TeacherFragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           app:layout_constraintBottom_toBottomOf="parent"

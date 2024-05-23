@@ -35,7 +35,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
     private String firstnameStr,lastnameStr,emailStr,passwordStr,confPasswordStr,phoneNumberStr,phonePrefixStr,selectedDate;
 
     boolean dataValidFlag=false;
-    private int genderSelected;
+    private int genderSelected,profileSelected;
     int validBirthDateFlag=0;
 
     private ActivityRegisterBinding binding ;
@@ -45,16 +45,12 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
-        Database tt = new Database(this);
-        tt.registerRetrofitRequest(new Profile("kkkk","Yaskksin","kkkkk@gmail.com","anas123123123","000000000000","2000-07-04","1","1"),this);
         wrapViews();
     }
 
 
     private void wrapViews(){
         binding.imageCalendar.setOnClickListener(v -> showDatePicker());
-
-
         if(binding.birthDateLayout.getEditText() != null){
             binding.birthDateLayout.getEditText().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -285,12 +281,10 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         binding.profileSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(binding.profileSpinner.getSelectedItem().toString().equalsIgnoreCase("Choose Type")){
+                if(binding.profileSpinner.getSelectedItem().toString().equalsIgnoreCase("Choose Type"))
                     binding.profileTypeText.setTextColor(Color.RED);
-                }
-                else {
+                else
                     binding.profileTypeText.setTextColor(Color.BLACK);
-                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -299,7 +293,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         });
 
 
-        Log.d(checkAll()+"","check all --> "+checkAll());
         if(checkAll()){
             binding.firstname.setError(null);
             binding.lastname .setError(null);
@@ -311,10 +304,8 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             binding.birthDateLayout.setError(null);
             Database insertNewProfile=new Database(getApplicationContext());
             String phoneNumber = phonePrefixStr+" "+phoneNumberStr;
-            Log.d("---------->","------------->"+selectedDate);
-            Profile profile=new Profile(firstnameStr.toLowerCase(),lastnameStr.trim(),emailStr.trim(),passwordStr,selectedDate,genderSelected+"",3+"",phoneNumber.trim());
+            Profile profile=new Profile(firstnameStr.toLowerCase(),lastnameStr.trim(),emailStr.trim(),passwordStr,selectedDate,genderSelected+"",profileSelected+"",phoneNumber.trim());
            insertNewProfile.registerNewProfile(profile,this);
-           // insertNewProfile.registerRetrofitRequest(profile,this);
             dataValidFlag=true ;
         }
         else if(!checkAll()){
@@ -336,33 +327,22 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         else if(value.equals("Female")){
             genderSelected=0;
         }
-
-       /* Log.d("first name empty"+!firstnameStr.isEmpty(),"first name empty"+!firstnameStr.isEmpty());
-        Log.d("last name empty"+!lastnameStr.isEmpty(),"last name empty"+!lastnameStr.isEmpty());
-        Log.d("email empty"+!emailStr.isEmpty(),"email  empty"+!emailStr.isEmpty());
-        Log.d("password empty"+!passwordStr.isEmpty(),"password  empty"+!passwordStr.isEmpty());
-        Log.d("conf password empty"+!confPasswordStr.isEmpty(),"confPassword  empty"+!confPasswordStr.isEmpty());
-        Log.d("phone empty"+!phoneNumberStr.isEmpty(),"phoneNumber  empty"+!phoneNumberStr.isEmpty());
-        Log.d("phone prefix empty"+!phonePrefixStr.isEmpty(),"phonePrefix  empty"+!phonePrefixStr.isEmpty());
-        Log.d(" password matches"+passwordStr.equals(confPasswordStr)," password matches"+passwordStr.equals(confPasswordStr));
-        Log.d("valid email"+isEmailValid(),"valid email "+isEmailValid());
-        Log.d("Password length "+passwordStr.trim().length(),"Password length "+passwordStr.trim().length());
-        Log.d("contains two cases "+containsTwoCases(),"contains two cases "+containsTwoCases());
-        Log.d("gender value 1 male 0 female "+gender,"gender value 1 male 0 female "+gender);
-        Log.d(containsOnlyCharacters(firstnameStr)+"","Contains only characters first"+containsOnlyCharacters(firstnameStr));
-        Log.d(!city.getEditText().getText().toString().isEmpty()+"","City empty "+!city.getEditText().getText().toString().isEmpty());
-        Log.d(!country.getEditText().getText().toString().isEmpty()+"","country empty "+!country.getEditText().getText().toString().isEmpty());
-        Log.d(validBirthDateFlag+"","birth date flag "+validBirthDateFlag);
-        Log.d(!idNumberStr.isEmpty()+"","id number  "+!idNumberStr.isEmpty());
-        Log.d("check contains space first "+!checkContainSpace(firstnameStr)+"","check contains space first "+!checkContainSpace(firstnameStr));
-        Log.d("check contains space last "+!checkContainSpace(lastnameStr)+"","check contains space last "+!checkContainSpace(lastnameStr));*/
-
+        boolean profileType = true ;
+        if(binding.profileSpinner.getSelectedItem().toString().equalsIgnoreCase("Choose Type")){
+            profileType = false ;
+        }
+        else if(binding.profileSpinner.getSelectedItem().toString().equalsIgnoreCase("Teacher")){
+            profileSelected = 1 ;
+        }
+        else if(binding.profileSpinner.getSelectedItem().toString().equalsIgnoreCase("Parent")){
+            profileSelected = 0 ;
+        }
 
 
         return (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
                 && !passwordStr.isEmpty() && !confPasswordStr.isEmpty() && !phoneNumberStr.isEmpty()
                 && !phonePrefixStr.isEmpty() && passwordStr.equals(confPasswordStr) && isEmailValid() &&
-                passwordStr.trim().length() > 10 && containsTwoCases() && gender && containsOnlyCharacters(firstnameStr) && containsOnlyCharacters(lastnameStr)
+                passwordStr.trim().length() > 10 && containsTwoCases() && gender && profileType && containsOnlyCharacters(firstnameStr) && containsOnlyCharacters(lastnameStr)
         && validBirthDateFlag != 0 && !checkContainSpace(firstnameStr.trim()) && !checkContainSpace(lastnameStr.trim())) ;
     }
     public boolean isEmailValid() {

@@ -2,7 +2,6 @@ package com.example.graduationproject.ui.afterLogin;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -18,7 +17,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
-import com.example.graduationproject.ui.employer.UnderGraduateFragment;
+import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -37,7 +36,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
 
     private void initialize(){
-        loadFragment(new UnderGraduateFragment());
+        loadFragment(new TeacherFragment());
         binding.navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,binding.drawerLayout,R.string.open_navigation,R.string.close_navigation);
         binding.drawerLayout.addDrawerListener(toggle);
@@ -53,6 +52,8 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
 
 
+
+
     private void loadFragment(Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -62,7 +63,6 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
     public void logoutOnClick(View view) {
         String email=getIntent().getStringExtra("email");
-        database.updateLogout(email);
         Intent intent=new Intent(AfterLoginActivity.this, LoginActivity.class);
         startActivity(intent);
     }

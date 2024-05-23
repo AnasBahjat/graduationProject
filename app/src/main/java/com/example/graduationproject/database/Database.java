@@ -30,12 +30,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 public class Database {
-    String registrationURL = "http://192.168.1.13/graduationProject/registration.php/";
-    String loginURL = "http://192.168.1.13/graduationProject/";
-    String updateLoginURL = "http://192.168.1.13/graduationProject/updateLoginState.php/";
-    String updateLogoutURL="http://192.168.1.13/graduationProject/updateLogoutState.php/";
+    String registrationURL = "http://192.168.1.8/graduationProject/registration.php/";
+    String loginURL = "http://192.168.1.8/graduationProject/";
+    String updateLoginURL = "http://192.168.1.8/graduationProject/updateLoginState.php/";
+    String updateLogoutURL="http://192.168.1.8/graduationProject/updateLogoutState.php/";
 
-    private String URL = "http://192.168.1.13/graduationProject/";
+    private String URL = "http://192.168.1.8/graduationProject/";
     private Context context;
     private RequestQueue requestQueue ;
     private int successFlag;

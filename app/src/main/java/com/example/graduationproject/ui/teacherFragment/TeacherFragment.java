@@ -1,4 +1,4 @@
-package com.example.graduationproject.ui.employer;
+package com.example.graduationproject.ui.teacherFragment;
 
 import android.os.Bundle;
 
@@ -11,16 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.graduationproject.adapters.UnderGraduateJobsAdapters;
-import com.example.graduationproject.databinding.FragmentUnderGraduateBinding;
+import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.models.Job;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class UnderGraduateFragment extends Fragment {
+public class TeacherFragment extends Fragment {
 
-    private FragmentUnderGraduateBinding binding ;
+    private FragmentTeacherBinding binding ;
     private UnderGraduateJobsAdapters adapter ;
     private RecyclerView recyclerView;
 
@@ -29,7 +28,7 @@ public class UnderGraduateFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentUnderGraduateBinding.inflate(getLayoutInflater(),container,false);
+        binding = FragmentTeacherBinding.inflate(getLayoutInflater(),container,false);
         init();
         return binding.getRoot();
     }

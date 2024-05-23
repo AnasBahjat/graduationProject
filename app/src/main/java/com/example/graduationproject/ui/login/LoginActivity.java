@@ -109,6 +109,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
             binding.passwordText.setError("Wrong password ");
         }
         else if(message.equals("ERROR")){
+
         }
         else {
                 try {
@@ -123,30 +124,10 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                     String phoneNumber=jsonObject.getString("phoneNumber");
                     String city=jsonObject.getString("city");
                     String country=jsonObject.getString("country");
-
-
-
                     // start activity based on profile type ,,,
 
                     Log.d("----->"+jsonObject.getInt("signedIn"),"----->"+jsonObject.getInt("signedIn"));
                     Log.d(email,email);
-
-                    if(jsonObject.getInt("signedIn")==1){
-                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Error Sign In","Your Account Is Already Signed In from another device ..");
-                    }
-                    else {
-                        database.updateLogin(email);
-                        intent.putExtra("email", email);
-                        intent.putExtra("firstname", firstName);
-                        intent.putExtra("lastname", lastName);
-                        intent.putExtra("password", password);
-                        intent.putExtra("birthDate", birthDate);
-                        intent.putExtra("phonenumber", phoneNumber);
-                        intent.putExtra("city", city);
-                        intent.putExtra("country", country);
-                        intent.putExtra("idNumber", idNumber);
-                        startActivity(intent);
-                    }
                 }
                 catch (JSONException e){
                     e.printStackTrace();
