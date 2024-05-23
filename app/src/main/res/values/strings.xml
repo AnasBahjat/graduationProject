@@ -22,4 +22,6 @@
     <string name="close_navigation">Close</string>
     <string name="registering_text_msg">Registering ...</string>
     <string name="notifications_disc">Notifications</string>
+    <string name="notification_title_text">Notification Title</string>
+    <string name="notification_body_text">Notification Body</string>
 </resources>

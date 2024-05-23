@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.PopupWindow;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -13,20 +15,26 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.graduationproject.adapters.NotificationsAdapter;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
-import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
+import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
 
-public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RequestResult {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private Database database;
-    private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,profileType,doneInformation;
+    private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,profileType="1",doneInformation="0";
     private ActivityAfterLoginBinding binding ;
 
     @Override
@@ -49,13 +57,11 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         phoneNumber=intent.getStringExtra("phoneNumber");
         city=intent.getStringExtra("city");
         country=intent.getStringExtra("country");
-        profileType = intent.getStringExtra("profileType");
-        doneInformation=intent.getStringExtra("accountDone");
+      //  profileType = intent.getStringExtra("profileType");
+       // doneInformation=intent.getStringExtra("accountDone");
     }
 
     private void initialize(){
-        database = new Database(this);
-
         if(profileType.equals("0")) {
             // ToDo (load parent fragment)
         }
@@ -67,10 +73,12 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
 
     private void checkIfAccountConfirmed(){
-        binding.numOfNotifications.setText("1");
-        binding.notificationLayout.setOnClickListener(v -> {
-            // add the teacher information
-        });
+        if(doneInformation.equals("0")){
+            binding.numOfNotifications.setText("1");
+            binding.notificationImage.setOnClickListener(t->{
+                viewNotificationsPopUpWindow();
+            });
+        }
     }
 
 
@@ -110,15 +118,26 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         return false;
     }
 
-    @Override
-    public void onSuccess(int result) {
-        if(result == -1){
-            // ToDo ("Start taking the information of the user then set the done information to 1")
-        }
-    }
 
-    @Override
-    public void onLoginSuccess(String message, JSONArray loginSuccessData) {
-
+    private void viewNotificationsPopUpWindow(){
+        com.example.graduationproject.databinding.NotificationsPopupWindowBinding notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        int width = 1000;
+        int height = 1500;
+        notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        List<Notifications> notificationsList = new ArrayList<>();
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList));
+        PopupWindow notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
+        notificationPopupWindow.showAsDropDown(binding.notificationImage,0,0);
     }
 }
