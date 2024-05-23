@@ -34,6 +34,25 @@
               android:contentDescription="@string/navigate"
               android:foreground="@drawable/menu_icon"
               app:layout_constraintTop_toTopOf="parent" />
+          <RelativeLayout
+              android:id="@+id/notificationLayout"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="395dp"
+              android:layout_marginTop="12dp">
+              <ImageView
+                  android:layout_width="35dp"
+                  android:layout_height="35dp"
+                  android:src="@drawable/notification_icon"
+                  android:contentDescription="@string/notifications_disc" />
+              <TextView
+                  android:id="@+id/numOfNotifications"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="17dp"
+                  android:textColor="@color/white"
+                  android:background="@drawable/custom_text_view_for_notification"/>
+          </RelativeLayout>
       </RelativeLayout>
 
       <androidx.fragment.app.FragmentContainerView
@@ -55,7 +74,7 @@
         android:id="@+id/navigationView"
         android:layout_gravity="start"
         app:headerLayout="@layout/side_navigation_header_under_graduate"
-        app:menu="@menu/side_nav_bar_menu"/>
+        app:menu="@menu/side_nav_bar_menu" />
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -21,8 +21,6 @@
         <activity
             android:name=".ui.afterLogin.AfterLoginActivity"
             android:exported="true">
-
-
         </activity>
         <activity
             android:name=".ui.register.RegisterActivity"

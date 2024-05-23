@@ -31,10 +31,11 @@ import retrofit2.Callback;
 
 public class Database {
     String registrationURL = "http://192.168.1.8/graduationProject/registration.php/";
-    String loginURL = "http://192.168.1.8/graduationProject/";
+    String loginURL = "http://192.168.1.8/graduationProject/login.php";
     String updateLoginURL = "http://192.168.1.8/graduationProject/updateLoginState.php/";
     String updateLogoutURL="http://192.168.1.8/graduationProject/updateLogoutState.php/";
 
+    private String checkAccountDoneURL = "http://192.168.1.8/graduationProject/chefckAccountDone.php";
     private String URL = "http://192.168.1.8/graduationProject/";
     private Context context;
     private RequestQueue requestQueue ;
@@ -44,6 +45,28 @@ public class Database {
         requestQueue=Volley.newRequestQueue(context);
     }
 
+
+    public void checkIfAccountDone(String email,final RequestResult requestResult){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,checkAccountDoneURL,res->{
+            if(res.equalsIgnoreCase("Done")){
+                requestResult.onSuccess(1);
+            }
+            else {
+                requestResult.onSuccess(-1);
+            }
+        },errRes ->{
+
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String>data=new HashMap<>();
+                data.put("email",email.toLowerCase());
+                return data;
+            }
+        };
+        requestQueue=Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
 
     public void loginCheckRetrofit(String email,String password, final RequestResult requestResult){
         ApiService apiService = RetrofitInitializer.getClient(URL).create(ApiService.class);
@@ -106,7 +129,7 @@ public class Database {
                 }
             }
         }, volleyError -> {
-            Toast.makeText(context,volleyError.toString()+"",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,volleyError.toString()+"1111",Toast.LENGTH_SHORT).show();
             successFlag=-1;
         }){
             @Override

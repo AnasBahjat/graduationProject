@@ -313,8 +313,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         }
     }
 
-
-
     private boolean checkAll(){
         String value=binding.genderSpinner.getSelectedItem().toString();
         boolean gender=true;

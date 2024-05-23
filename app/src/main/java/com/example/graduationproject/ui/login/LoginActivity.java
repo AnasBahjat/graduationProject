@@ -119,15 +119,20 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                     String firstName=jsonObject.getString("firstname");
                     String lastName=jsonObject.getString("lastname");
                     String password=jsonObject.getString("password");
-                    String idNumber=jsonObject.getString("IDnumber");
                     String birthDate=jsonObject.getString("birthDate");
                     String phoneNumber=jsonObject.getString("phoneNumber");
-                    String city=jsonObject.getString("city");
-                    String country=jsonObject.getString("country");
-                    // start activity based on profile type ,,,
+                    String profileType = jsonObject.getString("profileType");
 
-                    Log.d("----->"+jsonObject.getInt("signedIn"),"----->"+jsonObject.getInt("signedIn"));
-                    Log.d(email,email);
+                    intent.putExtra("email",email);
+                    intent.putExtra("firstName",firstName);
+                    intent.putExtra("lastName",lastName);
+                    intent.putExtra("password",password);
+                    intent.putExtra("birthDate",birthDate);
+                    intent.putExtra("phoneNumber",phoneNumber);
+                    intent.putExtra("profileType",profileType);
+                    intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
+                    startActivity(intent);
+
                 }
                 catch (JSONException e){
                     e.printStackTrace();

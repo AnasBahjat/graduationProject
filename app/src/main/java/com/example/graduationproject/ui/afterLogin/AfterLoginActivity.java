@@ -17,13 +17,16 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
+import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
-public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private Database database;
+import org.json.JSONArray;
 
+public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RequestResult {
+    private Database database;
+    private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,profileType,doneInformation;
     private ActivityAfterLoginBinding binding ;
 
     @Override
@@ -32,11 +35,47 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         EdgeToEdge.enable(this);
         binding = ActivityAfterLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        getIntentDate();
         initialize();
     }
 
+    private void getIntentDate(){
+        Intent intent = getIntent();
+        email=intent.getStringExtra("email");
+        firstName=intent.getStringExtra("firstName");
+        lastName=intent.getStringExtra("lastName");
+        password=intent.getStringExtra("password");
+        birthDate=intent.getStringExtra("birthDate");
+        phoneNumber=intent.getStringExtra("phoneNumber");
+        city=intent.getStringExtra("city");
+        country=intent.getStringExtra("country");
+        profileType = intent.getStringExtra("profileType");
+        doneInformation=intent.getStringExtra("accountDone");
+    }
+
     private void initialize(){
-        loadFragment(new TeacherFragment());
+        database = new Database(this);
+
+        if(profileType.equals("0")) {
+            // ToDo (load parent fragment)
+        }
+        else{
+            loadFragment(new TeacherFragment());
+        }
+        checkIfAccountConfirmed();
+        buildNavigationView();
+    }
+
+    private void checkIfAccountConfirmed(){
+        binding.numOfNotifications.setText("1");
+        binding.notificationLayout.setOnClickListener(v -> {
+            // add the teacher information
+        });
+    }
+
+
+
+    private void buildNavigationView(){
         binding.navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,binding.drawerLayout,R.string.open_navigation,R.string.close_navigation);
         binding.drawerLayout.addDrawerListener(toggle);
@@ -50,7 +89,6 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
             }
         });
     }
-
 
 
 
@@ -70,5 +108,17 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         return false;
+    }
+
+    @Override
+    public void onSuccess(int result) {
+        if(result == -1){
+            // ToDo ("Start taking the information of the user then set the done information to 1")
+        }
+    }
+
+    @Override
+    public void onLoginSuccess(String message, JSONArray loginSuccessData) {
+
     }
 }
