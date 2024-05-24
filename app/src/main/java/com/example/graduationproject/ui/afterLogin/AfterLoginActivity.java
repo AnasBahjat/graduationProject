@@ -25,6 +25,7 @@ import com.example.graduationproject.databinding.NotificationsPopupWindowBinding
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
+import com.example.graduationproject.ui.teacherFragment.TeacherInformationFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
@@ -125,19 +126,16 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         int height = 1500;
         notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         List<Notifications> notificationsList = new ArrayList<>();
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications("Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
         notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList));
         PopupWindow notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
         notificationPopupWindow.showAsDropDown(binding.notificationImage,0,0);
+    }
+
+    public void loadSpecificFragment(){
+        loadFragment(new TeacherInformationFragment());
     }
 }

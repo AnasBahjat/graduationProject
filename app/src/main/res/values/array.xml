@@ -11,4 +11,12 @@
         <item>Teacher</item>
         <item>Parent</item>
     </array>
+
+    <array name="collegeSpinner">
+        <item>Choose College</item>
+        <item>Faculty Of Engineering</item>
+        <item>IT</item>
+        <item>Science And Mathematics</item>
+        <item>Faculty Of Arts</item>
+    </array>
 </resources>

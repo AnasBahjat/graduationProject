@@ -24,4 +24,6 @@
     <string name="notifications_disc">Notifications</string>
     <string name="notification_title_text">Notification Title</string>
     <string name="notification_body_text">Notification Body</string>
+    <string name="teacher_account_confirmation_text">Teacher Account Confirmation</string>
+    <string name="college_text">College</string>
 </resources>

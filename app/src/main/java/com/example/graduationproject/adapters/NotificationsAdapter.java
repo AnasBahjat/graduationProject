@@ -45,6 +45,16 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         public void bind(Notifications notification){
             binding.notificationTitle.setText(notification.getNotificationTitle());
             binding.notificationBody.setText(notification.getNotificationBody());
+            binding.notificationLayout.setOnClickListener(v ->{
+                notificationClicked(notification.getNotificationType());
+            });
+        }
+
+        private void notificationClicked(int notificationType){
+            if(notificationType == 0){
+                // ToDo (Start the another account details fragment);
+            }
+
         }
     }
 }
