@@ -18,5 +18,44 @@
         <item>IT</item>
         <item>Science And Mathematics</item>
         <item>Faculty Of Arts</item>
+        <item>Faculty Of Commerce</item>
+        <item>Other..</item>
+    </array>
+
+    <array name="engineeringCollegeFieldsSpinner">
+        <item>Choose Field</item>
+        <item>Electrical Engineering</item>
+        <item>Mechanical Engineering</item>
+        <item>Architecture</item>
+        <item>Civil Engineering</item>
+        <item>Mechatronics Engineering</item>
+        <item>Computer Engineering</item>
+        <item>Other..</item>
+    </array>
+
+    <array name="IT">
+        <item>Choose Field</item>
+        <item>Cyber Security</item>
+        <item>Computer Science</item>
+        <item>Other..</item>
+    </array>
+
+    <array name="scienceAndMathematicsSpinner">
+        <item>Choose Field</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Math</item>
+        <item>Biology</item>
+        <item>Other..</item>
+    </array>
+
+    <array name="facultyOfArtsSpinner">
+        <item>Choose Field</item>
+        <item>Arabic Literature</item>
+        <item>English Literature</item>
+        <item>Language Translator</item>
+        <item>Biology</item>
+        <item>Geography , History ,Islamic Religion</item>
+        <item>Other..</item>
     </array>
 </resources>

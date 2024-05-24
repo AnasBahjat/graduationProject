@@ -1,10 +1,17 @@
 package com.example.graduationproject.ui.afterLogin;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.PopupWindow;
 
 import androidx.activity.EdgeToEdge;
@@ -18,17 +25,17 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.graduationproject.adapters.NotificationsAdapter;
+import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
+import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
-import com.example.graduationproject.ui.teacherFragment.TeacherInformationFragment;
+import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.google.android.material.navigation.NavigationView;
-
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +44,10 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     private Database database;
     private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,profileType="1",doneInformation="0";
     private ActivityAfterLoginBinding binding ;
+    private BroadcastHandler broadcastHandler;
+
+    private PopupWindow notificationPopupWindow ;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +82,18 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         }
         checkIfAccountConfirmed();
         buildNavigationView();
+        initBroadcastReceiver();
+    }
+
+    private void initBroadcastReceiver(){
+        broadcastHandler = new BroadcastHandler();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("showTeacherInformationWindow");
+        int flags = 0 ;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            flags = Context.RECEIVER_NOT_EXPORTED;
+        }
+        registerReceiver(broadcastHandler,intentFilter,flags);
     }
 
     private void checkIfAccountConfirmed(){
@@ -130,12 +153,28 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
         notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
         notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList));
-        PopupWindow notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
+        notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this));
+        notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
         notificationPopupWindow.showAsDropDown(binding.notificationImage,0,0);
     }
 
-    public void loadSpecificFragment(){
-        loadFragment(new TeacherInformationFragment());
+    public void showTeacherInformationPopupWindow(){
+        TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
+        int width = 1300 ;
+        int height = 1800;
+        PopupWindow teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),width,height,true);
+
+        teacherInformationPopupWindow.showAtLocation(teacherInformationPopupWindowBinding.teacherInformationLayout, Gravity.CENTER,0,0);
+        notificationPopupWindow.dismiss();
+
+        teacherInformationPopupWindowBinding.closeTeacherInformationPopupWindow.setOnClickListener(v ->{
+            teacherInformationPopupWindow.dismiss();
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastHandler);
     }
 }

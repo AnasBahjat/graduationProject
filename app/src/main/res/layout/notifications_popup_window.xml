@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="300dp"
     android:layout_height="300dp"
-    android:backgroundTint="#F3EFEF"
+    android:backgroundTint="#F2ECF6"
     android:background="@drawable/rounded_corners"
     android:layout_gravity="center_horizontal"
     android:id="@+id/notificationPopupWindowLayout"

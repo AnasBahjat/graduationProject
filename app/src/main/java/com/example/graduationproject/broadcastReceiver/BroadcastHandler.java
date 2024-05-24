@@ -13,7 +13,7 @@ public class BroadcastHandler extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
             if(context instanceof AfterLoginActivity){
-
+                ((AfterLoginActivity) context).showTeacherInformationPopupWindow();
             }
     }
 }

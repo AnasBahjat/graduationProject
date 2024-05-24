@@ -26,4 +26,7 @@
     <string name="notification_body_text">Notification Body</string>
     <string name="teacher_account_confirmation_text">Teacher Account Confirmation</string>
     <string name="college_text">College</string>
+    <string name="university_id_text">University ID</string>
+    <string name="close_popup_window_msg">Close Popup window</string>
+    <string name="field_text">Field</string>
 </resources>

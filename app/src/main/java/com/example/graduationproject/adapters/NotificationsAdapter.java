@@ -1,5 +1,7 @@
 package com.example.graduationproject.adapters;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -13,8 +15,10 @@ import java.util.List;
 
 public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdapter.ViewHolder>{
     private List<Notifications> notificationsList;
-    public NotificationsAdapter(List<Notifications> notificationsList) {
+    private Context context;
+    public NotificationsAdapter(List<Notifications> notificationsList,Context context) {
         this.notificationsList = notificationsList;
+        this.context=context;
     }
 
     @NonNull
@@ -22,7 +26,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         NotificationsCardLayoutBinding binding = NotificationsCardLayoutBinding.inflate(inflater,parent,false);
-        return new ViewHolder(binding);
+        return new ViewHolder(binding,context);
     }
 
     @Override
@@ -38,9 +42,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         NotificationsCardLayoutBinding binding;
-        public ViewHolder(NotificationsCardLayoutBinding binding) {
+        Context context;
+        public ViewHolder(NotificationsCardLayoutBinding binding,Context context) {
             super(binding.getRoot());
             this.binding=binding;
+            this.context=context;
         }
         public void bind(Notifications notification){
             binding.notificationTitle.setText(notification.getNotificationTitle());
@@ -52,9 +58,10 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
         private void notificationClicked(int notificationType){
             if(notificationType == 0){
-                // ToDo (Start the another account details fragment);
+                Intent intent = new Intent();
+                intent.setAction("showTeacherInformationWindow");
+                context.sendBroadcast(intent);
             }
-
         }
     }
 }
