@@ -24,9 +24,12 @@
     <string name="notifications_disc">Notifications</string>
     <string name="notification_title_text">Notification Title</string>
     <string name="notification_body_text">Notification Body</string>
-    <string name="teacher_account_confirmation_text">Teacher Account Confirmation</string>
+    <string name="teacher_account_confirmation_text">Address Information</string>
     <string name="college_text">College</string>
-    <string name="university_id_text">University ID</string>
+    <string name="university_id_text">Your ID</string>
     <string name="close_popup_window_msg">Close Popup window</string>
     <string name="field_text">Field</string>
+    <string name="if_you_are_a_student_expected_graduation_year_text">* If you are a student, Expected Graduation Year :</string>
+    <string name="i_am_text">I am :</string>
+    <string name="confirm_information_text">Confirm</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.graduationproject.ui.afterLogin;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -7,12 +8,18 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -31,11 +38,13 @@ import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +56,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     private BroadcastHandler broadcastHandler;
 
     private PopupWindow notificationPopupWindow ;
+    private List<Notifications> notificationsList;
 
 
     @Override
@@ -80,6 +90,13 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         else{
             loadFragment(new TeacherFragment());
         }
+        notificationsList = new ArrayList<>();
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account",0));
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account",0));
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account",0));
+        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account",0));
+        binding.numOfNotifications.setText(""+notificationsList.size());
+
         checkIfAccountConfirmed();
         buildNavigationView();
         initBroadcastReceiver();
@@ -98,7 +115,6 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
     private void checkIfAccountConfirmed(){
         if(doneInformation.equals("0")){
-            binding.numOfNotifications.setText("1");
             binding.notificationImage.setOnClickListener(t->{
                 viewNotificationsPopUpWindow();
             });
@@ -148,28 +164,119 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         int width = 1000;
         int height = 1500;
         notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<Notifications> notificationsList = new ArrayList<>();
-        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
-        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account"));
         notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this));
         notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
         notificationPopupWindow.showAsDropDown(binding.notificationImage,0,0);
     }
 
+
     public void showTeacherInformationPopupWindow(){
+
         TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
+        decrementNotificationsNumber();
+
         int width = 1300 ;
-        int height = 1800;
+        int height = 2000;
         PopupWindow teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),width,height,true);
+
+
 
         teacherInformationPopupWindow.showAtLocation(teacherInformationPopupWindowBinding.teacherInformationLayout, Gravity.CENTER,0,0);
         notificationPopupWindow.dismiss();
 
+
         teacherInformationPopupWindowBinding.closeTeacherInformationPopupWindow.setOnClickListener(v ->{
             teacherInformationPopupWindow.dismiss();
         });
+
+        teacherInformationPopupWindowBinding.confirmInformationBtn.setOnClickListener(ss->{
+            checkConfirmationButtonClicked(teacherInformationPopupWindowBinding);
+        });
+
+
+
+        onTextChangedIdText(teacherInformationPopupWindowBinding.idText,teacherInformationPopupWindowBinding.idTextLayout);
+        onTextChangedIdText(teacherInformationPopupWindowBinding.cityText,teacherInformationPopupWindowBinding.cityLayout);
+        onTextChangedIdText(teacherInformationPopupWindowBinding.countryText,teacherInformationPopupWindowBinding.countryLayout);
+
+    }
+    private void decrementNotificationsNumber(){
+        int numOfNotifications = Integer.parseInt(binding.numOfNotifications.getText().toString());
+        if(numOfNotifications - 1 > 0){
+            binding.numOfNotifications.setText(""+(Integer.parseInt(binding.numOfNotifications.getText().toString()) - 1));
+        }
+        else {
+            binding.numOfNotifications.setText("0");
+            binding.numOfNotifications.setVisibility(View.GONE);
+        }
+    }
+
+    private void onTextChangedIdText(EditText passedId, TextInputLayout layoutId){
+        passedId.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                layoutId.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+
+
+    private void checkConfirmationButtonClicked(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding){
+        boolean collegeFlag = true , fieldFlag = true;
+        String idStr = teacherInformationPopupWindowBinding.idText.getText().toString();
+        int studentOrGraduate = teacherInformationPopupWindowBinding.studentOrGraduateRadioGroup.getCheckedRadioButtonId();
+        String collegeStr = teacherInformationPopupWindowBinding.collegeSpinner.getSelectedItem().toString();
+        String fieldStr = teacherInformationPopupWindowBinding.fieldSpinner.getSelectedItem().toString();
+        String graduationYear = teacherInformationPopupWindowBinding.graduationYearSpinner.getSelectedItem().toString();
+        String daysAvailableWeekly = teacherInformationPopupWindowBinding.timeAvailableSpinner.getSelectedItem().toString();
+        String cityText = teacherInformationPopupWindowBinding.cityText.getText().toString();
+        String countryText = teacherInformationPopupWindowBinding.countryText.getText().toString();
+
+        if(idStr.isEmpty()){
+            teacherInformationPopupWindowBinding.idTextLayout.setError("*Please Fill in this field");
+        }
+
+        if(cityText.isEmpty()){
+            teacherInformationPopupWindowBinding.cityLayout.setError("*Please Fill in this field");
+        }
+
+        if(countryText.isEmpty()){
+            teacherInformationPopupWindowBinding.countryLayout.setError("*Please Fill in this field");
+        }
+
+
+
+        if(collegeStr.equalsIgnoreCase("Choose")){
+            collegeFlag=false;
+            MyAlertDialog.showCustomAlertDialogSpinnerError(this,"Invalid College","Choose Valid College Value ..");
+        }
+        if(fieldStr.equalsIgnoreCase("Choose")){
+            fieldFlag=false;
+            MyAlertDialog.showCustomAlertDialogSpinnerError(this,"Invalid Field","Choose Valid Field Value ..");
+        }
+        if(!idStr.isEmpty() && !cityText.isEmpty()  && !countryText.isEmpty() && collegeFlag && fieldFlag){
+            // ToDo("Insert the new data to database .. ")
+        }
+    }
+
+    public void showCustomDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.teacher_information_popup_window);
+        dialog.getWindow().setLayout(1300, 2000);
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.rounded_corners);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
     }
 
     @Override

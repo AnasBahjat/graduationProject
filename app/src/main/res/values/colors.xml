@@ -7,4 +7,5 @@
     <color name="gray">#E3E2E2</color>
     <color name="usedColor">#7FE2EF</color>
     <color name="navBar">#0899AC</color>
+    <color name="unreadColor">#E1E3E4</color>
 </resources>

@@ -13,7 +13,7 @@
     </array>
 
     <array name="collegeSpinner">
-        <item>Choose College</item>
+        <item>Choose</item>
         <item>Faculty Of Engineering</item>
         <item>IT</item>
         <item>Science And Mathematics</item>
@@ -23,7 +23,7 @@
     </array>
 
     <array name="engineeringCollegeFieldsSpinner">
-        <item>Choose Field</item>
+        <item>Choose</item>
         <item>Electrical Engineering</item>
         <item>Mechanical Engineering</item>
         <item>Architecture</item>
@@ -34,14 +34,14 @@
     </array>
 
     <array name="IT">
-        <item>Choose Field</item>
+        <item>Choose</item>
         <item>Cyber Security</item>
         <item>Computer Science</item>
         <item>Other..</item>
     </array>
 
     <array name="scienceAndMathematicsSpinner">
-        <item>Choose Field</item>
+        <item>Choose</item>
         <item>Physics</item>
         <item>Chemistry</item>
         <item>Math</item>
@@ -50,7 +50,7 @@
     </array>
 
     <array name="facultyOfArtsSpinner">
-        <item>Choose Field</item>
+        <item>Choose</item>
         <item>Arabic Literature</item>
         <item>English Literature</item>
         <item>Language Translator</item>
@@ -58,4 +58,12 @@
         <item>Geography , History ,Islamic Religion</item>
         <item>Other..</item>
     </array>
+
+    <string-array name="graduationYears">
+        <item>2024</item>
+        <item>2025</item>
+        <item>2026</item>
+        <item>2027</item>
+        <item>2028</item>
+    </string-array>
 </resources>

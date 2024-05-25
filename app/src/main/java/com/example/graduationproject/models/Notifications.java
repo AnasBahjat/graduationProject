@@ -4,10 +4,20 @@ public class Notifications {
     private int notificationType ; // 0 : Confirm account ..
     private String notificationTitle;
     private String notificationBody;
-    public Notifications(int notificationType , String notificationTitle,String notificationBody){
+    private int isNotificationRead;
+    public Notifications(int notificationType , String notificationTitle,String notificationBody,int isNotificationRead){
         this.notificationType = notificationType;
         this.notificationBody=notificationBody;
         this.notificationTitle=notificationTitle;
+        this.isNotificationRead=isNotificationRead;
+    }
+
+    public int getIsNotificationRead() {
+        return isNotificationRead;
+    }
+
+    public void setIsNotificationRead(int isNotificationRead) {
+        this.isNotificationRead = isNotificationRead;
     }
 
     public int getNotificationType() {
