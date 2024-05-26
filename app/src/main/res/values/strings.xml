@@ -32,4 +32,14 @@
     <string name="if_you_are_a_student_expected_graduation_year_text">* If you are a student, Expected Graduation Year :</string>
     <string name="i_am_text">I am :</string>
     <string name="confirm_information_text">Confirm</string>
+    <string name="available_hours_a_day_text">Available Hours A Day</string>
+    <string name="available_days_a_week_text">Available Days A Week</string>
+    <string name="collegeErrorMsg">*Choose Valid College Value</string>
+    <string name="fieldErrorMsg">*Choose Valid Field Value</string>
+    <string name="teacherAccountConfirmedTitle">Account Confirmed</string>
+    <string name="teacherAccountConfirmedMsg">Teacher Account Confirmation Done </string>
+    <string name="teacherAccountConfirmedTitleAlready">Account Already Confirmed</string>
+    <string name="teacherAccountConfirmedMsgAlready">Your Account is Already confirmed previously </string>
+    <string name="errorOccurredTitle">Error</string>
+    <string name="errorOccurredMsg">There are an error occurred ,please try again later</string>
 </resources>

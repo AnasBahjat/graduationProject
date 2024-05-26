@@ -59,6 +59,16 @@
         <item>Other..</item>
     </array>
 
+    <array name="facultyOfCommerceSpinner">
+        <item>Choose</item>
+        <item>Commercial</item>
+        <item>Economics</item>
+        <item>Business</item>
+        <item>Accounting</item>
+        <item>Business Administration</item>
+        <item>Marketing</item>
+    </array>
+
     <string-array name="graduationYears">
         <item>2024</item>
         <item>2025</item>

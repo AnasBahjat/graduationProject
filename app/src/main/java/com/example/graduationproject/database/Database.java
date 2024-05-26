@@ -14,7 +14,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.models.Profile;
+import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.network.ApiService;
 import com.example.graduationproject.network.RetrofitInitializer;
 
@@ -30,13 +32,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 public class Database {
-    String registrationURL = "http://192.168.1.8/graduationProject/registration.php/";
-    String loginURL = "http://192.168.1.8/graduationProject/login.php";
-    String updateLoginURL = "http://192.168.1.8/graduationProject/updateLoginState.php/";
-    String updateLogoutURL="http://192.168.1.8/graduationProject/updateLogoutState.php/";
+    String registrationURL = "http://192.168.1.4/graduationProject/registration.php/";
+    String loginURL = "http://192.168.1.4/graduationProject/login.php";
+    String updateLoginURL = "http://192.168.1.4/graduationProject/updateLoginState.php/";
+    String updateLogoutURL="http://192.168.1.4/graduationProject/updateLogoutState.php/";
 
-    private String checkAccountDoneURL = "http://192.168.1.8/graduationProject/chefckAccountDone.php";
-    private String URL = "http://192.168.1.8/graduationProject/";
+    private String checkAccountDoneURL = "http://192.168.1.4/graduationProject/chefckAccountDone.php";
+    private String confirmTeacherAccountURL = "http://192.168.1.4/graduationProject/updateTeacherInformation.php";
+    private String URL = "http://192.168.1.4/graduationProject/";
     private Context context;
     private RequestQueue requestQueue ;
     private int successFlag;
@@ -306,6 +309,45 @@ public class Database {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String>data=new HashMap<>();
                 data.put("email",email);
+                return data;
+            }
+        };
+        requestQueue=Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+    public void updateTeacherInformation(Teacher teacher,final TeacherAccountConfirmationListener requestResult){
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, confirmTeacherAccountURL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                if(s.equalsIgnoreCase("exists")){
+                    requestResult.onResult(0);
+
+                }
+                else if(s.equalsIgnoreCase("Done insertion")){
+                    requestResult.onResult(1);
+                }
+                else {
+                    requestResult.onResult(-1);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                requestResult.onResult(-2);
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String>data=new HashMap<>();
+                data.put("email",teacher.getEmail());
+                data.put("idNumber",teacher.getIdNumber());
+                data.put("studentOrGraduate",teacher.getStudentOrGraduate());
+                data.put("expectedGraduationYear",teacher.getExpectedGraduationYear());
+                data.put("college",teacher.getCollege());
+                data.put("field",teacher.getField());
+                data.put("daysAvailableWeekly",teacher.getDaysAvailableWeekly());
+                data.put("hoursAvailableDaily",teacher.getHoursAvailableDaily());
                 return data;
             }
         };

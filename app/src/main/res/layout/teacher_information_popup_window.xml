@@ -119,7 +119,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="13dp"
-                        android:text="Student"
+                        android:text="Undergraduate"
                         android:checked="true"/>
 
                     <RadioButton
@@ -180,6 +180,7 @@
             android:hint="@string/college_text"
             app:errorIconDrawable="@drawable/baseline_error_24"
             app:errorTextAppearance="@style/error_text"
+            app:errorEnabled="true"
             android:layout_centerHorizontal="true"
             app:hintTextAppearance="@style/CustomHintTextAppearance">
 
@@ -203,6 +204,14 @@
                     android:entries="@array/collegeSpinner"
                     android:spinnerMode="dropdown" />
             </LinearLayout>
+            <TextView
+                android:id="@+id/collegeErrorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:layout_marginTop="3dp"
+                android:layout_marginStart="10dp"
+                android:visibility="gone"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -216,6 +225,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="25dp"
             android:layout_marginEnd="32dp"
+            app:errorEnabled="true"
             app:errorIconDrawable="@drawable/baseline_error_24"
             app:errorTextAppearance="@style/error_text"
             android:layout_centerHorizontal="true">
@@ -240,18 +250,42 @@
                     android:entries="@array/collegeSpinner"
                     android:spinnerMode="dropdown" />
             </LinearLayout>
+            <TextView
+                android:id="@+id/fieldErrorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:layout_marginTop="3dp"
+                android:layout_marginStart="10dp"
+                android:visibility="gone"
+                android:textSize="15sp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/timeAvailableLayout"
+            android:id="@+id/daysAvailableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/fieldInformationLayout"
             android:layout_marginTop="25dp"
+            android:layout_marginStart="32dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginEnd="32dp">
+            android:layout_marginEnd="32dp"
+            app:hintEnabled="true"
+            android:hint="@string/available_days_a_week_text"
+            app:errorEnabled="true"
+            app:endIconMode="clear_text"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:startIconDrawable="@drawable/week_icon"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+            <EditText
+                android:id="@+id/numOfDaysAWeekEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:inputType="number"
+                android:background="@drawable/edit_text_style"
+                />
 
-            <LinearLayout
+           <!-- <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -268,14 +302,38 @@
                     android:layout_marginStart="15dp"
                     android:entries="@array/collegeSpinner"
                     android:spinnerMode="dropdown" />
-            </LinearLayout>
+            </LinearLayout>-->
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/hoursAvailableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/daysAvailableLayout"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:startIconDrawable="@drawable/hours_icon"
+            app:hintTextAppearance="@style/CustomHintTextAppearance"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            app:errorEnabled="true"
+            app:hintEnabled="true"
+            android:hint="@string/available_hours_a_day_text">
+            <EditText
+                android:id="@+id/numOfHoursADayEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:inputType="number"
+                android:background="@drawable/edit_text_style"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:id="@+id/addressInformation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/timeAvailableLayout"
+            android:layout_below="@+id/hoursAvailableLayout"
             android:layout_marginTop="15dp"
             android:orientation="horizontal">
 
@@ -331,7 +389,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/edit_text_style"
-                android:inputType="number"
                 android:maxLength="15" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -357,7 +414,6 @@
                 android:id="@+id/countryText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:inputType="number"
                 android:maxLength="15"
                 android:background="@drawable/edit_text_style"/>
         </com.google.android.material.textfield.TextInputLayout>
