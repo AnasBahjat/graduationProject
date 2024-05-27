@@ -14,11 +14,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.models.Profile;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.network.ApiService;
 import com.example.graduationproject.network.RetrofitInitializer;
+import com.example.graduationproject.utils.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,14 +34,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 public class Database {
-    String registrationURL = "http://192.168.1.4/graduationProject/registration.php/";
-    String loginURL = "http://192.168.1.4/graduationProject/login.php";
     String updateLoginURL = "http://192.168.1.4/graduationProject/updateLoginState.php/";
     String updateLogoutURL="http://192.168.1.4/graduationProject/updateLogoutState.php/";
 
-    private String checkAccountDoneURL = "http://192.168.1.4/graduationProject/chefckAccountDone.php";
-    private String confirmTeacherAccountURL = "http://192.168.1.4/graduationProject/updateTeacherInformation.php";
-    private String URL = "http://192.168.1.4/graduationProject/";
+   // private String URL = "http://192.168.1.4/graduationProject/";
     private Context context;
     private RequestQueue requestQueue ;
     private int successFlag;
@@ -49,16 +47,16 @@ public class Database {
     }
 
 
-    public void checkIfAccountDone(String email,final RequestResult requestResult){
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,checkAccountDoneURL,res->{
+    public void checkIfAccountDone(String email,final TeacherAccountConfirmationListener requestResult){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.checkAccountDoneURL,res->{
             if(res.equalsIgnoreCase("Done")){
-                requestResult.onSuccess(1);
+                requestResult.updateTeacherFragment(1,1);
             }
             else {
-                requestResult.onSuccess(-1);
+                requestResult.updateTeacherFragment(0,0);
             }
         },errRes ->{
-
+            requestResult.updateTeacherFragment(-1,-1);
         }){
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -72,7 +70,7 @@ public class Database {
     }
 
     public void loginCheckRetrofit(String email,String password, final RequestResult requestResult){
-        ApiService apiService = RetrofitInitializer.getClient(URL).create(ApiService.class);
+        ApiService apiService = RetrofitInitializer.getClient(Constants.URL).create(ApiService.class);
         Call<ResponseBody> call = apiService.loginCheck(email,password);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -109,7 +107,7 @@ public class Database {
         });
     }
     public void loginCheck(String email,String password,final RequestResult requestFlagSetResult){
-        StringRequest stringRequest=new StringRequest(Request.Method.POST, loginURL, new Response.Listener<String>() {
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.loginURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 switch (response) {
@@ -150,7 +148,7 @@ public class Database {
 
 
     public void registerRetrofitRequest(Profile profile, final RequestResult requestResult){
-        ApiService apiService = RetrofitInitializer.getClient(URL).create(ApiService.class);
+        ApiService apiService = RetrofitInitializer.getClient(Constants.URL).create(ApiService.class);
 
         Call<ResponseBody> call = apiService.insertNewProfile(profile.getFirstname(),
                 profile.getLastname(),
@@ -198,7 +196,7 @@ public class Database {
 
 
     public void registerNewProfile(Profile profile, final RequestResult requestFlagSetResult){
-        StringRequest stringRequest=new StringRequest(Request.Method.POST, registrationURL, s -> {
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.registrationURL, s -> {
             if(s.equals("True")){
                 requestFlagSetResult.onSuccess(1);
             }
@@ -235,7 +233,7 @@ public class Database {
 
 
     public void updateLoginRetrofit(String email){
-        ApiService apiService = RetrofitInitializer.getClient(URL).create(ApiService.class);
+        ApiService apiService = RetrofitInitializer.getClient(Constants.URL).create(ApiService.class);
 
         Call<String> call = apiService.updateLogin(email);
         call.enqueue(new Callback<String>() {
@@ -317,7 +315,7 @@ public class Database {
     }
 
     public void updateTeacherInformation(Teacher teacher,final TeacherAccountConfirmationListener requestResult){
-        StringRequest stringRequest=new StringRequest(Request.Method.POST, confirmTeacherAccountURL, new Response.Listener<String>() {
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.confirmTeacherAccountURL, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
                 if(s.equalsIgnoreCase("exists")){
@@ -352,6 +350,39 @@ public class Database {
             }
         };
         requestQueue=Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+    public void getNotifications(String email, final NotificationsListListener notificationsListListener){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.getNotificationsURL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                if(s.equalsIgnoreCase("Error")){
+                    notificationsListListener.getNotifications(0,null);
+                }
+                else {
+                    try{
+                        notificationsListListener.getNotifications(1,new JSONArray(s));
+                    }
+                    catch (JSONException e){
+                        throw new RuntimeException();
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                notificationsListListener.getNotifications(-1,null);
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data=new HashMap<>();
+                data.put("email",email);
+                return data;
+            }
+        };
+        requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
     }
 }

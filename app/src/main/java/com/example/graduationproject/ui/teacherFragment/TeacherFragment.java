@@ -34,7 +34,6 @@ public class TeacherFragment extends Fragment {
     }
 
     private void init(){
-
         binding.jobsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
        List<Job> test = new ArrayList<>();
        test.add(new Job(1,"Naseem","category 1"));
@@ -42,11 +41,12 @@ public class TeacherFragment extends Fragment {
        test.add(new Job(3,"donia","category 3"));
        test.add(new Job(4,"donia","category 4"));
        test.add(new Job(5,"سشيشسيشس","category 4"));
-
-
-
-
         adapter = new UnderGraduateJobsAdapters(test,getContext());
         binding.jobsRecyclerView.setAdapter(adapter);
     }
+
+    public void hideOrUnHideViews(int flag){
+
+    }
+
 }

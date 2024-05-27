@@ -88,7 +88,7 @@
         android:id="@+id/navigationView"
         android:layout_gravity="start"
         app:headerLayout="@layout/side_navigation_header_under_graduate"
-        app:menu="@menu/side_nav_bar_menu" />
+        app:menu="@menu/side_nav_bar_menu"/>
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

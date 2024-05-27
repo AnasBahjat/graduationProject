@@ -38,14 +38,17 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.graduationproject.adapters.NotificationsAdapter;
+import com.example.graduationproject.adapters.SetProfileNotifications;
 import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
+import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
@@ -56,19 +59,25 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener {
+public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener {
     private Database database;
-    private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,profileType="1",doneInformation="0";
+    private String firstName,lastName,email="anasyasine30@gmail.com",password,birthDate,phoneNumber,city,country,profileType="1",doneInformation="0";
     private ActivityAfterLoginBinding binding ;
     private BroadcastHandler broadcastHandler;
 
     private PopupWindow notificationPopupWindow ;
-    private List<Notifications> notificationsList;
+   // private List<Notifications> notificationsList;
     private PopupWindow teacherInformationPopupWindow ;
+    List<Notifications> notList ;
+    FragmentTeacherBinding fragmentTeacherBinding ;
+
+    Fragment currentFragment ;
 
 
     @Override
@@ -81,6 +90,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         initialize();
     }
 
+
     private void getIntentDate(){
         Intent intent = getIntent();
         email=intent.getStringExtra("email");
@@ -91,22 +101,19 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         phoneNumber=intent.getStringExtra("phoneNumber");
         city=intent.getStringExtra("city");
         country=intent.getStringExtra("country");
-      //  profileType = intent.getStringExtra("profileType");
-       // doneInformation=intent.getStringExtra("accountDone");
+        profileType = intent.getStringExtra("profileType");
+        doneInformation=intent.getStringExtra("accountDone");
     }
 
     private void initialize(){
         database=new Database(this);
-        if(profileType.equals("0")) {
+        database.getNotifications(email,this);
+        if(profileType.equals("1")) {
             // ToDo (load parent fragment)
         }
         else{
             loadFragment(new TeacherFragment());
         }
-        notificationsList = new ArrayList<>();
-        notificationsList.add(new Notifications(0,"Confirm Your Account","Add the necessary information to complete your account",0));
-        binding.numOfNotifications.setText(""+notificationsList.size());
-
         checkIfAccountConfirmed();
         buildNavigationView();
         initBroadcastReceiver();
@@ -124,11 +131,11 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
 
     private void checkIfAccountConfirmed(){
-        if(doneInformation.equals("0")){
-            binding.notificationImage.setOnClickListener(t->{
-                viewNotificationsPopUpWindow();
-            });
-        }
+        fragmentTeacherBinding = FragmentTeacherBinding.inflate(getLayoutInflater());
+        database.checkIfAccountDone(email,this);
+        binding.notificationImage.setOnClickListener(t->{
+            viewNotificationsPopUpWindow();
+        });
     }
 
 
@@ -138,6 +145,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,binding.drawerLayout,R.string.open_navigation,R.string.close_navigation);
         binding.drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
         binding.openSideNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,9 +156,27 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         });
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        if(menuItem.getItemId() == R.id.logoutId){
+            finish();
+        }
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
 
+    @Override
+    public void onBackPressed() {
+        if(binding.drawerLayout.isDrawerOpen(GravityCompat.START)){
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
 
     private void loadFragment(Fragment fragment){
+        currentFragment = fragment;
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragments_container,fragment);
@@ -163,10 +189,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         startActivity(intent);
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        return false;
-    }
+
 
 
     private void viewNotificationsPopUpWindow(){
@@ -174,13 +197,12 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         int width = ViewGroup.LayoutParams.WRAP_CONTENT;
         int height = 1500;
         notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this));
+        notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
         notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
         notificationPopupWindow.showAsDropDown(binding.notificationImage,0,0);
     }
 
     public void showTeacherInformationPopupWindow(){
-
         TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
         decrementNotificationsNumber();
 
@@ -408,4 +430,58 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
             // volley error ...
         }
     }
+
+    @Override
+    public void updateTeacherFragment(int resultFlag, int doneFlag) {
+        if(doneFlag == 1){
+            // ToDo("View the views from fragment if the account is confirmed")
+            Toast.makeText(this, "11111111", Toast.LENGTH_SHORT).show();
+            fragmentTeacherBinding.textInputEditText.setVisibility(View.VISIBLE);
+            fragmentTeacherBinding.categoriesLinearLayout.setVisibility(View.VISIBLE);
+            fragmentTeacherBinding.mostPreferred.setVisibility(View.VISIBLE);
+            fragmentTeacherBinding.lastAdded.setVisibility(View.VISIBLE);
+            fragmentTeacherBinding.jobsRecyclerView.setVisibility(View.VISIBLE);
+            fragmentTeacherBinding.pleaseConfirmAccountText.setVisibility(View.GONE);
+            loadFragment(new TeacherFragment());
+        }
+        else if(doneFlag == 0){
+            // ToDo("Hide Views from fragment if the account is not confirmed")
+            Toast.makeText(this, "22222222222", Toast.LENGTH_SHORT).show();
+            fragmentTeacherBinding.textInputEditText.setVisibility(View.GONE);
+            fragmentTeacherBinding.categoriesLinearLayout.setVisibility(View.GONE);
+            fragmentTeacherBinding.mostPreferred.setVisibility(View.GONE);
+            fragmentTeacherBinding.lastAdded.setVisibility(View.GONE);
+            fragmentTeacherBinding.jobsRecyclerView.setVisibility(View.GONE);
+            fragmentTeacherBinding.pleaseConfirmAccountText.setVisibility(View.VISIBLE);
+            loadFragment(new TeacherFragment());
+        }
+        else {
+            // ToDo("Handle if there are an error")
+        }
+    }
+
+    @Override
+    public void getNotifications(int result, JSONArray notificationsJsonArray) {
+        if(result == 1){
+            List<Notifications> notificationsList=new ArrayList<>();
+            try {
+                for(int i=0;i<notificationsJsonArray.length();i++){
+                    JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
+                    Notifications notification = new Notifications(Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
+                            jsonObject.getString("notificationBody"),
+                            Integer.parseInt(jsonObject.getString("isRead")));
+                    notificationsList.add(notification);
+                }
+                notList=notificationsList;
+                binding.numOfNotifications.setText(""+notList.size());
+            }
+            catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            notList=null;
+        }
+    }
+
 }

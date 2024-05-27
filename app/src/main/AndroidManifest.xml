@@ -21,18 +21,11 @@
 
         <receiver android:name=".broadcastReceiver.BroadcastHandler"
             android:exported="true">
-            <intent-filter>
-                <action android:name="showTeacherInformationWindow"/>
-            </intent-filter>
         </receiver>
         <activity
             android:name=".ui.afterLogin.AfterLoginActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.register.RegisterActivity"
@@ -45,8 +38,11 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

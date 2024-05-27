@@ -72,7 +72,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         }
 
         private void notificationClicked(int notificationType){
-            if(notificationType == 0){
+            if(notificationType == 1){
                 Intent intent = new Intent();
                 intent.setAction("showTeacherInformationWindow");
                 context.sendBroadcast(intent);

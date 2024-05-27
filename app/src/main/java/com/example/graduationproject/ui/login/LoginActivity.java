@@ -38,6 +38,17 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         setContentView(binding.getRoot());
         initialize();
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        emptyTheInputs();
+    }
+
+    private void emptyTheInputs(){
+        binding.emailEditText.setText(null);
+        binding.passwordEditText.setText(null);
+    }
     private void initialize(){
         database=new Database(this);
     }
