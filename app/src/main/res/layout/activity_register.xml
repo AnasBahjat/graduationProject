@@ -145,6 +145,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="66dp"
+                    android:inputType="textPassword"
                     android:background="@drawable/edit_text_style"
                     android:textSize="20sp" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -170,6 +171,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="66dp"
+                    android:inputType="textPassword"
                     android:background="@drawable/edit_text_style"
                     android:textSize="20sp" />
             </com.google.android.material.textfield.TextInputLayout>

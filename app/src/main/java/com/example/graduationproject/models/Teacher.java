@@ -9,11 +9,12 @@ public class Teacher {
     private String field;
     private String daysAvailableWeekly;
     private String hoursAvailableDaily;
+    private Address address;
     public Teacher(String email,String idNumber,
                    String studentOrGraduate,String expectedGraduationYear,
                    String college,String field,
                    String daysAvailableWeekly,
-                   String hoursAvailableDaily){
+                   String hoursAvailableDaily,Address address){
 
         this.email=email;
         this.idNumber=idNumber;
@@ -23,6 +24,15 @@ public class Teacher {
         this.field=field;
         this.daysAvailableWeekly=daysAvailableWeekly;
         this.hoursAvailableDaily = hoursAvailableDaily;
+        this.address=address;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public String getEmail() {

@@ -81,7 +81,6 @@ public class MyAlertDialog {
         errorTextView.setText(context.getString(R.string.teacherAccountConfirmedMsg));
         errorTextView.setTextColor(context.getColor(R.color.green));
         builder.setView(view);
-
         builder.setPositiveButton("OK", null);
 
         AlertDialog dialog = builder.create();

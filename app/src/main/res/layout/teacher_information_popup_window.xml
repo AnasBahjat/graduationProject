@@ -91,6 +91,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
             android:layout_width="350dp"
+            android:layout_centerHorizontal="true"
             android:layout_height="wrap_content"
             android:layout_below="@+id/idTextLayout"
             android:layout_marginStart="32dp"
@@ -112,6 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
+                    android:layout_gravity="center_horizontal"
                     android:orientation="horizontal">
 
                     <RadioButton
@@ -432,7 +434,5 @@
             android:backgroundTint="@color/usedColor"
             android:layout_marginBottom="25dp"
             android:textColor="@color/white"/>
-
-
     </RelativeLayout>
 </ScrollView>

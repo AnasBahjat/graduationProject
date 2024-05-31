@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group>
         <item
-            android:id="@+id/homeMovies"
+            android:id="@+id/homeFragment"
             android:icon="@drawable/home_icon"
             android:title=""/>
 
 
         <item
-            android:id="@+id/bookmarkMovies"
+            android:id="@+id/savedJobsFragment"
             android:icon="@drawable/love_icon_3"
             android:title=""/>
 
         <item
-            android:id="@+id/settings"
+            android:id="@+id/profileFragment"
             android:icon="@drawable/user_icon"
             android:title=""/>
     </group>

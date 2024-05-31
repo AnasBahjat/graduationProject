@@ -74,7 +74,8 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         private void notificationClicked(int notificationType){
             if(notificationType == 1){
                 Intent intent = new Intent();
-                intent.setAction("showTeacherInformationWindow");
+               // intent.setAction("showTeacherInformationWindow");
+                intent.setAction("SHOW_TEACHER_INFORMATION_WINDOW");
                 context.sendBroadcast(intent);
             }
         }

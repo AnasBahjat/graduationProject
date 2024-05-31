@@ -4,28 +4,20 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -38,7 +30,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.graduationproject.adapters.NotificationsAdapter;
-import com.example.graduationproject.adapters.SetProfileNotifications;
 import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
@@ -47,14 +38,15 @@ import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
-import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
+import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
+import com.example.graduationproject.ui.teacherFragment.SavedJobsFragment;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
-import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -67,7 +59,7 @@ import java.util.List;
 
 public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener {
     private Database database;
-    private String firstName,lastName,email="anasyasine30@gmail.com",password,birthDate,phoneNumber,city,country,profileType="1",doneInformation="0";
+    private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,profileType,doneInformation;
     private ActivityAfterLoginBinding binding ;
     private BroadcastHandler broadcastHandler;
 
@@ -78,6 +70,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     FragmentTeacherBinding fragmentTeacherBinding ;
 
     Fragment currentFragment ;
+    private NotificationsPopupWindowBinding notificationsPopupWindowBinding;
 
 
     @Override
@@ -108,21 +101,50 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     private void initialize(){
         database=new Database(this);
         database.getNotifications(email,this);
+        notList=new ArrayList<>();
+        Log.d("----------> 11111111111","----------> 11111111111");
         if(profileType.equals("1")) {
             // ToDo (load parent fragment)
         }
         else{
             loadFragment(new TeacherFragment());
         }
+
+        Log.d("----------> 222222222222","----------> 222222222222");
+
+
+        checkIfItemSelected();
         checkIfAccountConfirmed();
         buildNavigationView();
         initBroadcastReceiver();
     }
 
+
+    private void checkIfItemSelected(){
+        binding.bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                if(menuItem.getItemId() == R.id.homeFragment){
+                    loadFragment(new TeacherFragment());
+                }
+                else if(menuItem.getItemId() == R.id.savedJobsFragment){
+                    loadFragment(new SavedJobsFragment());
+                }
+                else {
+                    //
+                }
+                return true;
+            }
+        });
+    }
+
+
+
     private void initBroadcastReceiver(){
         broadcastHandler = new BroadcastHandler();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("showTeacherInformationWindow");
+        intentFilter.addAction("SHOW_TEACHER_INFORMATION_WINDOW");
+        intentFilter.addAction("UPDATE_NOTIFICATIONS_RECYCLER_VIEW");
         int flags = 0 ;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
             flags = Context.RECEIVER_NOT_EXPORTED;
@@ -133,9 +155,10 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     private void checkIfAccountConfirmed(){
         fragmentTeacherBinding = FragmentTeacherBinding.inflate(getLayoutInflater());
         database.checkIfAccountDone(email,this);
-        binding.notificationImage.setOnClickListener(t->{
-            viewNotificationsPopUpWindow();
-        });
+    }
+
+    public void notificationImageClicked(View view) {
+        viewNotificationsPopUpWindow();
     }
 
 
@@ -183,6 +206,8 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
+
     public void logoutOnClick(View view) {
         String email=getIntent().getStringExtra("email");
         Intent intent=new Intent(AfterLoginActivity.this, LoginActivity.class);
@@ -190,17 +215,32 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
 
 
-
-
     private void viewNotificationsPopUpWindow(){
-        com.example.graduationproject.databinding.NotificationsPopupWindowBinding notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
         int width = ViewGroup.LayoutParams.WRAP_CONTENT;
         int height = 1500;
+
         notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
+        if(!notList.isEmpty()){
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
+            notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+        }
+        else {
+            notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+        }
         notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
         notificationPopupWindow.showAsDropDown(binding.notificationImage,0,0);
     }
+
+
+
+
+    public void updateNotifications(){
+        database.getNotifications(email,this);
+    }
+
+
+
 
     public void showTeacherInformationPopupWindow(){
         TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
@@ -218,6 +258,9 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         });
 
 
+
+
+
         teacherInformationPopupWindowBinding.collegeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -229,9 +272,6 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
             }
         });
-
-
-
         teacherInformationPopupWindowBinding.confirmInformationBtn.setOnClickListener(ss->{
             checkConfirmationButtonClicked(teacherInformationPopupWindowBinding);
         });
@@ -243,6 +283,10 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         onTextChangedIdText(teacherInformationPopupWindowBinding.numOfDaysAWeekEditText,teacherInformationPopupWindowBinding.daysAvailableLayout);
         onItemSelectedSpinner(teacherInformationPopupWindowBinding);
     }
+
+
+
+
 
 
     private void onItemSelectedSpinner(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding){
@@ -259,6 +303,12 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
             }
         });
     }
+
+
+
+
+
+
 
     private void updateFieldSpinner(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding,Spinner passedSpinner){
         String selectedCollege = teacherInformationPopupWindowBinding.collegeSpinner.getSelectedItem().toString();
@@ -293,16 +343,30 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         }
 
     }
+
+
+
+
+
+
+
+
     private void decrementNotificationsNumber(){
-        int numOfNotifications = Integer.parseInt(binding.numOfNotifications.getText().toString());
-        if(numOfNotifications - 1 > 0){
-            binding.numOfNotifications.setText(""+(Integer.parseInt(binding.numOfNotifications.getText().toString()) - 1));
-        }
-        else {
-            binding.numOfNotifications.setText("0");
-            binding.numOfNotifications.setVisibility(View.GONE);
+        if(!binding.numOfNotifications.getText().toString().isEmpty()){
+            int numOfNotifications = Integer.parseInt(binding.numOfNotifications.getText().toString());
+            if(numOfNotifications - 1 > 0){
+                binding.numOfNotifications.setText(""+(Integer.parseInt(binding.numOfNotifications.getText().toString()) - 1));
+            }
+            else {
+                binding.numOfNotifications.setText(null);
+                binding.numOfNotifications.setVisibility(View.GONE);
+            }
         }
     }
+
+
+
+
 
     private void onTextChangedIdText(EditText passedId, TextInputLayout layoutId){
         passedId.addTextChangedListener(new TextWatcher() {
@@ -322,6 +386,12 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
             }
         });
     }
+
+
+
+
+
+
 
     private void checkConfirmationButtonClicked(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding){
         boolean collegeFlag = true , fieldFlag = true;
@@ -391,12 +461,16 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
         if(!idStr.isEmpty() && !cityText.isEmpty()  && !countryText.isEmpty() && !daysAvailableWeekly.isEmpty()
                 && !hoursAvailableDaily.isEmpty() && collegeFlag && fieldFlag){
-                Teacher teacher=new Teacher("11111111111111111",idStr,studentOrGraduate+"",
+                Teacher teacher=new Teacher(email,idStr,studentOrGraduate+"",
                         graduationYear,collegeStr,fieldStr,
-                        daysAvailableWeekly,hoursAvailableDaily);
+                        daysAvailableWeekly,hoursAvailableDaily,new Address(cityText,countryText));
                 database.updateTeacherInformation(teacher,this);
         }
     }
+
+
+
+
 
     public void showCustomDialog() {
         final Dialog dialog = new Dialog(this);
@@ -407,6 +481,12 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         dialog.show();
     }
 
+
+
+
+
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -414,51 +494,45 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
 
 
+
+
+
     @Override
     public void onResult(int resultFlag) {
         if(resultFlag == 1){
             MyAlertDialog.showCustomDialogForTeacherAccountConfirmed(this);
+            teacherInformationPopupWindow.dismiss();
+            database.checkIfAccountDone(email,this);
         }
         else if(resultFlag == 0){
             // account already confirmed
             MyAlertDialog.teacherAccountAlreadyConfirmed(this);
         }
-        else if(resultFlag == -1){
-            MyAlertDialog.showCustomAlertDialogLoginError(this,this.getString(R.string.errorOccurredTitle),this.getString(R.string.errorOccurredMsg));
-        }
         else {
-            // volley error ...
+            MyAlertDialog.showCustomAlertDialogLoginError(this,this.getString(R.string.errorOccurredTitle),this.getString(R.string.errorOccurredMsg));
         }
     }
 
+
+
+
+
     @Override
-    public void updateTeacherFragment(int resultFlag, int doneFlag) {
-        if(doneFlag == 1){
-            // ToDo("View the views from fragment if the account is confirmed")
-            Toast.makeText(this, "11111111", Toast.LENGTH_SHORT).show();
-            fragmentTeacherBinding.textInputEditText.setVisibility(View.VISIBLE);
-            fragmentTeacherBinding.categoriesLinearLayout.setVisibility(View.VISIBLE);
-            fragmentTeacherBinding.mostPreferred.setVisibility(View.VISIBLE);
-            fragmentTeacherBinding.lastAdded.setVisibility(View.VISIBLE);
-            fragmentTeacherBinding.jobsRecyclerView.setVisibility(View.VISIBLE);
-            fragmentTeacherBinding.pleaseConfirmAccountText.setVisibility(View.GONE);
-            loadFragment(new TeacherFragment());
+    public void updateTeacherNotifications(int resultFlag,int notificationId) {
+        if(resultFlag == 0){
+            notList.add(new Notifications(1,"Confirm Account","Your Account is not Confirmed... Click here to confirm it",0));
+            binding.numOfNotifications.setText(""+notList.size());
         }
-        else if(doneFlag == 0){
-            // ToDo("Hide Views from fragment if the account is not confirmed")
-            Toast.makeText(this, "22222222222", Toast.LENGTH_SHORT).show();
-            fragmentTeacherBinding.textInputEditText.setVisibility(View.GONE);
-            fragmentTeacherBinding.categoriesLinearLayout.setVisibility(View.GONE);
-            fragmentTeacherBinding.mostPreferred.setVisibility(View.GONE);
-            fragmentTeacherBinding.lastAdded.setVisibility(View.GONE);
-            fragmentTeacherBinding.jobsRecyclerView.setVisibility(View.GONE);
-            fragmentTeacherBinding.pleaseConfirmAccountText.setVisibility(View.VISIBLE);
-            loadFragment(new TeacherFragment());
+        else if(resultFlag == 1){
+            database.deleteConfirmedAccountNotification(notificationId,this);
         }
         else {
             // ToDo("Handle if there are an error")
         }
     }
+
+
+
 
     @Override
     public void getNotifications(int result, JSONArray notificationsJsonArray) {
@@ -472,8 +546,15 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
                             Integer.parseInt(jsonObject.getString("isRead")));
                     notificationsList.add(notification);
                 }
-                notList=notificationsList;
-                binding.numOfNotifications.setText(""+notList.size());
+                if(!(notList.size() == 1 && (notList.get(0).getNotificationType() == 1 || notList.get(0).getNotificationType() == 0))){
+                    notList.clear();
+                }
+                notList.addAll(notificationsList);
+                if(!notList.isEmpty()){
+                    binding.numOfNotifications.setText(""+notList.size());
+                }
+                else
+                    binding.numOfNotifications.setText(null);
             }
             catch (JSONException e) {
                 throw new RuntimeException(e);
@@ -484,4 +565,14 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         }
     }
 
+    @Override
+    public void confirmNotificationDeleted(int flag) {
+        if(flag==1){
+            notList.clear();
+            database.getNotifications(email,this);
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong..There are an error occurred");
+        }
+    }
 }

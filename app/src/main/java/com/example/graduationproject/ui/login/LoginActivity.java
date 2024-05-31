@@ -26,6 +26,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class LoginActivity extends AppCompatActivity implements RequestResult {
     private Database database;
     private ActivityLoginBinding binding ;
@@ -36,6 +39,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         EdgeToEdge.enable(this);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         initialize();
     }
 
@@ -96,6 +100,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         });
 
         if(!binding.emailText.getEditText().getText().toString().isEmpty() && !binding.passwordText.getEditText().getText().toString().isEmpty()){
+            binding.loginProgressBar.setVisibility(View.VISIBLE);
             database.loginCheck(binding.emailText.getEditText().getText().toString(),binding.passwordText.getEditText().getText().toString(),this);
 
         }
@@ -115,14 +120,22 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     public void onLoginSuccess(String message,JSONArray loginSuccessData) {
         if(message.equals("email does not exist")){
             binding.emailText.setError("Email is not registered");
+            binding.loginProgressBar.setVisibility(View.GONE);
         }
         else if(message.equals("wrong password")){
+            binding.loginProgressBar.setVisibility(View.GONE);
             binding.passwordText.setError("Wrong password ");
         }
         else if(message.equals("ERROR")){
-
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Login Error","Something went wrong , please try again later");
+            binding.loginProgressBar.setVisibility(View.GONE);
+        }
+        else if(message.equals("volleyError")){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Login Error","Something went wrong , please try again later");
+            binding.loginProgressBar.setVisibility(View.GONE);
         }
         else {
+            binding.loginProgressBar.setVisibility(View.GONE);
                 try {
                     Intent intent=new Intent(this, AfterLoginActivity.class);
                     JSONObject jsonObject=loginSuccessData.getJSONObject(0);

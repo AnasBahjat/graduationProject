@@ -2,17 +2,21 @@ package com.example.graduationproject.ui.teacherFragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.UnderGraduateJobsAdapters;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.models.Job;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +48,4 @@ public class TeacherFragment extends Fragment {
         adapter = new UnderGraduateJobsAdapters(test,getContext());
         binding.jobsRecyclerView.setAdapter(adapter);
     }
-
-    public void hideOrUnHideViews(int flag){
-
-    }
-
 }

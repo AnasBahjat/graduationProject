@@ -1,10 +1,9 @@
 package com.example.graduationproject.database;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
-
-import androidx.annotation.Nullable;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -13,6 +12,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
@@ -49,19 +49,49 @@ public class Database {
 
     public void checkIfAccountDone(String email,final TeacherAccountConfirmationListener requestResult){
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.checkAccountDoneURL,res->{
-            if(res.equalsIgnoreCase("Done")){
-                requestResult.updateTeacherFragment(1,1);
+            if(res.equalsIgnoreCase("Not Done")){
+                requestResult.updateTeacherNotifications(0,-5); // show the notification to confirm account ..
+            }
+            else if(res.equalsIgnoreCase("Error") || res.equalsIgnoreCase("")){
+                requestResult.updateTeacherNotifications(-1,-5); // error occurred ..
             }
             else {
-                requestResult.updateTeacherFragment(0,0);
+                requestResult.updateTeacherNotifications(1,Integer.parseInt(res)); // the account is done don't show notification
             }
         },errRes ->{
-            requestResult.updateTeacherFragment(-1,-1);
+            requestResult.updateTeacherNotifications(-2,-5); // error occurred .
         }){
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String>data=new HashMap<>();
                 data.put("email",email.toLowerCase());
+                return data;
+            }
+        };
+        requestQueue=Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+
+    public void deleteConfirmedAccountNotification(int notificationId, Context context){
+        StringRequest stringRequest=new StringRequest(Request.Method.POST,Constants.deleteConfirmedNotificationURL, res->{
+            if(res.equalsIgnoreCase("Error")){
+                MyAlertDialog.showCustomAlertDialogLoginError(context,"Error","Something went wrong please try again later");
+            }
+            else {
+                Intent intent = new Intent();
+                intent.setAction("UPDATE_NOTIFICATIONS_RECYCLER_VIEW");
+                context.sendBroadcast(intent);
+            }
+        },err->{
+            if(err.toString().equalsIgnoreCase("Error")){
+                MyAlertDialog.showCustomAlertDialogLoginError(context,"Error","Something went wrong please try again later");
+            }
+        }){
+            @Override
+            protected Map<String,String> getParams() throws AuthFailureError{
+                Map<String,String> data= new HashMap<>();
+                data.put("notificationId",notificationId+"");
                 return data;
             }
         };
@@ -131,6 +161,7 @@ public class Database {
             }
         }, volleyError -> {
             Toast.makeText(context,volleyError.toString()+"1111",Toast.LENGTH_SHORT).show();
+            requestFlagSetResult.onLoginSuccess("volleyError",null);
             successFlag=-1;
         }){
             @Override
@@ -315,12 +346,11 @@ public class Database {
     }
 
     public void updateTeacherInformation(Teacher teacher,final TeacherAccountConfirmationListener requestResult){
-        StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.confirmTeacherAccountURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
+        Log.d("Email -----> "+teacher.getEmail(),"Email -----> "+teacher.getEmail());
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.updateTeacherInformation, s-> {
+            Toast.makeText(context,s,Toast.LENGTH_LONG).show();
                 if(s.equalsIgnoreCase("exists")){
                     requestResult.onResult(0);
-
                 }
                 else if(s.equalsIgnoreCase("Done insertion")){
                     requestResult.onResult(1);
@@ -328,12 +358,8 @@ public class Database {
                 else {
                     requestResult.onResult(-1);
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
+        }, err-> {
                 requestResult.onResult(-2);
-            }
         }){
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -346,6 +372,8 @@ public class Database {
                 data.put("field",teacher.getField());
                 data.put("daysAvailableWeekly",teacher.getDaysAvailableWeekly());
                 data.put("hoursAvailableDaily",teacher.getHoursAvailableDaily());
+                data.put("city",teacher.getAddress().getCity());
+                data.put("country",teacher.getAddress().getCountry());
                 return data;
             }
         };
