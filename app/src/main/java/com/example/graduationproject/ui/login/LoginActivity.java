@@ -1,6 +1,9 @@
 package com.example.graduationproject.ui.login;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
@@ -10,7 +13,12 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 //import com.google.android.material.textfield.TextInputEditText;
 import com.example.graduationproject.database.Database;
@@ -20,7 +28,10 @@ import com.example.graduationproject.R;
 import com.example.graduationproject.ui.register.RegisterActivity;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.ui.afterLogin.AfterLoginActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.*;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,15 +44,25 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     private Database database;
     private ActivityLoginBinding binding ;
 
+    private ActivityResultLauncher<String> resultLauncher= registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+            isGranted-> {
+        if(isGranted){
+
+        }
+        else {
+
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         initialize();
     }
+
 
     @Override
     protected void onRestart() {

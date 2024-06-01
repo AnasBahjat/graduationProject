@@ -50,4 +50,9 @@
     <string name="login_loading">Login …</string>
     <string name="no_notifications_added_text">No Notifications</string>
     <string name="create_account_text">create Account</string>
+    <string name="personal_information_text">Personal Information</string>
+    <string name="account_image_text">Account Image</string>
+    <string name="name_text">Name :</string>
+    <string name="email_text_ms">Email :</string>
+    <string name="phone_number_text">Phone number :</string>
 </resources>

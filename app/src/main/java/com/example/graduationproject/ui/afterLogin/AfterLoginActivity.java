@@ -43,6 +43,7 @@ import com.example.graduationproject.listeners.TeacherAccountConfirmationListene
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
+import com.example.graduationproject.ui.commonFragment.ProfileFragment;
 import com.example.graduationproject.ui.teacherFragment.SavedJobsFragment;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
@@ -102,15 +103,12 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         database=new Database(this);
         database.getNotifications(email,this);
         notList=new ArrayList<>();
-        Log.d("----------> 11111111111","----------> 11111111111");
         if(profileType.equals("1")) {
             // ToDo (load parent fragment)
         }
         else{
             loadFragment(new TeacherFragment());
         }
-
-        Log.d("----------> 222222222222","----------> 222222222222");
 
 
         checkIfItemSelected();
@@ -131,7 +129,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
                     loadFragment(new SavedJobsFragment());
                 }
                 else {
-                    //
+                    loadFragment(new ProfileFragment());
                 }
                 return true;
             }
