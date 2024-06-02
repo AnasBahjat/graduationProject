@@ -187,7 +187,6 @@ public class Database {
                 profile.getBirthDate(),
                 profile.getGender(),
                 profile.getPassword(),
-                profile.getPhoneNumber(),
                 profile.getProfileType());
 
         call.enqueue(new Callback<ResponseBody>() {
@@ -253,7 +252,6 @@ public class Database {
                 data.put("profileType",profile.getProfileType());
                 data.put("birthDate",profile.getBirthDate());
                 data.put("idNumber",profile.getFirstname().trim());
-                data.put("phoneNumber",profile.getPhoneNumber().trim());
                 return data;
             }
 
@@ -345,7 +343,7 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void updateTeacherInformation(Teacher teacher,final TeacherAccountConfirmationListener requestResult){
+    public void updateTeacherInformation(Teacher teacher,String fullPhoneNumber,final TeacherAccountConfirmationListener requestResult){
         Log.d("Email -----> "+teacher.getEmail(),"Email -----> "+teacher.getEmail());
         StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.updateTeacherInformation, s-> {
             Toast.makeText(context,s,Toast.LENGTH_LONG).show();
@@ -374,6 +372,7 @@ public class Database {
                 data.put("hoursAvailableDaily",teacher.getHoursAvailableDaily());
                 data.put("city",teacher.getAddress().getCity());
                 data.put("country",teacher.getAddress().getCountry());
+                data.put("phoneNumber",fullPhoneNumber);
                 return data;
             }
         };

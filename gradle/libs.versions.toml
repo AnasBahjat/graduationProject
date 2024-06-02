@@ -1,5 +1,6 @@
 [versions]
 agp = "8.3.0"
+ccp = "2.6.0"
 firebaseBom = "32.7.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -14,6 +15,7 @@ googleServices = "4.4.2"
 firebaseMessaging = "24.0.0"
 
 [libraries]
+ccp = { module = "com.hbb20:ccp", version.ref = "ccp" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

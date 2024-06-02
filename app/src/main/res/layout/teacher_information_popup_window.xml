@@ -57,6 +57,30 @@
                 android:background="#7FE1EE" />
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/teacherProfileImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="100dp"
+            android:contentDescription="@string/profile_image_dsc"
+            android:src="@drawable/user"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/selectImageBtn"
+            android:layout_width="90dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="185dp"
+            android:layout_toEndOf="@+id/teacherProfileImage"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/usedColor"
+            android:text="@string/select_image_msg"
+            android:textAllCaps="false" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/idTextLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -67,7 +91,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="32dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="240dp"
             android:layout_marginEnd="32dp"
             android:hint="@string/university_id_text"
             app:counterEnabled="true"
@@ -88,14 +112,92 @@
                 android:background="@drawable/edit_text_style" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <LinearLayout
+            android:id="@+id/phoneLinearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/idTextLayout"
+            app:errorTextAppearance="@style/error_text">
+
+            <!--     <EditText
+                     android:layout_width="80dp"
+                     android:layout_height="66dp"
+                     android:background="@drawable/edit_text_style"
+                     android:inputType="number"
+                     android:maxLength="3"
+                     android:textSize="18sp" />-->
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/phoneNumberPrefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:ccp_showFullName="false"
+                app:ccp_showPhoneCode="true"
+                app:ccp_showNameCode="false"
+                app:ccp_showFlag="true"
+                app:ccp_showArrow="true"
+                app:ccp_autoFormatNumber="true"
+                android:layout_marginTop="20dp"
+                app:ccp_textSize="16sp"
+                app:ccpDialog_keyboardAutoPopup="false"
+                />
+
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phoneNumber"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="10dp"
+                android:hint="Phone Number"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_24"
+                app:errorTextAppearance="@style/error_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/phone_number_icon">
+
+                <EditText
+                    android:id="@+id/edtTextPhoneNumber"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/confirmPhoneNumBtn"
+            android:layout_width="140dp"
+            android:layout_height="35dp"
+            android:layout_below="@id/phoneLinearLayout"
+            android:layout_marginStart="250dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/gray"
+            android:text="@string/confirm_number_text"
+            android:textAllCaps="false" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
             android:layout_width="350dp"
             android:layout_centerHorizontal="true"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/idTextLayout"
+            android:layout_below="@+id/phoneLinearLayout"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="70dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"

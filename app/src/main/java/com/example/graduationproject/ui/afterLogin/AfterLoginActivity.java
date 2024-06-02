@@ -18,11 +18,13 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -44,12 +46,19 @@ import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.ui.commonFragment.ProfileFragment;
+import com.example.graduationproject.ui.parentFragment.ParentFragment;
+import com.example.graduationproject.ui.teacherFragment.PopUpWindows;
 import com.example.graduationproject.ui.teacherFragment.SavedJobsFragment;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +66,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener {
     private Database database;
@@ -72,6 +82,11 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
     Fragment currentFragment ;
     private NotificationsPopupWindowBinding notificationsPopupWindowBinding;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    Long timeOutSeconds = 60L;
+
+    PhoneAuthProvider.ForceResendingToken resendingToken;
+    String verificationCode;
 
 
     @Override
@@ -103,18 +118,17 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         database=new Database(this);
         database.getNotifications(email,this);
         notList=new ArrayList<>();
-        if(profileType.equals("1")) {
-            // ToDo (load parent fragment)
+        if(profileType.equals("0")) {
+            loadFragment(new ParentFragment());
         }
         else{
             loadFragment(new TeacherFragment());
         }
-
-
         checkIfItemSelected();
         checkIfAccountConfirmed();
         buildNavigationView();
         initBroadcastReceiver();
+
     }
 
 
@@ -255,9 +269,12 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
             teacherInformationPopupWindow.dismiss();
         });
 
-
-
-
+        teacherInformationPopupWindowBinding.teacherProfileImage.setOnClickListener(ss->{
+       //     selectProfileImage();
+        });
+        teacherInformationPopupWindowBinding.selectImageBtn.setOnClickListener(ss->{
+       //     selectProfileImage();
+        });
 
         teacherInformationPopupWindowBinding.collegeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -274,17 +291,30 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
             checkConfirmationButtonClicked(teacherInformationPopupWindowBinding);
         });
 
+        teacherInformationPopupWindowBinding.confirmPhoneNumBtn.setOnClickListener(asd->{
+            checkPhoneNumberField(teacherInformationPopupWindowBinding);
+
+        });
+
         onTextChangedIdText(teacherInformationPopupWindowBinding.idText,teacherInformationPopupWindowBinding.idTextLayout);
         onTextChangedIdText(teacherInformationPopupWindowBinding.cityText,teacherInformationPopupWindowBinding.cityLayout);
         onTextChangedIdText(teacherInformationPopupWindowBinding.countryText,teacherInformationPopupWindowBinding.countryLayout);
         onTextChangedIdText(teacherInformationPopupWindowBinding.numOfHoursADayEditText,teacherInformationPopupWindowBinding.hoursAvailableLayout);
         onTextChangedIdText(teacherInformationPopupWindowBinding.numOfDaysAWeekEditText,teacherInformationPopupWindowBinding.daysAvailableLayout);
+        onTextChangedIdText(teacherInformationPopupWindowBinding.edtTextPhoneNumber,teacherInformationPopupWindowBinding.phoneNumber);
         onItemSelectedSpinner(teacherInformationPopupWindowBinding);
     }
 
-
-
-
+    private void checkPhoneNumberField(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding){
+        String phoneNumberStr = teacherInformationPopupWindowBinding.edtTextPhoneNumber.getText().toString().trim();
+        if(phoneNumberStr.isEmpty() || phoneNumberStr.length() < 9 || phoneNumberStr.length() > 11){
+            teacherInformationPopupWindowBinding.phoneNumber.setError("*Please Enter a valid Phone Number");
+        }
+        else {
+            teacherInformationPopupWindowBinding.phoneNumberPrefix.registerCarrierNumberEditText(teacherInformationPopupWindowBinding.edtTextPhoneNumber);
+            PopUpWindows.showConfirmPhoneNumberPopupWindow(this,this,getLayoutInflater(),teacherInformationPopupWindowBinding.phoneNumberPrefix.getFullNumber());
+        }
+    }
 
 
     private void onItemSelectedSpinner(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding){
@@ -305,12 +335,8 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
 
 
-
-
-
     private void updateFieldSpinner(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding,Spinner passedSpinner){
         String selectedCollege = teacherInformationPopupWindowBinding.collegeSpinner.getSelectedItem().toString();
-        Log.d("123123123 "+selectedCollege,"123123123 "+selectedCollege);
         ArrayAdapter <String> adapter ;
         teacherInformationPopupWindowBinding.collegeLayout.setError(null);
         teacherInformationPopupWindowBinding.collegeErrorText.setVisibility(View.GONE);
@@ -389,8 +415,6 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
 
 
-
-
     private void checkConfirmationButtonClicked(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding){
         boolean collegeFlag = true , fieldFlag = true;
         String idStr = teacherInformationPopupWindowBinding.idText.getText().toString().trim();
@@ -405,6 +429,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         String hoursAvailableDaily = teacherInformationPopupWindowBinding.numOfHoursADayEditText.getText().toString().trim();
         String cityText = teacherInformationPopupWindowBinding.cityText.getText().toString().trim();
         String countryText = teacherInformationPopupWindowBinding.countryText.getText().toString().trim();
+        String phoneNumberStr = teacherInformationPopupWindowBinding.edtTextPhoneNumber.getText().toString();
 
         if(idStr.isEmpty()){
             teacherInformationPopupWindowBinding.idTextLayout.setError("*Please Fill in this field");
@@ -456,13 +481,18 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
             teacherInformationPopupWindowBinding.hoursAvailableLayout.setError("*Please enter a valid number of Hours a day ..");
         }
 
+        if(phoneNumberStr.isEmpty() || phoneNumberStr.length() < 9 || phoneNumberStr.length() > 11){
+            teacherInformationPopupWindowBinding.phoneNumber.setError("*Please enter a valid Phone Number");
+        }
+
 
         if(!idStr.isEmpty() && !cityText.isEmpty()  && !countryText.isEmpty() && !daysAvailableWeekly.isEmpty()
-                && !hoursAvailableDaily.isEmpty() && collegeFlag && fieldFlag){
+                && !hoursAvailableDaily.isEmpty()&& !phoneNumberStr.isEmpty() && collegeFlag && fieldFlag ){
+                teacherInformationPopupWindowBinding.phoneNumberPrefix.registerCarrierNumberEditText(teacherInformationPopupWindowBinding.edtTextPhoneNumber);
                 Teacher teacher=new Teacher(email,idStr,studentOrGraduate+"",
                         graduationYear,collegeStr,fieldStr,
                         daysAvailableWeekly,hoursAvailableDaily,new Address(cityText,countryText));
-                database.updateTeacherInformation(teacher,this);
+                database.updateTeacherInformation(teacher,teacherInformationPopupWindowBinding.phoneNumberPrefix.getFullNumber(),this);
         }
     }
 

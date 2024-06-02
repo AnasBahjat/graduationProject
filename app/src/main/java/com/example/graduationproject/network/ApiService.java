@@ -19,7 +19,6 @@ public interface ApiService {
                                         @Field("birthDate") String birthDate,
                                         @Field("gender") String gender,
                                         @Field("password") String password,
-                                        @Field("phoneNumber") String phoneNumber,
                                         @Field("profileType") String profileType);
 
     @FormUrlEncoded

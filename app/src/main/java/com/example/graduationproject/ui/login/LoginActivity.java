@@ -165,7 +165,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                     String lastName=jsonObject.getString("lastname");
                     String password=jsonObject.getString("password");
                     String birthDate=jsonObject.getString("birthDate");
-                    String phoneNumber=jsonObject.getString("phoneNumber");
                     String profileType = jsonObject.getString("profileType");
 
                     intent.putExtra("email",email);
@@ -173,7 +172,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                     intent.putExtra("lastName",lastName);
                     intent.putExtra("password",password);
                     intent.putExtra("birthDate",birthDate);
-                    intent.putExtra("phoneNumber",phoneNumber);
                     intent.putExtra("profileType",profileType);
                     intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
                     startActivity(intent);

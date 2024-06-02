@@ -24,6 +24,8 @@ import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.R;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.models.Profile;
+import com.hbb20.CountryCodePicker;
+
 import org.json.JSONArray;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -32,7 +34,7 @@ import java.util.regex.Pattern;
 import java.util.Calendar;
 
 public class RegisterActivity extends AppCompatActivity implements RequestResult {
-    private String firstnameStr,lastnameStr,emailStr,passwordStr,confPasswordStr,phoneNumberStr,phonePrefixStr,selectedDate;
+    private String firstnameStr,lastnameStr,emailStr,passwordStr,confPasswordStr,phonePrefixStr,selectedDate;
 
     boolean dataValidFlag=false;
     private int genderSelected,profileSelected;
@@ -61,6 +63,9 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         }
 
 
+
+
+
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.genderSpinner,R.layout.spinner_custom);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.genderSpinner.setAdapter(adapter);
@@ -72,6 +77,8 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
 
 
 
+
+
     @SuppressLint("ResourceAsColor")
     public void registerClicked(View view) {
         firstnameStr= Objects.requireNonNull(binding.firstname.getEditText()).getText().toString();
@@ -79,8 +86,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         emailStr= Objects.requireNonNull(binding.email.getEditText()).getText().toString() ;
         passwordStr= Objects.requireNonNull(binding.password.getEditText()).getText().toString() ;
         confPasswordStr= Objects.requireNonNull(binding.passwordConfirm.getEditText()).getText().toString();
-        phoneNumberStr= Objects.requireNonNull(binding.phoneNumber.getEditText()).getText().toString();
-        phonePrefixStr= Objects.requireNonNull(binding.phonePrefix.getEditText()).getText().toString();
         if(firstnameStr.isEmpty()){
             binding.firstname.setError("* Fill in this field");
         }
@@ -100,14 +105,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         if(confPasswordStr.isEmpty()){
             binding.passwordConfirm.setError("* Fill in this field");
         }
-        if(phoneNumberStr.isEmpty()){
-            binding.phoneNumber.setError("* Fill in above fields");
-        }
-
-        if(phonePrefixStr.isEmpty()){
-            binding.phonePrefix.setError("*");
-        }
-
 
         if(checkContainSpace(firstnameStr.trim())){
             binding.firstname.setError("* First name should have only characters and no space");
@@ -201,41 +198,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             }
         });
 
-        binding.phoneNumber.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                binding.phoneNumber.setError(null);
-                binding.phonePrefix.setError(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-        binding.phonePrefix.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                binding.phoneNumber.setError(null);
-                binding.phonePrefix.setError(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
 
 
         if(passwordStr.length() > 25){
@@ -299,13 +261,10 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             binding.email.setError(null);
             binding.password.setError(null);
             binding.passwordConfirm.setError(null);
-            binding.phonePrefix.setError(null);
-            binding.phoneNumber.setError(null);
             binding.birthDateLayout.setError(null);
             Database insertNewProfile=new Database(getApplicationContext());
-            String phoneNumber = phonePrefixStr+" "+phoneNumberStr;
-            Profile profile=new Profile(firstnameStr.toLowerCase(),lastnameStr.trim(),emailStr.trim(),passwordStr,selectedDate,genderSelected+"",profileSelected+"",phoneNumber.trim());
-           insertNewProfile.registerNewProfile(profile,this);
+            Profile profile=new Profile(firstnameStr.toLowerCase(),lastnameStr.trim(),emailStr.trim(),passwordStr,selectedDate,genderSelected+"",profileSelected+"");
+            insertNewProfile.registerNewProfile(profile,this);
             dataValidFlag=true ;
         }
         else if(!checkAll()){
@@ -338,8 +297,8 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
 
 
         return (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
-                && !passwordStr.isEmpty() && !confPasswordStr.isEmpty() && !phoneNumberStr.isEmpty()
-                && !phonePrefixStr.isEmpty() && passwordStr.equals(confPasswordStr) && isEmailValid() &&
+                && !passwordStr.isEmpty() && !confPasswordStr.isEmpty()
+                 && passwordStr.equals(confPasswordStr) && isEmailValid() &&
                 passwordStr.trim().length() > 10 && containsTwoCases() && gender && profileType && containsOnlyCharacters(firstnameStr) && containsOnlyCharacters(lastnameStr)
         && validBirthDateFlag != 0 && !checkContainSpace(firstnameStr.trim()) && !checkContainSpace(lastnameStr.trim())) ;
     }

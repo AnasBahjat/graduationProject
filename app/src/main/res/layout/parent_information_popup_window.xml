@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/teacherInformationLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="#F2ECF6"
+    android:background="@drawable/rounded_corners">
+    <RelativeLayout
+        android:id="@+id/teacherInformationLayoutParent"
+        android:layout_width="wrap_content"
+        android:layout_height="570dp">
+
+        <ImageView
+            android:id="@+id/closeParentInformationPopupWindow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/close_icon_2"
+            android:contentDescription="@string/close_popup_window_msg" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="55dp"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="@string/personal_information_text"
+                android:textSize="22sp" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/idTextParentLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="32dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="105dp"
+            android:layout_marginEnd="32dp"
+            android:hint="@string/university_id_text"
+            app:counterEnabled="true"
+            app:counterMaxLength="15"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:startIconDrawable="@drawable/university_id_icon"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:errorTextAppearance="@style/error_text"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <EditText
+                android:id="@+id/idTextParent"
+                android:layout_width="match_parent"
+                android:inputType="number"
+                android:maxLength="15"
+                android:layout_height="50dp"
+                android:background="@drawable/edit_text_style" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/numOfChildrenLayout"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:hintEnabled="true"
+            android:hint="@string/number_of_children_text"
+            android:layout_below="@id/idTextParentLayout"
+            android:layout_centerHorizontal="true"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:startIconDrawable="@drawable/child_icon"
+            app:endIconMode="clear_text"
+            android:inputType="number">
+            <EditText
+                android:id="@+id/numOfChildren"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/edit_text_style"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/addressInformation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/numOfChildrenLayout"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="@string/teacher_account_confirmation_text"
+                android:textSize="22sp" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cityLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/addressInformation"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:hintEnabled="true"
+            app:errorEnabled="true"
+            android:layout_marginTop="10dp"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            android:hint="City"
+            app:startIconDrawable="@drawable/icon_city"
+            app:endIconMode="clear_text" >
+
+            <EditText
+                android:id="@+id/cityText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/edit_text_style"
+                android:maxLength="15" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/countryLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_below="@id/addressInformation"
+            android:layout_marginTop="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:hintEnabled="true"
+            android:hint="Country"
+            app:startIconDrawable="@drawable/icon_country"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            >
+            <EditText
+                android:id="@+id/countryText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:maxLength="15"
+                android:background="@drawable/edit_text_style"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/confirmInformationBtn"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/addressInformation"
+            android:layout_marginTop="165dp"
+            android:text="@string/confirm_information_text"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/usedColor"
+            android:layout_marginBottom="25dp"
+            android:textColor="@color/white"/>
+    </RelativeLayout>
+</ScrollView>
