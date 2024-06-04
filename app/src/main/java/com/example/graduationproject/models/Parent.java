@@ -12,6 +12,7 @@ public class Parent extends Student{
     private Address address;
     private List stdlist;
 
+
     public Parent(String name, String email, String idNumber, String field, Address address, List stdlist) {
         this.name = name;
         this.email = email;

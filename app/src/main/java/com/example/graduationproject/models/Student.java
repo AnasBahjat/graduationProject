@@ -9,6 +9,7 @@ public class Student {
     private String idNumber;
     private String field;
     private Address address;
+    private String birthdate;
 
     public Student(String name, String email, Image prfileImage, String idNumber, String field, Address address) {
         this.name = name;
