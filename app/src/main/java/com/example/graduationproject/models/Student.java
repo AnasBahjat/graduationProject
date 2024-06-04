@@ -2,36 +2,25 @@ package com.example.graduationproject.models;
 
 import android.media.Image;
 
-import java.util.List;
-
-public class Parent extends Student{
+public class Student {
     private  String name;
     private String email;
+    private Image prfileImage;
     private String idNumber;
     private String field;
     private Address address;
-    private List stdlist;
 
-    public Parent(String name, String email, String idNumber, String field, Address address, List stdlist) {
+    public Student(String name, String email, Image prfileImage, String idNumber, String field, Address address) {
         this.name = name;
         this.email = email;
+        this.prfileImage = prfileImage;
         this.idNumber = idNumber;
         this.field = field;
         this.address = address;
-        this.stdlist = stdlist;
     }
 
-    public Parent() {
-        super();
+    public Student() {
 
-    }
-
-    public List getStdlist() {
-        return stdlist;
-    }
-
-    public void setStdlist(List stdlist) {
-        this.stdlist = stdlist;
     }
 
     public String getName() {
@@ -50,7 +39,13 @@ public class Parent extends Student{
         this.email = email;
     }
 
+    public Image getPrfileImage() {
+        return prfileImage;
+    }
 
+    public void setPrfileImage(Image prfileImage) {
+        this.prfileImage = prfileImage;
+    }
 
     public String getIdNumber() {
         return idNumber;
