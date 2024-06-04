@@ -4,7 +4,7 @@ import android.media.Image;
 
 import java.util.List;
 
-public class Parent extends Student{
+public class Parent {
     private  String name;
     private String email;
     private String idNumber;
@@ -21,6 +21,8 @@ public class Parent extends Student{
         this.address = address;
         this.stdlist = stdlist;
     }
+
+
 
     public Parent() {
         super();
@@ -75,5 +77,10 @@ public class Parent extends Student{
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+
+    public  void addstd(Student std){
+        this.stdlist.add(std);
     }
 }
