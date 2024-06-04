@@ -10,7 +10,7 @@ public class Parent extends Student{
     private String idNumber;
     private String field;
     private Address address;
-    private List stdlist;
+    private  List<Student>  stdlist;
 
 
     public Parent(String name, String email, String idNumber, String field, Address address, List stdlist) {
