@@ -10,6 +10,8 @@ public class Student extends Parent{
     private Address address;
     private String birthdate;
 
+    private Profile stdProfile;
+
 
     public Student() {
 
@@ -74,5 +76,13 @@ public class Student extends Parent{
 
     public void setBirthdate(String birthdate) {
         this.birthdate = birthdate;
+    }
+
+    public Profile getStdProfile() {
+        return stdProfile;
+    }
+
+    public void setStdProfile(Profile stdProfile) {
+        this.stdProfile = stdProfile;
     }
 }

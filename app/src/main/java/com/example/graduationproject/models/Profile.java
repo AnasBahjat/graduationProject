@@ -1,5 +1,7 @@
 package com.example.graduationproject.models;
 
+import android.media.Image;
+
 public class Profile {
     private String firstname;
     private String lastname;
@@ -9,6 +11,7 @@ public class Profile {
     private String password;
     private String phoneNumber;
     private String profileType;
+    private Image img;
 
     public Profile(String firstname,String lastname,String email,String password,String birthDate,String gender,String profileType,String phoneNumber){
         this.firstname=firstname;
@@ -85,4 +88,11 @@ public class Profile {
         this.profileType = profileType;
     }
 
+    public Image getImg() {
+        return img;
+    }
+
+    public void setImg(Image img) {
+        this.img = img;
+    }
 }

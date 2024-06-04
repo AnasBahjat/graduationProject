@@ -10,6 +10,7 @@ public class Teacher {
     private String daysAvailableWeekly;
     private String hoursAvailableDaily;
     private Address address;
+    private Profile teacherProfile;
     public Teacher(String email,String idNumber,
                    String studentOrGraduate,String expectedGraduationYear,
                    String college,String field,
@@ -97,5 +98,13 @@ public class Teacher {
 
     public void setHoursAvailableDaily(String hoursAvailableDaily) {
         this.hoursAvailableDaily = hoursAvailableDaily;
+    }
+
+    public Profile getTeacherProfile() {
+        return teacherProfile;
+    }
+
+    public void setTeacherProfile(Profile teacherProfile) {
+        this.teacherProfile = teacherProfile;
     }
 }
