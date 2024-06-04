@@ -34,8 +34,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 public class Database {
-    String updateLoginURL = "http://192.168.1.4/graduationProject/updateLoginState.php/";
-    String updateLogoutURL="http://192.168.1.4/graduationProject/updateLogoutState.php/";
+    String updateLoginURL = "http://192.168.1.136/graduationProject/updateLoginState.php/";
+    String updateLogoutURL="http://192.168.1.136/graduationProject/updateLogoutState.php/";
+    //String updateLogoutURL="http://192.168.1.136/graduationProject/updateLogoutState.php/";naseem
 
    // private String URL = "http://192.168.1.4/graduationProject/";
     private Context context;

@@ -31,7 +31,7 @@ import com.example.graduationproject.ui.afterLogin.AfterLoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.*;
-import com.google.firebase.messaging.FirebaseMessaging;
+//import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONArray;
 import org.json.JSONException;
