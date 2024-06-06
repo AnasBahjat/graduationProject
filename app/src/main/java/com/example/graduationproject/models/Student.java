@@ -5,21 +5,30 @@ import android.media.Image;
 public class Student {
     private  String name;
     private Image prfileImage;
-    private String idNumber;
+    private String parentIdNumber;
+
+    private  String parentEmail;
     private String field;
     private Address address;
     private String birthdate;
     private Profile stdProfile;
+    private String eduLevel;
 
 
-    public Student(String name, Image prfileImage, String idNumber, String field, Address address, String birthdate, Profile stdProfile) {
+    public Student(String name, Image prfileImage, String parentIdNumber, String field, Address address, String birthdate, Profile stdProfile) {
         this.name = name;
         this.prfileImage = prfileImage;
-        this.idNumber = idNumber;
+        this.parentIdNumber = parentIdNumber;
         this.field = field;
         this.address = address;
         this.birthdate = birthdate;
         this.stdProfile = stdProfile;
+    }
+
+    public Student(String name, String parentIdNumber, String parentEmail) {
+        this.name = name;
+        this.parentIdNumber = parentIdNumber;
+        this.parentEmail = parentEmail;
     }
 
     public String getName() {
@@ -39,11 +48,11 @@ public class Student {
     }
 
     public String getIdNumber() {
-        return idNumber;
+        return parentIdNumber;
     }
 
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
+    public void setIdNumber(String parentIdNumber) {
+        this.parentIdNumber = parentIdNumber;
     }
 
     public String getField() {

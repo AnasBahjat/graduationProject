@@ -79,9 +79,14 @@ public class Parent {
     public void setAddress(Address address) {
         this.address = address;
     }
-
-
+    //to add created student object
     public  void addstd(Student std){
         this.stdlist.add(std);
     }
+    //to create student object the add it to the stdlist
+    public void addStudent(String name, String parentIdNumber, String parentEmail) {
+        Student student = new Student(name, parentIdNumber, parentEmail);
+        this.stdlist.add(student);
+    }
+
 }
