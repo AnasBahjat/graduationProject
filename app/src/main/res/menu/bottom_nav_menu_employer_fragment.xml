@@ -9,7 +9,6 @@
 
         <item
             android:id="@+id/savedJobsFragment"
-            android:icon="@drawable/love_icon_3"
             android:title=""/>
 
         <item

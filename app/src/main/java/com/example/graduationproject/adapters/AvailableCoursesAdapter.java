@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.databinding.CustomJobCardViewBinding;
@@ -12,12 +13,12 @@ import com.example.graduationproject.models.Job;
 
 import java.util.List;
 
-public class UnderGraduateJobsAdapters extends RecyclerView.Adapter<UnderGraduateJobsAdapters.ViewHolder>{
+public class AvailableCoursesAdapter extends RecyclerView.Adapter<AvailableCoursesAdapter.ViewHolder>{
     public CustomJobCardViewBinding binding;
     private List<Job> jobsList;
     private final Context context ;
 
-    public UnderGraduateJobsAdapters(List<Job> jobsList, Context context){
+    public AvailableCoursesAdapter(List<Job> jobsList, Context context){
         this.jobsList=jobsList;
         this.context=context;
     }
@@ -51,5 +52,6 @@ public class UnderGraduateJobsAdapters extends RecyclerView.Adapter<UnderGraduat
             binding.jobTitle.setText(job.getJobTitle());
             binding.teacherRate.setText("000000000");
         }
+
     }
 }

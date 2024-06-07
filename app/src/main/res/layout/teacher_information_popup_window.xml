@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/teacherInformationLayout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    android:layout_width="1290px"
     android:layout_height="wrap_content"
     android:backgroundTint="#F2ECF6"
     android:background="@drawable/rounded_corners">
@@ -57,29 +58,7 @@
                 android:background="#7FE1EE" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/teacherProfileImage"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="100dp"
-            android:contentDescription="@string/profile_image_dsc"
-            android:src="@drawable/user"/>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/selectImageBtn"
-            android:layout_width="90dp"
-            android:layout_height="30dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="185dp"
-            android:layout_toEndOf="@+id/teacherProfileImage"
-            android:background="@drawable/rounded_corners"
-            android:backgroundTint="@color/usedColor"
-            android:text="@string/select_image_msg"
-            android:textAllCaps="false" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/idTextLayout"
@@ -91,7 +70,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="32dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="240dp"
+            android:layout_marginTop="120dp"
             android:layout_marginEnd="32dp"
             android:hint="@string/university_id_text"
             app:counterEnabled="true"
@@ -158,6 +137,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="10dp"
                 android:hint="Phone Number"
+                tools:ignore="HardcodedText"
                 app:counterEnabled="true"
                 app:counterMaxLength="10"
                 app:endIconMode="clear_text"
@@ -172,23 +152,11 @@
                     android:layout_width="200dp"
                     android:layout_height="50dp"
                     android:background="@drawable/edit_text_style"
-                    android:inputType="number"
+                    android:inputType="phone"
                     android:maxLength="10"
                     android:textSize="15sp" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/confirmPhoneNumBtn"
-            android:layout_width="140dp"
-            android:layout_height="35dp"
-            android:layout_below="@id/phoneLinearLayout"
-            android:layout_marginStart="250dp"
-            android:layout_marginEnd="32dp"
-            android:background="@drawable/rounded_corners"
-            android:backgroundTint="@color/gray"
-            android:text="@string/confirm_number_text"
-            android:textAllCaps="false" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
@@ -197,7 +165,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/phoneLinearLayout"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="70dp">
+            android:layout_marginTop="15dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -224,6 +192,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="13dp"
                         android:text="Undergraduate"
+                        tools:ignore="HardcodedText"
                         android:checked="true"/>
 
                     <RadioButton
@@ -231,6 +200,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="40dp"
+                        tools:ignore="HardcodedText"
                         android:text="Graduate" />
                 </RadioGroup>
             </LinearLayout>
@@ -238,6 +208,7 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/graduationYearLayout"
             android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/textInputLayout"
@@ -365,80 +336,125 @@
                 android:textSize="15sp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/daysAvailableLayout"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/availabilityLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/fieldInformationLayout"
+            android:layout_below="@id/fieldInformationLayout"
             android:layout_marginTop="25dp"
-            android:layout_marginStart="32dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginEnd="32dp"
-            app:hintEnabled="true"
-            android:hint="@string/available_days_a_week_text"
-            app:errorEnabled="true"
-            app:endIconMode="clear_text"
-            app:errorIconDrawable="@drawable/baseline_error_24"
-            app:startIconDrawable="@drawable/week_icon"
-            app:hintTextAppearance="@style/CustomHintTextAppearance">
-            <EditText
-                android:id="@+id/numOfDaysAWeekEditText"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:inputType="number"
-                android:background="@drawable/edit_text_style"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Availability"
+                tools:ignore="HardcodedText"
+                android:textSize="20sp"
                 />
-
-           <!-- <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
+            <RadioGroup
+                android:id="@+id/availabilityRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+                <RadioButton
+                    android:id="@+id/availAnyTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Time Available "
-                    android:textSize="20sp" />
+                    android:text="Any time"
+                    tools:ignore="HardcodedText"
+                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
+                    android:checked="true"/>
+                <RadioButton
+                    android:id="@+id/availWeekend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText"
+                    android:text="Weekend only"
+                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
+                    />
+                <RadioButton
+                    android:id="@+id/availSpecificDays"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="specific days"
+                    tools:ignore="HardcodedText"
+                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"/>
+            </RadioGroup>
+        </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/timeAvailableSpinner"
-                    android:layout_width="230dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="15dp"
-                    android:entries="@array/collegeSpinner"
-                    android:spinnerMode="dropdown" />
-            </LinearLayout>-->
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/hoursAvailableLayout"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/daysLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/daysAvailableLayout"
-            app:errorIconDrawable="@drawable/baseline_error_24"
-            app:startIconDrawable="@drawable/hours_icon"
-            app:hintTextAppearance="@style/CustomHintTextAppearance"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginTop="10dp"
+            android:layout_below="@id/availabilityLayout"
             android:layout_centerHorizontal="true"
-            app:errorEnabled="true"
-            app:hintEnabled="true"
-            android:hint="@string/available_hours_a_day_text">
-            <EditText
-                android:id="@+id/numOfHoursADayEditText"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:inputType="number"
-                android:background="@drawable/edit_text_style"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:visibility="gone">
+            <CheckBox
+                android:id="@+id/saturday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sat"
+                android:textSize="13sp"
+
+                tools:ignore="HardcodedText" />
+            <CheckBox
+                android:id="@+id/sunday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+                android:text="Sun"/>
+            <CheckBox
+                android:id="@+id/monday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+                android:text="Mon"/>
+            <CheckBox
+                android:id="@+id/tuesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+
+                android:text="Tue"/>
+            <CheckBox
+                android:id="@+id/wednesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+
+                android:text="Wed"/>
+            <CheckBox
+                android:id="@+id/thursday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+
+                android:text="Thur"/>
+            <CheckBox
+                android:id="@+id/friday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="Fri"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/addressInformation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/hoursAvailableLayout"
-            android:layout_marginTop="15dp"
+            android:layout_below="@+id/availabilityLayout"
+            android:layout_marginTop="50dp"
             android:orientation="horizontal">
 
             <View
@@ -485,6 +501,7 @@
             android:layout_marginTop="10dp"
             app:errorIconDrawable="@drawable/baseline_error_24"
             android:hint="City"
+            tools:ignore="HardcodedText"
             app:startIconDrawable="@drawable/icon_city"
             app:endIconMode="clear_text" >
 
@@ -509,6 +526,7 @@
             android:layout_marginEnd="32dp"
             app:hintEnabled="true"
             android:hint="Country"
+            tools:ignore="HardcodedText"
             app:startIconDrawable="@drawable/icon_country"
             app:endIconMode="clear_text"
             app:errorEnabled="true"

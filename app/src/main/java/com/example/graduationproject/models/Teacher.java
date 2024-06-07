@@ -27,6 +27,19 @@ public class Teacher {
         this.address=address;
     }
 
+    public Teacher(String email,String idNumber,
+                   String studentOrGraduate,String expectedGraduationYear,
+                   String college,String field,
+                   Address address){
+        this.email=email;
+        this.idNumber=idNumber;
+        this.studentOrGraduate=studentOrGraduate;
+        this.expectedGraduationYear=expectedGraduationYear;
+        this.college=college;
+        this.field=field;
+        this.address=address;
+    }
+
     public Address getAddress() {
         return address;
     }

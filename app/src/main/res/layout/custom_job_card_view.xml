@@ -53,12 +53,4 @@
             android:text="@string/category_text"
             android:textSize="16sp" />
 
-        <ImageView
-            android:id="@+id/bookmarkButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="350dp"
-            android:layout_marginTop="50dp"
-            android:contentDescription="@string/saved_image"
-            app:srcCompat="@drawable/yellow_love_icon" />
 </com.google.android.material.card.MaterialCardView>
