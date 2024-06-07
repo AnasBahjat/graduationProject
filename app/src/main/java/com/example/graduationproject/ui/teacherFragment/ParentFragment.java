@@ -34,7 +34,7 @@ public class ParentFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_parent, container, false);
 
         parentName = view.findViewById(R.id.parentName);
@@ -46,7 +46,7 @@ public class ParentFragment extends Fragment {
         parentName.setText(parent.getName());
 
         studentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        studentAdapter = new StudentAdapter(parent.getStdlist(), this::onStudentSelected);
+        studentAdapter = new StudentAdapter(getDummyStudents(), this::onStudentSelected);
         studentRecyclerView.setAdapter(studentAdapter);
 
         return view;

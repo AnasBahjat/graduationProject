@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityIntroBinding;
+import com.example.graduationproject.ui.teacherFragment.ParentFragment;
+import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 
 public class IntroActivity extends AppCompatActivity {
     private Animation top,right,left;

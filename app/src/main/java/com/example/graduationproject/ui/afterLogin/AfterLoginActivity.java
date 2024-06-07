@@ -44,6 +44,7 @@ import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.ui.commonFragment.ProfileFragment;
+import com.example.graduationproject.ui.teacherFragment.ParentFragment;
 import com.example.graduationproject.ui.teacherFragment.SavedJobsFragment;
 import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
@@ -105,6 +106,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         notList=new ArrayList<>();
         if(profileType.equals("1")) {
             // ToDo (load parent fragment)
+            loadFragment(new ParentFragment());
         }
         else{
             loadFragment(new TeacherFragment());

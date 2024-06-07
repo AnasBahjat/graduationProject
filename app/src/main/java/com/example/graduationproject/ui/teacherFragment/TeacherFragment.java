@@ -30,8 +30,7 @@ public class TeacherFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentTeacherBinding.inflate(getLayoutInflater(),container,false);
         init();
         return binding.getRoot();
