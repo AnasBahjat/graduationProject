@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start"
+    tools:context=".ui.teacherUi.TeacherActivity">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="#58C3D1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/openSideNavigation"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="17dp"
+                    android:contentDescription="@string/navigate"
+                    android:foreground="@drawable/menu_icon"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <RelativeLayout
+                    android:id="@+id/notificationLayout"
+                    android:layout_width="36dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="369dp"
+                    android:clickable="true"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="13dp">
+
+                    <ImageView
+                        android:id="@+id/notificationImage"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="0dp"
+                        android:onClick="notificationImageClicked"
+                        android:contentDescription="@string/notifications_disc"
+                        android:src="@drawable/notification_icon" />
+
+                    <TextView
+                        android:id="@+id/numOfNotifications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="7dp"
+                        android:background="@drawable/custom_text_view_for_notification"
+                        android:textColor="@color/white" />
+                </RelativeLayout>
+            </RelativeLayout>
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragments_container"
+                android:name="com.example.graduationproject.ui.teacherUi.TeacherFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="68dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
+        </LinearLayout>
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="62dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            app:itemIconTint="@color/navBar"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="2dp"
+            app:itemIconSize="27dp"
+            android:layout_gravity="bottom"
+            app:menu="@menu/bottom_nav_menu_employer_fragment" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+    <TextView
+        android:id="@+id/accountIsNotConfirmText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please Confirm Your Account Information\nCheck notifications."
+        android:gravity="center_vertical|center_horizontal"
+        android:textSize="25sp"
+        android:textColor="#989898"
+        android:textAlignment="center"
+        android:visibility="gone"/>
+
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/side_navigation_header_under_graduate"
+        app:menu="@menu/side_nav_bar_menu"
+        />
+</androidx.drawerlayout.widget.DrawerLayout>

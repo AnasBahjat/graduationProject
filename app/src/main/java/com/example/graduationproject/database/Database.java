@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -16,11 +18,14 @@ import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
+import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Profile;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.network.ApiService;
 import com.example.graduationproject.network.RetrofitInitializer;
 import com.example.graduationproject.utils.Constants;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -344,7 +349,6 @@ public class Database {
     }
 
     public void updateTeacherInformation(Teacher teacher,String fullPhoneNumber,final TeacherAccountConfirmationListener requestResult){
-        Log.d("Email -----> "+teacher.getEmail(),"Email -----> "+teacher.getEmail());
         StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.updateTeacherInformation, s-> {
             Toast.makeText(context,s,Toast.LENGTH_LONG).show();
                 if(s.equalsIgnoreCase("exists")){
@@ -354,9 +358,11 @@ public class Database {
                     requestResult.onResult(1);
                 }
                 else {
+                    Log.d(s,s);
                     requestResult.onResult(-1);
                 }
         }, err-> {
+                Log.d(err.toString(),err.toString());
                 requestResult.onResult(-2);
         }){
             @Override
@@ -368,8 +374,7 @@ public class Database {
                 data.put("expectedGraduationYear",teacher.getExpectedGraduationYear());
                 data.put("college",teacher.getCollege());
                 data.put("field",teacher.getField());
-                data.put("daysAvailableWeekly",teacher.getDaysAvailableWeekly());
-                data.put("hoursAvailableDaily",teacher.getHoursAvailableDaily());
+                data.put("availability",teacher.getAvailability());
                 data.put("city",teacher.getAddress().getCity());
                 data.put("country",teacher.getAddress().getCountry());
                 data.put("phoneNumber",fullPhoneNumber);
@@ -407,6 +412,40 @@ public class Database {
                 Map<String,String> data=new HashMap<>();
                 data.put("email",email);
                 return data;
+            }
+        };
+        requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+
+
+    }
+    public void confirmParentInformation(Parent parent, final UpdateParentInformation updateParentInformation){
+        Gson gson = new Gson();
+        String jsonChildren = gson.toJson(parent.getChildrenList());
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.updateParentInformation,resp->{
+            if(resp.equalsIgnoreCase("Done Insertion")){
+                updateParentInformation.onResult(1);
+            }
+            else {
+                Log.d("--------> parent "+resp,"------> parent"+resp);
+                updateParentInformation.onResult(0);
+            }
+        },err->{
+            Log.d("--------> parent "+err.toString(),"------> parent"+err.toString());
+
+            updateParentInformation.onResult(-1);
+        }){
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",parent.getEmail());
+                data.put("idNumber",parent.getIdNumber());
+                data.put("phoneNumber",parent.getPhoneNumber());
+                data.put("city",parent.getCity());
+                data.put("country",parent.getCountry());
+                data.put("children",jsonChildren);
+                return data ;
             }
         };
         requestQueue = Volley.newRequestQueue(context);

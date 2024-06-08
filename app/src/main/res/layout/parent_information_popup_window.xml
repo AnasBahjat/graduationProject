@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/teacherInformationLayout"
+    android:id="@+id/parentInformationLayout"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="#F2ECF6"
     android:background="@drawable/rounded_corners">
     <RelativeLayout
-        android:id="@+id/teacherInformationLayoutParent"
+        android:id="@+id/parentInformationLayoutParent"
         android:layout_width="wrap_content"
         android:layout_height="570dp">
 
@@ -88,28 +89,97 @@
                 android:background="@drawable/edit_text_style" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/numOfChildrenLayout"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
+
+        <LinearLayout
+            android:id="@+id/phoneLinearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="32dp"
             android:layout_marginEnd="32dp"
-            app:hintEnabled="true"
-            android:hint="@string/number_of_children_text"
-            android:layout_below="@id/idTextParentLayout"
+            android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            app:errorEnabled="true"
-            app:errorIconDrawable="@drawable/baseline_error_24"
-            app:startIconDrawable="@drawable/child_icon"
-            app:endIconMode="clear_text"
-            android:inputType="number">
-            <EditText
-                android:id="@+id/numOfChildren"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/edit_text_style"
+            android:layout_below="@+id/idTextParentLayout"
+            app:errorTextAppearance="@style/error_text">
+
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/phoneNumberPrefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:ccp_showFullName="false"
+                app:ccp_showPhoneCode="true"
+                app:ccp_showNameCode="false"
+                app:ccp_showFlag="true"
+                app:ccp_showArrow="true"
+                app:ccp_autoFormatNumber="true"
+                android:layout_marginTop="20dp"
+                app:ccp_textSize="16sp"
+                app:ccpDialog_keyboardAutoPopup="false"
                 />
-        </com.google.android.material.textfield.TextInputLayout>
+
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phoneNumber"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="10dp"
+                android:hint="Phone Number"
+                tools:ignore="HardcodedText"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_24"
+                app:errorTextAppearance="@style/error_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/phone_number_icon">
+
+                <EditText
+                    android:id="@+id/edtTextPhoneNumber"
+                    android:layout_width="250dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/addChildBtn"
+            android:layout_width="120dp"
+            android:layout_height="40dp"
+            android:layout_below="@id/phoneLinearLayout"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="32dp"
+
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="#C6CECF"
+            android:text="Add Child"
+            android:textAllCaps="false"
+            android:textColor="@color/black" />
+
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexboxLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/addChildBtn"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:padding="8dp"
+            app:alignContent="flex_start"
+            app:flexWrap="wrap" />
 
 
 
@@ -117,7 +187,7 @@
             android:id="@+id/addressInformation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/numOfChildrenLayout"
+            android:layout_below="@+id/flexboxLayout"
             android:layout_marginTop="15dp"
             android:orientation="horizontal">
 

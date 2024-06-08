@@ -78,6 +78,11 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
                 intent.setAction("SHOW_TEACHER_INFORMATION_WINDOW");
                 context.sendBroadcast(intent);
             }
+            else if(notificationType == 0){
+                Intent intent = new Intent();
+                intent.setAction("SHOW_PARENT_INFORMATION_WINDOW");
+                context.sendBroadcast(intent);
+            }
         }
     }
 }

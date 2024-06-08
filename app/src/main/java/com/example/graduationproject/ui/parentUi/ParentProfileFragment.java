@@ -1,4 +1,4 @@
-package com.example.graduationproject.ui.parentFragment;
+package com.example.graduationproject.ui.parentUi;
 
 import android.os.Bundle;
 
@@ -10,13 +10,12 @@ import android.view.ViewGroup;
 
 import com.example.graduationproject.R;
 
-public class ParentFragment extends Fragment {
-
-
+public class ParentProfileFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_parent, container, false);
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_parent_profile, container, false);
     }
 }

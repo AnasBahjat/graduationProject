@@ -1,4 +1,4 @@
-package com.example.graduationproject.ui.teacherFragment;
+package com.example.graduationproject.ui.teacherUi;
 
 import android.os.Bundle;
 
@@ -34,7 +34,7 @@ public class TeacherFragment extends Fragment {
     }
 
     private void init(){
-        binding.jobsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.addedCoursesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
        List<Job> test = new ArrayList<>();
        test.add(new Job(1,"Naseem","category 1"));
        test.add(new Job(2,"aNAS","category 2"));
@@ -42,6 +42,6 @@ public class TeacherFragment extends Fragment {
        test.add(new Job(4,"donia","category 4"));
        test.add(new Job(5,"سشيشسيشس","category 4"));
         adapter = new AvailableCoursesAdapter(test,getContext());
-        binding.jobsRecyclerView.setAdapter(adapter);
+        binding.addedCoursesRecyclerView.setAdapter(adapter);
     }
 }

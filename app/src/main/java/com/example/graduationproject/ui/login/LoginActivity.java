@@ -1,44 +1,28 @@
 package com.example.graduationproject.ui.login;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 //import com.google.android.material.textfield.TextInputEditText;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.ActivityLoginBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
-import com.example.graduationproject.R;
+import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.register.RegisterActivity;
 import com.example.graduationproject.interfaces.RequestResult;
-import com.example.graduationproject.ui.afterLogin.AfterLoginActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.*;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.example.graduationproject.ui.teacherUi.TeacherActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 public class LoginActivity extends AppCompatActivity implements RequestResult {
     private Database database;
@@ -158,23 +142,45 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         else {
             binding.loginProgressBar.setVisibility(View.GONE);
                 try {
-                    Intent intent=new Intent(this, AfterLoginActivity.class);
-                    JSONObject jsonObject=loginSuccessData.getJSONObject(0);
-                    String email=jsonObject.getString("email");
-                    String firstName=jsonObject.getString("firstname");
-                    String lastName=jsonObject.getString("lastname");
-                    String password=jsonObject.getString("password");
-                    String birthDate=jsonObject.getString("birthDate");
-                    String profileType = jsonObject.getString("profileType");
 
-                    intent.putExtra("email",email);
-                    intent.putExtra("firstName",firstName);
-                    intent.putExtra("lastName",lastName);
-                    intent.putExtra("password",password);
-                    intent.putExtra("birthDate",birthDate);
-                    intent.putExtra("profileType",profileType);
-                    intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
-                    startActivity(intent);
+                    JSONObject jsonObject=loginSuccessData.getJSONObject(0);
+
+                    if(jsonObject.getString("profileType").equals("1")){
+                        Intent intent=new Intent(this, TeacherActivity.class);
+                        String email=jsonObject.getString("email");
+                        String firstName=jsonObject.getString("firstname");
+                        String lastName=jsonObject.getString("lastname");
+                        String password=jsonObject.getString("password");
+                        String birthDate=jsonObject.getString("birthDate");
+                        String profileType = jsonObject.getString("profileType");
+
+                        intent.putExtra("email",email);
+                        intent.putExtra("firstName",firstName);
+                        intent.putExtra("lastName",lastName);
+                        intent.putExtra("password",password);
+                        intent.putExtra("birthDate",birthDate);
+                        intent.putExtra("profileType",profileType);
+                        intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
+                        startActivity(intent);
+                    }
+                    else {
+                        Intent intent = new Intent(LoginActivity.this, ParentActivity.class);
+                        String email=jsonObject.getString("email");
+                        String firstName=jsonObject.getString("firstname");
+                        String lastName=jsonObject.getString("lastname");
+                        String password=jsonObject.getString("password");
+                        String birthDate=jsonObject.getString("birthDate");
+                        String profileType = jsonObject.getString("profileType");
+                        intent.putExtra("email",email);
+                        intent.putExtra("firstName",firstName);
+                        intent.putExtra("lastName",lastName);
+                        intent.putExtra("password",password);
+                        intent.putExtra("birthDate",birthDate);
+                        intent.putExtra("profileType",profileType);
+                        intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
+                        startActivity(intent);
+                    }
+
 
                 }
                 catch (JSONException e){

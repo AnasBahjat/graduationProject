@@ -106,5 +106,25 @@ public class MyAlertDialog {
         dialog.show();
     }
 
+    public static void showCustomDialogForParentAccountConfirmed(Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.icon_done);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView errorTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText(context.getString(R.string.teacherAccountConfirmedTitle));
+        errorTextView.setText(context.getString(R.string.parentAccountConfirmedMsg));
+        errorTextView.setTextColor(context.getColor(R.color.green));
+        builder.setView(view);
+        builder.setPositiveButton("OK", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+
 
 }

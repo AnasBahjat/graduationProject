@@ -7,14 +7,14 @@ public class Teacher {
     private String expectedGraduationYear;
     private String college;
     private String field;
-    private String daysAvailableWeekly;
-    private String hoursAvailableDaily;
+
+    private String availability ;
     private Address address;
     public Teacher(String email,String idNumber,
                    String studentOrGraduate,String expectedGraduationYear,
                    String college,String field,
-                   String daysAvailableWeekly,
-                   String hoursAvailableDaily,Address address){
+                   String availability,
+                   Address address){
 
         this.email=email;
         this.idNumber=idNumber;
@@ -22,22 +22,17 @@ public class Teacher {
         this.expectedGraduationYear=expectedGraduationYear;
         this.college=college;
         this.field=field;
-        this.daysAvailableWeekly=daysAvailableWeekly;
-        this.hoursAvailableDaily = hoursAvailableDaily;
+        this.availability=availability;
         this.address=address;
     }
 
-    public Teacher(String email,String idNumber,
-                   String studentOrGraduate,String expectedGraduationYear,
-                   String college,String field,
-                   Address address){
-        this.email=email;
-        this.idNumber=idNumber;
-        this.studentOrGraduate=studentOrGraduate;
-        this.expectedGraduationYear=expectedGraduationYear;
-        this.college=college;
-        this.field=field;
-        this.address=address;
+
+    public String getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(String availability) {
+        this.availability = availability;
     }
 
     public Address getAddress() {
@@ -94,21 +89,5 @@ public class Teacher {
 
     public void setField(String field) {
         this.field = field;
-    }
-
-    public String getDaysAvailableWeekly() {
-        return daysAvailableWeekly;
-    }
-
-    public void setDaysAvailableWeekly(String daysAvailableWeekly) {
-        this.daysAvailableWeekly = daysAvailableWeekly;
-    }
-
-    public String getHoursAvailableDaily() {
-        return hoursAvailableDaily;
-    }
-
-    public void setHoursAvailableDaily(String hoursAvailableDaily) {
-        this.hoursAvailableDaily = hoursAvailableDaily;
     }
 }

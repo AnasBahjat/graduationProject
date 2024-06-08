@@ -8,4 +8,5 @@ public class Constants {
     public static String getNotificationsURL = "http://192.168.1.26/graduationProject/getNotifications.php";
     public static String URL = "http://192.168.1.26/graduationProject/";
     public static String deleteConfirmedNotificationURL ="http://192.168.1.26/graduationProject/deleteConfirmedAccountNotification.php";
+    public static String updateParentInformation ="http://192.168.1.26/graduationProject/updateParentInformation.php";
 }

@@ -1,4 +1,4 @@
-package com.example.graduationproject.ui.teacherFragment;
+package com.example.graduationproject.ui.teacherUi;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,7 +12,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.graduationproject.databinding.ConfirmPhoneNumberBinding;
-import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;

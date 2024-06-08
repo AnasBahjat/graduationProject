@@ -1,4 +1,4 @@
-package com.example.graduationproject.ui.afterLogin;
+package com.example.graduationproject.ui.teacherUi;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -33,7 +33,7 @@ import com.example.graduationproject.adapters.NotificationsAdapter;
 import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
-import com.example.graduationproject.databinding.ActivityAfterLoginBinding;
+import com.example.graduationproject.databinding.ActivityTeacherBinding;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
@@ -44,9 +44,7 @@ import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.ui.commonFragment.ProfileFragment;
-import com.example.graduationproject.ui.parentFragment.ParentFragment;
-import com.example.graduationproject.ui.teacherFragment.PopUpWindows;
-import com.example.graduationproject.ui.teacherFragment.TeacherFragment;
+import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
@@ -61,10 +59,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AfterLoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener {
+public class TeacherActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener {
     private Database database;
-    private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,profileType,doneInformation;
-    private ActivityAfterLoginBinding binding ;
+    private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,doneInformation;
+    private ActivityTeacherBinding binding ;
     private BroadcastHandler broadcastHandler;
 
     private PopupWindow notificationPopupWindow ;
@@ -86,7 +84,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        binding = ActivityAfterLoginBinding.inflate(getLayoutInflater());
+        binding = ActivityTeacherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getIntentDate();
         initialize();
@@ -103,7 +101,6 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         phoneNumber=intent.getStringExtra("phoneNumber");
         city=intent.getStringExtra("city");
         country=intent.getStringExtra("country");
-        profileType = intent.getStringExtra("profileType");
         doneInformation=intent.getStringExtra("accountDone");
     }
 
@@ -111,14 +108,9 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         database=new Database(this);
         database.getNotifications(email,this);
         notList=new ArrayList<>();
-        if(profileType.equals("0")) {
-            loadFragment(new ParentFragment());
-        }
-        else{
-            loadFragment(new TeacherFragment());
-        }
+        loadFragment(new TeacherFragment());
+        checkIfTeacherAccountConfirmed();
         checkIfItemSelected();
-        checkIfAccountConfirmed();
         buildNavigationView();
         initBroadcastReceiver();
 
@@ -154,7 +146,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         registerReceiver(broadcastHandler,intentFilter,flags);
     }
 
-    private void checkIfAccountConfirmed(){
+    private void checkIfTeacherAccountConfirmed(){
         fragmentTeacherBinding = FragmentTeacherBinding.inflate(getLayoutInflater());
         database.checkIfAccountDone(email,this);
     }
@@ -212,7 +204,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
     public void logoutOnClick(View view) {
         String email=getIntent().getStringExtra("email");
-        Intent intent=new Intent(AfterLoginActivity.this, LoginActivity.class);
+        Intent intent=new Intent(TeacherActivity.this, LoginActivity.class);
         startActivity(intent);
     }
 
@@ -292,7 +284,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
     }
 
 
-    private void setAvailabilityForStudent(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding,int checkedId){
+    private void setAvailabilityForStudent(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding, int checkedId){
         if(teacherInformationPopupWindowBinding.availabilityRadioGroup.getCheckedRadioButtonId() == R.id.availSpecificDays){
             teacherInformationPopupWindowBinding.daysLayout.setVisibility(View.VISIBLE);
         }
@@ -331,7 +323,7 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
 
 
 
-    private void updateFieldSpinner(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding,Spinner passedSpinner){
+    private void updateFieldSpinner(TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding, Spinner passedSpinner){
         String selectedCollege = teacherInformationPopupWindowBinding.collegeSpinner.getSelectedItem().toString();
         ArrayAdapter <String> adapter ;
         teacherInformationPopupWindowBinding.collegeLayout.setError(null);
@@ -424,6 +416,9 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         String cityText = teacherInformationPopupWindowBinding.cityText.getText().toString().trim();
         String countryText = teacherInformationPopupWindowBinding.countryText.getText().toString().trim();
         String phoneNumberStr = teacherInformationPopupWindowBinding.edtTextPhoneNumber.getText().toString();
+        int selectedId = teacherInformationPopupWindowBinding.availabilityRadioGroup.getCheckedRadioButtonId() ;
+        String availabilityStr = "";
+        StringBuilder checkedDays = new StringBuilder();
 
         if(idStr.isEmpty()){
             teacherInformationPopupWindowBinding.idTextLayout.setError("*Please Fill in this field");
@@ -464,15 +459,46 @@ public class AfterLoginActivity extends AppCompatActivity implements NavigationV
         if(phoneNumberStr.isEmpty() || phoneNumberStr.length() < 9 || phoneNumberStr.length() > 11){
             teacherInformationPopupWindowBinding.phoneNumber.setError("*Please enter a valid Phone Number");
         }
+        if(selectedId == R.id.availAnyTime){
+            availabilityStr = "Any Time";
+        }
+        else if(selectedId == R.id.availWeekend){
+            availabilityStr = "Weekend";
+        }
+        else if(selectedId == R.id.availSpecificDays){
+            checkedDays = getCheckedDays(teacherInformationPopupWindowBinding);
+            availabilityStr = checkedDays.toString();
+        }
+
+
 
 
         if(!idStr.isEmpty() && !cityText.isEmpty()  && !countryText.isEmpty()
                 && !phoneNumberStr.isEmpty() && collegeFlag && fieldFlag ){
                 teacherInformationPopupWindowBinding.phoneNumberPrefix.registerCarrierNumberEditText(teacherInformationPopupWindowBinding.edtTextPhoneNumber);
                 Teacher teacher=new Teacher(email,idStr,studentOrGraduate+"",
-                        graduationYear,collegeStr,fieldStr,new Address(cityText,countryText));
+                        graduationYear,collegeStr,fieldStr,availabilityStr,new Address(cityText,countryText));
                 database.updateTeacherInformation(teacher,teacherInformationPopupWindowBinding.phoneNumberPrefix.getFullNumber(),this);
         }
+    }
+
+    private StringBuilder getCheckedDays(TeacherInformationPopupWindowBinding bind){
+        StringBuilder choosedDays = new StringBuilder();
+        if(bind.saturday.isChecked())
+            choosedDays.append("Sat,");
+        if(bind.sunday.isChecked())
+            choosedDays.append("Sun,");
+        if(bind.monday.isChecked())
+            choosedDays.append("Mon,");
+        if(bind.tuesday.isChecked())
+            choosedDays.append("Tues,");
+        if(bind.wednesday.isChecked())
+            choosedDays.append("Wed,");
+        if(bind.thursday.isChecked())
+            choosedDays.append("Thur,");
+        if(bind.friday.isChecked())
+            choosedDays.append("Fri");
+        return  choosedDays;
     }
 
 
