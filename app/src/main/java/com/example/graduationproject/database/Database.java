@@ -14,10 +14,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.graduationproject.R;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
+import com.example.graduationproject.listeners.TellParentDataIsReady;
 import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Profile;
@@ -377,6 +380,7 @@ public class Database {
                 data.put("availability",teacher.getAvailability());
                 data.put("city",teacher.getAddress().getCity());
                 data.put("country",teacher.getAddress().getCountry());
+                data.put("educationLevel",teacher.getEducationalLevel());
                 data.put("phoneNumber",fullPhoneNumber);
                 return data;
             }
@@ -450,5 +454,74 @@ public class Database {
         };
         requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
+    }
+
+    public void getTeacherAllData(String email, final TellParentDataIsReady tellParentDataIsReady){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherData,resp->{
+            try {
+                Log.d("Reqesttt---> "+resp,"Reqesttt---> "+resp);
+                if(resp.equalsIgnoreCase("Connection Error")){
+                    tellParentDataIsReady.onDataReady(-3,null);
+                }
+                else if(resp.equalsIgnoreCase("ERROR")){
+                    tellParentDataIsReady.onDataReady(-2,null);
+                }
+                else if(resp.equalsIgnoreCase("No data")){
+                    tellParentDataIsReady.onDataReady(-1,null);
+                }
+                else{
+                    tellParentDataIsReady.onDataReady(1,new JSONArray(resp));
+                }
+            }
+            catch (JSONException e){
+                tellParentDataIsReady.onDataReady(-5,null);
+            }
+        },error->{
+            tellParentDataIsReady.onDataReady(-4,null);
+        }){
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap();
+                data.put("email",email);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getParentChildren(String parentEmail, final GetParentChildren getParentChildrenResult){
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentChildren,resp->{
+            try {
+                if(resp.equalsIgnoreCase("No Data")){
+                    getParentChildrenResult.getChildrenResult(-1,null);
+                }
+                else if(resp.equalsIgnoreCase("ERROR")){
+                    getParentChildrenResult.getChildrenResult(-2,null);
+                }
+                else if(resp.equalsIgnoreCase("Connection Error")){
+                    getParentChildrenResult.getChildrenResult(0,null);
+                }
+                else {
+                    getParentChildrenResult.getChildrenResult(1,new JSONArray(resp));
+                }
+            }
+            catch (JSONException e){
+
+            }
+        },err ->{
+            getParentChildrenResult.getChildrenResult(-5,null);
+        }){
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",parentEmail);
+                return data ;
+            }
+        };
+        queue.add(stringRequest);
     }
 }

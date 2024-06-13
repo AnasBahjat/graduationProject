@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ import com.example.graduationproject.databinding.ChildrenInformationPopupWindowB
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.ParentInformationPopupWindowBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
+import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.models.Children;
@@ -57,7 +59,8 @@ import java.util.List;
 
 
 
-public class ParentActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,NotificationsListListener, UpdateParentInformation {
+public class ParentActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,NotificationsListListener, UpdateParentInformation
+, GetParentChildren {
 
     private Database database;
     private String email,firstName,lastName,password,birthDate,phoneNumber,city,country,doneInformation ;
@@ -72,6 +75,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     private PopupWindow childrenPopupWindow;
     private ChildrenInformationPopupWindowBinding childrenInformationPopupWindowBinding;
     private List<Children> childrenList = new ArrayList<>();
+    AskForSpecificTeacherFragment askForSpecificTeacherFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +102,11 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
 
     private void init(){
         database=new Database(this);
-        //database.getNotifications(email,this);
+        notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        notificationPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        if(Integer.parseInt(doneInformation) == 1){
+            database.getNotifications(email,this);
+        }
         notificationsList = new ArrayList<>();
         buildNavigationView();
         checkAccountDone();
@@ -107,6 +115,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         parentBinding.notificationImage.setOnClickListener(asd -> {
             showNotificationPopupWindow();
         });
+        checkIfItemSelected();
     }
 
 
@@ -126,15 +135,30 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                     }
                 }
             }
+            updateNotificationsAdapter();
             parentBinding.accountIsNotConfirmText.setVisibility(View.GONE);
             parentBinding.fragmentsContainer.setVisibility(View.VISIBLE);
             if(notificationsList.isEmpty()){
-                parentBinding.numOfNotifications.setText(null);
+                parentBinding.numOfNotifications.setText("");
             }
             else {
                 parentBinding.numOfNotifications.setText(""+notificationsList.size());
             }
 
+        }
+    }
+
+    private void updateNotificationsAdapter(){
+        if(notificationsList != null){
+            if(!notificationsList.isEmpty()){
+                parentBinding.numOfNotifications.setText(""+notificationsList.size());
+                notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+            }
+            else{
+                parentBinding.numOfNotifications.setText("");
+                notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+            }
+            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this));
         }
     }
 
@@ -166,9 +190,9 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     }
 
     private void showNotificationPopupWindow(){
-        notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        if(Integer.parseInt(doneInformation) == 1)
+            database.getNotifications(email,this);
         notificationPopupWindow = new PopupWindow(notificationPopupWindowBinding.getRoot(), ViewGroup.LayoutParams.WRAP_CONTENT,1500,true);
-        notificationPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         if(notificationsList.isEmpty()){
             notificationPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
         }
@@ -290,6 +314,8 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
 
 
     private void loadFragment(Fragment fragment){
+        Bundle bundle = new Bundle();
+        bundle.putString("email",email);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragments_container,fragment);
@@ -325,20 +351,24 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                             Integer.parseInt(jsonObject.getString("isRead")));
                     notList.add(notification);
                 }
-                if(!(notificationsList.size()==1 && notificationsList.get(0).getNotificationType() == 0)){
+                if(!notificationsList.isEmpty()){
                     notificationsList.clear();
                 }
                 notificationsList.addAll(notList);
-                if(!notList.isEmpty()){
+                if(!notificationsList.isEmpty()){
                     parentBinding.numOfNotifications.setText(""+notList.size());
                 }
                 else {
-                    parentBinding.numOfNotifications.setText(null);
+                    parentBinding.numOfNotifications.setText("");
                 }
             }
             catch (JSONException e){
                 throw new RuntimeException(e);
             }
+            updateNotificationsAdapter();
+        }
+        else {
+            notificationsList = null ;
         }
     }
 
@@ -346,6 +376,12 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         if(menuItem.getItemId() == R.id.logoutId){
             finish();
+        }
+        else if(menuItem.getItemId() == R.id.lookForTeacher){
+            database.getParentChildren(email,this);
+             askForSpecificTeacherFragment = new AskForSpecificTeacherFragment();
+            askForSpecificTeacherFragment.setContext(this);
+            loadFragment(askForSpecificTeacherFragment);
         }
         parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -367,6 +403,33 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","There are an error occurred please try again later ..");
+        }
+    }
+
+    @Override
+    public void getChildrenResult(int flag, JSONArray children) {
+        List<Children> parentChildrenList = new ArrayList<>();
+        List<String> childrenSpinnerList = new ArrayList<>();
+        if(flag==1){
+            if(!children.toString().isEmpty()){
+                for (int i=0;i<children.length();i++){
+                    try {
+                        JSONObject jsonObject = children.getJSONObject(i);
+                        String childName = jsonObject.getString("childName");
+                        String childAge = jsonObject.getString("childAge");
+                        int childGenderVal = jsonObject.getInt("childGender");
+                        parentChildrenList.add(new Children(childName,childAge,childGenderVal,jsonObject.getInt("childGrade")));
+                        childrenSpinnerList.add(childName+" , "+childAge);
+                    }
+                    catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                askForSpecificTeacherFragment.getChildrenFromParentActivity(parentChildrenList,childrenSpinnerList);
+            }
+            else {
+                MyAlertDialog.errorDialog(this);
+            }
         }
     }
 }

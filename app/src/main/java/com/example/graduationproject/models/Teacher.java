@@ -9,11 +9,14 @@ public class Teacher {
     private String field;
 
     private String availability ;
+    private String educationalLevel ;
     private Address address;
+    private String phoneNumber ;
     public Teacher(String email,String idNumber,
                    String studentOrGraduate,String expectedGraduationYear,
                    String college,String field,
                    String availability,
+                   String educationalLevel ,
                    Address address){
 
         this.email=email;
@@ -23,9 +26,45 @@ public class Teacher {
         this.college=college;
         this.field=field;
         this.availability=availability;
+        this.educationalLevel = educationalLevel;
         this.address=address;
     }
 
+    public Teacher(String email,String idNumber,
+                   String studentOrGraduate,String expectedGraduationYear,
+                   String college,String field,
+                   String availability,
+                   String educationalLevel ,
+                   Address address,
+                   String phoneNumber){
+
+        this.email=email;
+        this.idNumber=idNumber;
+        this.studentOrGraduate=studentOrGraduate;
+        this.expectedGraduationYear=expectedGraduationYear;
+        this.college=college;
+        this.field=field;
+        this.availability=availability;
+        this.educationalLevel = educationalLevel;
+        this.address=address;
+        this.phoneNumber=phoneNumber;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getEducationalLevel() {
+        return educationalLevel;
+    }
+
+    public void setEducationalLevel(String educationalLevel) {
+        this.educationalLevel = educationalLevel;
+    }
 
     public String getAvailability() {
         return availability;

@@ -117,7 +117,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/side_navigation_header_under_graduate"
-        app:menu="@menu/side_nav_bar_menu"
+        app:headerLayout="@layout/side_navigation_header"
+        app:menu="@menu/side_nav_menu_parent"
         />
 </androidx.drawerlayout.widget.DrawerLayout>

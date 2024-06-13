@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:id="@+id/firstGroup" android:orderInCategory="1">
+        <item
+            android:id="@+id/profile"
+            android:icon="@drawable/user_icon"
+            android:title="@string/profile_text"/>
+        <item
+            android:id="@+id/lookForTeacher"
+            android:icon="@drawable/look_for_teacher"
+            android:title="@string/match_a_teacher"/>
+
+    </group>
+
+    <group android:id="@+id/bottomGroup" android:orderInCategory="2">
+        <item android:id="@+id/settings"
+            android:icon="@drawable/settings_icon"
+            android:title="@string/settings_text"/>
+        <item
+            android:id="@+id/logoutId"
+            android:icon="@drawable/logout_icon"
+            android:title="@string/log_out_text"
+            />
+    </group>
+
+</menu>

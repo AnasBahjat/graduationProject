@@ -3,6 +3,7 @@ package com.example.graduationproject.errorHandling;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -119,6 +120,24 @@ public class MyAlertDialog {
         errorTextView.setTextColor(context.getColor(R.color.green));
         builder.setView(view);
         builder.setPositiveButton("OK", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public static void errorDialog(Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.baseline_error_24);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView errorTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText("Error");
+        errorTextView.setText("Something Went Wrong , please Try again Later ");
+        errorTextView.setTextColor(context.getColor(R.color.red));
+        builder.setView(view);
+        builder.setPositiveButton("OK",null);
 
         AlertDialog dialog = builder.create();
         dialog.show();

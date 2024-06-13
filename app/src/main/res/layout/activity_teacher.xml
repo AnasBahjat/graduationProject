@@ -100,12 +100,22 @@
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
+    <TextView
+        android:id="@+id/accountIsNotConfirmText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please Confirm Your Account Information\nCheck notifications."
+        android:gravity="center_vertical|center_horizontal"
+        android:textSize="25sp"
+        android:textColor="#989898"
+        android:textAlignment="center"
+        android:visibility="gone"/>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/side_navigation_header_under_graduate"
-        app:menu="@menu/side_nav_bar_menu" />
+        app:headerLayout="@layout/side_navigation_header"
+        app:menu="@menu/side_nav_bar_menu_teacher" />
 </androidx.drawerlayout.widget.DrawerLayout>

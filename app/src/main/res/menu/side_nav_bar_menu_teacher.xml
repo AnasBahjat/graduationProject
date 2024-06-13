@@ -8,6 +8,10 @@
             android:id="@+id/profile"
             android:icon="@drawable/user_icon"
             android:title="@string/profile_text"/>
+        <item
+            android:id="@+id/lookForTeacher"
+            android:icon="@drawable/look_for_teacher"
+            android:title="@string/match_a_teacher"/>
 
     </group>
 

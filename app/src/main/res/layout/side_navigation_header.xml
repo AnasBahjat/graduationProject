@@ -14,7 +14,7 @@
 
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/sideNavName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="140dp"
@@ -23,16 +23,17 @@
             android:textSize="22sp" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/sideNavEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="140dp"
             android:layout_marginTop="10dp"
-            android:text="Job"
+            android:text="Email"
             android:textSize="22sp" />
     </LinearLayout>
 
     <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/sideNavIamge"
         style="@style/CircleImageViewStyle"
         android:layout_width="120dp"
         android:layout_height="120dp"

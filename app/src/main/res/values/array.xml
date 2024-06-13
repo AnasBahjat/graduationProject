@@ -19,7 +19,6 @@
         <item>Science And Mathematics</item>
         <item>Faculty Of Arts</item>
         <item>Faculty Of Commerce</item>
-        <item>Other..</item>
     </array>
 
     <array name="engineeringCollegeFieldsSpinner">
@@ -30,14 +29,12 @@
         <item>Civil Engineering</item>
         <item>Mechatronics Engineering</item>
         <item>Computer Engineering</item>
-        <item>Other..</item>
     </array>
 
     <array name="IT">
         <item>Choose</item>
         <item>Cyber Security</item>
         <item>Computer Science</item>
-        <item>Other..</item>
     </array>
 
     <array name="scienceAndMathematicsSpinner">
@@ -46,7 +43,6 @@
         <item>Chemistry</item>
         <item>Math</item>
         <item>Biology</item>
-        <item>Other..</item>
     </array>
 
     <array name="facultyOfArtsSpinner">
@@ -54,9 +50,7 @@
         <item>Arabic Literature</item>
         <item>English Literature</item>
         <item>Language Translator</item>
-        <item>Biology</item>
         <item>Geography , History ,Islamic Religion</item>
-        <item>Other..</item>
     </array>
 
     <array name="facultyOfCommerceSpinner">
@@ -95,5 +89,12 @@
         <item>10</item>
         <item>11</item>
         <item>12</item>
+    </string-array>
+
+    <string-array name="teacherEducationLevel">
+        <item>Elementary School</item>
+        <item>Middle School</item>
+        <item>High School</item>
+        <item>Any</item>
     </string-array>
 </resources>

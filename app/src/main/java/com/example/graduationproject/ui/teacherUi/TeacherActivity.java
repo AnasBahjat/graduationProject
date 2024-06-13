@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +19,8 @@ import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -30,12 +33,14 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.graduationproject.adapters.NotificationsAdapter;
+import com.example.graduationproject.backgroundActions.NotificationsService;
 import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityTeacherBinding;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
+import com.example.graduationproject.databinding.SideNavigationHeaderBinding;
 import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.NotificationsListListener;
@@ -79,6 +84,8 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     PhoneAuthProvider.ForceResendingToken resendingToken;
     String verificationCode;
 
+    private NotificationsAdapter notificationsAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,19 +109,70 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         city=intent.getStringExtra("city");
         country=intent.getStringExtra("country");
         doneInformation=intent.getStringExtra("accountDone");
+
     }
 
     private void initialize(){
         database=new Database(this);
-        database.getNotifications(email,this);
+        if(Integer.parseInt(doneInformation)==1)
+            database.getNotifications(email,this);
+        notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         notList=new ArrayList<>();
-        loadFragment(new TeacherFragment());
-        checkIfTeacherAccountConfirmed();
-        checkIfItemSelected();
         buildNavigationView();
         initBroadcastReceiver();
-
+        checkAccountDone();
+        loadFragment(new TeacherFragment());
+      //  checkIfTeacherAccountConfirmed();
+        checkIfItemSelected();
+        // startNotificationsService();
     }
+
+    void checkAccountDone(){
+        if(Integer.parseInt(doneInformation) == 0){
+            binding.accountIsNotConfirmText.setVisibility(View.VISIBLE);
+            notList.add(new Notifications(1,"Confirm Account",
+                    "Fill in extra information to confirm the account please ...",0));
+            binding.numOfNotifications.setText(""+notList.size());
+            binding.fragmentsContainer.setVisibility(View.GONE);
+        }
+        else {
+            if(!notList.isEmpty()){
+                for(int i=0;i<notList.size();i++){
+                    if(notList.get(i).getNotificationType() == 1){
+                        notList.remove(notList.get(i));
+                    }
+                }
+            }
+            Log.d("Not list --->"+notList,"Not list --->"+notList);
+            updateNotificationsAdapter();
+            binding.accountIsNotConfirmText.setVisibility(View.GONE);
+            binding.fragmentsContainer.setVisibility(View.VISIBLE);
+            if(notList.isEmpty()){
+                binding.numOfNotifications.setText("");
+            }
+            else {
+                binding.numOfNotifications.setText(""+notList.size());
+            }
+        }
+    }
+
+    private void updateNotificationsAdapter(){
+        if(notList != null){
+            if(!notList.isEmpty()){
+                binding.numOfNotifications.setText(""+notList.size());
+                notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+            }
+            else{
+                binding.numOfNotifications.setText("");
+                notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+            }
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
+        }
+        //notificationsPopupWindowBinding.notificationsRecyclerView.notify();
+    }
+
+
 
 
     private void checkIfItemSelected(){
@@ -139,6 +197,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("SHOW_TEACHER_INFORMATION_WINDOW");
         intentFilter.addAction("UPDATE_NOTIFICATIONS_RECYCLER_VIEW");
+        intentFilter.addAction("UPDATE_TEACHER_UI");
         int flags = 0 ;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
             flags = Context.RECEIVER_NOT_EXPORTED;
@@ -146,10 +205,6 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         registerReceiver(broadcastHandler,intentFilter,flags);
     }
 
-    private void checkIfTeacherAccountConfirmed(){
-        fragmentTeacherBinding = FragmentTeacherBinding.inflate(getLayoutInflater());
-        database.checkIfAccountDone(email,this);
-    }
 
     public void notificationImageClicked(View view) {
         viewNotificationsPopUpWindow();
@@ -166,11 +221,25 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         binding.openSideNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setSideNavigationData();
                 if(!binding.drawerLayout.isDrawerOpen(GravityCompat.START)){
                     binding.drawerLayout.openDrawer(GravityCompat.START);
                 }
             }
         });
+
+    }
+
+    private void setSideNavigationData(){
+
+        View headerView = binding.navigationView.getHeaderView(0);
+        TextView name = headerView.findViewById(R.id.sideNavName);
+        TextView emailTextView = headerView.findViewById(R.id.sideNavEmail);
+
+        SideNavigationHeaderBinding sideNavigationHeaderBinding = SideNavigationHeaderBinding.inflate(getLayoutInflater());
+
+        name.setText(firstName+" "+lastName);
+        emailTextView.setText(email);
     }
 
     @Override
@@ -194,6 +263,14 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
 
     private void loadFragment(Fragment fragment){
         currentFragment = fragment;
+
+        Bundle bundle=new Bundle();
+        bundle.putString("email",email);
+        bundle.putString("firstName",firstName);
+        bundle.putString("lastName",lastName);
+        fragment.setArguments(bundle);
+
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragments_container,fragment);
@@ -210,11 +287,11 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
 
 
     private void viewNotificationsPopUpWindow(){
-        notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        if(Integer.parseInt(doneInformation) == 1)
+            database.getNotifications(email,this);
         int width = ViewGroup.LayoutParams.WRAP_CONTENT;
         int height = 1500;
 
-        notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         if(!notList.isEmpty()){
             notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
@@ -370,7 +447,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                 binding.numOfNotifications.setText(""+(Integer.parseInt(binding.numOfNotifications.getText().toString()) - 1));
             }
             else {
-                binding.numOfNotifications.setText(null);
+                binding.numOfNotifications.setText("");
                 binding.numOfNotifications.setVisibility(View.GONE);
             }
         }
@@ -419,6 +496,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         int selectedId = teacherInformationPopupWindowBinding.availabilityRadioGroup.getCheckedRadioButtonId() ;
         String availabilityStr = "";
         StringBuilder checkedDays = new StringBuilder();
+        String educationalLevel = teacherInformationPopupWindowBinding.educationalLevelSpinner.getSelectedItem().toString();
 
         if(idStr.isEmpty()){
             teacherInformationPopupWindowBinding.idTextLayout.setError("*Please Fill in this field");
@@ -477,7 +555,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                 && !phoneNumberStr.isEmpty() && collegeFlag && fieldFlag ){
                 teacherInformationPopupWindowBinding.phoneNumberPrefix.registerCarrierNumberEditText(teacherInformationPopupWindowBinding.edtTextPhoneNumber);
                 Teacher teacher=new Teacher(email,idStr,studentOrGraduate+"",
-                        graduationYear,collegeStr,fieldStr,availabilityStr,new Address(cityText,countryText));
+                        graduationYear,collegeStr,fieldStr,availabilityStr,educationalLevel,new Address(cityText,countryText));
                 database.updateTeacherInformation(teacher,teacherInformationPopupWindowBinding.phoneNumberPrefix.getFullNumber(),this);
         }
     }
@@ -534,8 +612,9 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     public void onResult(int resultFlag) {
         if(resultFlag == 1){
             MyAlertDialog.showCustomDialogForTeacherAccountConfirmed(this);
+            doneInformation="1";
             teacherInformationPopupWindow.dismiss();
-            database.checkIfAccountDone(email,this);
+            checkAccountDone();
         }
         else if(resultFlag == 0){
             // account already confirmed
@@ -579,7 +658,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                             Integer.parseInt(jsonObject.getString("isRead")));
                     notificationsList.add(notification);
                 }
-                if(!(notList.size() == 1 && (notList.get(0).getNotificationType() == 1 || notList.get(0).getNotificationType() == 0))){
+                if(!notList.isEmpty()){
                     notList.clear();
                 }
                 notList.addAll(notificationsList);
@@ -587,11 +666,12 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                     binding.numOfNotifications.setText(""+notList.size());
                 }
                 else
-                    binding.numOfNotifications.setText(null);
+                    binding.numOfNotifications.setText("");
             }
             catch (JSONException e) {
                 throw new RuntimeException(e);
             }
+            updateNotificationsAdapter();
         }
         else {
             notList=null;
@@ -607,5 +687,16 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong..There are an error occurred");
         }
+    }
+
+    public void updateNotificationsList(ArrayList<Notifications> newNotifications){
+        Toast.makeText(this,"Notificatons updated ..",Toast.LENGTH_SHORT).show();
+        Log.d("----------->service -->"+newNotifications,"----------->service -->"+newNotifications);
+    }
+
+    private void startNotificationsService(){
+        Intent serviceIntent = new Intent(this, NotificationsService.class);
+        serviceIntent.putExtra("email", email);
+        startService(serviceIntent);
     }
 }

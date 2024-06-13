@@ -28,6 +28,8 @@
             android:exported="true"
             android:permission="TODO" />
 
+        <service android:name=".backgroundActions.NotificationsService" />
+
         <activity
             android:name=".ui.teacherUi.TeacherActivity"
             android:exported="true"/>
