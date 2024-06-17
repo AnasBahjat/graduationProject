@@ -9,7 +9,7 @@
     android:background="@drawable/rounded_corners">
 
     <TextView
-        android:id="@+id/textViewChildName"
+        android:id="@+id/textViewCourseName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Child Name"

@@ -97,4 +97,57 @@
         <item>High School</item>
         <item>Any</item>
     </string-array>
+
+    <string-array name="forParentCoursesElementarySchool">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>IT</item>
+    </string-array>
+
+    <string-array name="forParentCoursesMiddleSchool">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>IT</item>
+    </string-array>
+
+    <string-array name="forParentCoursesHighSchool">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Biology</item>
+        <item>IT</item>
+    </string-array>
+
+    <string-array name="locationArray">
+        <item>Ramallah City</item>
+        <item>Surda</item>
+        <item>Al-Rayhan</item>
+        <item>Birzeit</item>
+        <item>Kouber</item>
+        <item>Abu Shkadem</item>
+        <item>Amlazraa</item>
+        <item>Abu Qash</item>
+        <item>Jifna</item>
+        <item>Jalazon camp</item>
+    </string-array>
+
+    <string-array name="teachingMethods">
+        <item>Online</item>
+        <item>Face To Face</item>
+    </string-array>
+
 </resources>

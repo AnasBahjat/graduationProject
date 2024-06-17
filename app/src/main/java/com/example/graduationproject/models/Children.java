@@ -1,6 +1,11 @@
 package com.example.graduationproject.models;
 
-public class Children {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+public class Children implements Parcelable {
     private String childName;
     private String childAge ;
     private int childGender ; // 0 : Female , 1 : Male
@@ -13,6 +18,25 @@ public class Children {
         this.childGender=childGender;
         this.grade=grade;
     }
+
+    protected Children(Parcel in) {
+        childName = in.readString();
+        childAge = in.readString();
+        childGender = in.readInt();
+        grade = in.readInt();
+    }
+
+    public static final Creator<Children> CREATOR = new Creator<Children>() {
+        @Override
+        public Children createFromParcel(Parcel in) {
+            return new Children(in);
+        }
+
+        @Override
+        public Children[] newArray(int size) {
+            return new Children[size];
+        }
+    };
 
     public String getChildName() {
         return childName;
@@ -44,5 +68,18 @@ public class Children {
 
     public void setGrade(int grade) {
         this.grade = grade;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(childName);
+        dest.writeString(childAge);
+        dest.writeInt(childGender);
+        dest.writeInt(grade);
     }
 }

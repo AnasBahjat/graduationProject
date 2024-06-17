@@ -144,6 +144,61 @@ public class MyAlertDialog {
     }
 
 
+    public static void showDialogForChildAdded(Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.icon_done);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView errorTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText("Child Added");
+        errorTextView.setText("New child added");
+        errorTextView.setTextColor(context.getColor(R.color.green));
+        builder.setView(view);
+        builder.setPositiveButton("OK", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public static void showWarningCourseAdded(Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.warning_icon);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView errorTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText("Course Error");
+        errorTextView.setText("Course Is Already added , check the container below ..");
+        errorTextView.setTextColor(context.getColor(R.color.black));
+        builder.setView(view);
+        builder.setPositiveButton("OK", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+    public static void showDialogForDone(Context context,String title,String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.icon_done);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView messageTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText(title);
+        messageTextView.setText(message);
+        messageTextView.setTextColor(context.getColor(R.color.black));
+        builder.setView(view);
+        builder.setPositiveButton("OK", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
 
 }

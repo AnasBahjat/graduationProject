@@ -3,7 +3,7 @@
     <string name="profile_type">"I am a "</string>
     <string name="gender_text">Gender</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="search_for_job">search for job , keyword</string>
+    <string name="search_for_job">search for course , keyword</string>
     <string name="search_for_courses">search for course , keyword</string>
     <string name="navigate">Navigate</string>
     <string name="last_added_jobs">Last Added</string>
@@ -64,5 +64,11 @@
     <string name="otp">otp</string>
     <string name="otp_caps">OTP</string>
     <string name="confirm_text">Confirm</string>
-    <string name="match_a_teacher">Match A Teacher</string>
+    <string name="match_a_teacher">Look For Teacher</string>
+    <string name="location_text">Location</string>
+    <string name="teaching_time_text">Teaching Time</string>
+    <string name="courses_text">Courses</string>
+    <string name="choose_child_text">Choose Child</string>
+    <string name="post_btn_text">Post</string>
+    <string name="add_course_text">Add Course</string>
 </resources>

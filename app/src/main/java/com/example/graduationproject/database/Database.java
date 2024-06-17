@@ -17,14 +17,19 @@ import com.android.volley.toolbox.Volley;
 import com.example.graduationproject.R;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.listeners.AddNewChildListener;
+import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TellParentDataIsReady;
 import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.models.Children;
+import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Profile;
 import com.example.graduationproject.models.Teacher;
+import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.network.ApiService;
 import com.example.graduationproject.network.RetrofitInitializer;
 import com.example.graduationproject.utils.Constants;
@@ -522,6 +527,85 @@ public class Database {
                 return data ;
             }
         };
+        queue.add(stringRequest);
+    }
+
+
+    public void addNewChild(String parentEmail, Children child, final AddNewChildListener addNewChildListener){
+
+        RequestQueue queue=Volley.newRequestQueue(context);
+        StringRequest stringRequest=new StringRequest(Request.Method.POST,Constants.addNewChild,resp->{
+            if(resp.equalsIgnoreCase("Done")){
+                addNewChildListener.onChildAdded(1);
+            }
+            else {
+                addNewChildListener.onChildAdded(0);
+            }
+        },err->{
+            addNewChildListener.onChildAdded(-1);
+        }){
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",parentEmail);
+                data.put("childName",child.getChildName());
+                data.put("childAge",child.getChildAge());
+                data.put("childGender",child.getChildGender()+"");
+                data.put("childGrade",child.getGrade()+"");
+                return data ;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    public void addNewTeacherMatching(String parentEmail , TeacherMatchModel teacherMatchModel,final AddTeacherMatchingListener addTeacherMatchingListener){
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.addNewTeacherMatching,response ->{
+            if(response.equalsIgnoreCase("Done"))
+                addTeacherMatchingListener.onMatchingAdded(1);
+            else if(response.equalsIgnoreCase("Error"))
+                addTeacherMatchingListener.onMatchingAdded(-1);
+            else
+                addTeacherMatchingListener.onMatchingAdded(-2);
+        },error ->{
+            addTeacherMatchingListener.onMatchingAdded(0);
+        }){
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map <String,String> data = new HashMap();
+                data.put("parentEmail",parentEmail);
+                data.put("childId",teacherMatchModel.getCustomChildData().getChildId()+"");
+                data.put("choseDays",teacherMatchModel.getChoseDays());
+                data.put("courses",teacherMatchModel.getCourses());
+                data.put("location",teacherMatchModel.getLocation());
+                data.put("teachingMethod",teacherMatchModel.getTeachingMethod());
+                data.put("startTime",teacherMatchModel.getStartTime());
+                data.put("endTime",teacherMatchModel.getEndTime());
+                return  data;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    public void getTeacherMatchingData(String email,final AddTeacherMatchingListener addTeacherMatchingListener){
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getTeacherMatchingData,res->{
+            if(res.equalsIgnoreCase("Error"))
+                addTeacherMatchingListener.getTeacherMatchingData(0,null);
+            else if(res.equalsIgnoreCase("Connection Error"))
+                addTeacherMatchingListener.getTeacherMatchingData(-2,null);
+            else {
+                try {
+                    addTeacherMatchingListener.getTeacherMatchingData(1,new JSONArray(res));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        },err->{
+            addTeacherMatchingListener.getTeacherMatchingData(-1,null);
+        });
         queue.add(stringRequest);
     }
 }

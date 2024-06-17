@@ -1,19 +1,24 @@
 package com.example.graduationproject.ui.teacherUi;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.AvailableCoursesAdapter;
+import com.example.graduationproject.adapters.MatchingTeacherAdapter;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.listeners.TellParentDataIsReady;
@@ -21,6 +26,7 @@ import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Course;
 import com.example.graduationproject.models.Job;
 import com.example.graduationproject.models.Teacher;
+import com.example.graduationproject.models.TeacherMatchModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TeacherFragment extends Fragment implements TellParentDataIsReady {
+public class TeacherFragment extends Fragment {
 
     private FragmentTeacherBinding binding ;
     private AvailableCoursesAdapter adapter ;
@@ -50,6 +56,7 @@ public class TeacherFragment extends Fragment implements TellParentDataIsReady {
             "English Language","Arabic Language");
     List<String> availableCoursesArts = Arrays.asList("English Language","Arabic Language","History","Geography");
     List<String> availableCourses = Arrays.asList("English Language","Arabic Language","History","Geography");
+    private ArrayList<TeacherMatchModel> teacherMatchModelData ;
 
 
 
@@ -59,14 +66,19 @@ public class TeacherFragment extends Fragment implements TellParentDataIsReady {
         binding = FragmentTeacherBinding.inflate(getLayoutInflater(),container,false);
         getTeacherDataFromActivity(savedInstanceState);
         init();
+        binding.suggestedTeacherCourses.setOnClickListener(x->{
+            setMyCoursesAdapter();
+        });
+        binding.availableTeacherRequests.setOnClickListener(c->{
+            setAvailableTeacherMatchingAdapter();
+        });
         return binding.getRoot();
     }
 
     private void init(){
         initDatabase();
         initCoursesRecyclerView();
-        getTeacherAvailableData();
-        List<Job> test = new ArrayList<>();
+        setMyCoursesAdapter();
     }
 
     private void getTeacherDataFromActivity(Bundle bundle){
@@ -74,6 +86,13 @@ public class TeacherFragment extends Fragment implements TellParentDataIsReady {
             email = getArguments().getString("email");
             teacherName = getArguments().getString("firstName");
             teacherName = teacherName+" "+getArguments().getString("lastName");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                teacherMatchModelData = getArguments().getParcelableArrayList("teacherMatchingData",TeacherMatchModel.class);
+            }
+            else {
+                teacherMatchModelData = getArguments().getParcelableArrayList("teacherMatchingData");
+            }
+            Log.d("The size is ---->"+teacherMatchModelData.size(),"The size is ---->"+teacherMatchModelData.size());
         }
         else {
             email="";
@@ -81,19 +100,73 @@ public class TeacherFragment extends Fragment implements TellParentDataIsReady {
         }
     }
 
-    private void initDatabase(){
-        database = new Database(getContext());
+    public void setMyCoursesAdapter(){
+        List<TeacherMatchModel> teacherMatchModelList = new ArrayList<>();
+        MatchingTeacherAdapter matchingTeacherAdapter = new MatchingTeacherAdapter(teacherMatchModelList,getContext());
+        if(teacherMatchModelList.isEmpty()){
+            binding.noDataAddedText.setVisibility(View.VISIBLE);
+            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+        }
+        else{
+            binding.addedCoursesRecyclerView.setAdapter(matchingTeacherAdapter);
+            binding.noDataAddedText.setVisibility(View.GONE);
+            binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
+        }
+        binding.suggestedTeacherCourses.setBackgroundResource(R.drawable.rounded_button_active);
+        binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.teacherFragmentSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                matchingTeacherAdapter.search(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
+    private void setAvailableTeacherMatchingAdapter(){
+        MatchingTeacherAdapter matchingTeacherAdapter = new MatchingTeacherAdapter(teacherMatchModelData,getContext());
+        if(teacherMatchModelData.isEmpty()){
+            binding.noDataAddedText.setVisibility(View.VISIBLE);
+            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+        }
+        else {
+            binding.noDataAddedText.setVisibility(View.GONE);
+            binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
+            binding.addedCoursesRecyclerView.setAdapter(matchingTeacherAdapter);
+        }
+        binding.suggestedTeacherCourses.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_active);
+        binding.teacherFragmentSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-    private void getTeacherAvailableData(){
-        binding.addedCoursesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            }
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                matchingTeacherAdapter.search(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void initDatabase(){
+        database = new Database(getContext());
     }
 
     private void initCoursesRecyclerView(){
-        database.getTeacherAllData(email,this);
+        binding.addedCoursesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void setTeacherAvailableCourses(){
@@ -144,48 +217,5 @@ public class TeacherFragment extends Fragment implements TellParentDataIsReady {
                 // available course - arts and math and others except
             }
         }
-    }
-
-    @Override
-    public void onDataReady(int resultFlag, JSONArray teacherData) {
-        if(resultFlag == 1){
-            for(int i=0;i<teacherData.length();i++){
-                try{
-                    JSONObject jsonObject=teacherData.getJSONObject(i);
-                    Teacher teacher = new Teacher(jsonObject.getString("email"),jsonObject.getString("idNumber"),
-                            jsonObject.getString("studentOrGraduate"),jsonObject.getString("expectedGraduationYear"),
-                            jsonObject.getString("college"),jsonObject.getString("field"),
-                            jsonObject.getString("availability"),jsonObject.getString("educationLevel"),
-                            new Address(jsonObject.getString("city"),jsonObject.getString("country")),
-                            jsonObject.getString("phoneNumber"));
-                    teachersAllData.add(teacher);
-                    setTeacherAvailableCourses();
-                }
-                catch (JSONException e){
-                    //
-                }
-            }
-        }
-
-        else if(resultFlag == -5){
-
-        }
-
-        else if(resultFlag == -4){
-
-        }
-
-        else if(resultFlag == -3){
-
-        }
-
-        else if(resultFlag == -2){
-
-        }
-
-        else if (resultFlag == -1){
-
-        }
-
     }
 }

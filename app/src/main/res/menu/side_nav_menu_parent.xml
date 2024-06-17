@@ -5,17 +5,24 @@
 
     <group android:id="@+id/firstGroup" android:orderInCategory="1">
         <item
-            android:id="@+id/profile"
-            android:icon="@drawable/user_icon"
-            android:title="@string/profile_text"/>
-        <item
             android:id="@+id/lookForTeacher"
             android:icon="@drawable/look_for_teacher"
             android:title="@string/match_a_teacher"/>
+        <item
+            android:id="@+id/addNewChild"
+            android:icon="@drawable/child_icon"
+            android:title="Add New Child"/>
 
     </group>
 
     <group android:id="@+id/bottomGroup" android:orderInCategory="2">
+
+        <item
+            android:id="@+id/profile"
+            android:icon="@drawable/user_icon"
+            android:title="@string/profile_text"/>
+
+
         <item android:id="@+id/settings"
             android:icon="@drawable/settings_icon"
             android:title="@string/settings_text"/>

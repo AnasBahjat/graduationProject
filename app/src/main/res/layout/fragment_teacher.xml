@@ -26,16 +26,47 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 
+    <LinearLayout
+        android:id="@+id/teacherSuggestionLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/teacherFragmentSearch"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/suggestedTeacherCourses"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="My Courses"
+            android:focusable="true"
+            android:textSize="17sp"
+            android:textAllCaps="false"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/availableTeacherRequests"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="Available Requests"
+            android:focusable="true"
+            android:textSize="17sp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            android:textAllCaps="false"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/addedCoursesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="634dp"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/teacherSuggestionLayout"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="160dp"
         android:layout_marginBottom="0dp"
-        android:background="@drawable/rounded_corners"
+        android:background="@drawable/rounded_corners_recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,4 +82,26 @@
         android:textColor="#7E7A7A"
         android:textSize="20sp"
         android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/noDataAddedText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"
+        android:text="No Data Added"
+        android:textColor="#7E7A7A"
+        android:textSize="20sp"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"
+        android:visibility="gone"
+        />
 </RelativeLayout>

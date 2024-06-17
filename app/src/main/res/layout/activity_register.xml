@@ -206,7 +206,6 @@
                         android:layout_height="66dp"
                         android:background="@drawable/edit_text_style"
                         android:editable="false"
-
                         android:text="01-01-2000"
                         android:textAlignment="center"
                         android:textSize="20sp" />

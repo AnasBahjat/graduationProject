@@ -43,11 +43,15 @@ import com.example.graduationproject.databinding.NotificationsPopupWindowBinding
 import com.example.graduationproject.databinding.SideNavigationHeaderBinding;
 import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
+import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.models.Address;
+import com.example.graduationproject.models.Children;
+import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
+import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.ui.commonFragment.ProfileFragment;
 import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
@@ -64,7 +68,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TeacherActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener {
+public class TeacherActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener, AddTeacherMatchingListener {
     private Database database;
     private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,doneInformation;
     private ActivityTeacherBinding binding ;
@@ -85,6 +89,8 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     String verificationCode;
 
     private NotificationsAdapter notificationsAdapter;
+
+    private ArrayList<TeacherMatchModel> teacherMatchingDataToPassToTeacherFragment= new ArrayList<>();
 
 
     @Override
@@ -122,7 +128,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         buildNavigationView();
         initBroadcastReceiver();
         checkAccountDone();
-        loadFragment(new TeacherFragment());
+        database.getTeacherMatchingData(email,this);
       //  checkIfTeacherAccountConfirmed();
         checkIfItemSelected();
         // startNotificationsService();
@@ -180,7 +186,8 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
-                    loadFragment(new TeacherFragment());
+                    teacherMatchingDataToPassToTeacherFragment.clear();
+                    loadTeacherFragment();
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
                     loadFragment(new ProfileFragment());
@@ -261,9 +268,25 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    private void loadTeacherFragment(){
+        TeacherFragment teacherFragment = new TeacherFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("teacherMatchingData",teacherMatchingDataToPassToTeacherFragment);
+        bundle.putString("email",email);
+        bundle.putString("firstName",firstName);
+        bundle.putString("lastName",lastName);
+
+        teacherFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragments_container,teacherFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
     private void loadFragment(Fragment fragment){
         currentFragment = fragment;
-
         Bundle bundle=new Bundle();
         bundle.putString("email",email);
         bundle.putString("firstName",firstName);
@@ -300,7 +323,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
         }
         notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
-        notificationPopupWindow.showAsDropDown(binding.notificationImage,0,0);
+        notificationPopupWindow.showAsDropDown(binding.notificationImage,-550,0);
     }
 
 
@@ -316,10 +339,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     public void showTeacherInformationPopupWindow(){
         TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
         decrementNotificationsNumber();
-
-        int width = 1290 ;
-        int height = 2000;
-        teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),width,height,true);
+        teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),1300,2000,true);
 
         teacherInformationPopupWindow.showAtLocation(teacherInformationPopupWindowBinding.teacherInformationLayout, Gravity.CENTER,0,0);
         notificationPopupWindow.dismiss();
@@ -698,5 +718,56 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         Intent serviceIntent = new Intent(this, NotificationsService.class);
         serviceIntent.putExtra("email", email);
         startService(serviceIntent);
+    }
+
+    @Override
+    public void onMatchingAdded(int resultFlag) {
+
+    }
+
+    @Override
+    public void getTeacherMatchingData(int resultFlag, JSONArray teacherMatchingData) {
+        if(resultFlag == 0){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","An Error occurred fetching the data , please try again later");
+        }
+        else if(resultFlag == -2){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Network Error","A Network Error occurred,Please try again later");
+        }
+        else if(resultFlag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Request Error","Something went wrong please try again later");
+        }
+        else if(resultFlag == 1) {
+            try {
+                if(!teacherMatchingDataToPassToTeacherFragment.isEmpty()){
+                    teacherMatchingDataToPassToTeacherFragment.clear();
+                }
+                for(int i=0;i<teacherMatchingData.length();i++){
+                    JSONObject jsonObject = teacherMatchingData.getJSONObject(i);
+                    int matchingId = jsonObject.getInt("matchingId");
+                    String parentEmail = jsonObject.getString("parentEmail");
+                    int childId = jsonObject.getInt("childId");
+                    String choseDays = jsonObject.getString("choseDays");
+                    String choseCourses = jsonObject.getString("courses");
+                    String location = jsonObject.getString("location");
+                    String teachingMethod = jsonObject.getString("teachingMethod");
+                    String childName = jsonObject.getString("childName");
+                    String childAge = jsonObject.getString("childAge");
+                    int childGender =jsonObject.getInt("childGender");
+                    int childGrade = jsonObject.getInt("childGrade");
+                    String startTime = jsonObject.getString("startTime");
+                    String endTime = jsonObject.getString("endTime");
+                    Log.d("Child name --------> "+childName,"Child name --------> "+childName);
+                    TeacherMatchModel teacherMatchModel=new TeacherMatchModel(matchingId,parentEmail,new CustomChildData(childId,childName,childGrade),
+                            choseDays,choseCourses,location,teachingMethod,
+                            new Children(childName,childAge,childGender,childGrade),startTime,endTime);
+                    teacherMatchingDataToPassToTeacherFragment.add(teacherMatchModel);
+                }
+                loadTeacherFragment();
+
+            }
+            catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

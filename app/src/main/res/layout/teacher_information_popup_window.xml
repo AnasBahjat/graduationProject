@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/teacherInformationLayout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="1290px"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="#F2ECF6"
-    android:background="@drawable/rounded_corners">
+    >
     <RelativeLayout
         android:id="@+id/teacherInformationLayoutParent"
         android:layout_width="wrap_content"
