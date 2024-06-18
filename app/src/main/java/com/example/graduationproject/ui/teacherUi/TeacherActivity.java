@@ -1,6 +1,7 @@
 package com.example.graduationproject.ui.teacherUi;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,9 +11,11 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -30,7 +33,9 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.graduationproject.adapters.NotificationsAdapter;
 import com.example.graduationproject.backgroundActions.NotificationsService;
@@ -38,6 +43,7 @@ import com.example.graduationproject.broadcastReceiver.BroadcastHandler;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.R;
 import com.example.graduationproject.databinding.ActivityTeacherBinding;
+import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.SideNavigationHeaderBinding;
@@ -75,22 +81,35 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     private BroadcastHandler broadcastHandler;
 
     private PopupWindow notificationPopupWindow ;
-   // private List<Notifications> notificationsList;
     private PopupWindow teacherInformationPopupWindow ;
     List<Notifications> notList ;
-    FragmentTeacherBinding fragmentTeacherBinding ;
 
     Fragment currentFragment ;
     private NotificationsPopupWindowBinding notificationsPopupWindowBinding;
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    Long timeOutSeconds = 60L;
-
-    PhoneAuthProvider.ForceResendingToken resendingToken;
-    String verificationCode;
-
-    private NotificationsAdapter notificationsAdapter;
 
     private ArrayList<TeacherMatchModel> teacherMatchingDataToPassToTeacherFragment= new ArrayList<>();
+    private View popupView;
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("START_MATCHING_FRAGMENT_FOR_TEACHER".equals(intent.getAction())) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    TeacherMatchModel teacherMatchModel =intent.getSerializableExtra("teacherMatchModel",TeacherMatchModel.class);
+                    if(teacherMatchModel != null)
+                        startCardViewData(teacherMatchModel);
+                    else
+                        startCardViewData(null);
+                }
+                else {
+                    System.exit(-1);
+                }
+            }
+
+            else if("REFRESH_FRAGMENT_TEACHER".equals(intent.getAction())){
+                database.getTeacherMatchingData(email,TeacherActivity.this);
+            }
+        }
+    };
 
 
     @Override
@@ -123,7 +142,6 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         if(Integer.parseInt(doneInformation)==1)
             database.getNotifications(email,this);
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
-        notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         notList=new ArrayList<>();
         buildNavigationView();
         initBroadcastReceiver();
@@ -163,6 +181,8 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+
+
     private void updateNotificationsAdapter(){
         if(notList != null){
             if(!notList.isEmpty()){
@@ -181,12 +201,15 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
 
 
 
+
+
     private void checkIfItemSelected(){
         binding.bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
                     teacherMatchingDataToPassToTeacherFragment.clear();
+                    database.getTeacherMatchingData(email,TeacherActivity.this);
                     loadTeacherFragment();
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
@@ -210,10 +233,34 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
             flags = Context.RECEIVER_NOT_EXPORTED;
         }
         registerReceiver(broadcastHandler,intentFilter,flags);
+
+
+        IntentFilter localIntentFilter = new IntentFilter();
+        localIntentFilter.addAction("START_MATCHING_FRAGMENT_FOR_TEACHER");
+        localIntentFilter.addAction("REFRESH_FRAGMENT_TEACHER");
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,localIntentFilter);
     }
 
 
     public void notificationImageClicked(View view) {
+
+        LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
+
+        if(popupView == null){
+            popupView = inflater.inflate(R.layout.notifications_popup_window,null);
+            notificationsPopupWindowBinding = NotificationsPopupWindowBinding.bind(popupView);
+        }
+        if(popupView.getParent() != null){
+            ((ViewGroup) popupView.getParent()).removeView(popupView);
+        }
+
+        notificationPopupWindow = new PopupWindow(popupView,910,1500,true);
+        notificationPopupWindow.showAsDropDown(binding.notificationImage,-770,0);
+
+        notificationsPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
+            database.getNotifications(email,TeacherActivity.this);
+        });
+
         viewNotificationsPopUpWindow();
     }
 
@@ -312,18 +359,22 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     private void viewNotificationsPopUpWindow(){
         if(Integer.parseInt(doneInformation) == 1)
             database.getNotifications(email,this);
-        int width = ViewGroup.LayoutParams.WRAP_CONTENT;
-        int height = 1500;
+        else
+            notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+        /*notificationPopupWindow.showAsDropDown(binding.notificationImage,-620,0);
+
 
         if(!notList.isEmpty()){
+            notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
+
         }
         else {
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
-        }
-        notificationPopupWindow = new PopupWindow(notificationsPopupWindowBinding.getRoot(),width,height,true);
-        notificationPopupWindow.showAsDropDown(binding.notificationImage,-550,0);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.GONE);
+        }*/
     }
 
 
@@ -622,6 +673,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(broadcastHandler);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
 
@@ -671,7 +723,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         if(result == 1){
             List<Notifications> notificationsList=new ArrayList<>();
             try {
-                for(int i=0;i<notificationsJsonArray.length();i++){
+                for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
                     Notifications notification = new Notifications(Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
@@ -691,10 +743,24 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
             catch (JSONException e) {
                 throw new RuntimeException(e);
             }
-            updateNotificationsAdapter();
+            updateNotificationsPopUpWindow();
+            notificationsPopupWindowBinding.refreshNotificationsRecyclerView.setRefreshing(false);
         }
         else {
             notList=null;
+        }
+    }
+
+    private void updateNotificationsPopUpWindow(){
+        if(!notList.isEmpty()){
+            notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList, this));
+            notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
+        }
+        else {
+            notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.GONE);
         }
     }
 
@@ -769,5 +835,59 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                 throw new RuntimeException(e);
             }
         }
+    }
+
+
+
+    public void startCardViewData(TeacherMatchModel teacherMatchModel) {
+            if(teacherMatchModel != null){
+              //  loadFragmentTeacherMatchFragment(teacherMatchModel);
+                showTeacherMatchDialog(teacherMatchModel);
+            }
+    }
+
+    private void showTeacherMatchDialog(TeacherMatchModel teacherMatchModel){
+        DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding = DialogTeacherMatchingOnCardClickedBinding.inflate(LayoutInflater.from(this));
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(dialogTeacherMatchingOnCardClickedBinding.getRoot());
+        //database.getParentInformation(teacherMatchModel.getParentEmail(),this);
+
+        dialog.setCancelable(false);
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.copyFrom(dialog.getWindow().getAttributes());
+        layoutParams.width = 1250;
+        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(layoutParams);
+        if(dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        dialog.show();
+
+        dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x->{
+            Toast.makeText(this,"123123",Toast.LENGTH_SHORT).show();
+        });
+
+        dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z->{
+            dialog.dismiss();
+        });
+
+        setDataToMatchDialog(dialogTeacherMatchingOnCardClickedBinding,teacherMatchModel);
+    }
+
+    private void setDataToMatchDialog(DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding, TeacherMatchModel teacherMatchModel){
+        dialogTeacherMatchingOnCardClickedBinding.childNameTextView.setText(teacherMatchModel.getChildren().getChildName());
+      //  dialogTeacherMatchingOnCardClickedBinding.parentNameTextView.setText();
+    }
+
+    private void loadFragmentTeacherMatchFragment(TeacherMatchModel teacherMatchModel){
+        TeacherMatchFragment teacherMatchFragment = new TeacherMatchFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("teacherMatchData",teacherMatchModel);
+        teacherMatchFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragments_container,teacherMatchFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

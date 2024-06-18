@@ -5,9 +5,10 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class TeacherMatchModel implements Parcelable {
+public class TeacherMatchModel implements Parcelable, Serializable {
     private int matchingId ;
     private String parentEmail ;
     private CustomChildData customChildData ;

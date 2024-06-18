@@ -117,6 +117,8 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     private String amPmStart ;
     private String amPmEnd;
 
+    private View popupView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,7 +146,6 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     private void init(){
         database=new Database(this);
         notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
-        notificationPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         if(Integer.parseInt(doneInformation) == 1){
             database.getNotifications(email,this);
         }
@@ -153,8 +154,24 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         checkAccountDone();
         initBroadcastReceiver();
         loadFragment(new ParentFragment());
+
         parentBinding.notificationImage.setOnClickListener(asd -> {
-            showNotificationPopupWindow();
+                LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
+                if(popupView == null){
+                    popupView = inflater.inflate(R.layout.notifications_popup_window,null);
+                    notificationPopupWindowBinding = NotificationsPopupWindowBinding.bind(popupView);
+                }
+                if(popupView.getParent() != null){
+                    ((ViewGroup) popupView.getParent()).removeView(popupView);
+                }
+
+                notificationPopupWindow = new PopupWindow(popupView,910,1500,true);
+                notificationPopupWindow.showAsDropDown(parentBinding.notificationImage,-770,0);
+                notificationPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
+                    if(doneInformation.equals("1"))
+                        database.getNotifications(email,ParentActivity.this);
+                });
+                showNotificationPopupWindow();
         });
         checkIfItemSelected();
     }
@@ -167,6 +184,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
             notificationsList.add(new Notifications(0,"Confirm Account","Fill in extra information to confirm the account please ...",0));
             parentBinding.numOfNotifications.setText(""+notificationsList.size());
             parentBinding.fragmentsContainer.setVisibility(View.GONE);
+            updateNotificationsPopupWindow();
         }
         else {
             if(!notificationsList.isEmpty()){
@@ -233,15 +251,28 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     private void showNotificationPopupWindow(){
         if(Integer.parseInt(doneInformation) == 1)
             database.getNotifications(email,this);
-        notificationPopupWindow = new PopupWindow(notificationPopupWindowBinding.getRoot(), ViewGroup.LayoutParams.WRAP_CONTENT,1500,true);
-        if(notificationsList.isEmpty()){
+        else if(doneInformation.equals("0"))
+            updateNotificationsPopupWindow();
+        else
             notificationPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+
+        /*if(notificationsList.isEmpty()){
+            notificationPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+            notificationPopupWindowBinding.notificationsRecyclerView.setVisibility(View.GONE);
         }
         else {
+            notificationPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this));
             notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
-        }
-       notificationPopupWindow.showAsDropDown(parentBinding.notificationImage,-550,0);
+            notificationPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
+        }*/
+
+       /* notificationPopupWindowBinding.swipeRefreshLayout.setOnRefreshListener(()->{
+            if(doneInformation.equals("1"))
+                database.getNotifications(email,ParentActivity.this);
+            else
+                notificationPopupWindowBinding.swipeRefreshLayout.setRefreshing(false);
+        });*/
     }
 
 
@@ -392,7 +423,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         if(result == 1){
             List<Notifications> notList = new ArrayList<>();
             try {
-                for(int i=0;i<notificationsJsonArray.length();i++){
+                for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
                     Notifications notification = new Notifications(Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
@@ -413,10 +444,24 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
             catch (JSONException e){
                 throw new RuntimeException(e);
             }
-            updateNotificationsAdapter();
+            updateNotificationsPopupWindow();
+            notificationPopupWindowBinding.refreshNotificationsRecyclerView.setRefreshing(false);
         }
         else {
             notificationsList = null ;
+        }
+    }
+
+    private void updateNotificationsPopupWindow(){
+        if(!notificationsList.isEmpty()){
+            notificationPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList, this));
+            notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+            notificationPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
+        }
+        else {
+            notificationPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+            notificationPopupWindowBinding.notificationsRecyclerView.setVisibility(View.GONE);
         }
     }
 
@@ -470,6 +515,10 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     public void getChildrenResult(int flag, JSONArray children) {
         if(flag==1){
             if(!children.toString().isEmpty()){
+                if(!childrenSpinnerList.isEmpty())
+                    childrenSpinnerList.clear();
+                if(!parentChildrenList.isEmpty())
+                    parentChildrenList.clear();
                 for (int i=0;i<children.length();i++){
                     try {
                         JSONObject jsonObject = children.getJSONObject(i);
@@ -478,7 +527,6 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                         String childAge = jsonObject.getString("childAge");
                         int childGenderVal = jsonObject.getInt("childGender");
                         parentChildrenList.add(new Children(childName,childAge,childGenderVal,jsonObject.getInt("childGrade")));
-                        //childrenSpinnerList.add(childId+" , "+childName+" , "+jsonObject.getInt("childGrade"));
                         childrenSpinnerList.add(new CustomChildData(childId,childName,Integer.parseInt(jsonObject.getString("childGrade"))));
                     }
                     catch (JSONException e) {
@@ -486,8 +534,6 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                     }
                 }
                 showAlertDialogForSearchingForTeacher();
-
-                //askForSpecificTeacherFragment.getChildrenFromParentActivity(parentChildrenList,childrenSpinnerList);
             }
             else {
                 MyAlertDialog.errorDialog(this);
@@ -640,13 +686,14 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
             checkSearchForTeacherDataConfirmBtnClicked();
         });
     }
+    @SuppressLint("SimpleDateFormat")
     private void setStartAndEndTime(){
         Calendar calendar = Calendar.getInstance();
         int hours = calendar.get(Calendar.HOUR_OF_DAY);
         int mins = calendar.get(Calendar.MINUTE);
 
 
-        SimpleDateFormat amPmFormatStart = new SimpleDateFormat("a");
+         SimpleDateFormat amPmFormatStart = new SimpleDateFormat("a");
         amPmStart = amPmFormatStart.format(calendar.getTime());
         SimpleDateFormat formatStart = new SimpleDateFormat("h:mm a");
         startTime = formatStart.format(calendar.getTime());

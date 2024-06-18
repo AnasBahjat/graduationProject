@@ -16,4 +16,5 @@ public class Constants {
     public static String addNewChild ="http://192.168.1.5/graduationProject/addNewChild.php";
     public static String addNewTeacherMatching ="http://192.168.1.5/graduationProject/addNewTeacherMatching.php";
     public static String getTeacherMatchingData ="http://192.168.1.5/graduationProject/getTeacherMatchingData.php";
+    public static String  getParentInformation ="http://192.168.1.5/graduationProject/getParentInformation.php";
 }

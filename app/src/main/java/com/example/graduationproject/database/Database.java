@@ -21,6 +21,7 @@ import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.NotificationsListListener;
+import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TellParentDataIsReady;
 import com.example.graduationproject.listeners.UpdateParentInformation;
@@ -607,5 +608,20 @@ public class Database {
             addTeacherMatchingListener.getTeacherMatchingData(-1,null);
         });
         queue.add(stringRequest);
+    }
+
+    public void getParentInformation(String parentEmail , final ParentInformationListener parentInformationListener){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentInformation,resp->{
+
+        },error->{
+
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",parentEmail);
+                return data;
+            }
+        };
     }
 }
