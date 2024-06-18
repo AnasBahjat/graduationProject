@@ -27,7 +27,7 @@ public class BroadcastHandler extends BroadcastReceiver {
                 ((TeacherActivity) context).updateNotifications();
             }
 
-            else if(context instanceof ParentActivity && intent.getAction().equalsIgnoreCase("SHOW_PARENT_INFORMATION_WINDOW")){
+            else if(context instanceof ParentActivity && "SHOW_PARENT_INFORMATION_WINDOW".equals(intent.getAction())){
                 ((ParentActivity) context).showParentInformationPopupWindow();
             }
 

@@ -59,6 +59,7 @@ import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.ui.commonFragment.ProfileFragment;
+import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
 import com.google.android.material.navigation.NavigationBarView;
@@ -146,7 +147,8 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         buildNavigationView();
         initBroadcastReceiver();
         checkAccountDone();
-        database.getTeacherMatchingData(email,this);
+        if(doneInformation.equals("1"))
+            database.getTeacherMatchingData(email,this);
       //  checkIfTeacherAccountConfirmed();
         checkIfItemSelected();
         // startNotificationsService();
@@ -159,6 +161,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                     "Fill in extra information to confirm the account please ...",0));
             binding.numOfNotifications.setText(""+notList.size());
             binding.fragmentsContainer.setVisibility(View.GONE);
+            updateNotificationsPopUpWindow();
         }
         else {
             if(!notList.isEmpty()){
@@ -258,9 +261,9 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         notificationPopupWindow.showAsDropDown(binding.notificationImage,-770,0);
 
         notificationsPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
-            database.getNotifications(email,TeacherActivity.this);
+            if(doneInformation.equals("1"))
+                database.getNotifications(email, TeacherActivity.this);
         });
-
         viewNotificationsPopUpWindow();
     }
 
@@ -359,6 +362,8 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     private void viewNotificationsPopUpWindow(){
         if(Integer.parseInt(doneInformation) == 1)
             database.getNotifications(email,this);
+        else if(doneInformation.equals("0"))
+            updateNotificationsPopUpWindow();
         else
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
         /*notificationPopupWindow.showAsDropDown(binding.notificationImage,-620,0);
@@ -390,7 +395,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     public void showTeacherInformationPopupWindow(){
         TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
         decrementNotificationsNumber();
-        teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),1300,2000,true);
+        teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),1380,2000,true);
 
         teacherInformationPopupWindow.showAtLocation(teacherInformationPopupWindowBinding.teacherInformationLayout, Gravity.CENTER,0,0);
         notificationPopupWindow.dismiss();
@@ -628,6 +633,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                 Teacher teacher=new Teacher(email,idStr,studentOrGraduate+"",
                         graduationYear,collegeStr,fieldStr,availabilityStr,educationalLevel,new Address(cityText,countryText));
                 database.updateTeacherInformation(teacher,teacherInformationPopupWindowBinding.phoneNumberPrefix.getFullNumber(),this);
+                database.getTeacherMatchingData(email,this);
         }
     }
 

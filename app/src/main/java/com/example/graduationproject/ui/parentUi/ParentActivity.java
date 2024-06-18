@@ -278,6 +278,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
 
 
     public void showParentInformationPopupWindow(){
+        Toast.makeText(this,"0000000000",Toast.LENGTH_SHORT).show();
         parentInformationPopupWindowBinding = ParentInformationPopupWindowBinding.inflate(getLayoutInflater());
         parentInformationPopupWindow = new PopupWindow(parentInformationPopupWindowBinding.getRoot(),1300,2000,true);
         parentInformationPopupWindow.showAtLocation(parentInformationPopupWindowBinding.parentInformationLayout, Gravity.CENTER,0,0);
