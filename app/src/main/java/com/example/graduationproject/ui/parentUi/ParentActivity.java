@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -69,9 +70,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -116,13 +119,15 @@ public class ParentActivity extends AppCompatActivity implements
     private int selectedChildId ;
     private int selectedChildGender ;
     private AlertDialog searchingForTeacherDialog;
-    private String startTime , endTime ;
+    private String startTime ="12:00 PM", endTime="12:00 PM";
     private int startHourSelected,startMinuteSelected ;
     private int endHourSelected,endMinuteSelected ;
     private String amPmStart ;
     private String amPmEnd;
 
     private View popupView;
+    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
+
 
 
     @Override
@@ -558,6 +563,9 @@ public class ParentActivity extends AppCompatActivity implements
         View dialogView = inflater.inflate(R.layout.fragment_ask_for_specific_teacher, null);
         builder.setView(dialogView);
 
+
+        if(!coursesListForMatchingTeacher.isEmpty())
+            coursesListForMatchingTeacher.clear();
         Button confirmTeachersInformationBtn = dialogView.findViewById(R.id.confirmTeachersInformation);
         ImageView closeImageView = dialogView.findViewById(R.id.closeTheDialog);
         childrenSpinner = dialogView.findViewById(R.id.childrenSpinner);
@@ -633,8 +641,6 @@ public class ParentActivity extends AppCompatActivity implements
 
 
         setStartAndEndTime();
-
-
         startTimePickerEditText.setOnClickListener(c->{
             Calendar calendar = Calendar.getInstance();
             int hours = calendar.get(Calendar.HOUR_OF_DAY);
@@ -694,7 +700,11 @@ public class ParentActivity extends AppCompatActivity implements
         });
 
         confirmTeachersInformationBtn.setOnClickListener(sd->{
-            checkSearchForTeacherDataConfirmBtnClicked();
+            try {
+                checkSearchForTeacherDataConfirmBtnClicked();
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
     @SuppressLint("SimpleDateFormat")
@@ -747,7 +757,7 @@ public class ParentActivity extends AppCompatActivity implements
             flexboxCoursesForMatchingTeacherLayout.addView(customView);
         }
     }
-    private void checkSearchForTeacherDataConfirmBtnClicked(){
+    private void checkSearchForTeacherDataConfirmBtnClicked() throws ParseException {
         StringBuilder selectedDays = checkIfDaysSelected();
         String city = locationSpinner.getSelectedItem().toString();
         String teachingMethodStr = teachingMethodSpinner.getSelectedItem().toString();
@@ -794,14 +804,20 @@ public class ParentActivity extends AppCompatActivity implements
             }
         }
     }
-    private boolean checkStartAndEndTime(){
-        if(amPmStart.equalsIgnoreCase("AM") && amPmEnd.equalsIgnoreCase("PM"))
+    private boolean checkStartAndEndTime() throws ParseException {
+        Date startDate = timeFormat.parse(startTime);
+        Date endDate = timeFormat.parse(endTime);
+
+        if(startDate != null && endDate != null && startDate.before(endDate) && isEndTimeAtLeastOneHourLater(startDate,endDate)){
             return true;
-        if(amPmStart.equalsIgnoreCase("AM") && amPmEnd.equalsIgnoreCase("AM") && startHourSelected + 1 < endHourSelected)
-            return true;
-        if(amPmStart.equalsIgnoreCase("PM") && amPmEnd.equalsIgnoreCase("PM") && startHourSelected + 1 < endHourSelected)
-            return true;
-        return false ;
+        }
+        return false;
+    }
+
+    private boolean isEndTimeAtLeastOneHourLater(Date startTime,Date endTime){
+        final long oneHourInMillis = 3600000 ;
+        Date oneHourLater = new Date(startTime.getTime()+oneHourInMillis);
+        return endTime.after(oneHourLater);
     }
 
     private StringBuilder checkIfDaysSelected(){

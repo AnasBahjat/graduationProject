@@ -290,6 +290,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             binding.refreshRecyclerView.setRefreshing(false);
+            Toast.makeText(getContext(),"Its empty know ...", Toast.LENGTH_LONG).show();
         }
         else if(resultFlag == -1){
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Network Error","Please try again later or check your network connection ..");

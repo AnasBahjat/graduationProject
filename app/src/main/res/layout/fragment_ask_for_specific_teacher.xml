@@ -215,7 +215,7 @@
                     android:layout_marginBottom="5dp"
                     android:gravity="center"
                     android:hint="Start Time"
-                    app:errorEnabled="true"
+                    app:errorEnabled="false"
                     app:errorIconDrawable="@drawable/baseline_error_24"
                     app:errorTextAppearance="@style/error_text"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
@@ -240,7 +240,7 @@
                     android:gravity="center"
                     android:hint="End Time"
                     android:layout_marginEnd="5dp"
-                    app:errorEnabled="true"
+                    app:errorEnabled="false"
                     app:errorIconDrawable="@drawable/baseline_error_24"
                     app:errorTextAppearance="@style/error_text"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
