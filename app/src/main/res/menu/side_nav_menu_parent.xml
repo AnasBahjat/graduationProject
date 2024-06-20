@@ -15,7 +15,15 @@
 
     </group>
 
-    <group android:id="@+id/bottomGroup" android:orderInCategory="2">
+    <group android:id="@+id/secondGroup" android:orderInCategory="2">
+        <item
+            android:id="@+id/myPostedRequests"
+            android:title="My Posted Requests"
+            android:icon="@drawable/my_requests_icon"
+            />
+    </group>
+
+    <group android:id="@+id/bottomGroup" android:orderInCategory="3">
 
         <item
             android:id="@+id/profile"

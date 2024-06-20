@@ -1,7 +1,5 @@
 package com.example.graduationproject.ui.parentUi;
 
-import static com.example.graduationproject.R.*;
-
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -9,9 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -50,12 +48,12 @@ import com.example.graduationproject.databinding.ActivityParentBinding;
 import com.example.graduationproject.databinding.ChildrenInformationPopupWindowBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.ParentInformationPopupWindowBinding;
-import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.NotificationsListListener;
+import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
@@ -78,8 +76,14 @@ import java.util.List;
 import java.util.TimeZone;
 
 
-public class ParentActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,NotificationsListListener, UpdateParentInformation
-, GetParentChildren, AddNewChildListener, AddTeacherMatchingListener {
+public class ParentActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        NotificationsListListener,
+        UpdateParentInformation,
+        GetParentChildren,
+        AddNewChildListener,
+        AddTeacherMatchingListener,
+        ParentListenerForParentPostedRequests {
 
     private Database database;
     private String email,firstName,lastName,password,birthDate,phoneNumber,city,country,doneInformation ;
@@ -110,6 +114,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     private CheckBox sat,sun,mon,tues,wed,thurs,fri;
     private FlexboxLayout flexboxCoursesForMatchingTeacherLayout ;
     private int selectedChildId ;
+    private int selectedChildGender ;
     private AlertDialog searchingForTeacherDialog;
     private String startTime , endTime ;
     private int startHourSelected,startMinuteSelected ;
@@ -153,8 +158,10 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         buildNavigationView();
         checkAccountDone();
         initBroadcastReceiver();
-        loadFragment(new ParentFragment());
 
+        if(doneInformation.equals("1")){
+            database.getParentPostedMatchingInformation(email,ParentActivity.this);
+        }
         parentBinding.notificationImage.setOnClickListener(asd -> {
                 LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
                 if(popupView == null){
@@ -226,7 +233,8 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
-                    loadFragment(new ParentFragment());
+                    database.getParentPostedMatchingInformation(email,ParentActivity.this);
+                    //loadFragment(new ParentFragment());
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
                     loadFragment(new ParentProfileFragment());
@@ -278,7 +286,6 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
 
 
     public void showParentInformationPopupWindow(){
-        Toast.makeText(this,"0000000000",Toast.LENGTH_SHORT).show();
         parentInformationPopupWindowBinding = ParentInformationPopupWindowBinding.inflate(getLayoutInflater());
         parentInformationPopupWindow = new PopupWindow(parentInformationPopupWindowBinding.getRoot(),1300,2000,true);
         parentInformationPopupWindow.showAtLocation(parentInformationPopupWindowBinding.parentInformationLayout, Gravity.CENTER,0,0);
@@ -325,6 +332,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                 parentInformationPopupWindowBinding.flexboxLayout.getChildCount() > 0) {
             Parent parent = new Parent(email,id,phone,childrenList,city,country);
             database.confirmParentInformation(parent,this);
+            database.getParentPostedMatchingInformation(email,ParentActivity.this);
         }
 
     }
@@ -476,15 +484,15 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                 database.getParentChildren(email,this);
             else
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first,check notifications");
-            //askForSpecificTeacherFragment = new AskForSpecificTeacherFragment();
-           // askForSpecificTeacherFragment.setContext(this);
-           // loadFragment(askForSpecificTeacherFragment);
         }
         else if(menuItem.getItemId() == R.id.addNewChild){
             if(doneInformation.equalsIgnoreCase("1"))
                 showNewChildrenDialog();
             else
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
+        }
+        else if(menuItem.getItemId() == R.id.myPostedRequests){
+        //    database.getTeacherMatchingData(email,);
         }
         parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -528,7 +536,8 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                         String childAge = jsonObject.getString("childAge");
                         int childGenderVal = jsonObject.getInt("childGender");
                         parentChildrenList.add(new Children(childName,childAge,childGenderVal,jsonObject.getInt("childGrade")));
-                        childrenSpinnerList.add(new CustomChildData(childId,childName,Integer.parseInt(jsonObject.getString("childGrade"))));
+                        //childrenSpinnerList.add(new CustomChildData(childId,childName,Integer.parseInt(jsonObject.getString("childGrade"),childGenderVal)));
+                        childrenSpinnerList.add(new CustomChildData(childId,childName,jsonObject.getInt("childGrade"),childGenderVal));
                     }
                     catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -598,6 +607,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                 selectedChildId = data.getChildId();
                 selectedChildName = splittedString[0].trim();
                 selectedChildGrade = splittedString[1].trim();
+                selectedChildGender = data.getGender();
                 updatedCoursesSpinner();
                 if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
                     flexboxCoursesForMatchingTeacherLayout.removeAllViews();
@@ -728,7 +738,6 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
             courseName.setText(str);
             deleteImageView.setOnClickListener(xs->{
                 flexboxCoursesForMatchingTeacherLayout.removeView(customView);
-                Toast.makeText(this,courseName.getText().toString()+" Removed",Toast.LENGTH_SHORT).show();
                 for(int i=0;i<coursesListForMatchingTeacher.size();i++){
                     if(coursesListForMatchingTeacher.get(i).equalsIgnoreCase(courseName.getText().toString()))
                         coursesListForMatchingTeacher.remove(coursesListForMatchingTeacher.get(i));
@@ -754,7 +763,6 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                     MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please Choose At least one course ..");
                 }
                 else {
-                    Toast.makeText(this,"Start time : "+startTime,Toast.LENGTH_SHORT).show();
                     if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
                         StringBuilder courses= new StringBuilder();
                         for(int i=0 ; i <coursesListForMatchingTeacher.size() ; i++){
@@ -767,6 +775,19 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
                         }
                         TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
                                 ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime);
+
+                        TeacherMatchModel teacherMatchModel1 = new TeacherMatchModel(0
+                                ,email,
+                                new CustomChildData(selectedChildId,selectedChildName,
+                                Integer.parseInt(selectedChildGrade.trim())),
+                                selectedDays.toString(),courses.toString(),
+                                city,teachingMethodStr,
+                                new Children(selectedChildName,"12",selectedChildGender,
+                                        Integer.parseInt(selectedChildGrade.trim())),startTime,endTime);
+                        Intent intent = new Intent();
+                        intent.setAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
+                        intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
+                        sendBroadcast(intent);
                         database.addNewTeacherMatching(email,teacherMatchModel,this);
                     }
                 }
@@ -940,6 +961,7 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
         if(resultFlag == 1){
             MyAlertDialog.showDialogForDone(this,"Done","Your requirements is added , wait for requests from teachers ..");
             searchingForTeacherDialog.dismiss();
+
         }
         else if(resultFlag == -1){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong , please check your entered data and apply again");
@@ -955,5 +977,77 @@ public class ParentActivity extends AppCompatActivity implements NavigationView.
     @Override
     public void getTeacherMatchingData(int resultFlag, JSONArray teacherMatchingData) {
 
+    }
+
+    @Override
+    public void onPostedParentRequests(int resultFlag, JSONArray parentInformation) {
+        if(resultFlag == -3){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","An error occurred please try again later ..");
+        }
+        else if(resultFlag == -2){
+            ArrayList<TeacherMatchModel> emptyData = new ArrayList<>();
+            loadParentFragment(emptyData);
+        }
+        else if(resultFlag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Network Error","Please try again later or check your network connection ..");
+        }
+        else if(resultFlag == 0){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Request Error","Something went wrong ,Please try again later ..");
+        }
+        else {
+            try {
+                ArrayList<TeacherMatchModel> tempTeacherMatchModelList = new ArrayList<>();
+                if(parentInformation.length() == 0){
+                    loadParentFragment(tempTeacherMatchModelList);
+                }
+               else {
+                    for(int i=0;i<parentInformation.length();i++){
+                        JSONObject jsonObject = parentInformation.getJSONObject(i);
+                        int matchingId = jsonObject.getInt("matchingId");
+                        int childId = jsonObject.getInt("childId");
+                        String choseDays = jsonObject.getString("choseDays");
+                        String courses = jsonObject.getString("courses");
+                        String location = jsonObject.getString("location");
+                        String teachingMethod = jsonObject.getString("teachingMethod");
+                        String startTime = jsonObject.getString("startTime");
+                        String endTime = jsonObject.getString("endTime");
+                        String childName = jsonObject.getString("childName");
+                        String childAge = jsonObject.getString("childAge");
+                        String childGender = "Male";
+                        if(jsonObject.getString("childGender").equals("0"))
+                            childGender = "Female";
+                        int childGrade = jsonObject.getInt("childGrade");
+
+                        tempTeacherMatchModelList.add(new TeacherMatchModel(matchingId,email,
+                                new CustomChildData(childId,childName,childGrade),choseDays,courses,
+                                location,teachingMethod,
+                                new Children(childName,childAge,
+                                        Integer.parseInt(jsonObject.getString("childGender")),
+                                        childGrade),startTime,endTime));
+                    }
+                    loadParentFragment(tempTeacherMatchModelList);
+                }
+            }
+            catch(Exception ignored){
+
+            }
+        }
+    }
+
+    private void loadParentFragment(ArrayList<TeacherMatchModel> tempTeacherMatchModelList){
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("parentRequestsData",tempTeacherMatchModelList);
+        bundle.putString("email",email);
+        bundle.putString("firstName",firstName);
+        bundle.putString("lastName",lastName);
+        ParentFragment parentFragment = new ParentFragment();
+        parentFragment.setArguments(bundle);
+
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(parentBinding.fragmentsContainer.getId(),parentFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

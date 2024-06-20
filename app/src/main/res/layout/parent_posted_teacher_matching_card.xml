@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/matchTeacherCardView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="30dp"
     android:layout_marginBottom="2dp"
     android:layout_marginStart="5dp"
     android:layout_marginEnd="5dp"
     app:cardElevation="5dp"
-    android:backgroundTint="#E4ECEC"
-    >
+    android:backgroundTint="#E4ECEC">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -195,7 +194,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:text="More details"
+                android:text="Show More"
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="-2dp"
                 android:layout_marginEnd="-5dp"
@@ -210,4 +209,5 @@
         </LinearLayout>
 
     </RelativeLayout>
+
 </com.google.android.material.card.MaterialCardView>

@@ -163,7 +163,7 @@
         android:layout_below="@id/tempView1"
         android:layout_marginTop="20dp"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"/>
+        android:layout_marginStart="15dp"/>
 
     <TextView
         android:id="@+id/coursesTextViewTemp"
@@ -196,7 +196,7 @@
         android:src="@drawable/days_icon"
         android:layout_below="@id/coursesTextView"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
         />
     <TextView
@@ -230,7 +230,7 @@
         android:src="@drawable/teaching_method_icon_2"
         android:layout_below="@id/choseDaysTextView"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
         />
     <TextView
@@ -265,7 +265,7 @@
         android:src="@drawable/clock_icon"
         android:layout_below="@id/teachingMethodTextView"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
         />
     <TextView
@@ -300,7 +300,7 @@
         android:src="@drawable/location_icon"
         android:layout_below="@id/timeTextView"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
         />
     <TextView

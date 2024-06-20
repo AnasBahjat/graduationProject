@@ -14,19 +14,18 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.graduationproject.R;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.NotificationsListListener;
+import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TellParentDataIsReady;
 import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.models.Children;
-import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Profile;
 import com.example.graduationproject.models.Teacher;
@@ -174,7 +173,6 @@ public class Database {
                 }
             }
         }, volleyError -> {
-            Toast.makeText(context,volleyError.toString()+"1111",Toast.LENGTH_SHORT).show();
             requestFlagSetResult.onLoginSuccess("volleyError",null);
             successFlag=-1;
         }){
@@ -232,7 +230,6 @@ public class Database {
                 successFlag=-1;
                 requestResult.onSuccess(-1);
                 Log.e("MainActivity", "Request failed", t);
-                Toast.makeText(context,t.toString(),Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -359,7 +356,6 @@ public class Database {
 
     public void updateTeacherInformation(Teacher teacher,String fullPhoneNumber,final TeacherAccountConfirmationListener requestResult){
         StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.updateTeacherInformation, s-> {
-            Toast.makeText(context,s,Toast.LENGTH_LONG).show();
                 if(s.equalsIgnoreCase("exists")){
                     requestResult.onResult(0);
                 }
@@ -611,10 +607,23 @@ public class Database {
     }
 
     public void getParentInformation(String parentEmail , final ParentInformationListener parentInformationListener){
+        requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentInformation,resp->{
-
+            if(resp.equalsIgnoreCase("ERROR"))
+                parentInformationListener.onResult(-1,null);
+            else if(resp.equalsIgnoreCase("No Data"))
+                parentInformationListener.onResult(-2,null);
+            else if(resp.equalsIgnoreCase("Connection Error"))
+                parentInformationListener.onResult(-3,null);
+            else {
+                try {
+                    parentInformationListener.onResult(1,new JSONArray(resp));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         },error->{
-
+            parentInformationListener.onResult(-4,null);
         }){
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -623,5 +632,39 @@ public class Database {
                 return data;
             }
         };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getParentPostedMatchingInformation(String parentEmail , final ParentListenerForParentPostedRequests parentInformationListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentPostedMatchingInformation,resp->{
+            if (resp.equalsIgnoreCase("ERROR")){
+                parentInformationListener.onPostedParentRequests(-3,null);
+            }
+
+            else if(resp.equalsIgnoreCase("No Requests"))
+                parentInformationListener.onPostedParentRequests(-2,null);
+
+            else if(resp.equalsIgnoreCase("Connection Error")){
+                parentInformationListener.onPostedParentRequests(-1,null);
+            }
+            else {
+                try {
+                    parentInformationListener.onPostedParentRequests(1,new JSONArray(resp));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        },err->{
+            parentInformationListener.onPostedParentRequests(0,null);
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",parentEmail);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 }

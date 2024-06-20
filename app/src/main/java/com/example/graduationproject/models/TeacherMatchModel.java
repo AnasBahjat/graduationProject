@@ -22,7 +22,9 @@ public class TeacherMatchModel implements Parcelable, Serializable {
     private Children children ;
 
 
-    public TeacherMatchModel(int matchingId, String parentEmail, CustomChildData customChildData, String choseDays, String courses, String location,
+    public TeacherMatchModel(int matchingId, String parentEmail,
+                             CustomChildData customChildData, String choseDays,
+                             String courses, String location,
                              String teachingMethod, Children children,
                              String startTime,String endTime) {
         this.matchingId = matchingId;

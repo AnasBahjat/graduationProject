@@ -9,6 +9,7 @@ public class CustomChildData implements Parcelable {
     private int childId;
     private String childName ;
     private int childGrade ;
+    private int gender ;
 
     public CustomChildData(int childId, String childName, int childGrade) {
         this.childId = childId;
@@ -16,10 +17,18 @@ public class CustomChildData implements Parcelable {
         this.childGrade = childGrade;
     }
 
+    public CustomChildData(int childId, String childName, int childGrade,int gender){
+        this.childId = childId;
+        this.childName = childName;
+        this.childGrade = childGrade;
+        this.gender=gender;
+    }
+
     protected CustomChildData(Parcel in) {
         childId = in.readInt();
         childName = in.readString();
         childGrade = in.readInt();
+        gender = in.readInt();
     }
 
     public static final Creator<CustomChildData> CREATOR = new Creator<CustomChildData>() {
@@ -33,6 +42,14 @@ public class CustomChildData implements Parcelable {
             return new CustomChildData[size];
         }
     };
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
 
     public int getChildId() {
         return childId;
@@ -74,5 +91,6 @@ public class CustomChildData implements Parcelable {
         dest.writeInt(childId);
         dest.writeString(childName);
         dest.writeInt(childGrade);
+        dest.writeInt(gender);
     }
 }

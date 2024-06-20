@@ -47,7 +47,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             "English Language","Arabic Language");
     List<String> availableCoursesArts = Arrays.asList("English Language","Arabic Language","History","Geography");
     List<String> availableCourses = Arrays.asList("English Language","Arabic Language","History","Geography");*/
-    private ArrayList<TeacherMatchModel> teacherMatchModelData ;
+    private ArrayList<TeacherMatchModel> teacherMatchModelData = new ArrayList<>() ;
     private MatchingTeacherAdapter matchingTeacherAdapter;
     private boolean btn1Clicked = true ;
     private boolean btn2Clicked = false ;

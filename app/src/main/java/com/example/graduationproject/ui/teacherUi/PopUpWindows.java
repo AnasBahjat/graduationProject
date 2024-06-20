@@ -40,7 +40,6 @@ public class PopUpWindows {
         confirmPhoneNumberPopupWindow.showAtLocation(confirmPhoneNumberBinding.otpParentLayout, Gravity.CENTER,0,0);
         confirmPhoneNumberBinding.confirmBtn.setOnClickListener(ad->{
             flag = authPhoneNumber(confirmPhoneNumberBinding,phoneNumber);
-            Toast.makeText(context.getApplicationContext(),"errrrrrrorrrr 3",Toast.LENGTH_SHORT).show();
         });
         return flag ;
     }
@@ -55,14 +54,11 @@ public class PopUpWindows {
                         @Override
                         public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
                             flag = true ;
-                            Toast.makeText(context.getApplicationContext(),"errrrrrrorrrr 1",Toast.LENGTH_SHORT).show();
-
                         }
 
                         @Override
                         public void onVerificationFailed(@NonNull FirebaseException e) {
                             flag = false ;
-                            Toast.makeText(context.getApplicationContext(),"errrrrrrorrrr 2",Toast.LENGTH_SHORT).show();
                         }
 
                         @Override

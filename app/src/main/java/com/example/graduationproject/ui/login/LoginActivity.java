@@ -2,6 +2,7 @@ package com.example.graduationproject.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -105,7 +106,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         });
 
         if(!binding.emailText.getEditText().getText().toString().isEmpty() && !binding.passwordText.getEditText().getText().toString().isEmpty()){
-            binding.loginProgressBar.setVisibility(View.VISIBLE);
+            // binding.loginProgressBar.setVisibility(View.VISIBLE);
             database.loginCheck(binding.emailText.getEditText().getText().toString(),binding.passwordText.getEditText().getText().toString(),this);
 
         }
@@ -178,10 +179,15 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         intent.putExtra("birthDate",birthDate);
                         intent.putExtra("profileType",profileType);
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
-                        startActivity(intent);
+                        binding.loginProgressBar.setVisibility(View.VISIBLE);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                binding.loginProgressBar.setVisibility(View.GONE);
+                                startActivity(intent);
+                            }
+                        },1500);
                     }
-
-
                 }
                 catch (JSONException e){
                     e.printStackTrace();

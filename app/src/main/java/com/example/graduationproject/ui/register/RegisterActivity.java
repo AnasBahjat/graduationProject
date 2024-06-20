@@ -345,14 +345,13 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
 
     @Override
     public void onSuccess(int result) {
-        Log.d("Here in register activity"+result,"here in register activity"+result);
         if(result == 1){
             binding.progressBar.setVisibility(ProgressBar.VISIBLE);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    Toast.makeText(RegisterActivity.this,"Account created , you can sign in now",Toast.LENGTH_LONG).show();
+                    MyAlertDialog.showDialogForDone(RegisterActivity.this,"Account created","Account created you can sign in know ..");
                     finish();
                 }
             },1500);

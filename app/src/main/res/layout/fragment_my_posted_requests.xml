@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.parentUi.ParentFragment">
+    tools:context=".ui.parentUi.MyPostedRequestsFragment">
 
     <SearchView
-        android:id="@+id/parentFragmentSearch"
+        android:id="@+id/teacherFragmentSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -18,15 +18,14 @@
         android:background="@drawable/search_view_bg"
         android:queryHint="Search For Matching , location ..." />
 
-
     <LinearLayout
         android:id="@+id/parentPostedRequestsAndTeacherRequests"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/parentFragmentSearch"
+        android:layout_below="@id/teacherFragmentSearch"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="70dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatButton
@@ -60,12 +59,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/parentPostedRequestsAndTeacherRequests"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="5dp"
         android:layout_marginBottom="0dp"
         android:layout_marginEnd="5dp"
+        android:layout_marginTop="10dp"
         android:layout_marginStart="5dp">
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/postedRequestsRecyclerView"
+            android:id="@+id/parentPostedRequestsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="634dp"
             android:layout_alignParentBottom="true"
@@ -75,46 +74,6 @@
             android:background="@drawable/rounded_corners_recycler_view"/>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-
-    <LinearLayout
-        android:id="@+id/filterLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/parentFragmentSearch"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="75dp"
-        android:layout_marginEnd="15dp"
-        android:layout_toEndOf="@+id/parentPostedRequestsAndTeacherRequests">
-
-        <ImageView
-            android:id="@+id/filterImage"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_margin="5dp"
-            android:contentDescription="Filter"
-            android:src="@drawable/filter_icon"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="10dp"
-            android:text="Filter"
-            android:textSize="15sp"
-            tools:ignore="HardcodedText" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/noPostedRequestTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No Posted Requests"
-        android:layout_centerInParent="true"
-        android:textSize="25sp"
-        android:textColor="#716F6F"
-        android:visibility="gone"/>
 
 
 </RelativeLayout>

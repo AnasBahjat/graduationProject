@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -51,6 +53,7 @@ import com.example.graduationproject.databinding.TeacherInformationPopupWindowBi
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
+import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
@@ -73,9 +76,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class TeacherActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TeacherAccountConfirmationListener, NotificationsListListener, AddTeacherMatchingListener {
+public class TeacherActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        TeacherAccountConfirmationListener,
+        NotificationsListListener,
+        AddTeacherMatchingListener,
+        ParentInformationListener {
     private Database database;
     private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,doneInformation;
     private ActivityTeacherBinding binding ;
@@ -89,6 +98,9 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
     private NotificationsPopupWindowBinding notificationsPopupWindowBinding;
 
     private ArrayList<TeacherMatchModel> teacherMatchingDataToPassToTeacherFragment= new ArrayList<>();
+    private TeacherMatchModel teacherMatchModelTemp ;
+    String tempFirstName = "",tempLastName="";
+    List<String> tempPhoneList ;
     private View popupView;
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -102,7 +114,8 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                         startCardViewData(null);
                 }
                 else {
-                    System.exit(-1);
+                   TeacherMatchModel teacherMatchModel = (TeacherMatchModel) intent.getSerializableExtra("teacherMatchModel");
+                   startCardViewData(teacherMatchModel);
                 }
             }
 
@@ -151,7 +164,12 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
             database.getTeacherMatchingData(email,this);
       //  checkIfTeacherAccountConfirmed();
         checkIfItemSelected();
-        // startNotificationsService();
+        binding.overlayView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
     }
 
     void checkAccountDone(){
@@ -213,7 +231,7 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
                 if(menuItem.getItemId() == R.id.homeFragment){
                     teacherMatchingDataToPassToTeacherFragment.clear();
                     database.getTeacherMatchingData(email,TeacherActivity.this);
-                    loadTeacherFragment();
+                    //loadTeacherFragment();
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
                     loadFragment(new ProfileFragment());
@@ -624,9 +642,6 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
             availabilityStr = checkedDays.toString();
         }
 
-
-
-
         if(!idStr.isEmpty() && !cityText.isEmpty()  && !countryText.isEmpty()
                 && !phoneNumberStr.isEmpty() && collegeFlag && fieldFlag ){
                 teacherInformationPopupWindowBinding.phoneNumberPrefix.registerCarrierNumberEditText(teacherInformationPopupWindowBinding.edtTextPhoneNumber);
@@ -847,12 +862,16 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
 
     public void startCardViewData(TeacherMatchModel teacherMatchModel) {
             if(teacherMatchModel != null){
-              //  loadFragmentTeacherMatchFragment(teacherMatchModel);
-                showTeacherMatchDialog(teacherMatchModel);
+                teacherMatchModelTemp = teacherMatchModel;
+                binding.progressBarLayout.setVisibility(View.VISIBLE);
+                binding.overlayView.setVisibility(View.VISIBLE);
+                database.getParentInformation(teacherMatchModel.getParentEmail(),this);
+
+                ///showTeacherMatchDialog(teacherMatchModel);
             }
     }
 
-    private void showTeacherMatchDialog(TeacherMatchModel teacherMatchModel){
+    private void showTeacherMatchDialog(TeacherMatchModel teacherMatchModel,String parentName ,List<String> parentPhoneNumbers){
         DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding = DialogTeacherMatchingOnCardClickedBinding.inflate(LayoutInflater.from(this));
         Dialog dialog = new Dialog(this);
         dialog.setContentView(dialogTeacherMatchingOnCardClickedBinding.getRoot());
@@ -877,12 +896,30 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
             dialog.dismiss();
         });
 
-        setDataToMatchDialog(dialogTeacherMatchingOnCardClickedBinding,teacherMatchModel);
+        setDataToMatchDialog(dialogTeacherMatchingOnCardClickedBinding,teacherMatchModel,parentName,parentPhoneNumbers);
     }
 
-    private void setDataToMatchDialog(DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding, TeacherMatchModel teacherMatchModel){
+    private void setDataToMatchDialog(DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding, TeacherMatchModel teacherMatchModel,String parentName,List<String> parentPhoneNumbers){
         dialogTeacherMatchingOnCardClickedBinding.childNameTextView.setText(teacherMatchModel.getChildren().getChildName());
-      //  dialogTeacherMatchingOnCardClickedBinding.parentNameTextView.setText();
+        dialogTeacherMatchingOnCardClickedBinding.parentNameTextView.setText(parentName);
+        dialogTeacherMatchingOnCardClickedBinding.parentEmailTextView.setText(teacherMatchModel.getParentEmail());
+        StringBuilder phoneNumbers = new StringBuilder();
+        if(parentPhoneNumbers.size() > 1){
+            for(int i=0;i<parentPhoneNumbers.size();i++){
+                if( i + 1 != parentPhoneNumbers.size())
+                    phoneNumbers.append(parentPhoneNumbers.get(i)).append(" , ");
+                else
+                    phoneNumbers.append(parentPhoneNumbers.get(i));
+            }
+        }
+        else
+            phoneNumbers.append(parentPhoneNumbers.get(0));
+        dialogTeacherMatchingOnCardClickedBinding.parentPhoneNumberTextView.setText(phoneNumbers.toString());
+        dialogTeacherMatchingOnCardClickedBinding.coursesTextView.setText(teacherMatchModel.getCourses());
+        dialogTeacherMatchingOnCardClickedBinding.choseDaysTextView.setText(teacherMatchModel.getChoseDays());
+        dialogTeacherMatchingOnCardClickedBinding.teachingMethodTextView.setText(teacherMatchModel.getTeachingMethod());
+        dialogTeacherMatchingOnCardClickedBinding.timeTextView.setText(teacherMatchModel.getStartTime() + " - "+teacherMatchModel.getEndTime());
+        dialogTeacherMatchingOnCardClickedBinding.locationTextView.setText(teacherMatchModel.getLocation());
     }
 
     private void loadFragmentTeacherMatchFragment(TeacherMatchModel teacherMatchModel){
@@ -895,5 +932,113 @@ public class TeacherActivity extends AppCompatActivity implements NavigationView
         transaction.replace(R.id.fragments_container,teacherMatchFragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    @Override
+    public void onResult(int resultFlag, JSONArray parentInformation) {
+        if(resultFlag == -1){
+            // error
+        }
+        else if(resultFlag == -2){
+            // No data
+        }
+        else if(resultFlag == -3){
+            // connection error
+        }
+        else if(resultFlag == -4){
+            // volley error
+        }
+        else {
+            try {
+                if(parentInformation.length() == 1){
+                        JSONObject jsonObject = parentInformation.getJSONObject(0);
+                        String parentFirstName = jsonObject.getString("firstname").toLowerCase();
+                        String parentLastName = jsonObject.getString("lastname").toLowerCase();
+                        parentFirstName = parentFirstName.substring(0,1).toUpperCase()+parentFirstName.substring(1).toLowerCase();
+                        parentLastName = parentLastName.substring(0,1).toUpperCase()+parentLastName.substring(1).toLowerCase();
+
+                        String parentBirthDate = jsonObject.getString("birthDate");
+                        int genderVal = jsonObject.getInt("gender");
+                        String gender = "Male";
+                        if(genderVal == 0)
+                            gender = "Female";
+                        String parentIdNumber = jsonObject.getString("idNumber");
+                        String city = jsonObject.getString("city");
+                        String country = jsonObject.getString("country");
+                        String parentPhoneNumber = jsonObject.getString("phoneNumber");
+                        List<String> phoneList = new ArrayList<>();
+                        phoneList.add(parentPhoneNumber);
+                        tempFirstName = parentFirstName;
+                        tempLastName = parentLastName;
+                        tempPhoneList = phoneList;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.progressBarLayout.setVisibility(View.GONE);
+                            binding.overlayView.setVisibility(View.GONE);
+                            showTeacherMatchDialog(teacherMatchModelTemp,tempFirstName+" "+tempLastName,tempPhoneList);
+                        }
+                    },1500);
+                        //showTeacherMatchDialog(teacherMatchModelTemp,parentFirstName+" "+parentLastName,phoneList);
+                }
+                else {
+                    String parentFirstName = "";
+                    String parentLastName = "";
+                    String parentIdNumber = "";
+                    String parentBirthDate ="";
+                    int genderVal = 1 ;
+                    String gender = "Male";
+                    List<Address> addressList = new ArrayList<>();
+                    List<String> phoneNumberList = new ArrayList<>();
+                    for(int i=0;i<parentInformation.length();i++){
+                        JSONObject jsonObject = parentInformation.getJSONObject(i);
+                        if(i==0){
+                            parentFirstName = jsonObject.getString("firstname").toLowerCase();
+                            parentFirstName = parentFirstName.substring(0,1).toUpperCase()+parentFirstName.substring(1).toLowerCase();
+                            parentLastName = jsonObject.getString("lastname").toLowerCase();
+                            parentLastName = parentLastName.substring(0,1).toUpperCase()+parentLastName.substring(1).toLowerCase();
+
+                            parentBirthDate = jsonObject.getString("birthDate");
+                            genderVal = jsonObject.getInt("gender");
+                            if(genderVal == 0)
+                                gender = "Female";
+                            parentIdNumber = jsonObject.getString("idNumber");
+                        }
+                            String city = jsonObject.getString("city");
+                            String country = jsonObject.getString("country");
+                            String parentPhoneNumber = jsonObject.getString("phoneNumber");
+                            if(!checkAddressExistsInList(addressList,new Address(city,country))){
+                                addressList.add(new Address(city,country));
+                            }
+                            if(!checkPhoneExistsInList(phoneNumberList , parentPhoneNumber)){
+                                phoneNumberList.add(parentPhoneNumber);
+                            }
+                    }
+                    tempFirstName = parentFirstName;
+                    tempLastName = parentLastName;
+                    tempPhoneList = phoneNumberList;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.progressBarLayout.setVisibility(View.GONE);
+                            binding.overlayView.setVisibility(View.GONE);
+                            showTeacherMatchDialog(teacherMatchModelTemp,tempFirstName+" "+tempLastName,tempPhoneList);
+                        }
+                    },1500);
+                    //showTeacherMatchDialog(teacherMatchModelTemp,parentFirstName+" "+parentLastName,phoneList);
+                }
+            }
+            catch (Exception e){
+
+            }
+        }
+
+    }
+
+    private boolean checkAddressExistsInList(List<Address> addressList,Address address){
+        return addressList.contains(address);
+    }
+    private boolean checkPhoneExistsInList(List<String> phoneList,String phoneNumber){
+        return phoneList.contains(phoneNumber);
     }
 }
