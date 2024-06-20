@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Teacher profile information -->
+    <RelativeLayout
+        android:id="@+id/teacher_profile_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners_recycler_view"
+        android:padding="16dp">
+
+        <!-- Profile image -->
+        <ImageView
+            android:id="@+id/teacherProfileImageView"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/user" />
+
+        <!-- First Name -->
+        <TextView
+            android:id="@+id/teacher_firstname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/teacherProfileImageView"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="First Name:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_firstname_value"
+            android:layout_width="171dp"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/teacherProfileImageView"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="4dp"
+            android:layout_toStartOf="@+id/edit_teacher_firstname"
+            android:layout_toEndOf="@id/teacher_firstname"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_firstname"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_firstname"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_firstname_value"
+            android:layout_marginStart="-71dp"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/teacherProfileImageView"
+            android:background="#CCCCCC" />
+
+        <!-- Last Name -->
+        <TextView
+            android:id="@+id/teacher_lastname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_firstname_value"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="14dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Last Name:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_lastname_value"
+            android:layout_width="155dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_firstname_value"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_lastname"
+            android:layout_toEndOf="@id/teacher_lastname"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_lastname"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_lastname"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_lastname_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Email -->
+        <TextView
+            android:id="@+id/teacher_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_lastname_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Email:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_email_value"
+            android:layout_width="219dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_lastname_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="9dp"
+            android:layout_toStartOf="@+id/edit_teacher_email"
+            android:layout_toEndOf="@id/teacher_email"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_email"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_email"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_email_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Expected Graduation Year -->
+        <TextView
+            android:id="@+id/teacher_expected_graduation_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_email_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Expected Graduation Year:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_expected_graduation_year_value"
+            android:layout_width="187dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_email_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_expected_graduation_year"
+            android:layout_toEndOf="@id/teacher_expected_graduation_year"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_expected_graduation_year"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_expected_graduation_year"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_expected_graduation_year_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- College -->
+        <TextView
+            android:id="@+id/teacher_college"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_expected_graduation_year_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="College:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_college_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_expected_graduation_year_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_college"
+            android:layout_toEndOf="@id/teacher_college"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_college"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_college"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_college_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Department -->
+        <TextView
+            android:id="@+id/teacher_department"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_college_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Department:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_department_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_college_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_department"
+            android:layout_toEndOf="@id/teacher_department"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_department"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_department"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_department_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Subjects Taught -->
+        <TextView
+            android:id="@+id/teacher_subjects_taught"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_department_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Subjects Taught:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_subjects_taught_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_department_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_subjects_taught"
+            android:layout_toEndOf="@id/teacher_subjects_taught"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_subjects_taught"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_subjects_taught"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_subjects_taught_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Years of Experience -->
+        <TextView
+            android:id="@+id/teacher_years_of_experience"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_subjects_taught_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Years of Experience:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_years_of_experience_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_subjects_taught_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_years_of_experience"
+            android:layout_toEndOf="@id/teacher_years_of_experience"
+            android:text="-------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_years_of_experience"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_years_of_experience"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_years_of_experience_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Skills -->
+        <TextView
+            android:id="@+id/teacher_skills"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_years_of_experience_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Skills:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_skills_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_years_of_experience_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_skills"
+            android:layout_toEndOf="@id/teacher_skills"
+            android:text="--------------------------------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_skills"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_skills"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_skills_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/teacher_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_skills_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/teacherProfileImageView"
+            android:text="Description:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/teacher_description_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_skills_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_teacher_description"
+            android:layout_toEndOf="@id/teacher_description"
+            android:text="--------------------------------------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_teacher_description"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/teacher_description"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/teacher_description_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- RecyclerView for subjects taught -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/subjectsTaughtRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacher_description_value"
+            android:layout_marginTop="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:listitem="@layout/row_subjects_taught" />
+
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

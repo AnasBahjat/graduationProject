@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Parent profile information -->
+    <RelativeLayout
+        android:id="@+id/parent_profile_info"
+        android:layout_width="match_parent"
+        android:layout_height="704dp"
+        android:background="@drawable/rounded_corners_recycler_view"
+        android:padding="16dp">
+
+        <!-- Profile image -->
+
+        <!-- First Name -->
+        <ImageView
+            android:id="@+id/parentProfileImageView"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/user" />
+
+        <TextView
+            android:id="@+id/parent_firstname"
+            android:layout_width="wrap_content"
+            android:layout_height="33dp"
+            android:layout_alignTop="@+id/parentProfileImageView"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="First Name:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_firstname_value"
+            android:layout_width="171dp"
+            android:layout_height="34dp"
+            android:layout_alignTop="@+id/parentProfileImageView"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="-1dp"
+            android:layout_marginEnd="4dp"
+            android:layout_toStartOf="@+id/edit_firstname"
+            android:layout_toEndOf="@+id/parent_firstname"
+            android:text="mkjhgffhmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmjklkjh"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_firstname"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_firstname"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_firstname_value"
+            android:layout_marginStart="-71dp"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/parentProfileImageView"
+            android:background="#CCCCCC" />
+
+        <!-- Last Name -->
+
+        <TextView
+            android:id="@+id/parent_lastname"
+            android:layout_width="99dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/parent_firstname_value"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="14dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="Last Name:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_lastname_value"
+            android:layout_width="155dp"
+            android:layout_height="24dp"
+            android:layout_below="@id/parent_firstname_value"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_lastname"
+            android:layout_toEndOf="@id/parent_lastname"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_lastname"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_lastname"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_lastname_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Email -->
+        <TextView
+            android:id="@+id/parent_email"
+            android:layout_width="51dp"
+            android:layout_height="31dp"
+            android:layout_below="@id/parent_lastname_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="Email:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_email_value"
+            android:layout_width="219dp"
+            android:layout_height="33dp"
+            android:layout_below="@id/parent_lastname_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="9dp"
+            android:layout_toStartOf="@+id/edit_email"
+            android:layout_toEndOf="@id/parent_email"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_email"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_email"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_email_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Birth Date -->
+        <TextView
+            android:id="@+id/parent_birth_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/parent_email_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="Birth Date:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_birth_date_value"
+            android:layout_width="187dp"
+            android:layout_height="32dp"
+            android:layout_below="@id/parent_email_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_birth_date"
+            android:layout_toEndOf="@id/parent_birth_date"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_birth_date"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_birth_date"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_birth_date_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Gender -->
+        <TextView
+            android:id="@+id/parent_gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/parent_birth_date_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="Gender:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_gender_value"
+            android:layout_width="203dp"
+            android:layout_height="27dp"
+            android:layout_below="@id/parent_birth_date_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="13dp"
+            android:layout_toStartOf="@+id/edit_gender"
+            android:layout_toEndOf="@id/parent_gender"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_gender"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_gender"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_gender_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- ID Number -->
+        <TextView
+            android:id="@+id/parent_id_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/parent_gender_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="ID Number:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_id_number_value"
+            android:layout_width="179dp"
+            android:layout_height="28dp"
+            android:layout_below="@id/parent_gender_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="13dp"
+            android:layout_toStartOf="@+id/edit_id_number"
+            android:layout_toEndOf="@id/parent_id_number"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_id_number"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_id_number"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_id_number_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Phone Number -->
+        <TextView
+            android:id="@+id/parent_phone_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/parent_id_number_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="Phone Number:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_phone_number_value"
+            android:layout_width="153dp"
+            android:layout_height="30dp"
+            android:layout_below="@id/parent_id_number_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="11dp"
+            android:layout_toStartOf="@+id/edit_phone_number"
+            android:layout_toEndOf="@id/parent_phone_number"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_phone_number"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_phone_number"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_phone_number_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- City -->
+        <TextView
+            android:id="@+id/parent_city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/parent_phone_number_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="City:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_city_value"
+            android:layout_width="231dp"
+            android:layout_height="35dp"
+            android:layout_below="@id/parent_phone_number_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/edit_city"
+            android:layout_toEndOf="@id/parent_city"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_city"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_city"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_city_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <!-- Country -->
+        <TextView
+            android:id="@+id/parent_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/parent_city_value"
+            android:layout_marginTop="16dp"
+            android:layout_toEndOf="@id/parentProfileImageView"
+            android:text="Country:"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/parent_country_value"
+            android:layout_width="208dp"
+            android:layout_height="28dp"
+            android:layout_below="@id/parent_city_value"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="4dp"
+            android:layout_toStartOf="@+id/edit_country"
+            android:layout_toEndOf="@id/parent_country"
+            android:text="------------------"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/edit_country"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/parent_country"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit_icon" />
+
+        <!-- Horizontal line -->
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/parent_country_value"
+            android:layout_marginTop="10dp"
+            android:background="#CCCCCC" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/childrenRecyclerView"
+            android:layout_width="389dp"
+            android:layout_height="188dp"
+            android:layout_below="@+id/view"
+            android:layout_marginTop="2dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    </RelativeLayout>
+
+    <!-- RecyclerView for children -->
+
+</com.google.android.material.card.MaterialCardView>
