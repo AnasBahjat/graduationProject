@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:padding="16dp">
 
     <!-- Teacher profile information -->
@@ -460,8 +460,8 @@
         <!-- RecyclerView for subjects taught -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/subjectsTaughtRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="381dp"
+            android:layout_height="219dp"
             android:layout_below="@id/teacher_description_value"
             android:layout_marginTop="16dp"
             android:paddingTop="8dp"
@@ -472,7 +472,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
-            tools:listitem="@layout/row_subjects_taught" />
+            />
 
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>
