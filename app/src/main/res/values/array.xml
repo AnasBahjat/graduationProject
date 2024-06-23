@@ -150,4 +150,18 @@
         <item>Face To Face</item>
     </string-array>
 
+    <string-array name="allCoursesArray">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Biology</item>
+        <item>IT</item>
+    </string-array>
+
 </resources>

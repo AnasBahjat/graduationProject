@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.databinding.CustomTeacherMatchingLayout2Binding;
+import com.example.graduationproject.listeners.ParentPostRequestClickListener;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 
@@ -17,10 +18,12 @@ public class PostedTeacherRequestsAdapter extends RecyclerView.Adapter<PostedTea
     List<TeacherMatchModel> postedRequestsDataList ;
     Context context;
     CustomTeacherMatchingLayout2Binding binding;
+    ParentPostRequestClickListener listener;
 
-    public PostedTeacherRequestsAdapter(List<TeacherMatchModel> postedRequestsDataList,Context context){
+    public PostedTeacherRequestsAdapter(List<TeacherMatchModel> postedRequestsDataList,Context context,ParentPostRequestClickListener listener){
         this.postedRequestsDataList = postedRequestsDataList;
         this.context = context;
+        this.listener = listener;
     }
 
 
@@ -29,7 +32,7 @@ public class PostedTeacherRequestsAdapter extends RecyclerView.Adapter<PostedTea
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         CustomTeacherMatchingLayout2Binding binding = CustomTeacherMatchingLayout2Binding.inflate(inflater,parent,false);
-        return new MyViewHolder(binding,context);
+        return new MyViewHolder(binding,context,listener);
     }
 
     @Override
@@ -52,10 +55,12 @@ public class PostedTeacherRequestsAdapter extends RecyclerView.Adapter<PostedTea
         CustomTeacherMatchingLayout2Binding binding;
         Context context;
 
-        public MyViewHolder(CustomTeacherMatchingLayout2Binding binding,Context context){
+        ParentPostRequestClickListener listener ;
+        public MyViewHolder(CustomTeacherMatchingLayout2Binding binding,Context context,ParentPostRequestClickListener listener){
             super(binding.getRoot());
             this.binding=binding;
             this.context=context;
+            this.listener = listener;
         }
         public void bind(TeacherMatchModel requestModel){
             binding.childNameTextView.setText(requestModel.getChildren().getChildName());
@@ -63,6 +68,10 @@ public class PostedTeacherRequestsAdapter extends RecyclerView.Adapter<PostedTea
             binding.locationTextView.setText(requestModel.getLocation());
             binding.teachingMethodTextView.setText(requestModel.getTeachingMethod());
             binding.timeTextView.setText(requestModel.getStartTime()+" - "+requestModel.getEndTime());
+
+            binding.matchTeacherCardView.setOnClickListener(x->{
+                listener.onClick(requestModel);
+            });
         }
     }
 }

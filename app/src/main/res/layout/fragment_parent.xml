@@ -116,5 +116,50 @@
         android:textColor="#716F6F"
         android:visibility="gone"/>
 
+    <RelativeLayout
+        android:id="@+id/progressBarLayout"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/gray"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:indeterminateTint="#4EB2BF"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="15dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fetching Data"
+            android:textSize="24sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/progressBar" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/overlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/tempProgressBar"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:indeterminateTint="#4EB2BF"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="15dp"
+        android:visibility="gone"/>
 
 </RelativeLayout>

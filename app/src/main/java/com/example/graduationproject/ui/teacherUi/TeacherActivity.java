@@ -319,6 +319,9 @@ public class TeacherActivity extends AppCompatActivity implements
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        if(menuItem.getItemId() == R.id.LookForJob){
+            showTeacherLookForJobDialog();
+        }
         if(menuItem.getItemId() == R.id.logoutId){
             finish();
         }
@@ -655,23 +658,27 @@ public class TeacherActivity extends AppCompatActivity implements
     private StringBuilder getCheckedDays(TeacherInformationPopupWindowBinding bind){
         StringBuilder choosedDays = new StringBuilder();
         if(bind.saturday.isChecked())
-            choosedDays.append("Sat,");
+            choosedDays.append("Sat , ");
         if(bind.sunday.isChecked())
-            choosedDays.append("Sun,");
+            choosedDays.append("Sun , ");
         if(bind.monday.isChecked())
-            choosedDays.append("Mon,");
+            choosedDays.append("Mon , ");
         if(bind.tuesday.isChecked())
-            choosedDays.append("Tues,");
+            choosedDays.append("Tues , ");
         if(bind.wednesday.isChecked())
-            choosedDays.append("Wed,");
+            choosedDays.append("Wed , ");
         if(bind.thursday.isChecked())
-            choosedDays.append("Thur,");
+            choosedDays.append("Thur , ");
         if(bind.friday.isChecked())
             choosedDays.append("Fri");
         return  choosedDays;
     }
 
 
+
+    private void showTeacherLookForJobDialog(){
+        Dialog teacherLooksForJobDialog = new Dialog(this);
+    }
 
 
 
@@ -866,7 +873,6 @@ public class TeacherActivity extends AppCompatActivity implements
                 binding.progressBarLayout.setVisibility(View.VISIBLE);
                 binding.overlayView.setVisibility(View.VISIBLE);
                 database.getParentInformation(teacherMatchModel.getParentEmail(),this);
-
                 ///showTeacherMatchDialog(teacherMatchModel);
             }
     }
@@ -935,7 +941,7 @@ public class TeacherActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onResult(int resultFlag, JSONArray parentInformation) {
+    public void onResultParentInformation(int resultFlag, JSONArray parentInformation) {
         if(resultFlag == -1){
             // error
         }

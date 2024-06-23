@@ -9,6 +9,18 @@
     android:backgroundTint="#FFFFFF"
     tools:context=".ui.login.LoginActivity">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/app_icon_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"/>
+
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true">
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailText"
         android:layout_width="match_parent"
@@ -16,7 +28,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="225dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="32dp"
         android:hint="@string/email_text"
         app:endIconMode="clear_text"
@@ -61,14 +73,14 @@
     </com.google.android.material.textfield.TextInputLayout>
 
 
-        <ProgressBar
-            android:id="@+id/loginProgressBar"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_centerInParent="true"
-            android:layout_above="@id/loginBtn"
-            android:layout_marginTop="20dp"
-            android:visibility="gone"/>
+    <ProgressBar
+        android:id="@+id/loginProgressBar"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_centerInParent="true"
+        android:layout_above="@id/loginBtn"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"/>
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -140,5 +152,7 @@
     </LinearLayout>
 
 
+
+</RelativeLayout>
 
 </RelativeLayout>

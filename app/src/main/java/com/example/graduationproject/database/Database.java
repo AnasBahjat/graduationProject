@@ -2,6 +2,7 @@ package com.example.graduationproject.database;
 
 import android.content.Context;
 import android.content.Intent;
+import android.telephony.CellSignalStrengthGsm;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,12 +20,14 @@ import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
+import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TellParentDataIsReady;
 import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Profile;
@@ -610,20 +613,20 @@ public class Database {
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentInformation,resp->{
             if(resp.equalsIgnoreCase("ERROR"))
-                parentInformationListener.onResult(-1,null);
+                parentInformationListener.onResultParentInformation(-1,null);
             else if(resp.equalsIgnoreCase("No Data"))
-                parentInformationListener.onResult(-2,null);
+                parentInformationListener.onResultParentInformation(-2,null);
             else if(resp.equalsIgnoreCase("Connection Error"))
-                parentInformationListener.onResult(-3,null);
+                parentInformationListener.onResultParentInformation(-3,null);
             else {
                 try {
-                    parentInformationListener.onResult(1,new JSONArray(resp));
+                    parentInformationListener.onResultParentInformation(1,new JSONArray(resp));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }
         },error->{
-            parentInformationListener.onResult(-4,null);
+            parentInformationListener.onResultParentInformation(-4,null);
         }){
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -665,6 +668,75 @@ public class Database {
                 return data;
             }
         };
+        requestQueue.add(stringRequest);
+    }
+
+    public void updatePostedTeacherRequest(String email,TeacherMatchModel teacherMatchModel,final UpdateTeacherPostedRequestListener updateTeacherPostedRequest){
+        requestQueue = Volley.newRequestQueue(context);
+        Log.d("matching id --->"+teacherMatchModel.getMatchingId(),"matching id --->"+teacherMatchModel.getMatchingId());
+        Log.d("Child ID --> "+teacherMatchModel.getCustomChildData().getChildId(),"Child ID --> "+teacherMatchModel.getCustomChildData().getChildId());
+        Log.d("Child NAME --> "+teacherMatchModel.getCustomChildData().getChildName(),"Child NAME --> "+teacherMatchModel.getCustomChildData().getChildName());
+        Log.d("Child GRADE --> "+teacherMatchModel.getCustomChildData().getChildGrade(),"Child ID --> "+teacherMatchModel.getCustomChildData().getChildGrade());
+        Log.d("Child selected days --> "+teacherMatchModel.getChoseDays(),"Child days --> "+teacherMatchModel.getChoseDays());
+        Log.d("Child selected city --> "+teacherMatchModel.getLocation(),"Child city --> "+teacherMatchModel.getLocation());
+        Log.d("Child selected method --> "+teacherMatchModel.getTeachingMethod(),"Child method --> "+teacherMatchModel.getTeachingMethod());
+        Log.d("Child selected method --> "+teacherMatchModel.getStartTime(),"Child method --> "+teacherMatchModel.getStartTime());
+        Log.d("Child selected method --> "+teacherMatchModel.getEndTime(),"Child method --> "+teacherMatchModel.getEndTime());
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.updatePostedTeacherRequest,res->{
+            Toast.makeText(context,"The res is -->"+res,Toast.LENGTH_LONG).show();
+            if(res.equalsIgnoreCase("no data"))
+                updateTeacherPostedRequest.onDataUpdate(-2);
+            else if(res.equalsIgnoreCase("Error"))
+                updateTeacherPostedRequest.onDataUpdate(-1);
+            else if(res.equalsIgnoreCase("Connection Error"))
+                updateTeacherPostedRequest.onDataUpdate(-3);
+            else if(res.equalsIgnoreCase("Done")){
+                updateTeacherPostedRequest.onDataUpdate(1);
+                Log.d("123123123123","123123123123Anas");
+            }
+            else
+                updateTeacherPostedRequest.onDataUpdate(-4);
+        },err->{
+            updateTeacherPostedRequest.onDataUpdate(0);
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> data = new HashMap<>();
+                data.put("childId", teacherMatchModel.getCustomChildData().getChildId() + "");
+                data.put("matchingId", teacherMatchModel.getMatchingId() + "");
+                data.put("email", email);
+                data.put("selectedDays", teacherMatchModel.getChoseDays());
+                data.put("startTime", teacherMatchModel.getStartTime());
+                data.put("endTime", teacherMatchModel.getEndTime());
+                data.put("courses", teacherMatchModel.getCourses());
+                data.put("location", teacherMatchModel.getLocation());
+                data.put("teachingMethod", teacherMatchModel.getTeachingMethod());
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getLastMatchingId(final LastMatchingIdListener lastMatchingIdListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,Constants.getLastMatchingIdValue,res->{
+            if(res.equalsIgnoreCase("Empty Table")){
+                lastMatchingIdListener.onLastMatchingIdFetched(0,null);
+            }
+            else if(res.equalsIgnoreCase("Error")){
+                lastMatchingIdListener.onLastMatchingIdFetched(-1,null);
+            }
+            else if(res.equalsIgnoreCase("Connection Error")){
+                lastMatchingIdListener.onLastMatchingIdFetched(-2,null);
+            }
+            else {
+                lastMatchingIdListener.onLastMatchingIdFetched(1,res);
+            }
+        },err->{
+            lastMatchingIdListener.onLastMatchingIdFetched(-3,null);
+        });
+
         requestQueue.add(stringRequest);
     }
 }

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,7 +26,6 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -49,10 +47,12 @@ import com.example.graduationproject.databinding.ActivityParentBinding;
 import com.example.graduationproject.databinding.ChildrenInformationPopupWindowBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.ParentInformationPopupWindowBinding;
+import com.example.graduationproject.databinding.SideNavigationHeaderBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
+import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
@@ -86,7 +86,8 @@ public class ParentActivity extends AppCompatActivity implements
         GetParentChildren,
         AddNewChildListener,
         AddTeacherMatchingListener,
-        ParentListenerForParentPostedRequests {
+        ParentListenerForParentPostedRequests,
+        LastMatchingIdListener {
 
     private Database database;
     private String email,firstName,lastName,password,birthDate,phoneNumber,city,country,doneInformation ;
@@ -128,6 +129,8 @@ public class ParentActivity extends AppCompatActivity implements
     private View popupView;
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
 
+    private int lastMatchingId = 0 ;
+
 
 
     @Override
@@ -167,6 +170,7 @@ public class ParentActivity extends AppCompatActivity implements
         if(doneInformation.equals("1")){
             database.getParentPostedMatchingInformation(email,ParentActivity.this);
         }
+        database.getLastMatchingId(this);
         parentBinding.notificationImage.setOnClickListener(asd -> {
                 LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
                 if(popupView == null){
@@ -177,8 +181,8 @@ public class ParentActivity extends AppCompatActivity implements
                     ((ViewGroup) popupView.getParent()).removeView(popupView);
                 }
 
-                notificationPopupWindow = new PopupWindow(popupView,910,1500,true);
-                notificationPopupWindow.showAsDropDown(parentBinding.notificationImage,-770,0);
+                notificationPopupWindow = new PopupWindow(popupView,950,1500,true);
+                notificationPopupWindow.showAsDropDown(parentBinding.notificationImage,-810,0);
                 notificationPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
                     if(doneInformation.equals("1"))
                         database.getNotifications(email,ParentActivity.this);
@@ -211,9 +215,11 @@ public class ParentActivity extends AppCompatActivity implements
             parentBinding.fragmentsContainer.setVisibility(View.VISIBLE);
             if(notificationsList.isEmpty()){
                 parentBinding.numOfNotifications.setText("");
+                parentBinding.numOfNotifications.setVisibility(View.GONE);
             }
             else {
                 parentBinding.numOfNotifications.setText(""+notificationsList.size());
+                parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
             }
 
         }
@@ -425,6 +431,7 @@ public class ParentActivity extends AppCompatActivity implements
         parentBinding.openSideNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setSideNavigationData();
                 if(!parentBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
                     parentBinding.drawerLayout.openDrawer(GravityCompat.START);
                 }
@@ -450,9 +457,11 @@ public class ParentActivity extends AppCompatActivity implements
                 notificationsList.addAll(notList);
                 if(!notificationsList.isEmpty()){
                     parentBinding.numOfNotifications.setText(""+notList.size());
+                    parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
                 }
                 else {
                     parentBinding.numOfNotifications.setText("");
+                    parentBinding.numOfNotifications.setVisibility(View.GONE);
                 }
             }
             catch (JSONException e){
@@ -497,7 +506,9 @@ public class ParentActivity extends AppCompatActivity implements
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
         }
         else if(menuItem.getItemId() == R.id.myPostedRequests){
-        //    database.getTeacherMatchingData(email,);
+            Intent intentFilter = new Intent();
+            intentFilter.setAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
+            sendBroadcast(intentFilter);
         }
         parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -560,7 +571,7 @@ public class ParentActivity extends AppCompatActivity implements
     public void showAlertDialogForSearchingForTeacher(){
         AlertDialog.Builder builder = new AlertDialog.Builder(ParentActivity.this);
         LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.fragment_ask_for_specific_teacher, null);
+        View dialogView = inflater.inflate(R.layout.post_teacher_request_popup_window, null);
         builder.setView(dialogView);
 
 
@@ -657,7 +668,7 @@ public class ParentActivity extends AppCompatActivity implements
                     c.setTimeZone(TimeZone.getDefault());
 
                     SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
-                    String amPm = amPmFormat.format(c.getTime()); // This will give you AM or PM
+                    String amPm = amPmFormat.format(c.getTime());
 
                     amPmStart = amPm ;
 
@@ -687,7 +698,7 @@ public class ParentActivity extends AppCompatActivity implements
                     c.setTimeZone(TimeZone.getDefault());
 
                     SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
-                    String amPm = amPmFormat.format(c.getTime()); // This will give you AM or PM
+                    String amPm = amPmFormat.format(c.getTime());
                     amPmEnd = amPm ;
                     SimpleDateFormat format = new SimpleDateFormat("h:mm a");
                     String time = format.format(c.getTime());
@@ -777,7 +788,7 @@ public class ParentActivity extends AppCompatActivity implements
                         StringBuilder courses= new StringBuilder();
                         for(int i=0 ; i <coursesListForMatchingTeacher.size() ; i++){
                             if(i + 1 != coursesListForMatchingTeacher.size()){
-                                courses.append(coursesListForMatchingTeacher.get(i)).append(",");
+                                courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
                             }
                             else {
                                 courses.append(coursesListForMatchingTeacher.get(i));
@@ -786,7 +797,7 @@ public class ParentActivity extends AppCompatActivity implements
                         TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
                                 ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime);
 
-                        TeacherMatchModel teacherMatchModel1 = new TeacherMatchModel(0
+                        TeacherMatchModel teacherMatchModel1 = new TeacherMatchModel(lastMatchingId+1
                                 ,email,
                                 new CustomChildData(selectedChildId,selectedChildName,
                                 Integer.parseInt(selectedChildGrade.trim())),
@@ -824,17 +835,17 @@ public class ParentActivity extends AppCompatActivity implements
             StringBuilder choosedDays = new StringBuilder();
             if(sat.isChecked() || sun.isChecked() || mon.isChecked() || tues.isChecked() || wed.isChecked() || thurs.isChecked() || fri.isChecked()){
                 if(sat.isChecked())
-                    choosedDays.append("Sat,");
+                    choosedDays.append("Sat , ");
                 if(sun.isChecked())
-                    choosedDays.append("Sun,");
+                    choosedDays.append("Sun , ");
                 if(mon.isChecked())
-                    choosedDays.append("Mon,");
+                    choosedDays.append("Mon , ");
                 if(tues.isChecked())
-                    choosedDays.append("Tues,");
+                    choosedDays.append("Tues , ");
                 if(wed.isChecked())
-                    choosedDays.append("Wed,");
+                    choosedDays.append("Wed , ");
                 if(thurs.isChecked())
-                    choosedDays.append("Thur,");
+                    choosedDays.append("Thur , ");
                 if(fri.isChecked())
                     choosedDays.append("Fri");
                 return  choosedDays;
@@ -957,6 +968,18 @@ public class ParentActivity extends AppCompatActivity implements
         }
     }
 
+    private void setSideNavigationData(){
+
+        View headerView = parentBinding.navigationView.getHeaderView(0);
+        TextView name = headerView.findViewById(R.id.sideNavName);
+        TextView emailTextView = headerView.findViewById(R.id.sideNavEmail);
+        firstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
+        lastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
+
+        name.setText(firstName+" "+lastName);
+        emailTextView.setText(email);
+    }
+
 
     @Override
     public void onChildAdded(int resultFlag) {
@@ -1065,5 +1088,19 @@ public class ParentActivity extends AppCompatActivity implements
         transaction.replace(parentBinding.fragmentsContainer.getId(),parentFragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    @Override
+    public void onLastMatchingIdFetched(int flag, String value) {
+        if(flag == 1){
+            lastMatchingId = Integer.parseInt(value);
+        }
+        else if(flag == 0){
+            lastMatchingId = 0 ;
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","An error occurred please try again later ..");
+            System.exit(-2);
+        }
     }
 }

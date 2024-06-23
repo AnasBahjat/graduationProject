@@ -1,5 +1,7 @@
 package com.example.graduationproject.ui.parentUi;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,41 +12,99 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.adapters.CustomSpinnerAdapter;
 import com.example.graduationproject.adapters.PostedTeacherRequestsAdapter;
 import com.example.graduationproject.database.Database;
+import com.example.graduationproject.databinding.DialogParentPostedRequestCardBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
+import com.example.graduationproject.databinding.PostTeacherRequestPopupWindowBinding;
+import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
+import com.example.graduationproject.listeners.GetParentChildren;
+import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
+import com.example.graduationproject.listeners.ParentPostRequestClickListener;
+import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
+import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.google.android.flexbox.FlexboxLayout;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.TimeZone;
 
-public class ParentFragment extends Fragment implements ParentListenerForParentPostedRequests {
+public class ParentFragment extends Fragment implements ParentListenerForParentPostedRequests,
+        ParentPostRequestClickListener,
+        GetParentChildren,
+        ParentInformationListener,
+        UpdateTeacherPostedRequestListener {
 
-    private String email,firstName,lastName ;
+    private String email,firstName,lastName,birthDate,gender,idNumber ;
+    List<Address> parentAddress = new ArrayList<>() ;
+    List<String> phoneNumbersList = new ArrayList<>();
     private FragmentParentBinding binding;
     private Database database;
     private ArrayList<TeacherMatchModel> parentPostedRequestsList = new ArrayList<>();
 
     private PostedTeacherRequestsAdapter postedTeacherRequestsAdapter;
+    private FlexboxLayout flexboxCoursesForMatchingTeacherLayout ;
+
     private boolean btn1Clicked = true;
     private boolean btn2Clicked = false;
 
     private boolean isBroadcastReceiverRegistered = false;
+    private Dialog updateParentPostedRequestDialog ;
+
+    private DialogParentPostedRequestCardBinding dialogParentPostedRequestCardBinding;
+    private UpdateParentPostedRequestBinding postTeacherRequestPopupWindowBinding;
+    private List<CustomChildData> childrenSpinnerList = new ArrayList<>();
+    private List<Children> parentChildrenList = new ArrayList<>();
+    TeacherMatchModel requestModelTemp ;
+    private int selectedChildId,selectedChildGender ;
+    private String selectedChildName,selectedChildGrade ;
+
+    private  TeacherMatchModel requestModel;
+    private String [] splittedCourses ;
+
+    List<String> coursesList = new ArrayList<>();
+    TeacherMatchModel tmm ;
+
+    private String amPmStart,amPmEnd;
+    private String startTime ="12:00 PM", endTime="12:00 PM";
+    private Dialog clickedCardDialog;
+
+
+    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
 
     private BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -57,15 +117,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 else {
                     tempTeacherModel = intent.getParcelableExtra("addedTeacherRequest");
                 }
-                Log.d(tempTeacherModel.getEndTime(),"END time ---->"+tempTeacherModel.getEndTime());
                 if(tempTeacherModel != null){
-                    Toast.makeText(getContext(),"Broadcast received and model is not null ..",Toast.LENGTH_SHORT).show();
                     List<TeacherMatchModel> tempList = new ArrayList<>();
                     tempList.addAll(parentPostedRequestsList);
                     tempList.add(tempTeacherModel);
                     parentPostedRequestsList.add(tempTeacherModel);
                     postedTeacherRequestsAdapter.filteredList(parentPostedRequestsList);
                 }
+            }
+            else if("PARENT_POSTED_REQUESTS_ITEM_CLICKED".equals(intent.getAction())){
+                Toast.makeText(getContext(),"Parent posted requests item clicked ..",Toast.LENGTH_LONG).show();
+                btn1Clicked = true;
+                btn2Clicked = false;
+                binding.refreshRecyclerView.setRefreshing(true);
+                setMyPostedRequestsAdapter();
+                database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
         }
     };
@@ -86,6 +152,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         if(!isBroadcastReceiverRegistered){
             IntentFilter parentFragmentIntentFilter = new IntentFilter();
             parentFragmentIntentFilter.addAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
+            parentFragmentIntentFilter.addAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
             int flags = 0 ;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 flags = Context.RECEIVER_NOT_EXPORTED;
@@ -195,7 +262,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void setMyPostedRequestsAdapter(){
        // List<TeacherMatchModel> parentPostedRequestsList = new ArrayList<>();
-        postedTeacherRequestsAdapter = new PostedTeacherRequestsAdapter(parentPostedRequestsList,getContext());
+        postedTeacherRequestsAdapter = new PostedTeacherRequestsAdapter(parentPostedRequestsList,getContext(),this);
         if(parentPostedRequestsList.isEmpty()){
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
@@ -290,7 +357,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             binding.refreshRecyclerView.setRefreshing(false);
-            Toast.makeText(getContext(),"Its empty know ...", Toast.LENGTH_LONG).show();
         }
         else if(resultFlag == -1){
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Network Error","Please try again later or check your network connection ..");
@@ -333,6 +399,599 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             catch(Exception ignored){
 
             }
+        }
+    }
+
+    @Override
+    public void onClick(TeacherMatchModel requestModel) {
+        binding.progressBarLayout.setVisibility(View.VISIBLE);
+        binding.overlayView.setVisibility(View.VISIBLE);
+        database.getParentInformation(email,this);
+        this.requestModel = requestModel;
+        //showClickedCardDialog(requestModel);
+    }
+
+    private void showClickedCardDialog(){
+        if(requestModel != null && getContext() != null){
+             dialogParentPostedRequestCardBinding = DialogParentPostedRequestCardBinding.inflate(LayoutInflater.from(getContext()));
+             clickedCardDialog = new Dialog(getContext());
+            clickedCardDialog.setContentView(dialogParentPostedRequestCardBinding.getRoot());
+            clickedCardDialog.setCancelable(false);
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(clickedCardDialog.getWindow()).getAttributes());
+            layoutParams.width = 1250;
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            clickedCardDialog.getWindow().setAttributes(layoutParams);
+            if(clickedCardDialog.getWindow() != null)
+                clickedCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            clickedCardDialog.show();
+
+            dialogParentPostedRequestCardBinding.childNameTextView.setText(requestModel.getCustomChildData().getChildName());
+
+            String parentFirstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
+            String parentLastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
+            dialogParentPostedRequestCardBinding.parentNameTextView.setText(parentFirstName+" "+parentLastName);
+            StringBuilder phoneNumbersStr = new StringBuilder();
+            if(phoneNumbersList.size() > 1){
+                for(int i=0;i<phoneNumbersList.size();i++){
+                    if( i + 1 != phoneNumbersList.size())
+                        phoneNumbersStr.append(phoneNumbersList.get(i)).append(" , ");
+                    else
+                        phoneNumbersStr.append(phoneNumbersList.get(i));
+                }
+            }
+            else
+                phoneNumbersStr.append(phoneNumbersList.get(0));
+            dialogParentPostedRequestCardBinding.parentPhoneNumberTextView.setText(phoneNumbersStr.toString());
+            dialogParentPostedRequestCardBinding.parentEmailTextView.setText(email);
+            dialogParentPostedRequestCardBinding.coursesTextView.setText(requestModel.getCourses());
+            dialogParentPostedRequestCardBinding.choseDaysTextView.setText(requestModel.getChoseDays());
+            dialogParentPostedRequestCardBinding.teachingMethodTextView.setText(requestModel.getTeachingMethod());
+            dialogParentPostedRequestCardBinding.timeTextView.setText(requestModel.getStartTime() + " - "+requestModel.getEndTime());
+            dialogParentPostedRequestCardBinding.locationTextView.setText(requestModel.getLocation());
+
+
+            dialogParentPostedRequestCardBinding.closeImageView.setOnClickListener(a->{
+                clickedCardDialog.dismiss();
+            });
+            dialogParentPostedRequestCardBinding.cardSettings.setOnClickListener(b->{
+                requestModelTemp = requestModel;
+                showPopupMenuForCard();
+            });
+        }
+    }
+
+    private void showPopupMenuForCard(){
+        PopupMenu popupMenu = new PopupMenu(getContext(),dialogParentPostedRequestCardBinding.cardSettings);
+        popupMenu.getMenuInflater().inflate(R.menu.menu_parent_posted_card_view,popupMenu.getMenu());
+        popupMenu.show();
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if(item.getItemId() == R.id.editCard){
+                postTeacherRequestPopupWindowBinding = UpdateParentPostedRequestBinding.inflate(LayoutInflater.from(getContext()));
+                database.getParentChildren(email,this);
+            }
+            else if(item.getItemId() == R.id.deleteCard){
+
+            }
+            return true;
+        });
+    }
+
+    private void showEditCardItemDialog(){
+        postTeacherRequestPopupWindowBinding = UpdateParentPostedRequestBinding.inflate(LayoutInflater.from(getContext()));
+        if(getContext() != null){
+            updateParentPostedRequestDialog = new Dialog(getContext());
+            updateParentPostedRequestDialog.setContentView(postTeacherRequestPopupWindowBinding.getRoot());
+            updateParentPostedRequestDialog.setCancelable(false);
+
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(updateParentPostedRequestDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = 2000;
+            updateParentPostedRequestDialog.getWindow().setAttributes(layoutParams);
+            updateParentPostedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            if(updateParentPostedRequestDialog.getWindow() != null)
+                updateParentPostedRequestDialog.getWindow().setLayout(1300,2000);
+            updateParentPostedRequestDialog.show();
+            flexboxCoursesForMatchingTeacherLayout = updateParentPostedRequestDialog.findViewById(R.id.flexboxLayoutMatchTeacher);
+
+
+            CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(getContext(),childrenSpinnerList);
+            postTeacherRequestPopupWindowBinding.childrenSpinner.setAdapter(adapter);
+            int currentChildPosition = adapter.getPosition(requestModelTemp.getCustomChildData());
+
+            for(int i=0;i<adapter.getCount();i++){
+                if(Objects.requireNonNull(adapter.getItem(i)).getChildId() == requestModelTemp.getCustomChildData().getChildId()){
+                    currentChildPosition = i ;
+                }
+            }
+
+            if(currentChildPosition >= 0){
+                postTeacherRequestPopupWindowBinding.childrenSpinner.setSelection(currentChildPosition);
+            }
+
+            postTeacherRequestPopupWindowBinding.childrenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    CustomChildData data = (CustomChildData) parent.getItemAtPosition(position);
+                    String[] splittedString = data.toString().split(",");
+                    selectedChildId = data.getChildId();
+                    selectedChildName = splittedString[0].trim();
+                    selectedChildGrade = splittedString[1].trim();
+                    selectedChildGender = data.getGender();
+                    updatedCoursesSpinner();
+                  /*  if(postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.getChildCount() > 0){
+                        postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.removeAllViews();
+                    }*/
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
+            postTeacherRequestPopupWindowBinding.childrenSpinner.setEnabled(false);
+            setSelectedDays();
+            startTime = requestModelTemp.getStartTime();
+            endTime=requestModel.getEndTime();
+            postTeacherRequestPopupWindowBinding.startTimeEdtText.setText(requestModel.getStartTime());
+            postTeacherRequestPopupWindowBinding.endTimeEdtText.setText(requestModel.getEndTime());
+
+
+
+            postTeacherRequestPopupWindowBinding.startTimeEdtText.setOnClickListener(c->{
+                setStartTime();
+            });
+
+            postTeacherRequestPopupWindowBinding.endTimeEdtText.setOnClickListener(j->{
+                setEndTime();
+            });
+
+
+
+            if(postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.getChildCount() > 0){
+                postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.removeAllViews();
+            }
+            setFlexBoxAddedCoursesForPostedRequest();
+            postTeacherRequestPopupWindowBinding.confirmTeachersInformation.setOnClickListener(z->{
+                try {
+                    updateParentPostedRequest();
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            postTeacherRequestPopupWindowBinding.cancelButton.setOnClickListener(z->{
+                updateParentPostedRequestDialog.dismiss();
+            });
+
+
+
+
+            postTeacherRequestPopupWindowBinding.addCourseMatchingTeacherBtn.setOnClickListener(f->{
+                String selectedCourse = postTeacherRequestPopupWindowBinding.forParentCourses.getSelectedItem().toString();
+                if(!checkIfCourseAddedToList(selectedCourse)){
+                    coursesList.add(selectedCourse);
+                    updateFlexBoxMatchingTeacher();
+                }
+                else {
+                    MyAlertDialog.showWarningCourseAdded(getContext());
+                }
+            });
+            postTeacherRequestPopupWindowBinding.closeTheDialog.setOnClickListener(d->{
+                updateParentPostedRequestDialog.dismiss();
+            });
+        }
+    }
+
+    private void updateParentPostedRequest() throws ParseException {
+        StringBuilder selectedDays = new StringBuilder();
+        selectedDays = getSelectedDays();
+        if(selectedDays == null){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Days Error","Please Choose at least one day a week to match a teacher data");
+        }
+        else {
+            if(!checkStartAndEndTime()){
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong timing","Please Choose valid start and end time, and make sure there are at least one hour..");
+            }
+            else {
+                if(postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.getChildCount() == 0){
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Courses","Please Choose At least one course ..");
+                }
+                else {
+                    StringBuilder courses= new StringBuilder();
+                    for(int i=0 ; i < coursesList.size() ; i++){
+                        if(i + 1 != coursesList.size()){
+                            courses.append(coursesList.get(i)).append(" , ");
+                        }
+                        else {
+                            courses.append(coursesList.get(i));
+                        }
+                    }
+                    String city = postTeacherRequestPopupWindowBinding.locationSpinner.getSelectedItem().toString();
+                    String teachingMethodStr = postTeacherRequestPopupWindowBinding.teachingMethod.getSelectedItem().toString();
+                    tmm = new TeacherMatchModel(requestModel.getMatchingId(),new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
+                            ,selectedDays.toString(),courses.toString(),
+                            city,
+                            teachingMethodStr,startTime,endTime);
+                    database.updatePostedTeacherRequest(email,tmm,this);
+                }
+            }
+        }
+    }
+
+    private boolean checkStartAndEndTime() throws ParseException {
+        Date startDate = timeFormat.parse(startTime);
+        Date endDate = timeFormat.parse(endTime);
+
+        if(startDate != null && endDate != null && startDate.before(endDate) && isEndTimeAtLeastOneHourLater(startDate,endDate)){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isEndTimeAtLeastOneHourLater(Date startTime,Date endTime){
+        final long oneHourInMillis = 3600000 ;
+        Date oneHourLater = new Date(startTime.getTime()+oneHourInMillis);
+        return endTime.after(oneHourLater);
+    }
+
+    private StringBuilder getSelectedDays(){
+        StringBuilder choosedDays = new StringBuilder();
+        if(postTeacherRequestPopupWindowBinding.saturday.isChecked() ||
+                postTeacherRequestPopupWindowBinding.sunday.isChecked() ||
+                postTeacherRequestPopupWindowBinding.monday.isChecked() ||
+                postTeacherRequestPopupWindowBinding.tuesday.isChecked() ||
+                postTeacherRequestPopupWindowBinding.wednesday.isChecked() ||
+                postTeacherRequestPopupWindowBinding.thursday.isChecked() ||
+                postTeacherRequestPopupWindowBinding.friday.isChecked()){
+
+            if(postTeacherRequestPopupWindowBinding.saturday.isChecked())
+                choosedDays.append("Sat , ");
+            if(postTeacherRequestPopupWindowBinding.sunday.isChecked())
+                choosedDays.append("Sun , ");
+            if(postTeacherRequestPopupWindowBinding.monday.isChecked())
+                choosedDays.append("Mon , ");
+            if(postTeacherRequestPopupWindowBinding.tuesday.isChecked())
+                choosedDays.append("Tues , ");
+            if(postTeacherRequestPopupWindowBinding.wednesday.isChecked())
+                choosedDays.append("Wed , ");
+            if(postTeacherRequestPopupWindowBinding.thursday.isChecked())
+                choosedDays.append("Thur , ");
+            if(postTeacherRequestPopupWindowBinding.friday.isChecked())
+                choosedDays.append("Fri");
+            return  choosedDays;
+        }
+        else {
+            return null ;
+        }
+    }
+
+    private void setStartTime(){
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int mins = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                c.set(Calendar.MINUTE,minute);
+                c.setTimeZone(TimeZone.getDefault());
+
+
+                SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
+                String amPm = amPmFormat.format(c.getTime());
+                amPmStart = amPm;
+
+
+                SimpleDateFormat format = new SimpleDateFormat("h:mm a");
+                String time = format.format(c.getTime());
+                startTime = time ;
+                postTeacherRequestPopupWindowBinding.startTimeEdtText.setText(startTime);
+            }
+        },hours,mins,false);
+        timePickerDialog.show();
+    }
+
+    private void setEndTime(){
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int mins = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                c.set(Calendar.MINUTE,minute);
+                c.setTimeZone(TimeZone.getDefault());
+
+                SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
+                String amPm = amPmFormat.format(c.getTime());
+                amPmEnd = amPm;
+
+                SimpleDateFormat format = new SimpleDateFormat("h:mm a");
+                String time = format.format(c.getTime());
+                endTime = time ;
+                postTeacherRequestPopupWindowBinding.endTimeEdtText.setText(endTime);
+            }
+        },hours,mins,false);
+        timePickerDialog.show();
+    }
+
+    private void updateFlexBoxMatchingTeacher(){
+        if(postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.getChildCount() > 0){
+            postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.removeAllViews();
+        }
+
+        for(String str : coursesList){
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            View customeView = inflater.inflate(R.layout.course_custom_card,postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher,false);
+            TextView courseName = customeView.findViewById(R.id.textViewCourseName);
+            ImageView deleteImageView = customeView.findViewById(R.id.imageViewDelete);
+            courseName.setText(str);
+            deleteImageView.setOnClickListener(g->{
+                postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.removeView(customeView);
+                for(int i=0; i < coursesList.size() ; i++){
+                    if(coursesList.get(i).equalsIgnoreCase(courseName.getText().toString())){
+                        coursesList.remove(coursesList.get(i));
+                    }
+                }
+            });
+            postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.addView(customeView);
+        }
+    }
+    private void setFlexBoxAddedCoursesForPostedRequest(){
+        splittedCourses  = requestModel.getCourses().trim().split(",");
+        try{
+            for(String str : splittedCourses){
+                if(!checkIfCourseAddedToList(str))
+                    coursesList.add(str.trim());
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                View customView = inflater.inflate(R.layout.course_custom_card,postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher,false);
+                TextView courseName = customView.findViewById(R.id.textViewCourseName);
+                ImageView deleteImageView = customView.findViewById(R.id.imageViewDelete);
+                courseName.setText(str.trim());
+                deleteImageView.setOnClickListener(e->{
+                    postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.removeView(customView);
+                    for(int i=0; i < coursesList.size() ; i++){
+                        if(coursesList.get(i).equalsIgnoreCase(courseName.getText().toString())){
+                            coursesList.remove(coursesList.get(i));
+                        }
+                    }
+                });
+                postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.addView(customView);
+            }
+        }
+        catch (Exception e){
+            Log.e("The exception is -------> "+e.getMessage(),"The exception is -------> "+e.getMessage());
+        }
+    }
+
+
+    private boolean checkIfCourseAddedToList(String selectedCourse){
+        for (String str : coursesList){
+            if(str.equalsIgnoreCase(selectedCourse)){
+                return true ;
+            }
+        }
+        return false ;
+    }
+
+
+
+    private void setSelectedDays(){
+       // StringBuilder selectedDays = new StringBuilder();
+        if(requestModel.getChoseDays().contains("Sat")){
+            postTeacherRequestPopupWindowBinding.saturday.setChecked(true);
+        }
+
+        if(requestModel.getChoseDays().contains("Sun")){
+            postTeacherRequestPopupWindowBinding.sunday.setChecked(true);
+        }
+
+        if(requestModel.getChoseDays().contains("Mon")){
+            postTeacherRequestPopupWindowBinding.monday.setChecked(true);
+        }
+
+        if(requestModel.getChoseDays().contains("Tues")){
+            postTeacherRequestPopupWindowBinding.tuesday.setChecked(true);
+        }
+
+        if(requestModel.getChoseDays().contains("Wed")){
+            postTeacherRequestPopupWindowBinding.wednesday.setChecked(true);
+        }
+
+        if(requestModel.getChoseDays().contains("Thur")){
+            postTeacherRequestPopupWindowBinding.thursday.setChecked(true);
+        }
+
+        if(requestModel.getChoseDays().contains("Fri")){
+            postTeacherRequestPopupWindowBinding.friday.setChecked(true);
+        }
+
+    }
+
+    private void updatedCoursesSpinner(){
+        ArrayAdapter<String> adapter ;
+        int currentGrade = Integer.parseInt(selectedChildGrade);
+        if(getContext() != null){
+            if(currentGrade >= 1 && currentGrade <= 5){
+                adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, getContext().getResources().getStringArray(R.array.forParentCoursesElementarySchool));
+                postTeacherRequestPopupWindowBinding.forParentCourses.setAdapter(adapter);
+            }
+            else if (currentGrade > 5 && currentGrade <= 9) {
+                adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, getContext().getResources().getStringArray(R.array.forParentCoursesMiddleSchool));
+                postTeacherRequestPopupWindowBinding.forParentCourses.setAdapter(adapter);
+            }
+
+            else {
+                adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, getContext().getResources().getStringArray(R.array.forParentCoursesHighSchool));
+                postTeacherRequestPopupWindowBinding.forParentCourses.setAdapter(adapter);
+            }
+        }
+    }
+
+    @Override
+    public void getChildrenResult(int flag, JSONArray children) {
+        if(flag == 1){
+            if(!childrenSpinnerList.isEmpty()){
+                childrenSpinnerList.clear();
+            }
+            if(!parentChildrenList.isEmpty()){
+                parentChildrenList.clear();
+            }
+
+            for(int i=0;i<children.length();i++){
+                try {
+                    JSONObject jsonObject = children.getJSONObject(i);
+                    int childId = jsonObject.getInt("childId");
+                    String childName = jsonObject.getString("childName");
+                    String childAge = jsonObject.getString("childAge");
+                    int childGenderVal = jsonObject.getInt("childGender");
+                    parentChildrenList.add(new Children(childName,childAge,childGenderVal,jsonObject.getInt("childGrade")));
+                    childrenSpinnerList.add(new CustomChildData(childId,childName,jsonObject.getInt("childGrade"),childGenderVal));
+                }
+                catch(JSONException e){
+                    throw new RuntimeException(e);
+                }
+            }
+            showEditCardItemDialog();
+        }
+        else {
+            MyAlertDialog.errorDialog(getContext());
+        }
+    }
+
+    @Override
+    public void onResultParentInformation(int resultFlag, JSONArray parentInformation) {
+        if(resultFlag == -1){
+            // error
+        }
+        else if(resultFlag == -2){
+            // No data
+        }
+        else if(resultFlag == -3){
+            // connection error
+        }
+        else if(resultFlag == -4){
+            // volley error
+        }
+        else {
+            try {
+                if(parentInformation.length() == 1){
+                    JSONObject jsonObject = parentInformation.getJSONObject(0);
+                    firstName = jsonObject.getString("firstname").toLowerCase();
+                    lastName = jsonObject.getString("lastname").toLowerCase();
+                    firstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
+                    lastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
+                    birthDate = jsonObject.getString("birthDate");
+                    int genderVal = jsonObject.getInt("gender");
+                    gender = "Male";
+                    if(genderVal == 0)
+                        gender = "Female";
+                    idNumber = jsonObject.getString("idNumber");
+                    String city = jsonObject.getString("city");
+                    String country = jsonObject.getString("country");
+                    if(!parentAddress.isEmpty())
+                        parentAddress.clear();
+                    parentAddress.add(new Address(city,country));
+                    String parentPhoneNumber = jsonObject.getString("phoneNumber");
+                    phoneNumbersList.add(parentPhoneNumber);
+                    List<String> phoneList = new ArrayList<>();
+                    phoneList.add(parentPhoneNumber);
+                    phoneNumbersList = phoneList;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                           binding.progressBarLayout.setVisibility(View.GONE);
+                           binding.overlayView.setVisibility(View.GONE);
+                            showClickedCardDialog();
+                        }
+                    },1500);
+                    //showTeacherMatchDialog(teacherMatchModelTemp,parentFirstName+" "+parentLastName,phoneList);
+                }
+                else {
+                    int genderVal = 1 ;
+                    gender = "Male";
+                    List<Address> addressList = new ArrayList<>();
+                    List<String> phoneNumberList = new ArrayList<>();
+                    for(int i=0;i<parentInformation.length();i++){
+                        JSONObject jsonObject = parentInformation.getJSONObject(i);
+                        if(i==0){
+                            firstName = jsonObject.getString("firstname").toLowerCase();
+                            firstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
+                            lastName = jsonObject.getString("lastname").toLowerCase();
+                            lastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
+
+                            birthDate = jsonObject.getString("birthDate");
+                            genderVal = jsonObject.getInt("gender");
+                            if(genderVal == 0)
+                                gender = "Female";
+                            idNumber = jsonObject.getString("idNumber");
+                        }
+                        String city = jsonObject.getString("city");
+                        String country = jsonObject.getString("country");
+                        addressList.add(new Address(city,country));
+                        String parentPhoneNumber = jsonObject.getString("phoneNumber");
+                        if(!checkAddressExistsInList(addressList,new Address(city,country))){
+                            addressList.add(new Address(city,country));
+                        }
+                        if(!checkPhoneExistsInList(phoneNumberList , parentPhoneNumber)){
+                            phoneNumberList.add(parentPhoneNumber);
+                        }
+                    }
+                    phoneNumbersList = phoneNumberList;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.progressBarLayout.setVisibility(View.GONE);
+                            binding.overlayView.setVisibility(View.GONE);
+                            showClickedCardDialog();
+                           // showTeacherMatchDialog(teacherMatchModelTemp,tempFirstName+" "+tempLastName,tempPhoneList);
+                        }
+                    },1500);
+                }
+            }
+            catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    private boolean checkAddressExistsInList(List<Address> addressList,Address address){
+        return addressList.contains(address);
+    }
+    private boolean checkPhoneExistsInList(List<String> phoneList,String phoneNumber){
+        return phoneList.contains(phoneNumber);
+    }
+
+    @Override
+    public void onDataUpdate(int flag) {
+        if(flag == 1){
+           // MyAlertDialog.showDialogForDone(getContext(),"Done","Data Updated ..");
+            // ToDo (ERROR THE DATA IS NOT UPDATED ...)
+            //binding.tempProgressBar.setVisibility(View.VISIBLE);
+            postTeacherRequestPopupWindowBinding.progressBarLayout.setVisibility(View.VISIBLE);
+            this.requestModel = tmm ;
+            clickedCardDialog.dismiss();
+            database.getParentInformation(email,this);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //binding.tempProgressBar.setVisibility(View.GONE);
+                    postTeacherRequestPopupWindowBinding.progressBarLayout.setVisibility(View.GONE);
+                    updateParentPostedRequestDialog.dismiss();
+                    database.getParentPostedMatchingInformation(email,ParentFragment.this);
+                }
+            },3000);
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"ERROR","An Error occurred please try again later ..");
         }
     }
 }

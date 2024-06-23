@@ -10,6 +10,7 @@ import java.util.List;
 
 public class TeacherMatchModel implements Parcelable, Serializable {
     private int matchingId ;
+    private int childId ;
     private String parentEmail ;
     private CustomChildData customChildData ;
     private String choseDays ;
@@ -48,6 +49,18 @@ public class TeacherMatchModel implements Parcelable, Serializable {
         this.startTime=startTime;
         this.endTime=endTime;
     }
+
+    public TeacherMatchModel(int matchingId,CustomChildData customChildData, String choseDays, String courses, String location, String teachingMethod,String startTime,String endTime) {
+        this.matchingId=matchingId;
+        this.customChildData = customChildData;
+        this.choseDays = choseDays;
+        this.courses = courses;
+        this.location = location;
+        this.teachingMethod = teachingMethod;
+        this.startTime=startTime;
+        this.endTime=endTime;
+    }
+
 
 
     protected TeacherMatchModel(Parcel in) {

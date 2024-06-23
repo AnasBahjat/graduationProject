@@ -48,8 +48,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginStart="5dp"
-                android:text="Specific Teacher Information"
+                android:layout_marginStart="7dp"
+                android:text="Request Details"
+                android:layout_marginEnd="5dp"
                 android:textSize="22sp"
                 tools:ignore="HardcodedText" />
 
@@ -366,20 +367,65 @@
                 />
         </LinearLayout>
 
-
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/confirmTeachersInformation"
-            android:layout_width="wrap_content"
+            android:id="@+id/cancelButton"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/onlineFaceToFaceLayout"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
             android:background="@drawable/rounded_corners"
+            android:layout_toStartOf="@id/confirmTeachersInformation"
             android:backgroundTint="@color/usedColor"
-            android:layout_marginBottom="20dp"
-            android:text="@string/post_btn_text"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="30dp"
+            android:text="Cancel"
+            android:layout_marginBottom="10dp"
             android:textAllCaps="false"
             android:textSize="18sp" />
 
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/confirmTeachersInformation"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/onlineFaceToFaceLayout"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/usedColor"
+            android:text="Update"
+            android:layout_marginBottom="10dp"
+            android:textAllCaps="false"
+            android:textSize="18sp" />
+
+        <RelativeLayout
+            android:id="@+id/progressBarLayout"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/gray"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:layout_centerInParent="true"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:indeterminateTint="#4EB2BF"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="15dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Updating ..."
+                android:textSize="24sp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:layout_below="@id/progressBar" />
+
+        </RelativeLayout>
     </RelativeLayout>
 </ScrollView>

@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.graduationproject.models.CustomChildData;
 
@@ -46,7 +47,6 @@ public class CustomSpinnerAdapter extends ArrayAdapter<CustomChildData> {
         CustomChildData child = children.get(position);
         TextView textView = convertView.findViewById(android.R.id.text1);
         textView.setText(child.toString());
-
         return convertView;
     }
 }

@@ -2,27 +2,28 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/notificationLayout"
-    android:layout_width="300dp"
-    android:layout_height="100dp"
-    app:cardCornerRadius="15dp">
+    android:layout_width="350dp"
+    android:layout_height="110dp"
+    app:cardCornerRadius="13dp">
+
         <TextView
             android:id="@+id/notificationTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="28dp"
             android:text="@string/notification_title_text"
             android:textSize="20sp" />
 
     <TextView
         android:id="@+id/notificationBody"
-        android:layout_width="225dp"
-        android:layout_height="45dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="21dp"
         android:text="@string/notification_body_text"
         android:textSize="16sp" />

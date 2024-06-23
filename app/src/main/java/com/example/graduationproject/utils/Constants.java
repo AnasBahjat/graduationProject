@@ -18,4 +18,6 @@ public class Constants {
     public static String getTeacherMatchingData ="http://192.168.1.5/graduationProject/getTeacherMatchingData.php";
     public static String  getParentInformation ="http://192.168.1.5/graduationProject/getParentInformation.php";
     public static String  getParentPostedMatchingInformation ="http://192.168.1.5/graduationProject/getSpecificParentMatchingData.php";
+    public static String  updatePostedTeacherRequest ="http://192.168.1.5/graduationProject/updateParentPostedRequest.php";
+    public static String  getLastMatchingIdValue ="http://192.168.1.5/graduationProject/getLastTeacherMatchingId.php";
 }
