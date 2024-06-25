@@ -1,6 +1,7 @@
 package com.example.graduationproject.ui.teacherUi;
 
 import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,10 +22,12 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -48,19 +51,25 @@ import com.example.graduationproject.databinding.ActivityTeacherBinding;
 import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
+import com.example.graduationproject.databinding.PostTeacherRequestPopupWindowBinding;
 import com.example.graduationproject.databinding.SideNavigationHeaderBinding;
 import com.example.graduationproject.databinding.TeacherInformationPopupWindowBinding;
+import com.example.graduationproject.databinding.TeacherLookForJobLayoutBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
+import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
+import com.example.graduationproject.listeners.TeacherAvailabilityListener;
+import com.example.graduationproject.listeners.TeacherPostListener;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.models.TeacherPostRequest;
 import com.example.graduationproject.ui.commonFragment.ProfileFragment;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.parentUi.ParentFragment;
@@ -75,16 +84,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.TimeZone;
 
 public class TeacherActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         TeacherAccountConfirmationListener,
         NotificationsListListener,
         AddTeacherMatchingListener,
-        ParentInformationListener {
+        ParentInformationListener,TeacherPostListener,
+        LastMatchingIdListener, TeacherAvailabilityListener {
     private Database database;
     private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,doneInformation;
     private ActivityTeacherBinding binding ;
@@ -101,7 +117,21 @@ public class TeacherActivity extends AppCompatActivity implements
     private TeacherMatchModel teacherMatchModelTemp ;
     String tempFirstName = "",tempLastName="";
     List<String> tempPhoneList ;
+    TeacherLookForJobLayoutBinding teacherLookForJobLayoutBinding  ;
     private View popupView;
+
+    private List<String> teacherAddedCoursesList = new ArrayList<>();
+
+    private int lastTeacherPostId = 0 ;
+    private Dialog teacherLooksForJobDialog;
+
+    private String amPmStart,amPmEnd;
+    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
+    private TeacherPostRequest tpr ;
+
+    private String staticAvailability ;
+
+    private String startTime ="12:00 PM", endTime="12:00 PM";
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -163,6 +193,8 @@ public class TeacherActivity extends AppCompatActivity implements
         if(doneInformation.equals("1"))
             database.getTeacherMatchingData(email,this);
       //  checkIfTeacherAccountConfirmed();
+        database.getLastTeacherPostId(this);
+        database.getTeacherAvailability(email,this);
         checkIfItemSelected();
         binding.overlayView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -322,6 +354,11 @@ public class TeacherActivity extends AppCompatActivity implements
         if(menuItem.getItemId() == R.id.LookForJob){
             showTeacherLookForJobDialog();
         }
+        else if(menuItem.getItemId() == R.id.availablePosts){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_AVAILABLE_JOBS_FOR_TEACHER");
+            sendBroadcast(intent);
+        }
         if(menuItem.getItemId() == R.id.logoutId){
             finish();
         }
@@ -347,6 +384,7 @@ public class TeacherActivity extends AppCompatActivity implements
         bundle.putString("email",email);
         bundle.putString("firstName",firstName);
         bundle.putString("lastName",lastName);
+        bundle.putString("availability",staticAvailability);
 
         teacherFragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -636,20 +674,23 @@ public class TeacherActivity extends AppCompatActivity implements
         }
         if(selectedId == R.id.availAnyTime){
             availabilityStr = "Any Time";
+            staticAvailability = "Sat , Sun , Mon , Tues , Wed , Thur , Fri";
         }
         else if(selectedId == R.id.availWeekend){
             availabilityStr = "Weekend";
+            staticAvailability = "Thurs , Fri";
         }
         else if(selectedId == R.id.availSpecificDays){
             checkedDays = getCheckedDays(teacherInformationPopupWindowBinding);
             availabilityStr = checkedDays.toString();
+            staticAvailability = availabilityStr;
         }
 
         if(!idStr.isEmpty() && !cityText.isEmpty()  && !countryText.isEmpty()
                 && !phoneNumberStr.isEmpty() && collegeFlag && fieldFlag ){
                 teacherInformationPopupWindowBinding.phoneNumberPrefix.registerCarrierNumberEditText(teacherInformationPopupWindowBinding.edtTextPhoneNumber);
                 Teacher teacher=new Teacher(email,idStr,studentOrGraduate+"",
-                        graduationYear,collegeStr,fieldStr,availabilityStr,educationalLevel,new Address(cityText,countryText));
+                        graduationYear,collegeStr,fieldStr,staticAvailability,educationalLevel,new Address(cityText,countryText));
                 database.updateTeacherInformation(teacher,teacherInformationPopupWindowBinding.phoneNumberPrefix.getFullNumber(),this);
                 database.getTeacherMatchingData(email,this);
         }
@@ -677,7 +718,191 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     private void showTeacherLookForJobDialog(){
-        Dialog teacherLooksForJobDialog = new Dialog(this);
+        teacherLookForJobLayoutBinding = TeacherLookForJobLayoutBinding.inflate(getLayoutInflater());
+        teacherLooksForJobDialog = new Dialog(this);
+        teacherLooksForJobDialog.setContentView(teacherLookForJobLayoutBinding.getRoot());
+        teacherLooksForJobDialog.setCancelable(false);
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.copyFrom(Objects.requireNonNull(teacherLooksForJobDialog.getWindow()).getAttributes());
+        layoutParams.width = 1300;
+        layoutParams.height = 2000;
+        teacherLooksForJobDialog.getWindow().setAttributes(layoutParams);
+        teacherLooksForJobDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        if(teacherLooksForJobDialog.getWindow() != null)
+            teacherLooksForJobDialog.getWindow().setLayout(1300,2000);
+        teacherLooksForJobDialog.show();
+
+        teacherLookForJobLayoutBinding.closeTheDialog.setOnClickListener(z->{
+            teacherLooksForJobDialog.dismiss();
+        });
+
+        if(!teacherAddedCoursesList.isEmpty())
+            teacherAddedCoursesList.clear();
+
+        teacherLookForJobLayoutBinding.addCourseTeacherLooksForJob.setOnClickListener(c->{
+            String currentCourse = teacherLookForJobLayoutBinding.coursesSpinner.getSelectedItem().toString();
+            if(!checkIfCourseAddedToList(currentCourse)) {
+                teacherAddedCoursesList.add(currentCourse);
+                updateFlexBoxForTeacherAddedCourses();
+            }
+            else {
+                MyAlertDialog.showWarningCourseAdded(this);
+            }
+        });
+
+        teacherLookForJobLayoutBinding.startTimeEdtText.setOnClickListener(c->{
+            setStartTime();
+        });
+
+        teacherLookForJobLayoutBinding.endTimeEdtText.setOnClickListener(z->{
+            setEndTime();
+        });
+
+        teacherLookForJobLayoutBinding.postTeacherRequest.setOnClickListener(a->{
+            try {
+                postTeacherRequestBtnClicked();
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+
+    private void setStartTime(){
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int mins = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                c.set(Calendar.MINUTE,minute);
+                c.setTimeZone(TimeZone.getDefault());
+
+
+                SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
+                String amPm = amPmFormat.format(c.getTime());
+                amPmStart = amPm;
+
+
+                SimpleDateFormat format = new SimpleDateFormat("h:mm a");
+                String time = format.format(c.getTime());
+                startTime = time ;
+                teacherLookForJobLayoutBinding.startTimeEdtText.setText(startTime);
+            }
+        },hours,mins,false);
+        timePickerDialog.show();
+    }
+
+    private void setEndTime(){
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int mins = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                c.set(Calendar.MINUTE,minute);
+                c.setTimeZone(TimeZone.getDefault());
+
+                SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
+                String amPm = amPmFormat.format(c.getTime());
+                amPmEnd = amPm;
+
+                SimpleDateFormat format = new SimpleDateFormat("h:mm a");
+                String time = format.format(c.getTime());
+                endTime = time ;
+                teacherLookForJobLayoutBinding.endTimeEdtText.setText(endTime);
+            }
+        },hours,mins,false);
+        timePickerDialog.show();
+    }
+
+    private void updateFlexBoxForTeacherAddedCourses(){
+        if(teacherLookForJobLayoutBinding.coursesFlexBoxLayout.getChildCount() > 0){
+            teacherLookForJobLayoutBinding.coursesFlexBoxLayout.removeAllViews();
+        }
+        teacherLookForJobLayoutBinding.coursesFlexBoxLayout.removeAllViews();
+        for(String str : teacherAddedCoursesList){
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View customView = inflater.inflate(R.layout.course_custom_card,teacherLookForJobLayoutBinding.coursesFlexBoxLayout,false);
+            TextView courseName = customView.findViewById(R.id.textViewCourseName);
+            ImageView deleteImageView = customView.findViewById(R.id.imageViewDelete);
+            courseName.setText(str);
+            deleteImageView.setOnClickListener(xs->{
+                teacherLookForJobLayoutBinding.coursesFlexBoxLayout.removeView(customView);
+              //  if(checkIfCourseAddedToList(str)){
+                    teacherAddedCoursesList.remove(str);
+               // }
+                // ToDo(Delete children from database)
+            });
+            teacherLookForJobLayoutBinding.coursesFlexBoxLayout.addView(customView);
+        }
+    }
+
+    private void postTeacherRequestBtnClicked() throws ParseException {
+        String educationalLevel = teacherLookForJobLayoutBinding.educationalLevelSpinner.getSelectedItem().toString();
+        String duration = teacherLookForJobLayoutBinding.numberOfMonthsEdtText.getText().toString();
+        String location = teacherLookForJobLayoutBinding.locationSpinner.getSelectedItem().toString();
+        String teachingMethod = teacherLookForJobLayoutBinding.teachingMethodSpinner.getSelectedItem().toString();
+        if(teacherLookForJobLayoutBinding.coursesFlexBoxLayout.getChildCount() == 0){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please add at least one course ..");
+        }
+        else {
+            if(Integer.parseInt(duration) <= 0 || Integer.parseInt(duration) > 12){
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong Duration","Please choose a valid number of months , 0 - 12 months ..");
+            }
+            else {
+                if(!checkStartAndEndTime()){
+                    MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
+                }
+                else {
+                    StringBuilder coursesStr = new StringBuilder();
+                    for(int i=0;i<teacherAddedCoursesList.size();i++){
+                        if(i + 1 != teacherAddedCoursesList.size()){
+                            coursesStr.append(teacherAddedCoursesList.get(i)).append(" , ");
+                        }
+                        else {
+                            coursesStr.append(teacherAddedCoursesList.get(i));
+                        }
+                    }
+                    tpr = new TeacherPostRequest(lastTeacherPostId+1,
+                            email,coursesStr.toString(),educationalLevel,duration,staticAvailability,location,teachingMethod,startTime,endTime);
+                    database.insertTeacherPostRequest(tpr,this);
+                }
+            }
+        }
+    }
+
+    private boolean checkStartAndEndTime() throws ParseException {
+        Date startDate = timeFormat.parse(startTime);
+        Date endDate = timeFormat.parse(endTime);
+
+        if(startDate != null && endDate != null && startDate.before(endDate) && isEndTimeAtLeastOneHourLater(startDate,endDate)){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isEndTimeAtLeastOneHourLater(Date startTime,Date endTime){
+        final long oneHourInMillis = 3600000 ;
+        Date oneHourLater = new Date(startTime.getTime()+oneHourInMillis);
+        return endTime.after(oneHourLater);
+    }
+
+
+    private boolean checkIfCourseAddedToList(String selectedCourse){
+        for (String str : teacherAddedCoursesList){
+            if(str.equalsIgnoreCase(selectedCourse)){
+                return true ;
+            }
+        }
+        return false ;
     }
 
 
@@ -1046,5 +1271,54 @@ public class TeacherActivity extends AppCompatActivity implements
     }
     private boolean checkPhoneExistsInList(List<String> phoneList,String phoneNumber){
         return phoneList.contains(phoneNumber);
+    }
+
+    @Override
+    public void onTeacherPostAdded(int flag) {
+        if(flag == 1){
+            MyAlertDialog.showDialogForDone(this,"Done","Your post has been added done, you can find it the posted part");
+            teacherLooksForJobDialog.dismiss();
+           Intent intent = new Intent();
+           intent.setAction("UPDATE_TEACHER_POSTED_REQUESTS");
+            //intent.putExtra("newAddedJobRequest",tpr);
+           sendBroadcast(intent);
+        }
+        else if(flag == -2){
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Connection Error","Something went wrong with your connection please try again later ..");
+        }
+
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong please try again later ..");
+        }
+    }
+
+    @Override
+    public void onLastMatchingIdFetched(int flag, String value) {
+        if(flag == 1){
+            lastTeacherPostId = Integer.parseInt(value);
+        }
+        else if(flag == 0){
+            lastTeacherPostId = 0 ;
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","An error occurred please try again later ..");
+            System.exit(-2);
+        }
+    }
+
+    @Override
+    public void onAvailabilityFetched(int flag, String availability) {
+        if(flag == 0){
+
+        }
+        else if(flag == -1){
+
+        }
+        else if(flag == 1){
+            staticAvailability = availability;
+        }
+        else {
+
+        }
     }
 }

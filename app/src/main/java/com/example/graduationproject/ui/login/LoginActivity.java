@@ -162,7 +162,15 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         intent.putExtra("birthDate",birthDate);
                         intent.putExtra("profileType",profileType);
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
-                        startActivity(intent);
+                        binding.loginProgressBar.setVisibility(View.VISIBLE);
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                binding.loginProgressBar.setVisibility(View.GONE);
+                                startActivity(intent);
+                            }
+                        },1500);
                     }
                     else {
                         Intent intent = new Intent(LoginActivity.this, ParentActivity.class);

@@ -3,24 +3,21 @@ package com.example.graduationproject.adapters;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.graduationproject.databinding.CustomTeacherMatchingLayout2Binding;
+import com.example.graduationproject.databinding.CustomTeacherMatchingLayoutForParentBinding;
 import com.example.graduationproject.listeners.ParentPostRequestClickListener;
-import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 
 import java.util.List;
 
-public class PostedTeacherRequestsAdapter extends RecyclerView.Adapter<PostedTeacherRequestsAdapter.MyViewHolder> {
+public class ParentPostedRequestsAdapter extends RecyclerView.Adapter<ParentPostedRequestsAdapter.MyViewHolder> {
     List<TeacherMatchModel> postedRequestsDataList ;
     Context context;
-    CustomTeacherMatchingLayout2Binding binding;
+    CustomTeacherMatchingLayoutForParentBinding binding;
     ParentPostRequestClickListener listener;
 
-    public PostedTeacherRequestsAdapter(List<TeacherMatchModel> postedRequestsDataList,Context context,ParentPostRequestClickListener listener){
+    public ParentPostedRequestsAdapter(List<TeacherMatchModel> postedRequestsDataList, Context context, ParentPostRequestClickListener listener){
         this.postedRequestsDataList = postedRequestsDataList;
         this.context = context;
         this.listener = listener;
@@ -31,7 +28,7 @@ public class PostedTeacherRequestsAdapter extends RecyclerView.Adapter<PostedTea
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        CustomTeacherMatchingLayout2Binding binding = CustomTeacherMatchingLayout2Binding.inflate(inflater,parent,false);
+        CustomTeacherMatchingLayoutForParentBinding binding = CustomTeacherMatchingLayoutForParentBinding.inflate(inflater,parent,false);
         return new MyViewHolder(binding,context,listener);
     }
 
@@ -52,11 +49,11 @@ public class PostedTeacherRequestsAdapter extends RecyclerView.Adapter<PostedTea
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
-        CustomTeacherMatchingLayout2Binding binding;
+        CustomTeacherMatchingLayoutForParentBinding binding;
         Context context;
 
         ParentPostRequestClickListener listener ;
-        public MyViewHolder(CustomTeacherMatchingLayout2Binding binding,Context context,ParentPostRequestClickListener listener){
+        public MyViewHolder(CustomTeacherMatchingLayoutForParentBinding binding,Context context,ParentPostRequestClickListener listener){
             super(binding.getRoot());
             this.binding=binding;
             this.context=context;

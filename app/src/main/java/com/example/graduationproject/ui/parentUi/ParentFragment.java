@@ -13,10 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Handler;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -31,24 +29,21 @@ import android.widget.Toast;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
-import com.example.graduationproject.adapters.PostedTeacherRequestsAdapter;
+import com.example.graduationproject.adapters.ParentPostedRequestsAdapter;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.DialogParentPostedRequestCardBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
-import com.example.graduationproject.databinding.PostTeacherRequestPopupWindowBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentPostRequestClickListener;
-import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.TeacherMatchModel;
-import com.google.android.flexbox.FlexboxLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,8 +71,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private Database database;
     private ArrayList<TeacherMatchModel> parentPostedRequestsList = new ArrayList<>();
 
-    private PostedTeacherRequestsAdapter postedTeacherRequestsAdapter;
-    private FlexboxLayout flexboxCoursesForMatchingTeacherLayout ;
+    private ParentPostedRequestsAdapter parentPostedRequests;
 
     private boolean btn1Clicked = true;
     private boolean btn2Clicked = false;
@@ -87,8 +81,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private DialogParentPostedRequestCardBinding dialogParentPostedRequestCardBinding;
     private UpdateParentPostedRequestBinding postTeacherRequestPopupWindowBinding;
-    private List<CustomChildData> childrenSpinnerList = new ArrayList<>();
-    private List<Children> parentChildrenList = new ArrayList<>();
+    private final List<CustomChildData> childrenSpinnerList = new ArrayList<>();
+    private final List<Children> parentChildrenList = new ArrayList<>();
     TeacherMatchModel requestModelTemp ;
     private int selectedChildId,selectedChildGender ;
     private String selectedChildName,selectedChildGrade ;
@@ -106,7 +100,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
 
-    private BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED".equals(intent.getAction())){
@@ -122,7 +116,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     tempList.addAll(parentPostedRequestsList);
                     tempList.add(tempTeacherModel);
                     parentPostedRequestsList.add(tempTeacherModel);
-                    postedTeacherRequestsAdapter.filteredList(parentPostedRequestsList);
+                    parentPostedRequests.filteredList(parentPostedRequestsList);
                 }
             }
             else if("PARENT_POSTED_REQUESTS_ITEM_CLICKED".equals(intent.getAction())){
@@ -132,6 +126,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.refreshRecyclerView.setRefreshing(true);
                 setMyPostedRequestsAdapter();
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
+            }
+
+            else if("UPDATE_POSTED_DATA_FOR_PARENT".equals(intent.getAction())){
+                myPostedBtnClicked();
             }
         }
     };
@@ -153,6 +151,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             IntentFilter parentFragmentIntentFilter = new IntentFilter();
             parentFragmentIntentFilter.addAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
             parentFragmentIntentFilter.addAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
+            parentFragmentIntentFilter.addAction("UPDATE_POSTED_DATA_FOR_PARENT");
             int flags = 0 ;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 flags = Context.RECEIVER_NOT_EXPORTED;
@@ -164,13 +163,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
     }
 
-    /*@Override
-    public void onPause() {
-        super.onPause();
-        if(getActivity() != null)
-            getActivity().unregisterReceiver(myBroadcastReceiver);
-    }*/
-
     @Override
     public void onStop() {
         super.onStop();
@@ -179,24 +171,15 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             getActivity().unregisterReceiver(myBroadcastReceiver);
             isBroadcastReceiverRegistered = false;
         }
-
-        /*if(myBroadcastReceiver != null && getActivity() != null){
-            getActivity().unregisterReceiver(myBroadcastReceiver);
-        }*/
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         if(isBroadcastReceiverRegistered && getActivity() != null){
             getActivity().unregisterReceiver(myBroadcastReceiver);
             isBroadcastReceiverRegistered = false;
         }
-
-      /*  if (myBroadcastReceiver != null && getActivity() != null) {
-            getActivity().unregisterReceiver(myBroadcastReceiver);
-        }*/
     }
 
     private void initialize(){
@@ -204,19 +187,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         initCoursesRecyclerView();
         setMyPostedRequestsAdapter();
         binding.myPostedRequestsBtn.setOnClickListener(x->{
-            binding.parentFragmentSearch.clearFocus();
-            binding.parentFragmentSearch.setQuery(null,false);
-            setMyPostedRequestsAdapter();
-            btn1Clicked = true;
-            btn2Clicked = false;
+            myPostedBtnClicked();
         });
 
         binding.myReceivedRequestsBtn.setOnClickListener(c->{
-            binding.parentFragmentSearch.clearFocus();
-            binding.parentFragmentSearch.setQuery(null,false);
-            setMyReceivedRequestsAdapter();
-            btn1Clicked = false;
-            btn2Clicked = true;
+            myReceivedRequestsBtnClicked();
         });
 
         binding.refreshRecyclerView.setOnRefreshListener(()->{
@@ -227,6 +202,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 refreshPostedRequests(2);
             }
         });
+    }
+
+    private void myPostedBtnClicked(){
+        binding.parentFragmentSearch.clearFocus();
+        binding.parentFragmentSearch.setQuery(null,false);
+        setMyPostedRequestsAdapter();
+        btn1Clicked = true;
+        btn2Clicked = false;
+    }
+
+    private void myReceivedRequestsBtnClicked(){
+        binding.parentFragmentSearch.clearFocus();
+        binding.parentFragmentSearch.setQuery(null,false);
+        setMyReceivedRequestsAdapter();
+        btn1Clicked = false;
+        btn2Clicked = true;
     }
 
 
@@ -262,13 +253,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void setMyPostedRequestsAdapter(){
        // List<TeacherMatchModel> parentPostedRequestsList = new ArrayList<>();
-        postedTeacherRequestsAdapter = new PostedTeacherRequestsAdapter(parentPostedRequestsList,getContext(),this);
+        parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList,getContext(),this);
         if(parentPostedRequestsList.isEmpty()){
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
         }
         else{
-            binding.postedRequestsRecyclerView.setAdapter(postedTeacherRequestsAdapter);
+            binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
         }
@@ -393,7 +384,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     }
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                postedTeacherRequestsAdapter.filteredList(tempTeacherMatchModelList);
+                parentPostedRequests.filteredList(tempTeacherMatchModelList);
                 binding.refreshRecyclerView.setRefreshing(false);
             }
             catch(Exception ignored){
@@ -493,18 +484,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             if(updateParentPostedRequestDialog.getWindow() != null)
                 updateParentPostedRequestDialog.getWindow().setLayout(1300,2000);
             updateParentPostedRequestDialog.show();
-            flexboxCoursesForMatchingTeacherLayout = updateParentPostedRequestDialog.findViewById(R.id.flexboxLayoutMatchTeacher);
 
 
             CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(getContext(),childrenSpinnerList);
             postTeacherRequestPopupWindowBinding.childrenSpinner.setAdapter(adapter);
             int currentChildPosition = adapter.getPosition(requestModelTemp.getCustomChildData());
 
-            for(int i=0;i<adapter.getCount();i++){
-                if(Objects.requireNonNull(adapter.getItem(i)).getChildId() == requestModelTemp.getCustomChildData().getChildId()){
-                    currentChildPosition = i ;
-                }
-            }
 
             if(currentChildPosition >= 0){
                 postTeacherRequestPopupWindowBinding.childrenSpinner.setSelection(currentChildPosition);
@@ -520,9 +505,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     selectedChildGrade = splittedString[1].trim();
                     selectedChildGender = data.getGender();
                     updatedCoursesSpinner();
-                  /*  if(postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.getChildCount() > 0){
-                        postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.removeAllViews();
-                    }*/
                 }
 
                 @Override

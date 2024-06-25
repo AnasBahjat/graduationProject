@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/employerFragment"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="#2196F3"
@@ -50,7 +50,7 @@
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/suggestedTeacherCourses"
+            android:id="@+id/myPostedRequestsBtn"
             android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
@@ -64,7 +64,7 @@
             android:layout_width="170dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
-            android:text="Available Requests"
+            android:text="My Posted Requests"
             android:focusable="true"
             android:textSize="17sp"
             android:layout_marginStart="10dp"
@@ -126,4 +126,63 @@
         android:layout_marginTop="330dp"
         android:visibility="gone"
         />
+    <LinearLayout
+        android:id="@+id/filterLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="15dp"
+        android:layout_toEndOf="@+id/teacherSuggestionLayout">
+
+        <ImageView
+            android:id="@+id/filterImage"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="5dp"
+            android:contentDescription="Filter"
+            android:src="@drawable/filter_icon"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:text="Filter"
+            android:textSize="15sp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/progressBarLayout"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/gray"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:indeterminateTint="#4EB2BF"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="15dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Updating ..."
+            android:textSize="24sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/progressBar" />
+
+    </RelativeLayout>
+
 </RelativeLayout>

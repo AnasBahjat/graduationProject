@@ -71,6 +71,6 @@
     <string name="courses_text">Courses</string>
     <string name="choose_child_text">Choose Child</string>
     <string name="post_btn_text">Post</string>
-    <string name="add_course_text">Add Course</string>
+    <string name="add_course_text">Add\nCourse</string>
     <string name="customTimeFormat">%s - %s</string>
 </resources>

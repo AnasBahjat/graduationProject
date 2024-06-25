@@ -114,9 +114,11 @@
             android:text="Please Confirm Your Account Information\nCheck notifications."
             android:gravity="center_vertical|center_horizontal"
             android:textSize="25sp"
+            android:layout_gravity="center"
             android:textColor="#989898"
             android:textAlignment="center"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            />
 
         <RelativeLayout
             android:id="@+id/progressBarLayout"

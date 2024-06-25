@@ -47,7 +47,6 @@ import com.example.graduationproject.databinding.ActivityParentBinding;
 import com.example.graduationproject.databinding.ChildrenInformationPopupWindowBinding;
 import com.example.graduationproject.databinding.NotificationsPopupWindowBinding;
 import com.example.graduationproject.databinding.ParentInformationPopupWindowBinding;
-import com.example.graduationproject.databinding.SideNavigationHeaderBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
@@ -130,6 +129,7 @@ public class ParentActivity extends AppCompatActivity implements
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
 
     private int lastMatchingId = 0 ;
+
 
 
 
@@ -530,6 +530,9 @@ public class ParentActivity extends AppCompatActivity implements
             doneInformation="1";
             checkAccountDone();
             parentInformationPopupWindow.dismiss();
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction("UPDATE_POSTED_DATA_FOR_PARENT");
+            sendBroadcast(broadcastIntent);
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","There are an error occurred please try again later ..");

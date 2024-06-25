@@ -10,6 +10,11 @@
             android:icon="@drawable/look_for_teacher"
             android:title="Look For Job"/>
 
+        <item
+            android:id="@+id/availablePosts"
+            android:icon="@drawable/teacher_available_courses_icon"
+            android:title="Browse Avaliable Jobs"/>
+
     </group>
 
     <group android:id="@+id/bottomGroup" android:orderInCategory="2">

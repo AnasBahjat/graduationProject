@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/teacherPostJobLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="30dp"
+    android:layout_marginBottom="2dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    app:cardElevation="5dp"
+    android:backgroundTint="#E4ECEC"
+    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/rounded_corners_recycler_view"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="65dp"
+            android:layout_height="85dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/user"/>
+
+        <ImageView
+            android:id="@+id/coursesImage"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/courses_icon"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="25dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/coursesTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/coursesImage"
+            android:layout_marginTop="25dp"
+            android:text="Courses : "
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/coursesTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="20dp"
+            android:layout_toEndOf="@+id/coursesTextViewTemp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp" />
+
+       <!-- <View
+            android:id="@+id/tempView1"
+            android:layout_width="405dp"
+            android:layout_height="2dp"
+            android:layout_below="@id/coursesTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="15dp"
+            android:background="#B9E9EF" />-->
+
+        <ImageView
+            android:id="@+id/locationIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/coursesTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/location_icon"/>
+
+        <TextView
+            android:id="@+id/locationTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location : "
+            android:layout_below="@id/coursesTextView"
+            android:layout_toEndOf="@id/locationIcon"
+            android:layout_marginTop="7dp"
+            android:textSize="16sp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coursesTextView"
+            android:layout_toEndOf="@id/locationTextViewTemp"
+            android:layout_marginTop="7dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="20dp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp"
+            />
+
+        <ImageView
+            android:id="@+id/teachingMethodImageView"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/locationTextView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/teaching_method_icon_2" />
+        <TextView
+            android:id="@+id/teachingMethodTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Teaching Method : "
+            android:layout_toEndOf="@id/teachingMethodImageView"
+            android:layout_below="@id/locationTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textSize="15sp"
+            />
+
+        <TextView
+            android:id="@+id/teachingMethodTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/teachingMethodTextViewTemp"
+            android:layout_below="@id/locationTextView"
+            android:textSize="15sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/availability_icon"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_marginStart="10dp"
+            android:layout_below="@id/teachingMethodTextView"
+            android:layout_marginTop="12dp"
+            />
+        <TextView
+            android:id="@+id/availableTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Availability : "
+            android:layout_toEndOf="@id/teachingMethodImageView"
+            android:layout_below="@id/teachingMethodTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"
+            />
+
+        <TextView
+            android:id="@+id/availableTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/availableTextViewTemp"
+            android:layout_below="@id/teachingMethodTextView"
+            android:textSize="15sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
+
+
+        <ImageView
+            android:id="@+id/clockIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_below="@id/availableTextView"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/clock_icon"/>
+        <TextView
+            android:id="@+id/timeTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Duration :"
+            android:layout_toEndOf="@id/clockIcon"
+            android:layout_marginStart="8dp"
+            android:layout_below="@id/availableTextView"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/durationTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_toEndOf="@id/timeTextViewTemp"
+            android:layout_below="@id/availableTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/durationTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="More details"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="-2dp"
+                android:layout_marginEnd="-5dp"
+                />
+            <ImageView
+                android:id="@+id/arrowImageView"
+                android:layout_width="55dp"
+                android:layout_height="30dp"
+                android:src="@drawable/right_arrow_icon"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

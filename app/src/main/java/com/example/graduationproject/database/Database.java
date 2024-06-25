@@ -2,7 +2,6 @@ package com.example.graduationproject.database;
 
 import android.content.Context;
 import android.content.Intent;
-import android.telephony.CellSignalStrengthGsm;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,16 +14,22 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.graduationproject.R;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
+import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
+import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
+import com.example.graduationproject.listeners.PostedTeacherRequestsListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
+import com.example.graduationproject.listeners.TeacherAvailabilityListener;
+import com.example.graduationproject.listeners.TeacherPostListener;
 import com.example.graduationproject.listeners.TellParentDataIsReady;
 import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
@@ -33,6 +38,7 @@ import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Profile;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.models.TeacherPostRequest;
 import com.example.graduationproject.network.ApiService;
 import com.example.graduationproject.network.RetrofitInitializer;
 import com.example.graduationproject.utils.Constants;
@@ -739,4 +745,174 @@ public class Database {
 
         requestQueue.add(stringRequest);
     }
+
+    public void insertTeacherPostRequest(TeacherPostRequest teacherPostRequest,final TeacherPostListener teacherPostListener){
+        requestQueue = Volley.newRequestQueue(context);
+
+        Log.d("----->","-------------------->"+teacherPostRequest.getStartTime());
+        Log.d("----->","-------------------->"+teacherPostRequest.getEndTime());
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertTeacherPostRequest,resp->{
+            if(resp.equalsIgnoreCase("Connection Error"))
+                teacherPostListener.onTeacherPostAdded(-2);
+            else if(resp.equalsIgnoreCase("Error")){
+                teacherPostListener.onTeacherPostAdded(-1);
+            }
+            else if(resp.equalsIgnoreCase("Done"))
+                teacherPostListener.onTeacherPostAdded(1);
+        },err->{
+            Log.d("the error is ++++ "+err,"the error is ++++ "+err);
+            teacherPostListener.onTeacherPostAdded(0);
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherEmail",teacherPostRequest.getTeacherEmail());
+                data.put("courses",teacherPostRequest.getCourses());
+                data.put("educationLevel",teacherPostRequest.getEducationLevel());
+                data.put("availabilityForJob",teacherPostRequest.getAvailability());
+                data.put("duration",teacherPostRequest.getDuration());
+                data.put("location",teacherPostRequest.getLocation());
+                data.put("teachingMethod",teacherPostRequest.getTeachingMethod());
+                data.put("startTime",teacherPostRequest.getStartTime());
+                data.put("endTime",teacherPostRequest.getEndTime());
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+
+    public void getLastTeacherPostId(final LastMatchingIdListener lastMatchingIdListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,Constants.getLastTeacherPostId,res->{
+            if(res.equalsIgnoreCase("Empty Table")){
+                lastMatchingIdListener.onLastMatchingIdFetched(0,null);
+            }
+            else if(res.equalsIgnoreCase("Error")){
+                lastMatchingIdListener.onLastMatchingIdFetched(-1,null);
+            }
+            else if(res.equalsIgnoreCase("Connection Error")){
+                lastMatchingIdListener.onLastMatchingIdFetched(-2,null);
+            }
+            else {
+                lastMatchingIdListener.onLastMatchingIdFetched(1,res);
+            }
+        },err->{
+            lastMatchingIdListener.onLastMatchingIdFetched(-3,null);
+        });
+        requestQueue.add(stringRequest);
+    }
+
+    public void getTeacherPostedRequests(String email,final PostedTeacherRequestsListener postedTeacherRequestsListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getTeacherPostedRequests,resp->{
+            if(resp.equalsIgnoreCase("Connection Error"))
+                postedTeacherRequestsListener.onDataFetched(-1,null);
+            else if(resp.equalsIgnoreCase("Error"))
+                postedTeacherRequestsListener.onDataFetched(0,null);
+            else {
+                try {
+                    postedTeacherRequestsListener.onDataFetched(1,new JSONArray(resp));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        },err->{
+            postedTeacherRequestsListener.onDataFetched(-1,null);
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",email);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+
+    public void getTeacherAvailability(String email, final TeacherAvailabilityListener teacherAvailabilityListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getTeacherAvailability,resp->{
+            if(resp.equalsIgnoreCase("Error"))
+                teacherAvailabilityListener.onAvailabilityFetched(0,null);
+            else if(resp.equalsIgnoreCase("Connection Error"))
+                teacherAvailabilityListener.onAvailabilityFetched(-1,null);
+            else
+                teacherAvailabilityListener.onAvailabilityFetched(1,resp);
+        },err->{
+            teacherAvailabilityListener.onAvailabilityFetched(-2,null);
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",email);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void updateTeacherPostedRequest(TeacherPostRequest teacherPostRequest,final OnTeacherPostRequestUpdateListener onTeacherPostRequestUpdateListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.updateTeacherPostedRequest,resp->{
+            if(resp.equalsIgnoreCase("Connection Error"))
+                onTeacherPostRequestUpdateListener.onTeacherPostRequestUpdate(-2);
+            else if(resp.equalsIgnoreCase("Error Updating"))
+                onTeacherPostRequestUpdateListener.onTeacherPostRequestUpdate(-1);
+            else if(resp.equalsIgnoreCase("No Request"))
+                onTeacherPostRequestUpdateListener.onTeacherPostRequestUpdate(0);
+            else if(resp.equalsIgnoreCase("updated"))
+                onTeacherPostRequestUpdateListener.onTeacherPostRequestUpdate(1);
+        },err->{
+            onTeacherPostRequestUpdateListener.onTeacherPostRequestUpdate(2);
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("postId",teacherPostRequest.getTeacherPostRequestId()+"");
+                data.put("teacherEmail",teacherPostRequest.getTeacherEmail());
+                data.put("courses",teacherPostRequest.getCourses());
+                data.put("educationLevel",teacherPostRequest.getEducationLevel());
+                data.put("availabilityForJob",teacherPostRequest.getAvailability());
+                data.put("duration",teacherPostRequest.getDuration());
+                data.put("location",teacherPostRequest.getLocation());
+                data.put("teachingMethod",teacherPostRequest.getTeachingMethod());
+                data.put("startTime",teacherPostRequest.getStartTime());
+                data.put("endTime",teacherPostRequest.getEndTime());
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void deleteTeacherPostedRequest(TeacherPostRequest teacherPostRequest,final DeletePostedRequestListener deletePostedRequestListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.deletePostRequest,resp->{
+            if(resp.equalsIgnoreCase("Deleted")){
+                deletePostedRequestListener.onPostedRequestDeleted(1);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                deletePostedRequestListener.onPostedRequestDeleted(-1);
+            }
+            else if(resp.equalsIgnoreCase("No Request")){
+                deletePostedRequestListener.onPostedRequestDeleted(-3);
+            }
+            else {
+                deletePostedRequestListener.onPostedRequestDeleted(0);
+            }
+        },err->{
+            deletePostedRequestListener.onPostedRequestDeleted(-2);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("postId",teacherPostRequest.getTeacherPostRequestId()+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
 }

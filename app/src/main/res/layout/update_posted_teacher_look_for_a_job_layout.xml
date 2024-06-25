@@ -144,12 +144,96 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/daysLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/educationalLevelLayout"
+            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+                <CheckBox
+                    android:id="@+id/saturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sat"
+                    android:textSize="13sp"
+                    android:padding="5dp"
+                    android:layout_margin="5dp"
+                    tools:ignore="HardcodedText" />
+                <CheckBox
+                    android:id="@+id/sunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText"
+                    android:textSize="13sp"
+                    android:padding="5dp"
+                    android:layout_margin="5dp"
+                    android:text="Sun"/>
+                <CheckBox
+                    android:id="@+id/monday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText"
+                    android:textSize="13sp"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Mon"/>
+                <CheckBox
+                    android:id="@+id/tuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:textSize="13sp"
+
+                    android:text="Tue"/>
+                <CheckBox
+                    android:id="@+id/wednesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:textSize="13sp"
+                    android:text="Wed"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+                <CheckBox
+                    android:id="@+id/thursday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText"
+                    android:textSize="13sp"
+                    android:padding="5dp"
+                    android:layout_margin="5dp"
+                    android:text="Thur"/>
+                <CheckBox
+                    android:id="@+id/friday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Fri"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/durationLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="27dp"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/educationalLevelLayout"
+            android:layout_below="@id/daysLayout"
             android:layout_marginTop="10dp">
             <TextView
                 android:layout_width="wrap_content"
@@ -302,14 +386,14 @@
 
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/postTeacherRequest"
+            android:id="@+id/updateTeacherRequestBtn"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/teachingMethodLayout"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="20dp"
-            android:text="Post"
+            android:text="Update"
             android:textAllCaps="false"
             android:textSize="16sp"
             android:layout_centerHorizontal="true"
