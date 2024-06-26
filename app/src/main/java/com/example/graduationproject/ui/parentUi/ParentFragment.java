@@ -31,6 +31,7 @@ import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
 import com.example.graduationproject.adapters.ParentPostedRequestsAdapter;
 import com.example.graduationproject.database.Database;
+import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
 import com.example.graduationproject.databinding.DialogParentPostedRequestCardBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
@@ -39,6 +40,7 @@ import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentPostRequestClickListener;
+import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
@@ -62,7 +64,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         ParentPostRequestClickListener,
         GetParentChildren,
         ParentInformationListener,
-        UpdateTeacherPostedRequestListener {
+        UpdateTeacherPostedRequestListener, ParentPostRequestDeleteListener {
 
     private String email,firstName,lastName,birthDate,gender,idNumber ;
     List<Address> parentAddress = new ArrayList<>() ;
@@ -75,6 +77,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private boolean btn1Clicked = true;
     private boolean btn2Clicked = false;
+    private int currentClickedPostedCardId = 0 ;
 
     private boolean isBroadcastReceiverRegistered = false;
     private Dialog updateParentPostedRequestDialog ;
@@ -96,6 +99,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private String amPmStart,amPmEnd;
     private String startTime ="12:00 PM", endTime="12:00 PM";
     private Dialog clickedCardDialog;
+    private Dialog deleteParentPostedTeacherMatchingDialog;
 
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
@@ -253,12 +257,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void setMyPostedRequestsAdapter(){
        // List<TeacherMatchModel> parentPostedRequestsList = new ArrayList<>();
-        parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList,getContext(),this);
         if(parentPostedRequestsList.isEmpty()){
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
         }
         else{
+            parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList,getContext(),this);
             binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
@@ -281,8 +285,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     }
 
     private void setMyReceivedRequestsAdapter(){
-
-
 
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
@@ -395,6 +397,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @Override
     public void onClick(TeacherMatchModel requestModel) {
+        Log.d("Parent request model id ---> "+requestModel.getMatchingId(),"Parent request model id ---> "+requestModel.getMatchingId());
+        currentClickedPostedCardId = requestModel.getMatchingId();
         binding.progressBarLayout.setVisibility(View.VISIBLE);
         binding.overlayView.setVisibility(View.VISIBLE);
         database.getParentInformation(email,this);
@@ -462,10 +466,37 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 database.getParentChildren(email,this);
             }
             else if(item.getItemId() == R.id.deleteCard){
-
+                showDeleteDialog();
             }
             return true;
         });
+    }
+
+    private void showDeleteDialog(){
+        if(getContext() != null){
+            ConfirmDeleteDialogLayoutBinding confirmDeleteDialogLayoutBinding = ConfirmDeleteDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            deleteParentPostedTeacherMatchingDialog = new Dialog(getContext());
+            deleteParentPostedTeacherMatchingDialog.setContentView(confirmDeleteDialogLayoutBinding.getRoot());
+            deleteParentPostedTeacherMatchingDialog.setCancelable(false);
+
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(deleteParentPostedTeacherMatchingDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = 600;
+            deleteParentPostedTeacherMatchingDialog.getWindow().setAttributes(layoutParams);
+            if(deleteParentPostedTeacherMatchingDialog.getWindow() != null)
+                deleteParentPostedTeacherMatchingDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            deleteParentPostedTeacherMatchingDialog.show();
+
+            confirmDeleteDialogLayoutBinding.deleteBtn.setOnClickListener(x->{
+               // deleteParentPostedTeacherMatchingDialog(teacherPostRequest);
+                database.deleteParentPostedRequest(currentClickedPostedCardId,this);
+            });
+
+            confirmDeleteDialogLayoutBinding.cancelBtn.setOnClickListener(c->{
+                deleteParentPostedTeacherMatchingDialog.dismiss();
+            });
+        }
     }
 
     private void showEditCardItemDialog(){
@@ -974,6 +1005,25 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"ERROR","An Error occurred please try again later ..");
+        }
+    }
+
+    @Override
+    public void onParentPostDeleted(int flag) {
+        if(flag == 1){
+            deleteParentPostedTeacherMatchingDialog.dismiss();
+            clickedCardDialog.dismiss();
+            database.getParentPostedMatchingInformation(email,this);
+
+        }
+        else if(flag == -2){
+
+        }
+        else if(flag == 0){
+
+        }
+        else {
+
         }
     }
 }

@@ -173,7 +173,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private void init(){
         initDatabase();
         initCoursesRecyclerView();
-        setMyCoursesAdapter();
+        btnMyPostedRequestsClicked();
         binding.myPostedRequestsBtn.setOnClickListener(x->{
             btnMyCoursesClicked();
             isShowAvailableJobsForTeacherClicked = false;
@@ -511,6 +511,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 if(!teacherMatchModelData.isEmpty()){
                     teacherMatchModelData.clear();
                 }
+                Toast.makeText(getContext(), teacherMatchingData.length()+"", Toast.LENGTH_SHORT).show();
                 for(int i=0;i<teacherMatchingData.length();i++){
                     JSONObject jsonObject = teacherMatchingData.getJSONObject(i);
                     int matchingId = jsonObject.getInt("matchingId");
@@ -531,6 +532,23 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                             choseDays,choseCourses,location,teachingMethod,
                             new Children(childName,childAge,childGender,childGrade),startTime,endTime);
                     teacherMatchModelData.add(teacherMatchModel);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 }
                 matchingTeacherAdapter.filteredList(teacherMatchModelData);
                 binding.refreshRecyclerView.setRefreshing(false);

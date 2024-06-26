@@ -26,6 +26,7 @@ import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
+import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
 import com.example.graduationproject.listeners.PostedTeacherRequestsListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TeacherAvailabilityListener;
@@ -909,6 +910,28 @@ public class Database {
             protected Map<String, String> getParams(){
                 Map<String,String> data = new HashMap<>();
                 data.put("postId",teacherPostRequest.getTeacherPostRequestId()+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void deleteParentPostedRequest(int parentPostedId,final ParentPostRequestDeleteListener parentPostRequestDeleteListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest=new StringRequest(Request.Method.POST,Constants.deleteParentPostedRequest,resp->{
+            if(resp.equalsIgnoreCase("Done"))
+                parentPostRequestDeleteListener.onParentPostDeleted(1);
+            else if(resp.equalsIgnoreCase("No Request"))
+                parentPostRequestDeleteListener.onParentPostDeleted(-2);
+            else
+                parentPostRequestDeleteListener.onParentPostDeleted(0);
+        },err->{
+            parentPostRequestDeleteListener.onParentPostDeleted(-1);
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("postId",parentPostedId+"");
                 return data;
             }
         };

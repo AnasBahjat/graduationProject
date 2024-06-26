@@ -267,7 +267,7 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:layout_below="@id/durationTextView"
-        android:layout_toEndOf="@id/locationTextViewTemp"
+        android:layout_toEndOf="@id/timeTextViewTemp"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
         android:layout_marginStart="7dp"
@@ -309,37 +309,8 @@
         android:layout_marginStart="7dp"
         android:layout_marginEnd="10dp"
         android:textColor="#1A8E9E"
-        />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/sendRequestBtn"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/usedColor"
-        android:textAllCaps="false"
-        android:text="Send Request"
-        android:textSize="16sp"
-        android:layout_below="@id/locationTextView"
-        android:layout_toStartOf="@id/sendMessageToParentBtn"
-        android:layout_marginEnd="15dp"
-        android:layout_marginTop="35dp"
         android:layout_marginBottom="20dp"
-        android:textColor="@color/black"/>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/sendMessageToParentBtn"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        android:layout_below="@id/locationTextView"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/usedColor"
-        android:text="Message Parent"
-        android:textAllCaps="false"
-        android:textSize="16sp"
-        android:layout_marginTop="35dp"
-        android:layout_marginEnd="5dp"
-        android:layout_alignParentEnd="true"/>
+        />
 
 
     <ImageView
