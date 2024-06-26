@@ -45,6 +45,7 @@ import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListene
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
+import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.TeacherMatchModel;
 
 import org.json.JSONArray;
@@ -108,20 +109,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         @Override
         public void onReceive(Context context, Intent intent) {
             if("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED".equals(intent.getAction())){
-                TeacherMatchModel tempTeacherModel ;
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-                     tempTeacherModel = intent.getParcelableExtra("addedTeacherRequest",TeacherMatchModel.class);
-                }
-                else {
-                    tempTeacherModel = intent.getParcelableExtra("addedTeacherRequest");
-                }
-                if(tempTeacherModel != null){
-                    List<TeacherMatchModel> tempList = new ArrayList<>();
-                    tempList.addAll(parentPostedRequestsList);
-                    tempList.add(tempTeacherModel);
-                    parentPostedRequestsList.add(tempTeacherModel);
-                    parentPostedRequests.filteredList(parentPostedRequestsList);
-                }
+                Toast.makeText(getContext(), "Broadcast received , update postd ...", Toast.LENGTH_SHORT).show();
+                database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
             else if("PARENT_POSTED_REQUESTS_ITEM_CLICKED".equals(intent.getAction())){
                 Toast.makeText(getContext(),"Parent posted requests item clicked ..",Toast.LENGTH_LONG).show();
@@ -231,12 +220,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             email = getArguments().getString("email");
             firstName = getArguments().getString("firstName");
             lastName = getArguments().getString("lastName");
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+           /* if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 parentPostedRequestsList = getArguments().getParcelableArrayList("parentRequestsData",TeacherMatchModel.class);
             }
             else {
                 parentPostedRequestsList = getArguments().getParcelableArrayList("parentRequestsData");
-            }
+            }*/
         }
         else {
             email="";
@@ -256,17 +245,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     }
 
     private void setMyPostedRequestsAdapter(){
-       // List<TeacherMatchModel> parentPostedRequestsList = new ArrayList<>();
-        if(parentPostedRequestsList.isEmpty()){
-            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-        }
-        else{
-            parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList,getContext(),this);
-            binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
-            binding.noPostedRequestTextView.setVisibility(View.GONE);
-            binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-        }
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
 
@@ -282,6 +260,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 return true;
             }
         });
+        database.getParentPostedMatchingInformation(email,this);
     }
 
     private void setMyReceivedRequestsAdapter(){
@@ -360,34 +339,66 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         else {
             try {
                 ArrayList<TeacherMatchModel> tempTeacherMatchModelList = new ArrayList<>();
-                for(int i=0;i<parentInformation.length();i++){
+                if(!phoneNumbersList.isEmpty())
+                    phoneNumbersList.clear();
+                if(!parentAddress.isEmpty())
+                    parentAddress.clear();
+                for(int i=parentInformation.length() - 1 ;i>=0;i--){
                         JSONObject jsonObject = parentInformation.getJSONObject(i);
-                        int matchingId = jsonObject.getInt("matchingId");
+                        firstName = jsonObject.getString("firstname");
+                        firstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
+                        lastName = jsonObject.getString("lastname");
+                        lastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
+                        int parentGender = jsonObject.getInt("parentGender");
+                        int parentId = jsonObject.getInt("parentId");
+                        String parentBirthDate = jsonObject.getString("birthDate");
+                        idNumber = jsonObject.getString("idNumber");
                         int childId = jsonObject.getInt("childId");
-                        String choseDays = jsonObject.getString("choseDays");
+                        String childName = jsonObject.getString("childName");
+                        int childAge = jsonObject.getInt("childAge");
+                        int childGender = jsonObject.getInt("childGender");
+                        int childGrade = jsonObject.getInt("childGrade");
+                        int matchingId = jsonObject.getInt("matchingId");
+                        String matchingChoseDays = jsonObject.getString("choseDays");
+                        Log.e("Post "+i+" courses -----> "+matchingChoseDays,"Post "+i+" courses -----> "+matchingChoseDays);
                         String courses = jsonObject.getString("courses");
+                        Log.e("Post "+i+" courses -----> "+courses,"Post "+i+" courses -----> "+courses);
                         String location = jsonObject.getString("location");
-                        String teachingMethod = jsonObject.getString("teachingMethod");
+                        String teachingMethod=jsonObject.getString("teachingMethod");
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
-                        String childName = jsonObject.getString("childName");
-                        String childAge = jsonObject.getString("childAge");
-                        String childGender = "Male";
-                        if(jsonObject.getString("childGender").equals("0"))
-                            childGender = "Female";
-                        int childGrade = jsonObject.getInt("childGrade");
-
-                        tempTeacherMatchModelList.add(new TeacherMatchModel(matchingId,email,
-                                new CustomChildData(childId,childName,childGrade),choseDays,courses,
-                                location,teachingMethod,
-                                new Children(childName,childAge,
-                                        Integer.parseInt(jsonObject.getString("childGender")),
-                                        childGrade),startTime,endTime));
+                        if(i==parentInformation.length() - 1){
+                            String phoneNumbers = jsonObject.getString("phoneNumbers");
+                            if(phoneNumbers.contains(",")){
+                                String [] splitPhoneNumbers = phoneNumbers.split(",");
+                                for(String str : splitPhoneNumbers){
+                                    phoneNumbersList.add(str.trim());
+                                }
+                            }
+                            else
+                                phoneNumbersList.add(phoneNumbers.trim());
+                            String addresses = jsonObject.getString("addresses");
+                            if(addresses.contains("|")){
+                                String[] splitAddresses = addresses.split("\\|");
+                                for (String splitAddress : splitAddresses) {
+                                    String[] currentAddress = splitAddress.split(",");
+                                    parentAddress.add(new Address(currentAddress[0], currentAddress[1]));
+                                }
+                            }
+                            else{
+                                String [] splitAddress = addresses.split(",");
+                                parentAddress.add(new Address(splitAddress[0],splitAddress[1]));
+                            }
                     }
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(tempTeacherMatchModelList);
-                binding.refreshRecyclerView.setRefreshing(false);
+
+                        tempTeacherMatchModelList.add(new TeacherMatchModel(matchingId,new CustomChildData(childId,childName,childGrade,childGender),
+                                matchingChoseDays,courses,location,
+                                teachingMethod,startTime,endTime,new Parent(email,idNumber,firstName,lastName,parentBirthDate,parentId,parentAddress,phoneNumbersList)));
+
+                }
+                parentPostedRequestsList = tempTeacherMatchModelList;
+                Log.d("0000000000000000000000","000000000000000000000000");
+                updateParentPostedRequests();
             }
             catch(Exception ignored){
 
@@ -395,15 +406,39 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
     }
 
+    private void updateParentPostedRequests(){
+        if(parentPostedRequestsList.isEmpty()){
+            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+            Log.d("11111111111111111","11111111111111111");
+        }
+        else{
+            parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList,getContext(),this);
+            binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+            Log.d("22222222222222222222222","22222222222222222222222");
+
+            // parentPostedRequests.filteredList(tempTeacherMatchModelList);
+        }
+        binding.refreshRecyclerView.setRefreshing(false);
+    }
+
     @Override
     public void onClick(TeacherMatchModel requestModel) {
-        Log.d("Parent request model id ---> "+requestModel.getMatchingId(),"Parent request model id ---> "+requestModel.getMatchingId());
         currentClickedPostedCardId = requestModel.getMatchingId();
         binding.progressBarLayout.setVisibility(View.VISIBLE);
         binding.overlayView.setVisibility(View.VISIBLE);
-        database.getParentInformation(email,this);
+       // database.getParentInformation(email,this);
         this.requestModel = requestModel;
-        //showClickedCardDialog(requestModel);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                binding.progressBarLayout.setVisibility(View.GONE);
+                binding.overlayView.setVisibility(View.GONE);
+                showClickedCardDialog();
+            }
+        },1500);
     }
 
     private void showClickedCardDialog(){
@@ -427,6 +462,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             String parentLastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
             dialogParentPostedRequestCardBinding.parentNameTextView.setText(parentFirstName+" "+parentLastName);
             StringBuilder phoneNumbersStr = new StringBuilder();
+            Log.d("isPhoneNumersList empty ? --> "+phoneNumbersList.isEmpty(),"isPhoneNumersList empty ? --> "+phoneNumbersList.isEmpty());
             if(phoneNumbersList.size() > 1){
                 for(int i=0;i<phoneNumbersList.size();i++){
                     if( i + 1 != phoneNumbersList.size())
@@ -437,6 +473,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             }
             else
                 phoneNumbersStr.append(phoneNumbersList.get(0));
+
             dialogParentPostedRequestCardBinding.parentPhoneNumberTextView.setText(phoneNumbersStr.toString());
             dialogParentPostedRequestCardBinding.parentEmailTextView.setText(email);
             dialogParentPostedRequestCardBinding.coursesTextView.setText(requestModel.getCourses());
@@ -628,7 +665,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                             ,selectedDays.toString(),courses.toString(),
                             city,
                             teachingMethodStr,startTime,endTime);
-                    database.updatePostedTeacherRequest(email,tmm,this);
+                    database.updateParentPostedRequest(email,tmm,this);
                 }
             }
         }
@@ -992,7 +1029,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             postTeacherRequestPopupWindowBinding.progressBarLayout.setVisibility(View.VISIBLE);
             this.requestModel = tmm ;
             clickedCardDialog.dismiss();
-            database.getParentInformation(email,this);
+          //  database.getParentInformation(email,this);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -1010,11 +1047,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @Override
     public void onParentPostDeleted(int flag) {
-        if(flag == 1){
+        Toast.makeText(getContext(),""+flag,Toast.LENGTH_LONG).show();
+        if(flag == 3){
             deleteParentPostedTeacherMatchingDialog.dismiss();
             clickedCardDialog.dismiss();
             database.getParentPostedMatchingInformation(email,this);
-
         }
         else if(flag == -2){
 

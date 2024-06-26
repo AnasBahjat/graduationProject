@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -168,7 +169,8 @@ public class ParentActivity extends AppCompatActivity implements
         initBroadcastReceiver();
 
         if(doneInformation.equals("1")){
-            database.getParentPostedMatchingInformation(email,ParentActivity.this);
+           // database.getParentPostedMatchingInformation(email,ParentActivity.this);
+            loadParentFragment(null);
         }
         database.getLastMatchingId(this);
         parentBinding.notificationImage.setOnClickListener(asd -> {
@@ -244,8 +246,8 @@ public class ParentActivity extends AppCompatActivity implements
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
-                    database.getParentPostedMatchingInformation(email,ParentActivity.this);
-                    //loadFragment(new ParentFragment());
+                  //  database.getParentPostedMatchingInformation(email,ParentActivity.this);
+                    loadFragment(null);
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
                     loadFragment(new ParentProfileFragment());
@@ -343,7 +345,8 @@ public class ParentActivity extends AppCompatActivity implements
                 parentInformationPopupWindowBinding.flexboxLayout.getChildCount() > 0) {
             Parent parent = new Parent(email,id,phone,childrenList,city,country);
             database.confirmParentInformation(parent,this);
-            database.getParentPostedMatchingInformation(email,ParentActivity.this);
+            loadParentFragment(null);
+        //    database.getParentPostedMatchingInformation(email,ParentActivity.this);
         }
 
     }
@@ -654,7 +657,10 @@ public class ParentActivity extends AppCompatActivity implements
         });
 
 
-        setStartAndEndTime();
+       // setStartAndEndTime();
+
+        startTimePickerEditText.setText(startTime);
+        endTimePickerEditText.setText(endTime);
         startTimePickerEditText.setOnClickListener(c->{
             Calendar calendar = Calendar.getInstance();
             int hours = calendar.get(Calendar.HOUR_OF_DAY);
@@ -727,18 +733,15 @@ public class ParentActivity extends AppCompatActivity implements
         int hours = calendar.get(Calendar.HOUR_OF_DAY);
         int mins = calendar.get(Calendar.MINUTE);
 
-
          SimpleDateFormat amPmFormatStart = new SimpleDateFormat("a");
         amPmStart = amPmFormatStart.format(calendar.getTime());
         SimpleDateFormat formatStart = new SimpleDateFormat("h:mm a");
         startTime = formatStart.format(calendar.getTime());
 
-
         SimpleDateFormat amPmFormatEnd = new SimpleDateFormat("a");
         amPmEnd = amPmFormatEnd.format(calendar.getTime());
         SimpleDateFormat formatEnd = new SimpleDateFormat("h:mm a");
         endTime = formatEnd.format(calendar.getTime());
-
     }
 
 
@@ -789,7 +792,7 @@ public class ParentActivity extends AppCompatActivity implements
                 else {
                     if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
                         StringBuilder courses= new StringBuilder();
-                        for(int i=0 ; i <coursesListForMatchingTeacher.size() ; i++){
+                        for(int i=0 ; i < coursesListForMatchingTeacher.size() ; i++){
                             if(i + 1 != coursesListForMatchingTeacher.size()){
                                 courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
                             }
@@ -797,6 +800,8 @@ public class ParentActivity extends AppCompatActivity implements
                                 courses.append(coursesListForMatchingTeacher.get(i));
                             }
                         }
+
+                        Log.d("Added courses is ------------> "+courses,"Added courses is ------------> "+courses);
                         TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
                                 ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime);
 
@@ -810,9 +815,9 @@ public class ParentActivity extends AppCompatActivity implements
                                         Integer.parseInt(selectedChildGrade.trim())),startTime,endTime);
                         Intent intent = new Intent();
                         intent.setAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
-                        intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
-                        sendBroadcast(intent);
-                        database.addNewTeacherMatching(email,teacherMatchModel,this);
+                       // intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
+                       database.addNewTeacherMatching(email,teacherMatchModel,this);
+                       sendBroadcast(intent);
                     }
                 }
             }
@@ -1078,7 +1083,7 @@ public class ParentActivity extends AppCompatActivity implements
 
     private void loadParentFragment(ArrayList<TeacherMatchModel> tempTeacherMatchModelList){
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("parentRequestsData",tempTeacherMatchModelList);
+       // bundle.putParcelableArrayList("parentRequestsData",tempTeacherMatchModelList);
         bundle.putString("email",email);
         bundle.putString("firstName",firstName);
         bundle.putString("lastName",lastName);

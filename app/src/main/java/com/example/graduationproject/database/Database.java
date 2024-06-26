@@ -14,7 +14,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.graduationproject.R;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.AddNewChildListener;
@@ -678,19 +677,9 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void updatePostedTeacherRequest(String email,TeacherMatchModel teacherMatchModel,final UpdateTeacherPostedRequestListener updateTeacherPostedRequest){
+    public void updateParentPostedRequest(String email, TeacherMatchModel teacherMatchModel, final UpdateTeacherPostedRequestListener updateTeacherPostedRequest){
         requestQueue = Volley.newRequestQueue(context);
-        Log.d("matching id --->"+teacherMatchModel.getMatchingId(),"matching id --->"+teacherMatchModel.getMatchingId());
-        Log.d("Child ID --> "+teacherMatchModel.getCustomChildData().getChildId(),"Child ID --> "+teacherMatchModel.getCustomChildData().getChildId());
-        Log.d("Child NAME --> "+teacherMatchModel.getCustomChildData().getChildName(),"Child NAME --> "+teacherMatchModel.getCustomChildData().getChildName());
-        Log.d("Child GRADE --> "+teacherMatchModel.getCustomChildData().getChildGrade(),"Child ID --> "+teacherMatchModel.getCustomChildData().getChildGrade());
-        Log.d("Child selected days --> "+teacherMatchModel.getChoseDays(),"Child days --> "+teacherMatchModel.getChoseDays());
-        Log.d("Child selected city --> "+teacherMatchModel.getLocation(),"Child city --> "+teacherMatchModel.getLocation());
-        Log.d("Child selected method --> "+teacherMatchModel.getTeachingMethod(),"Child method --> "+teacherMatchModel.getTeachingMethod());
-        Log.d("Child selected method --> "+teacherMatchModel.getStartTime(),"Child method --> "+teacherMatchModel.getStartTime());
-        Log.d("Child selected method --> "+teacherMatchModel.getEndTime(),"Child method --> "+teacherMatchModel.getEndTime());
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.updatePostedTeacherRequest,res->{
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.updateParentPostedRequest, res->{
             Toast.makeText(context,"The res is -->"+res,Toast.LENGTH_LONG).show();
             if(res.equalsIgnoreCase("no data"))
                 updateTeacherPostedRequest.onDataUpdate(-2);
@@ -890,7 +879,7 @@ public class Database {
 
     public void deleteTeacherPostedRequest(TeacherPostRequest teacherPostRequest,final DeletePostedRequestListener deletePostedRequestListener){
         requestQueue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.deletePostRequest,resp->{
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.deleteTeacherPostedRequest, resp->{
             if(resp.equalsIgnoreCase("Deleted")){
                 deletePostedRequestListener.onPostedRequestDeleted(1);
             }
@@ -919,11 +908,12 @@ public class Database {
     public void deleteParentPostedRequest(int parentPostedId,final ParentPostRequestDeleteListener parentPostRequestDeleteListener){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest=new StringRequest(Request.Method.POST,Constants.deleteParentPostedRequest,resp->{
-            if(resp.equalsIgnoreCase("Done"))
-                parentPostRequestDeleteListener.onParentPostDeleted(1);
-            else if(resp.equalsIgnoreCase("No Request"))
+            Toast.makeText(context, resp, Toast.LENGTH_SHORT).show();
+            if(resp.trim().equalsIgnoreCase("Done"))
+                parentPostRequestDeleteListener.onParentPostDeleted(3);
+            else if(resp.trim().equalsIgnoreCase("No Request"))
                 parentPostRequestDeleteListener.onParentPostDeleted(-2);
-            else
+            else if(resp.trim().equalsIgnoreCase("Error"))
                 parentPostRequestDeleteListener.onParentPostDeleted(0);
         },err->{
             parentPostRequestDeleteListener.onParentPostDeleted(-1);

@@ -19,8 +19,8 @@ public class TeacherMatchModel implements Parcelable, Serializable {
     private String teachingMethod ;
     private String startTime ;
     private String endTime ;
-
     private Children children ;
+    private Parent parent ;
 
 
     public TeacherMatchModel(int matchingId, String parentEmail,
@@ -61,6 +61,21 @@ public class TeacherMatchModel implements Parcelable, Serializable {
         this.endTime=endTime;
     }
 
+    public TeacherMatchModel(int matchingId,CustomChildData customChildData,
+                             String choseDays, String courses, String location,
+                             String teachingMethod,String startTime,
+                             String endTime,Parent parent) {
+        this.matchingId=matchingId;
+        this.customChildData = customChildData;
+        this.choseDays = choseDays;
+        this.courses = courses;
+        this.location = location;
+        this.teachingMethod = teachingMethod;
+        this.startTime=startTime;
+        this.endTime=endTime;
+        this.parent=parent;
+    }
+
 
 
     protected TeacherMatchModel(Parcel in) {
@@ -74,6 +89,7 @@ public class TeacherMatchModel implements Parcelable, Serializable {
         children = in.readParcelable(Children.class.getClassLoader());
         startTime = in.readString();
         endTime = in.readString();
+        parent=in.readParcelable(Parent.class.getClassLoader());
     }
 
     public static final Creator<TeacherMatchModel> CREATOR = new Creator<TeacherMatchModel>() {
@@ -87,6 +103,22 @@ public class TeacherMatchModel implements Parcelable, Serializable {
             return new TeacherMatchModel[size];
         }
     };
+
+    public int getChildId() {
+        return childId;
+    }
+
+    public void setChildId(int childId) {
+        this.childId = childId;
+    }
+
+    public Parent getParent() {
+        return parent;
+    }
+
+    public void setParent(Parent parent) {
+        this.parent = parent;
+    }
 
     public Children getChildren() {
         return children;

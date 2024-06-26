@@ -678,7 +678,7 @@ public class TeacherActivity extends AppCompatActivity implements
         }
         else if(selectedId == R.id.availWeekend){
             availabilityStr = "Weekend";
-            staticAvailability = "Thurs , Fri";
+            staticAvailability = "Thur , Fri";
         }
         else if(selectedId == R.id.availSpecificDays){
             checkedDays = getCheckedDays(teacherInformationPopupWindowBinding);

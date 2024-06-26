@@ -2,7 +2,7 @@ package com.example.graduationproject.utils;
 
 
 public class Constants {
-    public static String ip = "172.20.10.2";
+    public static String ip = "192.168.1.11";
     public static String registrationURL = "http://"+ip+"/graduationProject/registration.php/";
     public static String loginURL = "http://"+ip+"/graduationProject/login.php";
     public static String checkAccountDoneURL = "http://"+ip+"/graduationProject/checkAccountDone.php";
@@ -19,13 +19,13 @@ public class Constants {
     public static String getTeacherMatchingData ="http://"+ip+"/graduationProject/getTeacherMatchingData.php";
     public static String  getParentInformation ="http://"+ip+"/graduationProject/getParentInformation.php";
     public static String  getParentPostedMatchingInformation ="http://"+ip+"/graduationProject/getSpecificParentMatchingData.php";
-    public static String  updatePostedTeacherRequest ="http://"+ip+"/graduationProject/updateParentPostedRequest.php";
+    public static String updateParentPostedRequest ="http://"+ip+"/graduationProject/updateParentPostedRequest.php";
     public static String  getLastMatchingIdValue ="http://"+ip+"/graduationProject/getLastTeacherMatchingId.php";
     public static String  insertTeacherPostRequest ="http://"+ip+"/graduationProject/insertTeacherPostRequest.php";
     public static String  getLastTeacherPostId ="http://"+ip+"/graduationProject/getLastTeacherPostId.php";
     public static String  getTeacherPostedRequests ="http://"+ip+"/graduationProject/getTeacherPostedRequests.php";
     public static String  getTeacherAvailability ="http://"+ip+"/graduationProject/getTeacherAvailability.php";
     public static String  updateTeacherPostedRequest ="http://"+ip+"/graduationProject/updateTeacherPostedRequest.php";
-    public static String  deletePostRequest ="http://"+ip+"/graduationProject/deletePostRequest.php";
+    public static String deleteTeacherPostedRequest ="http://"+ip+"/graduationProject/deleteTeacherPostedRequest.php";
     public static String  deleteParentPostedRequest ="http://"+ip+"/graduationProject/deleteParentPostedRequest.php";
 }

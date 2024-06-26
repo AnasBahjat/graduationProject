@@ -60,11 +60,18 @@ public class ParentPostedRequestsAdapter extends RecyclerView.Adapter<ParentPost
             this.listener = listener;
         }
         public void bind(TeacherMatchModel requestModel){
-            binding.childNameTextView.setText(requestModel.getChildren().getChildName());
+
+            binding.childNameTextView.setText(requestModel.getCustomChildData().getChildName());
             binding.coursesTextView.setText(requestModel.getCourses());
             binding.locationTextView.setText(requestModel.getLocation());
             binding.teachingMethodTextView.setText(requestModel.getTeachingMethod());
             binding.timeTextView.setText(requestModel.getStartTime()+" - "+requestModel.getEndTime());
+
+           /* binding.childNameTextView.setText(requestModel.getChildren().getChildName());
+            binding.coursesTextView.setText(requestModel.getCourses());
+            binding.locationTextView.setText(requestModel.getLocation());
+            binding.teachingMethodTextView.setText(requestModel.getTeachingMethod());
+            binding.timeTextView.setText(requestModel.getStartTime()+" - "+requestModel.getEndTime());*/
 
             binding.matchTeacherCardView.setOnClickListener(x->{
                 listener.onClick(requestModel);
