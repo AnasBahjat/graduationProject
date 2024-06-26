@@ -597,7 +597,7 @@ public class Database {
 
     public void getTeacherMatchingData(String email,final AddTeacherMatchingListener addTeacherMatchingListener){
         RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getTeacherMatchingData,res->{
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentPostedTeacherMatchingData, res->{
             if(res.equalsIgnoreCase("Error"))
                 addTeacherMatchingListener.getTeacherMatchingData(0,null);
             else if(res.equalsIgnoreCase("Connection Error"))

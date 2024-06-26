@@ -189,7 +189,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             else if(btn1Clicked && !btn2Clicked){
                 sendRefreshBroadcast(1);
             }
-            else {
+            else if(!btn1Clicked && btn2Clicked){
                 sendRefreshBroadcast(2);
             }
         });
@@ -243,6 +243,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
             binding.noDataAddedText.setVisibility(View.GONE);
             binding.refreshRecyclerView.setEnabled(true);
+            binding.refreshRecyclerView.setRefreshing(false);
             binding.addedCoursesRecyclerView.setAdapter(teacherPostedRequestsAdapter);
         }
     }
@@ -426,7 +427,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private void sendRefreshBroadcast(int flag){
         if(flag == 1){
-            database.getTeacherMatchingData(email,this);
+           // database.getTeacherMatchingData(email,this);
+        }
+        else if(flag == 2){
+            database.getTeacherPostedRequests(email,this);
         }
         else {
             database.getTeacherMatchingData(email,this);
@@ -532,24 +536,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                             choseDays,choseCourses,location,teachingMethod,
                             new Children(childName,childAge,childGender,childGrade),startTime,endTime);
                     teacherMatchModelData.add(teacherMatchModel);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 }
+
                 matchingTeacherAdapter.filteredList(teacherMatchModelData);
                 binding.refreshRecyclerView.setRefreshing(false);
             }
@@ -557,6 +545,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void updateParentPostedRequestsForTeacher(){
+
     }
 
 
@@ -599,15 +591,29 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         String duration = jsonObject.getString("duration");
                         String location = jsonObject.getString("location");
                         String teachingMethod = jsonObject.getString("teachingMethod");
-                        String[] phoneNumbers = jsonObject.getString("phoneNumbers").split(",");
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
-                        teacherPhoneNumbersList.addAll(Arrays.asList(phoneNumbers));
-                        String address = jsonObject.getString("addresses");
-                        String[] addresses = address.split("\\|");
-                        for(String add : addresses){
-                            String[] splitAddress = add.split(",");
-                            teacherAddressesList.add(new Address(splitAddress[0],splitAddress[1]));
+                        if(i==data.length() - 1){
+                            String phoneNumbers = jsonObject.getString("phoneNumbers");
+                            if(phoneNumbers.contains(",")){
+                                String[] splitPhoneNumbers = phoneNumbers.split(",");
+                                teacherPhoneNumbersList.addAll(Arrays.asList(splitPhoneNumbers));
+                            }
+                            else
+                                teacherPhoneNumbersList.add(phoneNumbers.trim());
+
+                            String address = jsonObject.getString("addresses");
+                            if(address.contains("|")){
+                                String [] splitAddress = address.split("\\|");
+                                for(String str : splitAddress){
+                                    String[] splitCurrentAddress = str.split(",");
+                                    teacherAddressesList.add(new Address(splitCurrentAddress[0].trim(),splitCurrentAddress[1].trim()));
+                                }
+                            }
+                            else{
+                                String[] splitCurrentAddress = address.split(",");
+                                teacherAddressesList.add(new Address(splitCurrentAddress[0].trim(),splitCurrentAddress[1].trim()));
+                            }
                         }
                         //teacherPostedRequestsList.add(new TeacherPostRequest(postId,teacherEmail,courses,educationLevel,duration,location,teachingMethod));
                         teacherPostedRequestsList.add(new TeacherPostRequest(postId,email,courses,educationLevel,duration,availability,location,
@@ -616,6 +622,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                                 teacherAddressesList,teacherPhoneNumbersList,firstName+" "+lastname),startTime,endTime));
                     }
                     updatePostedAdapterData();
+                    binding.refreshRecyclerView.setRefreshing(false);
                 }
                 catch (JSONException e){
                     throw new RuntimeException(e);
