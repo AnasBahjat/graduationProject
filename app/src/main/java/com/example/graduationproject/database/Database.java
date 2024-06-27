@@ -22,6 +22,7 @@ import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
+import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
@@ -153,7 +154,6 @@ public class Database {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(context,t.toString(),Toast.LENGTH_LONG).show();
                 successFlag=-1;
             }
         });
@@ -680,7 +680,6 @@ public class Database {
     public void updateParentPostedRequest(String email, TeacherMatchModel teacherMatchModel, final UpdateTeacherPostedRequestListener updateTeacherPostedRequest){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.updateParentPostedRequest, res->{
-            Toast.makeText(context,"The res is -->"+res,Toast.LENGTH_LONG).show();
             if(res.equalsIgnoreCase("no data"))
                 updateTeacherPostedRequest.onDataUpdate(-2);
             else if(res.equalsIgnoreCase("Error"))
@@ -908,7 +907,6 @@ public class Database {
     public void deleteParentPostedRequest(int parentPostedId,final ParentPostRequestDeleteListener parentPostRequestDeleteListener){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest=new StringRequest(Request.Method.POST,Constants.deleteParentPostedRequest,resp->{
-            Toast.makeText(context, resp, Toast.LENGTH_SHORT).show();
             if(resp.trim().equalsIgnoreCase("Done"))
                 parentPostRequestDeleteListener.onParentPostDeleted(3);
             else if(resp.trim().equalsIgnoreCase("No Request"))
@@ -928,4 +926,33 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
+    public void getAllTeacherPostedRequestsForParent(final OnAllTeacherPostedRequestsForParentListener onAllTeacherPostedRequestsForParentListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,Constants.getAllTeacherPostedRequests,resp->{
+            try {
+                if (resp.trim().equalsIgnoreCase("No Requests")) {
+                    onAllTeacherPostedRequestsForParentListener.onAllTeacherPostedRequestsForParentFetched(0, null);
+
+                } else if (resp.trim().equalsIgnoreCase("Error")) {
+                    onAllTeacherPostedRequestsForParentListener.onAllTeacherPostedRequestsForParentFetched(-1, null);
+
+                } else if (resp.trim().equalsIgnoreCase("Connection Error")) {
+                    onAllTeacherPostedRequestsForParentListener.onAllTeacherPostedRequestsForParentFetched(-2, null);
+                } else {
+                    onAllTeacherPostedRequestsForParentListener.onAllTeacherPostedRequestsForParentFetched(1, new JSONArray(resp));
+                }
+            }
+            catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        },err->{
+            try{
+                onAllTeacherPostedRequestsForParentListener.onAllTeacherPostedRequestsForParentFetched(-2,null);
+            }
+            catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        requestQueue.add(stringRequest);
+    }
 }

@@ -28,4 +28,5 @@ public class Constants {
     public static String  updateTeacherPostedRequest ="http://"+ip+"/graduationProject/updateTeacherPostedRequest.php";
     public static String deleteTeacherPostedRequest ="http://"+ip+"/graduationProject/deleteTeacherPostedRequest.php";
     public static String  deleteParentPostedRequest ="http://"+ip+"/graduationProject/deleteParentPostedRequest.php";
+    public static String  getAllTeacherPostedRequests ="http://"+ip+"/graduationProject/getAllTeacherPostedRequestsForParent.php";
 }

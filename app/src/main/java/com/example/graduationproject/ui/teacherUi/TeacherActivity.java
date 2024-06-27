@@ -1120,7 +1120,7 @@ public class TeacherActivity extends AppCompatActivity implements
         dialog.show();
 
         dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x->{
-            Toast.makeText(this,"123123",Toast.LENGTH_SHORT).show();
+
         });
 
         dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z->{

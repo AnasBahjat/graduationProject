@@ -20,6 +20,8 @@ public class Teacher implements Parcelable {
     private String phoneNumber ;
     private List<Address> addressesList ;
     private List<String> phoneNumbersList ;
+    private int gender ;
+    private String birthDate ;
 
     private String teacherName;
     public Teacher(String email,String idNumber,
@@ -62,7 +64,7 @@ public class Teacher implements Parcelable {
 
     public Teacher(String email,String idNumber,
                    String studentOrGraduate,String expectedGraduationYear,
-                   String college,String field,
+                   String college,String field,int gender,
                    String availability,
                    String educationalLevel,List<Address> addressesList,List<String> phoneNumbersList,String teacherName){
 
@@ -72,12 +74,36 @@ public class Teacher implements Parcelable {
         this.expectedGraduationYear=expectedGraduationYear;
         this.college=college;
         this.field=field;
+        this.gender=gender;
         this.availability=availability;
         this.educationalLevel = educationalLevel;
         this.addressesList=addressesList;
         this.phoneNumbersList=phoneNumbersList;
         this.teacherName = teacherName;
     }
+
+    public Teacher(String email,String idNumber,
+                   String studentOrGraduate,String expectedGraduationYear,
+                   String college,String field,int gender,String birthDate,
+                   String availability,
+                   String educationalLevel,List<Address> addressesList,List<String> phoneNumbersList,String teacherName){
+
+        this.email=email;
+        this.idNumber=idNumber;
+        this.studentOrGraduate=studentOrGraduate;
+        this.expectedGraduationYear=expectedGraduationYear;
+        this.college=college;
+        this.field=field;
+        this.gender=gender;
+        this.birthDate=birthDate;
+        this.availability=availability;
+        this.educationalLevel = educationalLevel;
+        this.addressesList=addressesList;
+        this.phoneNumbersList=phoneNumbersList;
+        this.teacherName = teacherName;
+    }
+
+
 
 
     protected Teacher(Parcel in) {
@@ -94,6 +120,24 @@ public class Teacher implements Parcelable {
         addressesList = in.createTypedArrayList(Address.CREATOR);
         phoneNumbersList = in.createStringArrayList();
         teacherName = in.readString();
+        gender =in.readInt();
+        birthDate=in.readString();
+    }
+
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
     }
 
     public static final Creator<Teacher> CREATOR = new Creator<Teacher>() {
@@ -230,6 +274,8 @@ public class Teacher implements Parcelable {
         dest.writeString(phoneNumber);
         dest.writeList(addressesList);
         dest.writeList(phoneNumbersList);
+        dest.writeInt(gender);
+        dest.writeString(birthDate);
     }
 
 }

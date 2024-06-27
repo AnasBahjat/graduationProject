@@ -234,7 +234,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private void updatePostedAdapterData(){
         if(teacherPostedRequestsList.isEmpty()){
             binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-            binding.noDataAddedText.setVisibility(View.VISIBLE);
+            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+            binding.noDataAddedText.setVisibility(View.GONE);
             binding.refreshRecyclerView.setEnabled(false);
         }
         else {
@@ -242,6 +243,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             teacherPostedRequestsAdapter = new TeacherPostedRequestsAdapter(teacherPostedRequestsList,getContext(),this);
             binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
             binding.noDataAddedText.setVisibility(View.GONE);
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.refreshRecyclerView.setEnabled(true);
             binding.refreshRecyclerView.setRefreshing(false);
             binding.addedCoursesRecyclerView.setAdapter(teacherPostedRequestsAdapter);
@@ -515,7 +517,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 if(!teacherMatchModelData.isEmpty()){
                     teacherMatchModelData.clear();
                 }
-                Toast.makeText(getContext(), teacherMatchingData.length()+"", Toast.LENGTH_SHORT).show();
                 for(int i=0;i<teacherMatchingData.length();i++){
                     JSONObject jsonObject = teacherMatchingData.getJSONObject(i);
                     int matchingId = jsonObject.getInt("matchingId");
@@ -531,7 +532,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     int childGrade = jsonObject.getInt("childGrade");
                     String startTime = jsonObject.getString("startTime");
                     String endTime = jsonObject.getString("endTime");
-                    Log.d("Child name --------> "+childName,"Child name --------> "+childName);
                     TeacherMatchModel teacherMatchModel=new TeacherMatchModel(matchingId,parentEmail,new CustomChildData(childId,childName,childGrade),
                             choseDays,choseCourses,location,teachingMethod,
                             new Children(childName,childAge,childGender,childGrade),startTime,endTime);
@@ -618,7 +618,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         //teacherPostedRequestsList.add(new TeacherPostRequest(postId,teacherEmail,courses,educationLevel,duration,location,teachingMethod));
                         teacherPostedRequestsList.add(new TeacherPostRequest(postId,email,courses,educationLevel,duration,availability,location,
                                 teachingMethod,new Teacher(email,idNumber,studentOrGraduate+"",
-                                expectedGraduationYear,college,field,availability,educationLevel,
+                                expectedGraduationYear,college,field,gender,availability,educationLevel,
                                 teacherAddressesList,teacherPhoneNumbersList,firstName+" "+lastname),startTime,endTime));
                     }
                     updatePostedAdapterData();
@@ -755,7 +755,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             setEducationLevelSpinner(teacherPostRequest);
             setSelectedDays(teacherPostRequest);
             updatePostedTeacherLookForAJobLayoutBinding.numberOfMonthsEdtText.setText(teacherPostRequest.getDuration());
-            Toast.makeText(getContext(),teacherPostRequest.getEndTime(),Toast.LENGTH_LONG).show();
 
             updatePostedTeacherLookForAJobLayoutBinding.startTimeEdtText.setText(teacherPostRequest.getStartTime());
             updatePostedTeacherLookForAJobLayoutBinding.endTimeEdtText.setText(teacherPostRequest.getEndTime());
@@ -838,6 +837,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         TeacherPostRequest tpr = new TeacherPostRequest(teacherPostRequest.getTeacherPostRequestId(),
                                 teacherPostRequest.getTeacherEmail(),updatedCourses.toString(),updatedEducationLevel,
                                 updatedNumOfMonths,updatedDays.toString(),updatedLocation,updatedTeachingMethod,startTime,endTime);
+                        binding.progressBarLayout.setVisibility(View.VISIBLE);
                         database.updateTeacherPostedRequest(tpr,this);
                     }
                 }
@@ -1051,13 +1051,14 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
         }
         else if(flag == 1){
-            binding.progressBarLayout.setVisibility(View.VISIBLE);
             database.getTeacherPostedRequests(email,this);
+            Log.d("Showing the progress bar ..","Showing the progress bar ..");
+            updatePostedRequestDialog.dismiss();
+            teacherPostedRequestCardDialog.dismiss();
             new Handler().postDelayed(() -> {
                 binding.progressBarLayout.setVisibility(View.GONE);
-                updatePostedRequestDialog.dismiss();
-                teacherPostedRequestCardDialog.dismiss();
-            },3000);
+                Log.d("hiding the progress bar ..","hiding the progress bar ..");
+            },1500);
         }
         else {
 
@@ -1068,7 +1069,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     public void onPostedRequestDeleted(int flag) {
         if(flag == 1){
             database.getTeacherPostedRequests(email,this);
-            Toast.makeText(getContext(),"Post Removed",Toast.LENGTH_LONG).show();
             deleteRequestConfirmationDialog.dismiss();
             teacherPostedRequestCardDialog.dismiss();
         }

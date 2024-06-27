@@ -113,7 +113,20 @@
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_centerInParent="true"
         android:layout_marginTop="330dp"
-        android:text="No Data Added"
+        android:text="You Don't Have Any Courses"
+        android:textColor="#7E7A7A"
+        android:textSize="20sp"
+        android:visibility="gone"/>
+
+
+    <TextView
+        android:id="@+id/noPostedRequestTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"
+        android:text="You did not post any Request"
         android:textColor="#7E7A7A"
         android:textSize="20sp"
         android:visibility="gone"/>
@@ -173,7 +186,8 @@
             android:indeterminateTint="#4EB2BF"
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="15dp" />
+            android:layout_marginTop="15dp"
+            android:indeterminate="true"/>
 
         <TextView
             android:layout_width="wrap_content"

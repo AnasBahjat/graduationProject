@@ -310,19 +310,149 @@
         android:layout_marginStart="7dp"
         android:layout_marginEnd="10dp"
         android:textColor="#1A8E9E"
-        android:layout_marginBottom="70dp"
+        />
+
+    <ImageView
+        android:id="@+id/collegeImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/college_icon"
+        android:layout_below="@id/locationTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/collegeTextViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teacher Field : "
+        android:textSize="16sp"
+        android:layout_below="@id/locationTextView"
+        android:layout_toEndOf="@id/collegeImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        />
+
+    <TextView
+        android:id="@+id/collegeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@id/locationTextView"
+        android:layout_toEndOf="@id/collegeTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"
+        />
+
+    <ImageView
+        android:id="@+id/teacherGenderImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/gender_icon"
+        android:layout_below="@id/collegeTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/teacherGenderTextViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teacher Gender : "
+        android:textSize="16sp"
+        android:layout_below="@id/collegeTextView"
+        android:layout_toEndOf="@id/teacherGenderImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        />
+
+    <TextView
+        android:id="@+id/teacherGenderTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@id/collegeTextView"
+        android:layout_toEndOf="@id/teacherGenderTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"
+        />
+
+    <ImageView
+        android:id="@+id/teacherAgeImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/teacher_age_icon"
+        android:layout_below="@id/teacherGenderTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/teacherAgeTextViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teacher Age : "
+        android:textSize="16sp"
+        android:layout_below="@id/teacherGenderTextView"
+        android:layout_toEndOf="@id/teacherAgeImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        />
+
+    <TextView
+        android:id="@+id/teacherAgeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@id/teacherGenderTextView"
+        android:layout_toEndOf="@id/teacherAgeTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"
         />
 
 
-    <ImageView
-        android:id="@+id/cardSettings"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:src="@drawable/more_icon"
-        android:layout_alignParentTop="true"
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/sendMessageToTeacherBtn"
+        android:layout_width="130dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="10dp"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="13dp"
-        android:layout_marginEnd="13dp" />
+        android:layout_marginBottom="10dp"
+        android:text="Send Message"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:layout_below="@id/teacherAgeTextView"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/usedColor" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="140dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toStartOf="@+id/sendMessageToTeacherBtn"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/usedColor"
+        android:layout_below="@id/teacherAgeTextView"
+        android:text="Send Request"
+        android:textAllCaps="false"
+        android:textSize="16sp" />
+
+
 
 
 </RelativeLayout>

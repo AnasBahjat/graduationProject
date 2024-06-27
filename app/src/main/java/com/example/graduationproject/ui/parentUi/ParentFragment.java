@@ -25,28 +25,33 @@ import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
 import com.example.graduationproject.adapters.ParentPostedRequestsAdapter;
+import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
 import com.example.graduationproject.databinding.DialogParentPostedRequestCardBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
+import com.example.graduationproject.databinding.TeacherPostedRequestsCardToShowToParentBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.GetParentChildren;
+import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentPostRequestClickListener;
 import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
+import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Parent;
+import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.models.TeacherPostRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +59,11 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -65,7 +74,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         ParentPostRequestClickListener,
         GetParentChildren,
         ParentInformationListener,
-        UpdateTeacherPostedRequestListener, ParentPostRequestDeleteListener {
+        UpdateTeacherPostedRequestListener,
+        ParentPostRequestDeleteListener,
+        OnAllTeacherPostedRequestsForParentListener,
+        TeacherPostRequestClickListener {
 
     private String email,firstName,lastName,birthDate,gender,idNumber ;
     List<Address> parentAddress = new ArrayList<>() ;
@@ -101,6 +113,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private String startTime ="12:00 PM", endTime="12:00 PM";
     private Dialog clickedCardDialog;
     private Dialog deleteParentPostedTeacherMatchingDialog;
+    private boolean browseTeacherPostedRequestsForParent = false;
+
+    private List<TeacherPostRequest> teacherPostedRequestsForParentList = new ArrayList<>();
 
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
@@ -109,13 +124,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         @Override
         public void onReceive(Context context, Intent intent) {
             if("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED".equals(intent.getAction())){
-                Toast.makeText(getContext(), "Broadcast received , update postd ...", Toast.LENGTH_SHORT).show();
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
             else if("PARENT_POSTED_REQUESTS_ITEM_CLICKED".equals(intent.getAction())){
-                Toast.makeText(getContext(),"Parent posted requests item clicked ..",Toast.LENGTH_LONG).show();
                 btn1Clicked = true;
                 btn2Clicked = false;
+                browseTeacherPostedRequestsForParent=false;
                 binding.refreshRecyclerView.setRefreshing(true);
                 setMyPostedRequestsAdapter();
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
@@ -123,6 +137,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             else if("UPDATE_POSTED_DATA_FOR_PARENT".equals(intent.getAction())){
                 myPostedBtnClicked();
+            }
+            else if("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
+                setParentRequestsForTeacher();
             }
         }
     };
@@ -145,6 +162,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             parentFragmentIntentFilter.addAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
             parentFragmentIntentFilter.addAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
             parentFragmentIntentFilter.addAction("UPDATE_POSTED_DATA_FOR_PARENT");
+            parentFragmentIntentFilter.addAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
             int flags = 0 ;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 flags = Context.RECEIVER_NOT_EXPORTED;
@@ -188,11 +206,14 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         });
 
         binding.refreshRecyclerView.setOnRefreshListener(()->{
-            if(btn1Clicked && !btn2Clicked){
-                refreshPostedRequests(1);
+            if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent){
+                refreshAction(1);
             }
-            else {
-                refreshPostedRequests(2);
+            else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent){
+                refreshAction(2);
+            }
+            else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent){
+                refreshAction(3); // update browse teacher posted list for parent ..
             }
         });
     }
@@ -203,6 +224,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         setMyPostedRequestsAdapter();
         btn1Clicked = true;
         btn2Clicked = false;
+        browseTeacherPostedRequestsForParent = false ;
     }
 
     private void myReceivedRequestsBtnClicked(){
@@ -211,6 +233,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         setMyReceivedRequestsAdapter();
         btn1Clicked = false;
         btn2Clicked = true;
+        browseTeacherPostedRequestsForParent = false ;
     }
 
 
@@ -311,12 +334,15 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
     }
 
-    private void refreshPostedRequests(int flag){
+    private void refreshAction(int flag){
         if(flag == 1){
             database.getParentPostedMatchingInformation(email,this);
         }
-        else {
+        else if(flag == 2) {
             // get received requests ..
+        }
+        else if(flag == 3){
+            database.getAllTeacherPostedRequestsForParent(this);
         }
     }
 
@@ -397,7 +423,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
                 }
                 parentPostedRequestsList = tempTeacherMatchModelList;
-                Log.d("0000000000000000000000","000000000000000000000000");
                 updateParentPostedRequests();
             }
             catch(Exception ignored){
@@ -410,14 +435,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         if(parentPostedRequestsList.isEmpty()){
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            Log.d("11111111111111111","11111111111111111");
         }
         else{
             parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList,getContext(),this);
             binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-            Log.d("22222222222222222222222","22222222222222222222222");
 
             // parentPostedRequests.filteredList(tempTeacherMatchModelList);
         }
@@ -1047,7 +1070,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @Override
     public void onParentPostDeleted(int flag) {
-        Toast.makeText(getContext(),""+flag,Toast.LENGTH_LONG).show();
         if(flag == 3){
             deleteParentPostedTeacherMatchingDialog.dismiss();
             clickedCardDialog.dismiss();
@@ -1062,5 +1084,166 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         else {
 
         }
+    }
+
+    private void setParentRequestsForTeacher(){
+        btn1Clicked=false;
+        btn2Clicked=false;
+        browseTeacherPostedRequestsForParent = true;
+        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        database.getAllTeacherPostedRequestsForParent(this);
+    }
+
+    @Override
+    public void onAllTeacherPostedRequestsForParentFetched(int flag, JSONArray teacherPostsData) throws JSONException {
+        if(flag == -1){
+
+        }
+        else if(flag == -2){
+
+        }
+        else if(flag == 0){
+
+        }
+        else if(flag == 1){
+            if(!teacherPostedRequestsForParentList.isEmpty()){
+                teacherPostedRequestsForParentList.clear();
+            }
+            List<String> teacherPhoneNumbersList = new ArrayList<>();
+            List<Address> teacherAddressesList = new ArrayList<>();
+            for(int i = teacherPostsData.length() - 1 ; i >= 0 ; i--){
+                JSONObject jsonObject = teacherPostsData.getJSONObject(i);
+                String teacherEmail = jsonObject.getString("teacherEmail");
+                String teacherFirstName = jsonObject.getString("firstname");
+                teacherFirstName = teacherFirstName.substring(0,1).toUpperCase()+teacherFirstName.substring(1).toLowerCase();
+                String teacherLastName = jsonObject.getString("lastname");
+                teacherLastName = teacherLastName.substring(0,1).toUpperCase()+teacherLastName.substring(1).toLowerCase();
+                int teacherGender = jsonObject.getInt("gender");
+                String teacherBirthDate = jsonObject.getString("birthDate");
+                String idNumber = jsonObject.getString("idNumber");
+                int studentOrGraduate = jsonObject.getInt("studentOrGraduate");
+                String expectedGraduationYear = jsonObject.getString("expectedGraduationYear");
+                String teacherCollege = jsonObject.getString("college");
+                String teacherField = jsonObject.getString("field");
+                String teacherStaticAvailability = jsonObject.getString("availability");
+                String educationLevel = jsonObject.getString("educationLevel");
+                String teacherPostStartTime = jsonObject.getString("startTime");
+                String teacherPostEndTime = jsonObject.getString("endTime");
+                int teacherPostId = jsonObject.getInt("postId");
+                String selectedCourses = jsonObject.getString("courses");
+                int duration = jsonObject.getInt("duration");
+                String teacherAvailabilityForJob = jsonObject.getString("availabilityForJob");
+                String location = jsonObject.getString("location");
+                String teachingMethod = jsonObject.getString("teachingMethod");
+                if(i==teacherPostsData.length() - 1){
+                    String teacherPhoneNumbers = jsonObject.getString("phoneNumbers");
+                    if(teacherPhoneNumbers.contains(",")){
+                        String[] splitTeacherPhoneNumbers = teacherPhoneNumbers.split(",");
+                        teacherPhoneNumbersList.addAll(Arrays.asList(splitTeacherPhoneNumbers));
+                    }
+                    else
+                        teacherPhoneNumbersList.add(teacherPhoneNumbers);
+
+                    String teacherAddresses = jsonObject.getString("addresses");
+                    if(teacherAddresses.contains("|")){
+                        String[] teacherAddressesSplit = teacherAddresses.split("\\|");
+                        for(int j = 0;j<teacherAddressesSplit.length;j++){
+                            String[] split = teacherAddressesSplit[j].split(",");
+                            teacherAddressesList.add(new Address(split[0].trim(),split[1].trim()));
+                        }
+                    }
+                    else{
+                        String[] split = teacherAddresses.split(",");
+                        teacherAddressesList.add(new Address(split[0].trim(),split[1].trim()));
+                    }
+                }
+                teacherPostedRequestsForParentList.add(new TeacherPostRequest(teacherPostId,teacherEmail,selectedCourses,educationLevel,
+                        duration+"",teacherAvailabilityForJob,location,teachingMethod,
+                        new Teacher(teacherEmail,idNumber,studentOrGraduate+"",expectedGraduationYear,teacherCollege,
+                                teacherField,teacherGender,teacherBirthDate,teacherStaticAvailability,educationLevel,teacherAddressesList,
+                                teacherPhoneNumbersList,teacherFirstName+" "+teacherLastName
+                                ),teacherPostStartTime,teacherPostEndTime));
+            }
+            setTeacherPostsForParent();
+        }
+    }
+
+    private void setTeacherPostsForParent(){
+        if(teacherPostedRequestsForParentList.isEmpty()){
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+            binding.noTeacherPostedRequests.setVisibility(View.VISIBLE);
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+        }
+        else {
+            TeacherPostedRequestsAdapter teacherPostedRequestsAdapter =
+                    new TeacherPostedRequestsAdapter(teacherPostedRequestsForParentList,getContext(),this);
+            binding.postedRequestsRecyclerView.setAdapter(teacherPostedRequestsAdapter);
+            binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+            binding.noTeacherPostedRequests.setVisibility(View.GONE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.refreshRecyclerView.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void onTeacherPostClicked(TeacherPostRequest teacherPostRequest) {
+        if(getContext() != null){
+            Dialog teacherPostedCardDialog = new Dialog(getContext());
+            TeacherPostedRequestsCardToShowToParentBinding teacherPostedRequestsCardToShowToParentBinding = TeacherPostedRequestsCardToShowToParentBinding.inflate(LayoutInflater.from(getContext()));
+            teacherPostedCardDialog.setContentView(teacherPostedRequestsCardToShowToParentBinding.getRoot());
+            teacherPostedCardDialog.setCancelable(false);
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(teacherPostedCardDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            teacherPostedCardDialog.getWindow().setAttributes(layoutParams);
+            teacherPostedCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            if(teacherPostedCardDialog.getWindow() != null)
+                teacherPostedCardDialog.getWindow().setLayout(1300,ViewGroup.LayoutParams.WRAP_CONTENT);
+            teacherPostedCardDialog.show();
+
+            teacherPostedRequestsCardToShowToParentBinding.closeImageView.setOnClickListener(c->{
+                teacherPostedCardDialog.dismiss();
+            });
+
+            teacherPostedRequestsCardToShowToParentBinding.teacherNameTextView.setText(teacherPostRequest.getTeacherData().getTeacherName());
+            teacherPostedRequestsCardToShowToParentBinding.teacherEmailTextView.setText(teacherPostRequest.getTeacherEmail());
+
+            StringBuilder teacherPhones = new StringBuilder();
+            List<String> tempList = teacherPostRequest.getTeacherData().getPhoneNumbersList();
+            for(int i=0;i < tempList.size();i++){
+                if(i + 1 != tempList.size()){
+                    teacherPhones.append(tempList.get(i)).append("\n");
+                }
+                else {
+                    teacherPhones.append(tempList.get(i));
+                }
+            }
+            teacherPostedRequestsCardToShowToParentBinding.teacherPhoneNumberTextView.setText(teacherPhones);
+            teacherPostedRequestsCardToShowToParentBinding.coursesTextView.setText(teacherPostRequest.getCourses());
+            teacherPostedRequestsCardToShowToParentBinding.teachingMethodTextView.setText(teacherPostRequest.getTeachingMethod());
+            teacherPostedRequestsCardToShowToParentBinding.durationTextView.setText(teacherPostRequest.getDuration());
+            teacherPostedRequestsCardToShowToParentBinding.timeTextView.setText(String.format("%s - %s", teacherPostRequest.getStartTime(), teacherPostRequest.getEndTime()));
+            teacherPostedRequestsCardToShowToParentBinding.locationTextView.setText(teacherPostRequest.getLocation());
+            teacherPostedRequestsCardToShowToParentBinding.collegeTextView.setText(teacherPostRequest.getTeacherData().getField());
+            String teacherGender = "Male";
+            if(teacherPostRequest.getTeacherData().getGender() == 0){
+                teacherGender = "Female";
+            }
+            teacherPostedRequestsCardToShowToParentBinding.teacherGenderTextView.setText(teacherGender);
+
+            String teacherBirthDate = teacherPostRequest.getTeacherData().getBirthDate();
+            String age = calculateAge(teacherBirthDate);
+            teacherPostedRequestsCardToShowToParentBinding.teacherAgeTextView.setText(String.format("%s Years", age));
+        }
+    }
+    private String calculateAge(String teacherBirthDate){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate birthDate = LocalDate.parse(teacherBirthDate,formatter);
+        LocalDate currentDate = LocalDate.now();
+        return Period.between(birthDate, currentDate).getYears()+"";
     }
 }

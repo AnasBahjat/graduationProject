@@ -21,6 +21,12 @@
             android:title="My Posted Requests"
             android:icon="@drawable/my_requests_icon"
             />
+
+        <item
+            android:id="@+id/teacherPostedRequests"
+            android:title="Browse Teacher Posts"
+            android:icon="@drawable/teacher_available_courses_icon"
+            />
     </group>
 
     <group android:id="@+id/bottomGroup" android:orderInCategory="3">

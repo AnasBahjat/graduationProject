@@ -247,7 +247,8 @@ public class ParentActivity extends AppCompatActivity implements
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
                   //  database.getParentPostedMatchingInformation(email,ParentActivity.this);
-                    loadFragment(null);
+                   // loadFragment(null);
+                    loadParentFragment(null);
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
                     loadFragment(new ParentProfileFragment());
@@ -513,7 +514,15 @@ public class ParentActivity extends AppCompatActivity implements
             intentFilter.setAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
             sendBroadcast(intentFilter);
         }
-        parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
+        else if(menuItem.getItemId() == R.id.teacherPostedRequests){
+            Intent intentFilter = new Intent();
+            intentFilter.setAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
+            sendBroadcast(intentFilter);
+        }
+        else if(menuItem.getItemId() == R.id.profile){
+            loadFragment(new ParentProfileFragment());
+        }
+            parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
