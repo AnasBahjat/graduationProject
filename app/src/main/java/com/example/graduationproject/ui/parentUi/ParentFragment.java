@@ -9,11 +9,16 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +26,11 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
@@ -54,6 +59,7 @@ import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
+import com.google.android.flexbox.FlexboxLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,6 +77,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 public class ParentFragment extends Fragment implements ParentListenerForParentPostedRequests,
         ParentPostRequestClickListener,
@@ -90,8 +97,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private ParentPostedRequestsAdapter parentPostedRequests;
 
-    private boolean btn1Clicked = true;
-    private boolean btn2Clicked = false;
+    private boolean btn1Clicked = false;
+    private boolean btn2Clicked = true;
     private int currentClickedPostedCardId = 0 ;
 
     private boolean isBroadcastReceiverRegistered = false;
@@ -116,6 +123,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private Dialog clickedCardDialog;
     private Dialog deleteParentPostedTeacherMatchingDialog;
     private boolean browseTeacherPostedRequestsForParent = false;
+    private boolean myPostedRequestsItemForParent = false;
 
     private List<TeacherPostRequest> teacherPostedRequestsForParentList = new ArrayList<>();
 
@@ -124,7 +132,14 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private Dialog filterDialog ;
     private ParentFilterLayoutBinding parentFilterLayoutBinding ;
     private String[] locationArrayForFilter;
-    private List<String> filterSelectedLocation = new ArrayList<>();
+    private List<String> filterSelectedLocationList = new ArrayList<>();
+    private String[] coursesArrayForFilter;
+    private List<String> filterSelectedCoursesList = new ArrayList<>();
+    private String [] childGenderArrayForFilter ;
+    private List<String> filterSelectedGenderList = new ArrayList<>();
+    private String[] childGradeArrayForFilter ;
+    private List<String> filterSelectedGradeList = new ArrayList<>();
+
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -132,20 +147,26 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             if("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED".equals(intent.getAction())){
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
-            else if("PARENT_POSTED_REQUESTS_ITEM_CLICKED".equals(intent.getAction())){
-                btn1Clicked = true;
+            else if("SHOW_RECEIVED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
+                btn1Clicked = false;
                 btn2Clicked = false;
                 browseTeacherPostedRequestsForParent=false;
-                binding.refreshRecyclerView.setRefreshing(true);
-                setMyPostedRequestsAdapter();
-                database.getParentPostedMatchingInformation(email,ParentFragment.this);
+                myPostedRequestsItemForParent=true;
+                //ToDo(Show parent received requests ..);
+              //  binding.refreshRecyclerView.setRefreshing(true);
+               // setMyCoursesRequestsAdapter();
+                //database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
 
             else if("UPDATE_POSTED_DATA_FOR_PARENT".equals(intent.getAction())){
-                myPostedBtnClicked();
+                myCoursesBtnClicked();
             }
             else if("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
-                setParentRequestsForTeacher();
+                btn1Clicked = false;
+                btn2Clicked = false;
+                browseTeacherPostedRequestsForParent=true;
+                myPostedRequestsItemForParent=true;
+                setPostedTeacherRequestsForParent();
             }
         }
     };
@@ -204,22 +225,26 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         initCoursesRecyclerView();
         setMyPostedRequestsAdapter();
         binding.myPostedRequestsBtn.setOnClickListener(x->{
-            myPostedBtnClicked();
+            myCoursesBtnClicked();
         });
 
         binding.myReceivedRequestsBtn.setOnClickListener(c->{
-            myReceivedRequestsBtnClicked();
+            myPostedRequestsBtnClicked();
         });
 
         binding.refreshRecyclerView.setOnRefreshListener(()->{
-            if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent){
+            if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
                 refreshAction(1);
             }
-            else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent){
+            else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
                 refreshAction(2);
             }
-            else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent){
+            else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
                 refreshAction(3); // update browse teacher posted list for parent ..
+            }
+            else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
+                refreshAction(4); // update posted parent requests for know list for parent ..
+                // it will be received requests and btn2 will be posted requests
             }
         });
         binding.filterLayout.setOnClickListener(z->{
@@ -236,7 +261,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(Objects.requireNonNull(filterDialog.getWindow()).getAttributes());
             layoutParams.width = 1300;
-            layoutParams.height = 1700;
+            layoutParams.height = 2500;
             filterDialog.getWindow().setAttributes(layoutParams);
             if(filterDialog.getWindow() != null)
                 filterDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -246,55 +271,370 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 filterDialog.dismiss();
             });
 
+            parentFilterLayoutBinding.filterCancelBtn.setOnClickListener(c->{
+                filterDialog.dismiss();
+            });
+
+
             setLocationFlexBox();
-        }
-    }
+            setCoursesFlexBox();
+            setGenderFlexBox();
+            setChildGradeFlexBox();
 
-    private void setLocationFlexBox(){
-         locationArrayForFilter = getResources().getStringArray(R.array.locationArray);
-         if(parentFilterLayoutBinding.locationFlexBox1.getChildCount() > 0)
-             parentFilterLayoutBinding.locationFlexBox1.removeAllViews();
-
-        for(String str : locationArrayForFilter){
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            View customView = inflater.inflate(R.layout.custom_layout_for_filter_view,parentFilterLayoutBinding.locationFlexBox1,false);
-            TextView courseName = customView.findViewById(R.id.textViewTemp);
-            courseName.setText(str.trim());
-            LinearLayout parentLayout = customView.findViewById(R.id.parentLayout);
-            parentLayout.setOnClickListener(new View.OnClickListener() {
-                boolean isSelected = false ;
+            parentFilterLayoutBinding.locationEditText.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void onClick(View v) {
-                    isSelected = !isSelected;
-                    if(isSelected){
-                        filterSelectedLocation.add(courseName.getText().toString());
-                        customView.setBackgroundResource(R.drawable.selected_view);
-                    }
-                    else {
-                        customView.setBackgroundResource(R.drawable.rounded_corners);
-                    }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    setFlexBoxEnabled(parentFilterLayoutBinding.locationFlexBox1, s.toString().isEmpty());
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
                 }
             });
-        }
 
+            parentFilterLayoutBinding.coursesEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    setFlexBoxEnabled(parentFilterLayoutBinding.coursesFlexBox, s.toString().isEmpty());
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+
+
+
+            parentFilterLayoutBinding.filterConfirmBtn.setOnClickListener(Z->{
+                updateFilteredRecyclerView();
+                filterDialog.dismiss();
+            });
+        }
     }
 
-    private void myPostedBtnClicked(){
+    private void updateFilteredRecyclerView(){
+        String locationEditTextStr = parentFilterLayoutBinding.locationEditText.getText().toString();
+        String coursesEditTextStr = parentFilterLayoutBinding.coursesEditText.getText().toString();
+        if(!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty()){
+            updateTeacherMatchModelDataBasedOnLocationFilter(locationEditTextStr);
+        }
+        else if(locationEditTextStr.isEmpty() && !coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty()){
+            updateTeacherMatchModelDataBasedOnCoursesFilter(locationEditTextStr);
+        }
+
+        else if(locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty()){
+            updateTeacherMatchModelDataBasedOnLocationAndCoursesFilter(locationEditTextStr,coursesEditTextStr);
+        }
+    }
+
+    private void updateTeacherMatchModelDataBasedOnLocationAndCoursesFilter(String location,String courses){
+        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+
+        }
+        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+            List<TeacherMatchModel> filteredListBasedOnLocation = new ArrayList<>();
+            for(int i=0;i<parentPostedRequestsList.size();i++){
+                TeacherMatchModel temp = parentPostedRequestsList.get(i);
+                if(temp.getLocation().toLowerCase().equalsIgnoreCase(location) && temp.getCourses().toLowerCase().contains(courses.toLowerCase())){
+                    filteredListBasedOnLocation.add(temp);
+                }
+            }
+            parentPostedRequests.filteredList(filteredListBasedOnLocation);
+        }
+        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+
+        }
+        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
+
+        }
+    }
+
+    private void updateTeacherMatchModelDataBasedOnLocationFilter(String location){
+        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+
+        }
+        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+            List<TeacherMatchModel> filteredListBasedOnLocation = new ArrayList<>();
+            for(int i=0;i<parentPostedRequestsList.size();i++){
+                TeacherMatchModel temp = parentPostedRequestsList.get(i);
+                if(temp.getLocation().toLowerCase().equalsIgnoreCase(location)){
+                    filteredListBasedOnLocation.add(temp);
+                }
+            }
+            parentPostedRequests.filteredList(filteredListBasedOnLocation);
+        }
+        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+
+        }
+        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
+
+        }
+    }
+
+    private void updateTeacherMatchModelDataBasedOnCoursesFilter(String courses){
+        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+
+        }
+        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+            List<TeacherMatchModel> filteredListBasedOnCourses = new ArrayList<>();
+            for(int i=0;i<parentPostedRequestsList.size();i++){
+                TeacherMatchModel temp = parentPostedRequestsList.get(i);
+                if(temp.getCourses().toLowerCase().contains(courses.toLowerCase())){
+                    filteredListBasedOnCourses.add(temp);
+                }
+            }
+            parentPostedRequests.filteredList(filteredListBasedOnCourses);
+        }
+        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+
+        }
+        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
+
+        }
+    }
+
+
+    private void setFlexBoxEnabled(FlexboxLayout flexboxLayout,Boolean status){
+        for(int i=0;i<flexboxLayout.getChildCount() ; i++){
+            flexboxLayout.getChildAt(i).setEnabled(status);
+        }
+    }
+
+    private void setChildGradeFlexBox(){
+        if(getContext() != null){
+            childGradeArrayForFilter = getResources().getStringArray(R.array.childGradeFilter);
+            if(parentFilterLayoutBinding.childrenGradeFlexBox.getChildCount() > 0){
+                parentFilterLayoutBinding.childrenGradeFlexBox.removeAllViews();
+            }
+
+            for(String str : childGradeArrayForFilter){
+                AppCompatButton appCompatButton = new AppCompatButton(getContext());
+                appCompatButton.setAllCaps(false);
+                appCompatButton.setText(str.trim());
+                appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70,
+                                getResources().getDisplayMetrics()),
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                appCompatButton.setGravity(Gravity.CENTER);
+                appCompatButton.setLayoutParams(layoutParams);
+
+                int paddingDp = 8;
+                int paddingPx = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, paddingDp, getResources().getDisplayMetrics());
+                appCompatButton.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+
+                FlexboxLayout.LayoutParams flexboxLayoutParams = new FlexboxLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                int marginDp = 8;
+                int marginPx = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, marginDp, getResources().getDisplayMetrics());
+                flexboxLayoutParams.setMargins(marginPx, marginPx, marginPx, marginPx);
+                appCompatButton.setLayoutParams(flexboxLayoutParams);
+
+                appCompatButton.setOnClickListener(C->{
+                    if(checkIfButtonInList(filterSelectedGradeList,appCompatButton.getText().toString())){
+                        appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+                        filterSelectedGradeList.remove(appCompatButton.getText().toString());
+                    }
+                    else{
+                        appCompatButton.setBackgroundResource(R.drawable.selected_view);
+                        filterSelectedGradeList.add(appCompatButton.getText().toString());
+                    }
+                });
+                parentFilterLayoutBinding.childrenGradeFlexBox.addView(appCompatButton);
+            }
+        }
+    }
+
+    private void setGenderFlexBox(){
+        if(getContext() != null){
+            childGenderArrayForFilter = getResources().getStringArray(R.array.childGenderFilter);
+            if(parentFilterLayoutBinding.childrenGenderFlexBox.getChildCount() > 0){
+                parentFilterLayoutBinding.childrenGenderFlexBox.removeAllViews();
+            }
+
+            for(String str : childGenderArrayForFilter){
+                AppCompatButton appCompatButton = new AppCompatButton(getContext());
+                appCompatButton.setAllCaps(false);
+                appCompatButton.setText(str.trim());
+                appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70,
+                                getResources().getDisplayMetrics()),
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                appCompatButton.setGravity(Gravity.CENTER);
+                appCompatButton.setLayoutParams(layoutParams);
+
+                int paddingDp = 8;
+                int paddingPx = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, paddingDp, getResources().getDisplayMetrics());
+                appCompatButton.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+
+                FlexboxLayout.LayoutParams flexboxLayoutParams = new FlexboxLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                int marginDp = 8;
+                int marginPx = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, marginDp, getResources().getDisplayMetrics());
+                flexboxLayoutParams.setMargins(marginPx, marginPx, marginPx, marginPx);
+                appCompatButton.setLayoutParams(flexboxLayoutParams);
+
+                appCompatButton.setOnClickListener(C->{
+                    if(checkIfButtonInList(filterSelectedGenderList,appCompatButton.getText().toString())){
+                        appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+                        filterSelectedGenderList.remove(appCompatButton.getText().toString());
+                    }
+                    else{
+                        appCompatButton.setBackgroundResource(R.drawable.selected_view);
+                        filterSelectedGenderList.add(appCompatButton.getText().toString());
+                    }
+                });
+                parentFilterLayoutBinding.childrenGenderFlexBox.addView(appCompatButton);
+            }
+        }
+    }
+
+
+
+
+    private void setCoursesFlexBox(){
+        coursesArrayForFilter = getResources().getStringArray(R.array.allCourses);
+        if(parentFilterLayoutBinding.coursesFlexBox.getChildCount() > 0)
+            parentFilterLayoutBinding.coursesFlexBox.removeAllViews();
+
+        if(getContext() != null){
+            for(String str : coursesArrayForFilter){
+                AppCompatButton appCompatButton = new AppCompatButton(getContext());
+                appCompatButton.setAllCaps(false);
+                appCompatButton.setText(str);
+                appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70,
+                                getResources().getDisplayMetrics()),
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                appCompatButton.setGravity(Gravity.CENTER);
+                appCompatButton.setLayoutParams(layoutParams);
+
+                int paddingDp = 8;
+                int paddingPx = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, paddingDp, getResources().getDisplayMetrics());
+                appCompatButton.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+
+                FlexboxLayout.LayoutParams flexboxLayoutParams = new FlexboxLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                int marginDp = 8;
+                int marginPx = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, marginDp, getResources().getDisplayMetrics());
+                flexboxLayoutParams.setMargins(marginPx, marginPx, marginPx, marginPx);
+                appCompatButton.setLayoutParams(flexboxLayoutParams);
+
+                appCompatButton.setOnClickListener(s->{
+                    if(checkIfButtonInList(filterSelectedCoursesList,appCompatButton.getText().toString())){
+                        appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+                        filterSelectedCoursesList.remove(appCompatButton.getText().toString());
+                    }
+                    else {
+                        appCompatButton.setBackgroundResource(R.drawable.selected_view);
+                        filterSelectedCoursesList.add(appCompatButton.getText().toString());
+                    }
+                });
+                parentFilterLayoutBinding.coursesFlexBox.addView(appCompatButton);
+            }
+        }
+    }
+    private boolean checkIfButtonInList(List<String> list, String selectedCourse){
+        for (String str : list){
+            if(str.equalsIgnoreCase(selectedCourse)){
+                return true ;
+            }
+        }
+        return false ;
+    }
+
+
+    private void setLocationFlexBox(){
+        locationArrayForFilter = getResources().getStringArray(R.array.locationArray);
+        if(parentFilterLayoutBinding.locationFlexBox1.getChildCount() > 0)
+            parentFilterLayoutBinding.locationFlexBox1.removeAllViews();
+
+
+        for(String str : locationArrayForFilter){
+            AppCompatButton appCompatButton = new AppCompatButton(getContext());
+            appCompatButton.setAllCaps(false);
+            appCompatButton.setText(str);
+            appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70,
+                            getResources().getDisplayMetrics()),
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            appCompatButton.setGravity(Gravity.CENTER);
+            appCompatButton.setLayoutParams(layoutParams);
+
+            int paddingDp = 8; // Example padding in dp
+            int paddingPx = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, paddingDp, getResources().getDisplayMetrics());
+            appCompatButton.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+
+            FlexboxLayout.LayoutParams flexboxLayoutParams = new FlexboxLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            int marginDp = 8;
+            int marginPx = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, marginDp, getResources().getDisplayMetrics());
+            flexboxLayoutParams.setMargins(marginPx, marginPx, marginPx, marginPx);
+            appCompatButton.setLayoutParams(flexboxLayoutParams);
+
+            appCompatButton.setOnClickListener(s->{
+                if(checkIfButtonInList(filterSelectedLocationList,appCompatButton.getText().toString())){
+                    appCompatButton.setBackgroundResource(R.drawable.rounded_corners);
+                    filterSelectedLocationList.remove(appCompatButton.getText().toString());
+                }
+                else {
+                    appCompatButton.setBackgroundResource(R.drawable.selected_view);
+                    filterSelectedLocationList.add(appCompatButton.getText().toString());
+                }
+            });
+            parentFilterLayoutBinding.locationFlexBox1.addView(appCompatButton);
+        }
+    }
+
+    private void myCoursesBtnClicked(){
         binding.parentFragmentSearch.clearFocus();
         binding.parentFragmentSearch.setQuery(null,false);
-        setMyPostedRequestsAdapter();
+        setMyCoursesRequestsAdapter();
         btn1Clicked = true;
         btn2Clicked = false;
         browseTeacherPostedRequestsForParent = false ;
+        myPostedRequestsItemForParent = false;
     }
 
-    private void myReceivedRequestsBtnClicked(){
+    private void myPostedRequestsBtnClicked(){
         binding.parentFragmentSearch.clearFocus();
         binding.parentFragmentSearch.setQuery(null,false);
-        setMyReceivedRequestsAdapter();
+        setMyPostedRequestsAdapter();
         btn1Clicked = false;
         btn2Clicked = true;
         browseTeacherPostedRequestsForParent = false ;
+        myPostedRequestsItemForParent = false ;
     }
 
 
@@ -328,7 +668,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     }
 
-    private void setMyPostedRequestsAdapter(){
+    private void setMyCoursesRequestsAdapter(){
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
 
@@ -344,10 +684,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 return true;
             }
         });
-        database.getParentPostedMatchingInformation(email,this);
+        //ToDo(Here to get the parent courses for children ..)
+        // data.getMyCourses(email,this)
     }
 
-    private void setMyReceivedRequestsAdapter(){
+    private void setMyPostedRequestsAdapter(){
 
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
@@ -364,7 +705,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 return true;
             }
         });
-
+        database.getParentPostedMatchingInformation(email,this);
     }
 
 
@@ -397,13 +738,16 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void refreshAction(int flag){
         if(flag == 1){
-            database.getParentPostedMatchingInformation(email,this);
+            // get my posted requests
         }
         else if(flag == 2) {
-            // get received requests ..
+            database.getParentPostedMatchingInformation(email,this);
         }
         else if(flag == 3){
             database.getAllTeacherPostedRequestsForParent(this);
+        }
+        else if(flag == 4){
+            //
         }
     }
 
@@ -502,7 +846,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-
             // parentPostedRequests.filteredList(tempTeacherMatchModelList);
         }
         binding.refreshRecyclerView.setRefreshing(false);
@@ -1147,10 +1490,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
     }
 
-    private void setParentRequestsForTeacher(){
+    private void setPostedTeacherRequestsForParent(){
         btn1Clicked=false;
         btn2Clicked=false;
         browseTeacherPostedRequestsForParent = true;
+        myPostedRequestsItemForParent = false;
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         database.getAllTeacherPostedRequestsForParent(this);

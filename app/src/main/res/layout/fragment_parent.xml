@@ -34,7 +34,7 @@
             android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
-            android:text="My Posted"
+            android:text="My Courses"
             android:layout_gravity="center_vertical"
             android:focusable="true"
             android:textSize="17sp"
@@ -43,10 +43,10 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/myReceivedRequestsBtn"
-            android:layout_width="170dp"
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
-            android:text="Received Requests"
+            android:text="My Posted Requests"
             android:layout_gravity="center_vertical"
             android:focusable="true"
             android:textSize="17sp"
@@ -82,7 +82,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/parentFragmentSearch"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="45dp"
+        android:layout_marginStart="35dp"
         android:layout_marginTop="75dp"
         android:layout_marginEnd="15dp"
         android:layout_toEndOf="@+id/parentPostedRequestsAndTeacherRequests">

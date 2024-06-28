@@ -511,10 +511,13 @@ public class ParentActivity extends AppCompatActivity implements
             else
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
         }
-        else if(menuItem.getItemId() == R.id.myPostedRequests){
-            Intent intentFilter = new Intent();
+        else if(menuItem.getItemId() == R.id.myReceivedRequests){
+           /* Intent intentFilter = new Intent();
             intentFilter.setAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
-            sendBroadcast(intentFilter);
+            sendBroadcast(intentFilter);*/
+            Intent intent = new Intent();
+            intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
+            sendBroadcast(intent);
         }
         else if(menuItem.getItemId() == R.id.teacherPostedRequests){
             Intent intentFilter = new Intent();
@@ -812,7 +815,6 @@ public class ParentActivity extends AppCompatActivity implements
                             }
                         }
 
-                        Log.d("Added courses is ------------> "+courses,"Added courses is ------------> "+courses);
                         TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
                                 ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime);
 
@@ -824,11 +826,8 @@ public class ParentActivity extends AppCompatActivity implements
                                 city,teachingMethodStr,
                                 new Children(selectedChildName,"12",selectedChildGender,
                                         Integer.parseInt(selectedChildGrade.trim())),startTime,endTime);
-                        Intent intent = new Intent();
-                        intent.setAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
                        // intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
                        database.addNewTeacherMatching(email,teacherMatchModel,this);
-                       sendBroadcast(intent);
                     }
                 }
             }
@@ -1019,7 +1018,9 @@ public class ParentActivity extends AppCompatActivity implements
         if(resultFlag == 1){
             MyAlertDialog.showDialogForDone(this,"Done","Your requirements is added , wait for requests from teachers ..");
             searchingForTeacherDialog.dismiss();
-
+            Intent intent = new Intent();
+            intent.setAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
+            sendBroadcast(intent);
         }
         else if(resultFlag == -1){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong , please check your entered data and apply again");

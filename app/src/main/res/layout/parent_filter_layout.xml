@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+<RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="600dp"
+    android:layout_height="wrap_content"
     android:backgroundTint="#F4F5F6"
     android:background="@drawable/rounded_corners">
 
@@ -45,7 +47,7 @@
 
 
         <View
-            android:layout_width="260dp"
+            android:layout_width="300dp"
             android:layout_height="2dp"
             android:layout_gravity="center"
             android:layout_marginStart="7dp"
@@ -84,10 +86,11 @@
         android:layout_below="@id/locationTextInputLayout"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:padding="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_centerHorizontal="true"
+        android:padding="2dp"
         app:alignContent="flex_start"
         app:flexWrap="wrap"/>
 
@@ -121,7 +124,7 @@
 
 
         <View
-            android:layout_width="260dp"
+            android:layout_width="300dp"
             android:layout_height="2dp"
             android:layout_gravity="center"
             android:layout_marginStart="7dp"
@@ -162,10 +165,11 @@
         android:layout_below="@id/coursesTextInputLayout"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:padding="8dp"
+        android:layout_marginEnd="4dp"
+        android:padding="2dp"
         app:alignContent="flex_start"
         app:flexWrap="wrap"/>
 
@@ -193,7 +197,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="5dp"
-            android:text="Children Specification"
+            android:text="Children Gender"
             android:paddingEnd="2dp"
             android:textSize="24sp" />
 
@@ -215,24 +219,96 @@
         android:layout_below="@id/childrenTextViewTemp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:padding="8dp"
+        android:layout_marginEnd="4dp"
+        android:padding="2dp"
         app:alignContent="flex_start"
+        android:layout_centerHorizontal="true"
         app:flexWrap="wrap"/>
+
+    <LinearLayout
+        android:id="@+id/gradeTextViewTemp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/childrenGenderFlexBox"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:layout_marginTop="15dp"
+        android:paddingEnd="4dp">
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="1dp"
+            android:background="#7FE1EE" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:text="Children Grade"
+            android:paddingEnd="2dp"
+            android:textSize="24sp" />
+
+
+        <View
+            android:layout_width="260dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="15dp"
+            android:background="#7FE1EE" />
+    </LinearLayout>
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/childrenGradeFlexBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/childrenGenderFlexBox"
+        android:layout_below="@id/gradeTextViewTemp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:padding="8dp"
+        android:layout_marginEnd="4dp"
+        android:padding="2dp"
         app:alignContent="flex_start"
+        android:layout_centerHorizontal="true"
         app:flexWrap="wrap"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/filterConfirmBtn"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/childrenGradeFlexBox"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="320dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/usedColor"
+        android:text="Filter"
+        android:textAllCaps="false"
+        android:textSize="18sp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/filterCancelBtn"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/childrenGradeFlexBox"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="210dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/usedColor"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:layout_marginBottom="20dp"/>
 </RelativeLayout>
+
+</ScrollView>

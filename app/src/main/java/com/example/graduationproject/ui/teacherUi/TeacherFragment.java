@@ -183,7 +183,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             isShowAvailableJobsForTeacherClicked = false;
         });
         binding.refreshRecyclerView.setOnRefreshListener(()->{
-            if(isShowAvailableJobsForTeacherClicked){
+            if(isShowAvailableJobsForTeacherClicked && !btn1Clicked && !btn2Clicked){
                 sendRefreshBroadcast(3); // update available job request for teacher ..
             }
             else if(btn1Clicked && !btn2Clicked){

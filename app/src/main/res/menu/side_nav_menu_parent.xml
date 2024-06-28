@@ -17,8 +17,8 @@
 
     <group android:id="@+id/secondGroup" android:orderInCategory="2">
         <item
-            android:id="@+id/myPostedRequests"
-            android:title="My Posted Requests"
+            android:id="@+id/myReceivedRequests"
+            android:title="My Received Requests"
             android:icon="@drawable/my_requests_icon"
             />
 
