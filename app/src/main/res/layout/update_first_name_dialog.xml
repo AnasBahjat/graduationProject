@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner_dialog">
+
+    <LinearLayout
+        android:id="@+id/tempView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="25dp"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="1dp"
+            android:background="#7FE1EE" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:text="Personal Information"
+            android:textSize="22sp" />
+
+
+        <View
+            android:layout_width="280dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="15dp"
+            android:background="#7FE1EE" />
+
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/firstname"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:hint="New First Name"
+        android:layout_below="@id/tempView1"
+        app:endIconMode="clear_text"
+        android:layout_gravity="center"
+        app:errorIconDrawable="@drawable/baseline_error_24"
+        app:errorTextAppearance="@style/error_text"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:startIconDrawable="@drawable/firstname_icon">
+
+        <EditText
+            android:layout_width="350dp"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_style"
+            android:textSize="18sp"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:hint="Password"
+        android:layout_below="@id/firstname"
+        app:endIconMode="clear_text"
+        android:layout_gravity="center"
+        app:counterEnabled="true"
+        app:counterMaxLength="25"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/baseline_error_24"
+        app:errorTextAppearance="@style/error_text"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:startIconDrawable="@drawable/password_login">
+
+        <EditText
+            android:layout_width="350dp"
+            android:layout_height="56dp"
+            android:inputType="textPassword"
+            android:background="@drawable/edit_text_style"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/updateBtn"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/password"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/usedColor"
+        android:text="Update"
+        android:textAllCaps="false" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/cancelBtn"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/password"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_toStartOf="@+id/updateBtn"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/usedColor" />
+
+
+</RelativeLayout>

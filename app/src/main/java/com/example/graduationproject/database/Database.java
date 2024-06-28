@@ -23,6 +23,7 @@ import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
+import com.example.graduationproject.listeners.OnProfileDataFetchListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
@@ -954,5 +955,23 @@ public class Database {
             }
         });
         requestQueue.add(stringRequest);
+    }
+
+    public void getCurrentProfileData(String email,final OnProfileDataFetchListener onProfileDataFetchListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getCurrentProfileData,resp->{
+
+        },err->{
+
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",email);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+
     }
 }
