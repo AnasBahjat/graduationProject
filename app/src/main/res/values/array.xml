@@ -206,4 +206,10 @@
         <item>Any</item>
     </string-array>
 
+    <string-array name="teachingMethodsFilter">
+        <item>Online</item>
+        <item>Face To Face</item>
+        <item>Any</item>
+    </string-array>
+
 </resources>

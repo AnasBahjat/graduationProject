@@ -20,7 +20,7 @@ import org.json.JSONArray;
 public class ParentProfileFragment extends Fragment implements OnProfileDataFetchListener {
 
     private TempParentProfileFragmentBinding binding ;
-    private Database database = new Database(getContext());
+    private Database database;
     private String email ;
 
     @Override
@@ -33,7 +33,12 @@ public class ParentProfileFragment extends Fragment implements OnProfileDataFetc
 
     private void init(){
         getPassedData();
+        initDatabase();
         database.getCurrentProfileData(email,this);
+    }
+
+    private void initDatabase(){
+        database=new Database(getContext());
     }
 
     private void getPassedData(){

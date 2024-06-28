@@ -281,11 +281,70 @@
         android:layout_centerHorizontal="true"
         app:flexWrap="wrap"/>
 
+
+
+    <LinearLayout
+        android:id="@+id/teachingMethodTextViewTemp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/childrenGradeFlexBox"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:layout_marginTop="15dp"
+        android:paddingEnd="4dp">
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="1dp"
+            android:background="#7FE1EE" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:text="Teaching Method"
+            android:paddingEnd="2dp"
+            android:textSize="24sp" />
+
+
+        <View
+            android:layout_width="260dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="15dp"
+            android:background="#7FE1EE" />
+    </LinearLayout>
+
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/teachingMethodFlexBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/teachingMethodTextViewTemp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="4dp"
+        android:padding="2dp"
+        app:alignContent="flex_start"
+        android:layout_centerHorizontal="true"
+        app:flexWrap="wrap"/>
+
+
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/filterConfirmBtn"
         android:layout_width="100dp"
         android:layout_height="40dp"
-        android:layout_below="@id/childrenGradeFlexBox"
+        android:layout_below="@id/teachingMethodFlexBox"
         android:layout_alignParentStart="true"
         android:layout_marginStart="320dp"
         android:layout_marginTop="20dp"
@@ -295,11 +354,13 @@
         android:textAllCaps="false"
         android:textSize="18sp" />
 
+
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/filterCancelBtn"
         android:layout_width="100dp"
         android:layout_height="40dp"
-        android:layout_below="@id/childrenGradeFlexBox"
+        android:layout_below="@id/teachingMethodFlexBox"
         android:layout_alignParentStart="true"
         android:layout_marginStart="210dp"
         android:layout_marginTop="20dp"
