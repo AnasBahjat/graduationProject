@@ -132,6 +132,7 @@
         <item>IT</item>
     </string-array>
 
+
     <string-array name="locationArray">
         <item>Ramallah City</item>
         <item>Surda</item>
@@ -145,6 +146,9 @@
         <item>Jalazon camp</item>
         <item>Any</item>
     </string-array>
+
+
+
 
     <string-array name="teachingMethods">
         <item>Online</item>
@@ -163,6 +167,43 @@
         <item>Chemistry</item>
         <item>Biology</item>
         <item>IT</item>
+    </string-array>
+
+    <string-array name="allCourses">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Biology</item>
+        <item>IT</item>
+        <item>Any</item>
+    </string-array>
+
+    <string-array name="childGenderFilter">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Any</item>
+    </string-array>
+
+    <string-array name="childGradeFilter">
+        <item>1st Grade</item>
+        <item>2nd Grade</item>
+        <item>3rd Grade</item>
+        <item>4th Grade</item>
+        <item>5th Grade</item>
+        <item>6th Grade</item>
+        <item>7th Grade</item>
+        <item>8th Grade</item>
+        <item>9th Grade</item>
+        <item>10th Grade</item>
+        <item>11th Grade</item>
+        <item>11th Grade</item>
+        <item>Any</item>
     </string-array>
 
 </resources>

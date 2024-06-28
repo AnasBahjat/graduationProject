@@ -371,7 +371,6 @@ public class ParentActivity extends AppCompatActivity implements
         childrenInformationPopupWindowBinding.addChildBtn.setOnClickListener(cx->{
             addChildBtnClicked();
         });
-
     }
 
     private void addChildBtnClicked(){
@@ -416,6 +415,8 @@ public class ParentActivity extends AppCompatActivity implements
 
 
 
+
+
     private void loadFragment(Fragment fragment){
         Bundle bundle = new Bundle();
         bundle.putString("email",email);
@@ -425,6 +426,7 @@ public class ParentActivity extends AppCompatActivity implements
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
 
     private void buildNavigationView(){
         parentBinding.navigationView.setNavigationItemSelectedListener(this);

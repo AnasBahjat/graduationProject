@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
 import com.example.graduationproject.databinding.DialogParentPostedRequestCardBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
+import com.example.graduationproject.databinding.ParentFilterLayoutBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestsCardToShowToParentBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
@@ -119,6 +121,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
+    private Dialog filterDialog ;
+    private ParentFilterLayoutBinding parentFilterLayoutBinding ;
+    private String[] locationArrayForFilter;
+    private List<String> filterSelectedLocation = new ArrayList<>();
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -216,6 +222,61 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 refreshAction(3); // update browse teacher posted list for parent ..
             }
         });
+        binding.filterLayout.setOnClickListener(z->{
+            showFilterDialogForParent();
+        });
+    }
+
+    private void showFilterDialogForParent(){
+        if(getContext() != null){
+            parentFilterLayoutBinding = ParentFilterLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            filterDialog = new Dialog(getContext());
+            filterDialog.setContentView(parentFilterLayoutBinding.getRoot());
+            filterDialog.setCancelable(false);
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(filterDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = 1700;
+            filterDialog.getWindow().setAttributes(layoutParams);
+            if(filterDialog.getWindow() != null)
+                filterDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            filterDialog.show();
+
+            parentFilterLayoutBinding.closeImage.setOnClickListener(z->{
+                filterDialog.dismiss();
+            });
+
+            setLocationFlexBox();
+        }
+    }
+
+    private void setLocationFlexBox(){
+         locationArrayForFilter = getResources().getStringArray(R.array.locationArray);
+         if(parentFilterLayoutBinding.locationFlexBox1.getChildCount() > 0)
+             parentFilterLayoutBinding.locationFlexBox1.removeAllViews();
+
+        for(String str : locationArrayForFilter){
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            View customView = inflater.inflate(R.layout.custom_layout_for_filter_view,parentFilterLayoutBinding.locationFlexBox1,false);
+            TextView courseName = customView.findViewById(R.id.textViewTemp);
+            courseName.setText(str.trim());
+            LinearLayout parentLayout = customView.findViewById(R.id.parentLayout);
+            parentLayout.setOnClickListener(new View.OnClickListener() {
+                boolean isSelected = false ;
+                @Override
+                public void onClick(View v) {
+                    isSelected = !isSelected;
+                    if(isSelected){
+                        filterSelectedLocation.add(courseName.getText().toString());
+                        customView.setBackgroundResource(R.drawable.selected_view);
+                    }
+                    else {
+                        customView.setBackgroundResource(R.drawable.rounded_corners);
+                    }
+                }
+            });
+        }
+
     }
 
     private void myPostedBtnClicked(){
