@@ -420,6 +420,74 @@
         android:textColor="#1A8E9E"
         />
 
+    <ImageView
+        android:id="@+id/educationLevelImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_below="@id/teacherAgeTextView"
+        android:layout_toEndOf="@id/profileImageView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/education_level_icon"/>
+    <TextView
+        android:id="@+id/educationLevelViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="Education Level :"
+        android:layout_toEndOf="@id/educationLevelImageView"
+        android:layout_marginStart="8dp"
+        android:layout_below="@id/teacherAgeTextView"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/educationLevelTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_toEndOf="@id/educationLevelViewTemp"
+        android:layout_below="@id/teacherAgeTextView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="8dp"
+        android:textColor="#1A8E9E"
+        android:layout_marginEnd="20dp"
+        />
+
+    <ImageView
+        android:id="@+id/gradesImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_below="@id/educationLevelTextView"
+        android:layout_toEndOf="@id/profileImageView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/education_level_icon"/>
+    <TextView
+        android:id="@+id/gradesViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="Grades :"
+        android:layout_toEndOf="@id/gradesImageView"
+        android:layout_marginStart="8dp"
+        android:layout_below="@id/educationLevelTextView"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/gradesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_toEndOf="@id/gradesViewTemp"
+        android:layout_below="@id/educationLevelTextView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="8dp"
+        android:textColor="#1A8E9E"
+        android:layout_marginEnd="20dp"
+        />
+
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -434,7 +502,7 @@
         android:text="Send Message"
         android:textSize="16sp"
         android:textAllCaps="false"
-        android:layout_below="@id/teacherAgeTextView"
+        android:layout_below="@id/gradesTextView"
         android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/usedColor" />
 
@@ -447,7 +515,7 @@
         android:layout_toStartOf="@+id/sendMessageToTeacherBtn"
         android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/usedColor"
-        android:layout_below="@id/teacherAgeTextView"
+        android:layout_below="@id/gradesTextView"
         android:text="Send Request"
         android:textAllCaps="false"
         android:textSize="16sp" />

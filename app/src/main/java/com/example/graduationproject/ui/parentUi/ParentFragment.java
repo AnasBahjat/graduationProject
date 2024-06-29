@@ -1283,6 +1283,17 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             String teacherBirthDate = teacherPostRequest.getTeacherData().getBirthDate();
             String age = calculateAge(teacherBirthDate);
             teacherPostedRequestsCardToShowToParentBinding.teacherAgeTextView.setText(String.format("%s Years", age));
+            teacherPostedRequestsCardToShowToParentBinding.educationLevelTextView.setText(teacherPostRequest.getEducationLevel());
+            if(teacherPostRequest.getEducationLevel().equalsIgnoreCase("Elementary School"))
+                teacherPostedRequestsCardToShowToParentBinding.gradesTextView.setText("1st - 5th Grades");
+            else if(teacherPostRequest.getEducationLevel().equalsIgnoreCase("Middle School"))
+                teacherPostedRequestsCardToShowToParentBinding.gradesTextView.setText("6th - 10th Grades");
+            else if(teacherPostRequest.getEducationLevel().equalsIgnoreCase("High School"))
+                teacherPostedRequestsCardToShowToParentBinding.gradesTextView.setText("11th and 12 Grades");
+            else
+                teacherPostedRequestsCardToShowToParentBinding.gradesTextView.setText("1st  -  12th Grades");
+
+
         }
     }
     private String calculateAge(String teacherBirthDate){
@@ -1372,6 +1383,252 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void updateFilteredRecyclerView(){
         String locationEditTextStr = parentFilterLayoutBinding.locationEditText.getText().toString();
         String coursesEditTextStr = parentFilterLayoutBinding.coursesEditText.getText().toString();
+
+        if(!filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+            if(browseTeacherPostedRequestsForParent){
+                List<TeacherPostRequest> filteredList =
+                        filterDataObject.filterBasedOnLocationList(teacherPostedRequestsForParentList,filterSelectedLocationList);
+                if(filteredList.isEmpty()){
+                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                }
+                else{
+                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                    binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                }
+            }
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
+
+            if(browseTeacherPostedRequestsForParent){
+                List<TeacherPostRequest> filteredList =
+                        filterDataObject.filterBasedOnCoursesList(teacherPostedRequestsForParentList,filterSelectedCoursesList);
+                if(filteredList.isEmpty()){
+                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                }
+                else{
+                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                    binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                }
+            }
+        }
+
+        else if(!filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+            if(browseTeacherPostedRequestsForParent){
+                List<TeacherPostRequest> filteredList =
+                        filterDataObject.filterBasedOnLocationListAndCoursesList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList);
+                if(filteredList.isEmpty()){
+                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                }
+                else{
+                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                    binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                }
+            }
+        }
+        else if(!filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+            if(browseTeacherPostedRequestsForParent){
+                List<TeacherPostRequest> filteredList =
+                        filterDataObject.filterBasedOnLocationListAndGenderList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedGenderList);
+                if(filteredList.isEmpty()){
+                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                }
+                else{
+                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                    binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                }
+            }
+        }
+
+        else if(!filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+            if(browseTeacherPostedRequestsForParent){
+                List<TeacherPostRequest> filteredList =
+                        filterDataObject.filterBasedOnLocationListAndGradeList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedGradeList);
+                if(filteredList.isEmpty()){
+                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                }
+                else{
+                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                    binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                }
+            }
+        }
+
+        else if(!filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+            //ToDo I am HEREEE
+
+        }
+        else if(!filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(!filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(!filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(!filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(!filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+        else if(!filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                !filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+
+        else if(filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
+        else if(filterSelectedLocationList.isEmpty() &&
+                filterSelectedCoursesList.isEmpty() &&
+                filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+
+        }
 
 
         if(!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
@@ -1559,672 +1816,480 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             filterBasedOnLocationNoListGradeAndTeachingMethodList(locationEditTextStr);
         }
 
+        else if(!locationEditTextStr.isEmpty() &&
+                !coursesEditTextStr.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+            filterBasedOnLocationCoursesNoListGenderGradeTeachingMethodList(locationEditTextStr,coursesEditTextStr);
+        }
+
+        else if(!locationEditTextStr.isEmpty() &&
+                coursesEditTextStr.isEmpty() &&
+                !filterSelectedGenderList.isEmpty() &&
+                !filterSelectedGradeList.isEmpty() &&
+                !filterTeachingMethodList.isEmpty()){
+            filterBasedOnLocationNoListGenderGradeTeachingMethodList(locationEditTextStr);
+        }
+
         // ToDo ... more ...
     }
 
-    private void filterBasedOnLocationNoListGradeAndTeachingMethodList(String location){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListGradeAndTeachingMethodList(parentPostedRequestsList,location,filterSelectedGradeList,filterTeachingMethodList);
+    private void filterBasedOnLocationNoListGenderGradeTeachingMethodList(String location){
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterTeacherBasedOnLocationNoListGenderGradeTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
         }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+    }
 
+    private void filterBasedOnLocationCoursesNoListGenderGradeTeachingMethodList(String location,String courses){
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterTeacherPostRequestsBasedOnLocationCoursesNoListGenderGradeTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                binding.noPostedRequestTextView.setVisibility(View.GONE);
+                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
+            }
         }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
+    }
 
+    private void filterBasedOnLocationNoListGradeAndTeachingMethodList(String location){
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListGradeAndTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGradeList,filterTeachingMethodList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                binding.noPostedRequestTextView.setVisibility(View.GONE);
+                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
+            }
         }
     }
 
     private void filterBasedOnLocationNoListGenderAndTeachingMethodList(String location){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListGenderAndTeachingMethodList(parentPostedRequestsList,location,filterSelectedGenderList,filterTeachingMethodList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListGenderAndTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGenderList,filterTeachingMethodList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnLocationNoListGenderAndGradeList(String location){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListGenderAndGradeList(parentPostedRequestsList,location,filterSelectedGenderList,filterSelectedGradeList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListGenderAndGradeList(teacherPostedRequestsForParentList,location,filterSelectedGenderList,filterSelectedGradeList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnCourseNoListAndGenderGradeAndTeachingMethod(String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnCourseNoListAndGenderGradeAndTeachingMethod(parentPostedRequestsList,courses,filterSelectedGenderList,
-                            filterSelectedGradeList,filterTeachingMethodList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnCourseNoListAndGenderGradeAndTeachingMethod(teacherPostedRequestsForParentList,courses,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnCourseNoListAndGenderAndGrade(String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnCourseNoListAndGenderAndGrade(parentPostedRequestsList,courses,filterSelectedGenderList,filterSelectedGradeList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnCourseNoListAndGenderAndGrade(teacherPostedRequestsForParentList,courses,filterSelectedGenderList,filterSelectedGradeList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnCourseNoListAndTeachingMethodList(String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnCoursesNoListAndTeachingMethod(parentPostedRequestsList,courses,filterTeachingMethodList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnCoursesNoListAndTeachingMethod(teacherPostedRequestsForParentList,courses,filterTeachingMethodList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnCourseNoListAndGradeList(String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnCoursesNoListAndGrade(parentPostedRequestsList,courses,filterSelectedGradeList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnCoursesNoListAndGrade(teacherPostedRequestsForParentList,courses,filterSelectedGradeList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnCourseNoListAndGenderList(String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnCoursesNoListAndGenderList(parentPostedRequestsList,courses,filterSelectedGenderList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnCoursesNoListAndGenderList(teacherPostedRequestsForParentList,courses,filterSelectedGenderList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListGradeListAndTeachingMethodList(String location,String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListCoursesNoListGradeListAndTeachingMethodList(parentPostedRequestsList,location,courses,filterSelectedGradeList,filterTeachingMethodList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListCoursesNoListGradeListAndTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterSelectedGradeList,filterTeachingMethodList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnLocationNoListCoursesNoListGenderListAndTeachingMethodList(String location,String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListCoursesNoListGenderListAndTeachingMethodList(parentPostedRequestsList,location,courses,filterSelectedGenderList,filterTeachingMethodList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListCoursesNoListGenderListAndTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList,filterTeachingMethodList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListGenderListAndGradeList(String location,String courses){
-
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListCoursesNoListGenderListAndGradeList(parentPostedRequestsList,location,courses,filterSelectedGenderList,filterSelectedGradeList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListCoursesNoListGenderListAndGradeList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList,filterSelectedGradeList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnLocationNoListCoursesNoListAndTeachingMethodList(String location,String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListCoursesNoListAndTeachingMethodList(parentPostedRequestsList,location,courses,filterTeachingMethodList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListCoursesNoListAndTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterTeachingMethodList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListAndGradeList(String location,String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListCoursesNoListAndGradeList(parentPostedRequestsList,location,courses,filterSelectedGradeList);
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListCoursesNoListAndGradeList(teacherPostedRequestsForParentList,location,courses,filterSelectedGradeList);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListAndGenderList(String location,String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent) {
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListCoursesNoListAndGenderList(parentPostedRequestsList, location, courses, filterSelectedGenderList);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListCoursesNoListAndGenderList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
 
     private void filterBasedOnLocationNoListAndTeachingMethodList(String location){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListAndTeachingMethodList(parentPostedRequestsList,location,filterTeachingMethodList);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListAndTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGradeList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
         }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
 
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
-        }
     }
 
     private void filterBasedOnLocationNoListAndGradeList(String location){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListAndGradeList(parentPostedRequestsList,location,filterSelectedGradeList);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListAndGradeList(teacherPostedRequestsForParentList,location,filterSelectedGradeList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
         }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
-        }
     }
-
-
 
 
     private void filterBasedOnLocationNoListAndGenderList(String location){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationNoListAndGenderList(parentPostedRequestsList,location,filterSelectedGenderList);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnLocationNoListAndGenderList(teacherPostedRequestsForParentList,location,filterSelectedGenderList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
         }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
-        }
     }
-
 
 
 
     private void filterBasedOnSelectedTeachingMethodList(){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnSelectedTeachingMethodList(parentPostedRequestsList,filterTeachingMethodList);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList = filterDataObject.filterBasedOnSelectedTeachingMethodList(teacherPostedRequestsForParentList,filterTeachingMethodList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
-    private void filterBasedOnSelectedGradeList(){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
 
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent) {
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnSelectedGradeList(parentPostedRequestsList, filterSelectedGradeList);
+    private void filterBasedOnSelectedGradeList(){
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterTeacherPostRequestsBasedOnSelectedGradeList(teacherPostedRequestsForParentList, filterSelectedGradeList);
             if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnSelectedGenderList(){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnSelectedGenderList(parentPostedRequestsList,filterSelectedGenderList);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+        if(browseTeacherPostedRequestsForParent){
+            List<TeacherPostRequest> filteredList =
+                    filterDataObject.filterBasedOnSelectedGenderList(teacherPostedRequestsForParentList,filterSelectedGenderList);
+            if(filteredList.isEmpty()){
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
+            }
+            else{
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
+                teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnLocationAndCoursesNoList(String location, String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocationAndCourse(parentPostedRequestsList,location,courses);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
-                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
-            }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+        if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostRequestBasedOnLocationAndCourse(teacherPostedRequestsForParentList,location,courses);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnLocationNoList(String location){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-
-
-        else if(!btn1Clicked && btn2Clicked &&
-                !browseTeacherPostedRequestsForParent &&
-                !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterBasedOnLocation(parentPostedRequestsList,location);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
-                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
-            }
-        }
-
-
-
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostedBasedOnLocation(teacherPostedRequestsForParentList,location);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 
     private void filterBasedOnCoursesNoList(String courses){
-        if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-
-        }
-        else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
-            List<TeacherMatchModel> filteredList = filterDataObject.filterBasedOnCourse(parentPostedRequestsList,courses);
-            if (filteredList.isEmpty()) {
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
-                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            } else {
-                binding.noPostedRequestTextView.setText("No Posted Requests");
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                parentPostedRequests.filteredList(filteredList);
-            }
-        }
-        else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+        if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostRequestBasedOnCourse(teacherPostedRequestsForParentList,courses);
             if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText("No Matched Data ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             }
             else{
-                binding.noPostedRequestTextView.setText("No Posted Requests ..");
+                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
             }
-        }
-        else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
-
         }
     }
 

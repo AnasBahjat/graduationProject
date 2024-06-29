@@ -73,4 +73,6 @@
     <string name="post_btn_text">Post</string>
     <string name="add_course_text">Add\nCourse</string>
     <string name="customTimeFormat">%s - %s</string>
+    <string name="noMatchedDataString">No Matched Data ..</string>
+    <string name="noPostedRequestsString">No Posted Requests ..</string>
 </resources>
