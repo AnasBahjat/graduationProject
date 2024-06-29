@@ -793,7 +793,7 @@ public class FilterData {
             return listOfData;
         List<TeacherPostRequest> filteredList = new ArrayList<>();
         for(TeacherPostRequest tpr:listOfData){
-            if(tpr.getCourses().toLowerCase().contains(course.trim().toLowerCase())&& tpr.getLocation().trim().contains(location.trim().toLowerCase())){
+            if(tpr.getCourses().toLowerCase().contains(course.trim().toLowerCase()) && tpr.getLocation().trim().contains(location.trim().toLowerCase())){
                 filteredList.add(tpr);
             }
         }
