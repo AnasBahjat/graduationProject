@@ -203,13 +203,47 @@
         android:layout_marginEnd="10dp"
         android:textColor="#1A8E9E"/>
 
+    <ImageView
+        android:id="@+id/choseDaysImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/days_icon"
+        android:layout_below="@id/teachingMethodTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        />
+    <TextView
+        android:id="@+id/choseDaysTextViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Days : "
+        android:textSize="16sp"
+        android:layout_below="@id/teachingMethodTextView"
+        android:layout_toEndOf="@id/choseDaysImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:id="@+id/choseDaysTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@id/teachingMethodTextView"
+        android:layout_toEndOf="@id/choseDaysTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"/>
+
 
     <ImageView
         android:id="@+id/timeImageView"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:src="@drawable/duration_image"
-        android:layout_below="@id/teachingMethodTextView"
+        android:layout_below="@id/choseDaysTextView"
         android:layout_alignParentStart="true"
         android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
@@ -220,7 +254,7 @@
         android:layout_height="wrap_content"
         android:text="Duration : "
         android:textSize="16sp"
-        android:layout_below="@id/teachingMethodTextView"
+        android:layout_below="@id/choseDaysTextView"
         android:layout_toEndOf="@id/timeImageView"
         android:layout_marginTop="20dp"
         android:layout_marginStart="10dp"/>
@@ -230,7 +264,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:layout_below="@id/teachingMethodTextView"
+        android:layout_below="@id/choseDaysTextView"
         android:layout_toEndOf="@id/durationTextViewTemp"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
@@ -463,7 +497,7 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
-        android:src="@drawable/education_level_icon"/>
+        android:src="@drawable/grades_icon"/>
     <TextView
         android:id="@+id/gradesViewTemp"
         android:layout_width="wrap_content"
@@ -488,6 +522,40 @@
         android:layout_marginEnd="20dp"
         />
 
+    <ImageView
+        android:id="@+id/priceImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_below="@id/gradesTextView"
+        android:layout_toEndOf="@id/profileImageView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/price_icon"/>
+    <TextView
+        android:id="@+id/priceViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="Price Per Hour :"
+        android:layout_toEndOf="@id/priceImageView"
+        android:layout_marginStart="8dp"
+        android:layout_below="@id/gradesTextView"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/priceTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_toEndOf="@id/priceViewTemp"
+        android:layout_below="@id/gradesTextView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="8dp"
+        android:textColor="#1A8E9E"
+        android:layout_marginEnd="20dp"
+        />
+
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -502,11 +570,12 @@
         android:text="Send Message"
         android:textSize="16sp"
         android:textAllCaps="false"
-        android:layout_below="@id/gradesTextView"
+        android:layout_below="@id/priceTextView"
         android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/usedColor" />
 
     <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/sendRequestToTeacherBtn"
         android:layout_width="140dp"
         android:layout_height="60dp"
         android:layout_marginStart="100dp"
@@ -515,7 +584,7 @@
         android:layout_toStartOf="@+id/sendMessageToTeacherBtn"
         android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/usedColor"
-        android:layout_below="@id/gradesTextView"
+        android:layout_below="@id/priceTextView"
         android:text="Send Request"
         android:textAllCaps="false"
         android:textSize="16sp" />

@@ -20,6 +20,7 @@ import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.GetParentChildren;
+import com.example.graduationproject.listeners.GetParentChildrenForRequest;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
@@ -537,6 +538,40 @@ public class Database {
         queue.add(stringRequest);
     }
 
+    public void getParentChildrenForRequest(String parentEmail, final GetParentChildrenForRequest getParentChildrenForRequestResult){
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentChildren,resp->{
+            try {
+                if(resp.equalsIgnoreCase("No Data")){
+                    getParentChildrenForRequestResult.getChildrenForRequestResult(-1,null);
+                }
+                else if(resp.equalsIgnoreCase("ERROR")){
+                    getParentChildrenForRequestResult.getChildrenForRequestResult(-2,null);
+                }
+                else if(resp.equalsIgnoreCase("Connection Error")){
+                    getParentChildrenForRequestResult.getChildrenForRequestResult(0,null);
+                }
+                else {
+                    getParentChildrenForRequestResult.getChildrenForRequestResult(1,new JSONArray(resp));
+                }
+            }
+            catch (JSONException e){
+
+            }
+        },err ->{
+            getParentChildrenForRequestResult.getChildrenForRequestResult(-5,null);
+        }){
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",parentEmail);
+                return data ;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
 
     public void addNewChild(String parentEmail, Children child, final AddNewChildListener addNewChildListener){
 
@@ -590,6 +625,8 @@ public class Database {
                 data.put("teachingMethod",teacherMatchModel.getTeachingMethod());
                 data.put("startTime",teacherMatchModel.getStartTime());
                 data.put("endTime",teacherMatchModel.getEndTime());
+                data.put("priceMin",teacherMatchModel.getPriceMinimum()+"");
+                data.put("priceMax",teacherMatchModel.getPriceMaximum()+"");
                 return  data;
             }
         };
@@ -689,7 +726,6 @@ public class Database {
                 updateTeacherPostedRequest.onDataUpdate(-3);
             else if(res.equalsIgnoreCase("Done")){
                 updateTeacherPostedRequest.onDataUpdate(1);
-                Log.d("123123123123","123123123123Anas");
             }
             else
                 updateTeacherPostedRequest.onDataUpdate(-4);
@@ -708,6 +744,8 @@ public class Database {
                 data.put("courses", teacherMatchModel.getCourses());
                 data.put("location", teacherMatchModel.getLocation());
                 data.put("teachingMethod", teacherMatchModel.getTeachingMethod());
+                data.put("priceMin", teacherMatchModel.getPriceMinimum()+"");
+                data.put("priceMax", teacherMatchModel.getPriceMaximum()+"");
                 return data;
             }
         };
@@ -739,8 +777,6 @@ public class Database {
     public void insertTeacherPostRequest(TeacherPostRequest teacherPostRequest,final TeacherPostListener teacherPostListener){
         requestQueue = Volley.newRequestQueue(context);
 
-        Log.d("----->","-------------------->"+teacherPostRequest.getStartTime());
-        Log.d("----->","-------------------->"+teacherPostRequest.getEndTime());
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertTeacherPostRequest,resp->{
             if(resp.equalsIgnoreCase("Connection Error"))
@@ -766,6 +802,7 @@ public class Database {
                 data.put("teachingMethod",teacherPostRequest.getTeachingMethod());
                 data.put("startTime",teacherPostRequest.getStartTime());
                 data.put("endTime",teacherPostRequest.getEndTime());
+                data.put("price",teacherPostRequest.getPrice()+"");
                 return data;
             }
         };
@@ -871,6 +908,7 @@ public class Database {
                 data.put("teachingMethod",teacherPostRequest.getTeachingMethod());
                 data.put("startTime",teacherPostRequest.getStartTime());
                 data.put("endTime",teacherPostRequest.getEndTime());
+                data.put("price",teacherPostRequest.getPrice()+"");
                 return data;
             }
         };

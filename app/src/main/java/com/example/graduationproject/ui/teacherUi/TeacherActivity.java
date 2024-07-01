@@ -262,7 +262,8 @@ public class TeacherActivity extends AppCompatActivity implements
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
                     teacherMatchingDataToPassToTeacherFragment.clear();
-                    database.getTeacherMatchingData(email,TeacherActivity.this);
+                    loadTeacherFragment();
+                   // database.getTeacherMatchingData(email,TeacherActivity.this);
                     //loadTeacherFragment();
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
@@ -356,7 +357,7 @@ public class TeacherActivity extends AppCompatActivity implements
         }
         else if(menuItem.getItemId() == R.id.availablePosts){
             Intent intent = new Intent();
-            intent.setAction("SHOW_AVAILABLE_JOBS_FOR_TEACHER");
+            intent.setAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
@@ -850,6 +851,7 @@ public class TeacherActivity extends AppCompatActivity implements
         String duration = teacherLookForJobLayoutBinding.numberOfMonthsEdtText.getText().toString();
         String location = teacherLookForJobLayoutBinding.locationSpinner.getSelectedItem().toString();
         String teachingMethod = teacherLookForJobLayoutBinding.teachingMethodSpinner.getSelectedItem().toString();
+        String price = teacherLookForJobLayoutBinding.priceEditText.getText().toString();
         if(teacherLookForJobLayoutBinding.coursesFlexBoxLayout.getChildCount() == 0){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please add at least one course ..");
         }
@@ -862,18 +864,23 @@ public class TeacherActivity extends AppCompatActivity implements
                     MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
                 }
                 else {
-                    StringBuilder coursesStr = new StringBuilder();
-                    for(int i=0;i<teacherAddedCoursesList.size();i++){
-                        if(i + 1 != teacherAddedCoursesList.size()){
-                            coursesStr.append(teacherAddedCoursesList.get(i)).append(" , ");
-                        }
-                        else {
-                            coursesStr.append(teacherAddedCoursesList.get(i));
-                        }
+                    if(teacherLookForJobLayoutBinding.priceEditText.getText().toString().isEmpty() || Double.parseDouble(price) < 1.0 || Double.parseDouble(price) > 100.0){
+                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Invalid Price","Please Enter A valid Price Value in $ ..");
                     }
-                    tpr = new TeacherPostRequest(lastTeacherPostId+1,
-                            email,coursesStr.toString(),educationalLevel,duration,staticAvailability,location,teachingMethod,startTime,endTime);
-                    database.insertTeacherPostRequest(tpr,this);
+                    else {
+                        StringBuilder coursesStr = new StringBuilder();
+                        for(int i=0;i<teacherAddedCoursesList.size();i++){
+                            if(i + 1 != teacherAddedCoursesList.size()){
+                                coursesStr.append(teacherAddedCoursesList.get(i)).append(" , ");
+                            }
+                            else {
+                                coursesStr.append(teacherAddedCoursesList.get(i));
+                            }
+                        }
+                        tpr = new TeacherPostRequest(lastTeacherPostId+1,
+                                email,coursesStr.toString(),educationalLevel,duration,staticAvailability,location,teachingMethod,startTime,endTime,Double.parseDouble(price));
+                        database.insertTeacherPostRequest(tpr,this);
+                    }
                 }
             }
         }
@@ -1209,7 +1216,7 @@ public class TeacherActivity extends AppCompatActivity implements
                             binding.overlayView.setVisibility(View.GONE);
                             showTeacherMatchDialog(teacherMatchModelTemp,tempFirstName+" "+tempLastName,tempPhoneList);
                         }
-                    },1500);
+                    },1000);
                         //showTeacherMatchDialog(teacherMatchModelTemp,parentFirstName+" "+parentLastName,phoneList);
                 }
                 else {

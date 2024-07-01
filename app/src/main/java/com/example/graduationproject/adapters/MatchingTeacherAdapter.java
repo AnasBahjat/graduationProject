@@ -63,7 +63,7 @@ public class MatchingTeacherAdapter extends RecyclerView.Adapter<MatchingTeacher
             binding.locationTextView.setText(teacherMatchModel.getLocation());
             binding.teachingMethodTextView.setText(teacherMatchModel.getTeachingMethod());
             binding.timeTextView.setText(teacherMatchModel.getStartTime()+" - "+teacherMatchModel.getEndTime());
-
+            binding.priceTextView.setText(teacherMatchModel.getPriceMinimum()+"$"+" - "+teacherMatchModel.getPriceMaximum()+"$");
             binding.matchTeacherCardView.setOnClickListener(cl->{
                 cardClicked(teacherMatchModel);
             });

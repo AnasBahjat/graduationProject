@@ -384,12 +384,49 @@
                 android:entries="@array/teachingMethods"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/priceLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teachingMethodLayout"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Price Per Hour"
+                android:textSize="20sp"
+                android:layout_marginTop="20dp"
+                />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/priceEditTextLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:layout_gravity="center"
+                android:hint="Price "
+                app:endIconMode="clear_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/price_icon">
+
+                <EditText
+                    android:id="@+id/priceEditText"
+                    android:layout_width="200dp"
+                    android:layout_height="56dp"
+                    android:maxLength="3"
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="numberDecimal"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/updateTeacherRequestBtn"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/teachingMethodLayout"
+            android:layout_below="@id/priceLayout"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="20dp"

@@ -66,6 +66,7 @@ public class ParentPostedRequestsAdapter extends RecyclerView.Adapter<ParentPost
             binding.locationTextView.setText(requestModel.getLocation());
             binding.teachingMethodTextView.setText(requestModel.getTeachingMethod());
             binding.timeTextView.setText(requestModel.getStartTime()+" - "+requestModel.getEndTime());
+            binding.priceTextView.setText(requestModel.getPriceMinimum()+"$"+" - "+requestModel.getPriceMaximum()+"$");
 
            /* binding.childNameTextView.setText(requestModel.getChildren().getChildName());
             binding.coursesTextView.setText(requestModel.getCourses());

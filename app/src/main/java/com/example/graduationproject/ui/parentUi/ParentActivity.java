@@ -111,7 +111,7 @@ public class ParentActivity extends AppCompatActivity implements
     private EditText childAgeEditText ;
     private Spinner childGenderSpinner,childGradeSpinner,locationSpinner,teachingMethodSpinner ;
     private Button addNewChildButton,addCourseButton;
-
+    private EditText priceFromEditText,priceToEditText ;
     private TextInputLayout childNameText;
     private TextInputLayout ageText;
     AlertDialog newChildDialog;
@@ -169,7 +169,6 @@ public class ParentActivity extends AppCompatActivity implements
         initBroadcastReceiver();
 
         if(doneInformation.equals("1")){
-           // database.getParentPostedMatchingInformation(email,ParentActivity.this);
             loadParentFragment(null);
         }
         database.getLastMatchingId(this);
@@ -246,8 +245,6 @@ public class ParentActivity extends AppCompatActivity implements
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
-                  //  database.getParentPostedMatchingInformation(email,ParentActivity.this);
-                   // loadFragment(null);
                     loadParentFragment(null);
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
@@ -347,7 +344,6 @@ public class ParentActivity extends AppCompatActivity implements
             Parent parent = new Parent(email,id,phone,childrenList,city,country);
             database.confirmParentInformation(parent,this);
             loadParentFragment(null);
-        //    database.getParentPostedMatchingInformation(email,ParentActivity.this);
         }
 
     }
@@ -612,11 +608,11 @@ public class ParentActivity extends AppCompatActivity implements
         flexboxCoursesForMatchingTeacherLayout = dialogView.findViewById(R.id.flexboxLayoutMatchTeacher);
         addCourseButton = dialogView.findViewById(R.id.addCourseMatchingTeacherBtn);
         teachingMethodSpinner = dialogView.findViewById(R.id.teachingMethod);
+        priceFromEditText = dialogView.findViewById(R.id.priceFromEditText);
+        priceToEditText = dialogView.findViewById(R.id.priceToEditText);
 
         EditText startTimePickerEditText = dialogView.findViewById(R.id.startTimeEdtText);
         EditText endTimePickerEditText= dialogView.findViewById(R.id.endTimeEdtText);
-
-
 
         searchingForTeacherDialog = builder.create();
         searchingForTeacherDialog.show();
@@ -637,6 +633,8 @@ public class ParentActivity extends AppCompatActivity implements
         closeImageView.setOnClickListener(ad->{
             searchingForTeacherDialog.dismiss();
         });
+
+
 
         childrenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -804,30 +802,37 @@ public class ParentActivity extends AppCompatActivity implements
                     MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please Choose At least one course ..");
                 }
                 else {
-                    if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
-                        StringBuilder courses= new StringBuilder();
-                        for(int i=0 ; i < coursesListForMatchingTeacher.size() ; i++){
-                            if(i + 1 != coursesListForMatchingTeacher.size()){
-                                courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
+                    double priceMinimum = Double.parseDouble(priceFromEditText.getText().toString());
+                    double priceMaximum = Double.parseDouble(priceToEditText.getText().toString());
+
+                    if(priceFromEditText.getText().toString().isEmpty() || priceToEditText.getText().toString().isEmpty()|| priceMinimum < 1.0 || priceMaximum > 100.0 || priceMinimum >= priceMaximum)
+                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong price","Please Choose Valid Price Range Values ..");
+                    else {
+                        if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
+                            StringBuilder courses= new StringBuilder();
+                            for(int i=0 ; i < coursesListForMatchingTeacher.size() ; i++){
+                                if(i + 1 != coursesListForMatchingTeacher.size()){
+                                    courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
+                                }
+                                else {
+                                    courses.append(coursesListForMatchingTeacher.get(i));
+                                }
                             }
-                            else {
-                                courses.append(coursesListForMatchingTeacher.get(i));
-                            }
+
+                            TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
+                                    ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime,priceMinimum,priceMaximum);
+
+                            TeacherMatchModel teacherMatchModel1 = new TeacherMatchModel(lastMatchingId+1
+                                    ,email,
+                                    new CustomChildData(selectedChildId,selectedChildName,
+                                            Integer.parseInt(selectedChildGrade.trim())),
+                                    selectedDays.toString(),courses.toString(),
+                                    city,teachingMethodStr,
+                                    new Children(selectedChildName,"12",selectedChildGender,
+                                            Integer.parseInt(selectedChildGrade.trim())),startTime,endTime,priceMinimum,priceMaximum);
+                            // intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
+                            database.addNewTeacherMatching(email,teacherMatchModel,this);
                         }
-
-                        TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
-                                ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime);
-
-                        TeacherMatchModel teacherMatchModel1 = new TeacherMatchModel(lastMatchingId+1
-                                ,email,
-                                new CustomChildData(selectedChildId,selectedChildName,
-                                Integer.parseInt(selectedChildGrade.trim())),
-                                selectedDays.toString(),courses.toString(),
-                                city,teachingMethodStr,
-                                new Children(selectedChildName,"12",selectedChildGender,
-                                        Integer.parseInt(selectedChildGrade.trim())),startTime,endTime);
-                       // intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
-                       database.addNewTeacherMatching(email,teacherMatchModel,this);
                     }
                 }
             }

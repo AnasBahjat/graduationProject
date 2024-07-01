@@ -1,5 +1,6 @@
 package com.example.graduationproject.ui.parentUi;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -39,12 +40,14 @@ import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
 import com.example.graduationproject.databinding.DialogParentPostedRequestCardBinding;
+import com.example.graduationproject.databinding.DialogSendRequestToTeacherLayoutBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
 import com.example.graduationproject.databinding.ParentFilterLayoutBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestsCardToShowToParentBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.GetParentChildren;
+import com.example.graduationproject.listeners.GetParentChildrenForRequest;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
@@ -61,6 +64,7 @@ import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
 import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,20 +92,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         UpdateTeacherPostedRequestListener,
         ParentPostRequestDeleteListener,
         OnAllTeacherPostedRequestsForParentListener,
-        TeacherPostRequestClickListener {
+        TeacherPostRequestClickListener, GetParentChildrenForRequest {
 
-    private String email,firstName,lastName,birthDate,gender,idNumber ;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private String idNumber ;
     List<Address> parentAddress = new ArrayList<>() ;
     List<String> phoneNumbersList = new ArrayList<>();
     private FragmentParentBinding binding;
     private Database database;
     private ArrayList<TeacherMatchModel> parentPostedRequestsList = new ArrayList<>();
 
-    private ParentPostedRequestsAdapter parentPostedRequests;
     private TeacherPostedRequestsAdapter teacherPostedRequestsAdapter;
 
-    private boolean btn1Clicked = false;
-    private boolean btn2Clicked = true;
+    private boolean myCoursesBtnForParent = false;
+    private boolean myPostedRequestsBtnForParent = true;
     private int currentClickedPostedCardId = 0 ;
 
     private boolean isBroadcastReceiverRegistered = false;
@@ -112,39 +118,40 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private final List<CustomChildData> childrenSpinnerList = new ArrayList<>();
     private final List<Children> parentChildrenList = new ArrayList<>();
     TeacherMatchModel requestModelTemp ;
-    private int selectedChildId,selectedChildGender ;
+    private int selectedChildId;
     private String selectedChildName,selectedChildGrade ;
 
     private  TeacherMatchModel requestModel;
-    private String [] splittedCourses ;
 
     List<String> coursesList = new ArrayList<>();
     TeacherMatchModel tmm ;
 
-    private String amPmStart,amPmEnd;
     private String startTime ="12:00 PM", endTime="12:00 PM";
     private Dialog clickedCardDialog;
     private Dialog deleteParentPostedTeacherMatchingDialog;
     private boolean browseTeacherPostedRequestsForParent = false;
-    private boolean myPostedRequestsItemForParent = false;
+    private boolean myReceivedRequestsForParent = false;
 
-    private List<TeacherPostRequest> teacherPostedRequestsForParentList = new ArrayList<>();
+    private final List<TeacherPostRequest> teacherPostedRequestsForParentList = new ArrayList<>();
 
+    private TeacherPostRequest tempTeacherPostRequestForSendingRequest ;
 
+    @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
     private Dialog filterDialog ;
     private ParentFilterLayoutBinding parentFilterLayoutBinding ;
-    private String[] locationArrayForFilter;
-    private List<String> filterSelectedLocationList = new ArrayList<>();
-    private String[] coursesArrayForFilter;
-    private List<String> filterSelectedCoursesList = new ArrayList<>();
-    private String [] childGenderArrayForFilter ;
-    private List<String> filterSelectedGenderList = new ArrayList<>();
-    private String[] childGradeArrayForFilter ;
-    private List<String> filterSelectedGradeList = new ArrayList<>();
-    private FilterData filterDataObject = new FilterData() ;
-    private String[] teachingMethodArrayForFilter;
-    private List<String> filterTeachingMethodList = new ArrayList<>();
+    private final List<String> filterSelectedLocationList = new ArrayList<>();
+    private final List<String> filterSelectedCoursesList = new ArrayList<>();
+    private final List<String> filterSelectedGenderList = new ArrayList<>();
+    private final List<String> filterSelectedGradeList = new ArrayList<>();
+    private final FilterData filterDataObject = new FilterData() ;
+    private final List<String> filterTeachingMethodList = new ArrayList<>();
+    ParentPostedRequestsAdapter parentPostedRequests ;
+    Dialog teacherPostedCardDialog;
+    TeacherPostedRequestsCardToShowToParentBinding teacherPostedRequestsCardToShowToParentBinding;
+    Dialog sendRequestToTeacherDialog ;
+    DialogSendRequestToTeacherLayoutBinding dialogSendRequestToTeacherLayoutBinding;
+    int selectedChildGender ;
 
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -154,24 +161,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
             else if("SHOW_RECEIVED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
-                btn1Clicked = false;
-                btn2Clicked = false;
+                myCoursesBtnForParent = false;
+                myPostedRequestsBtnForParent = false;
                 browseTeacherPostedRequestsForParent=false;
-                myPostedRequestsItemForParent=true;
+                myReceivedRequestsForParent =true;
                 //ToDo(Show parent received requests ..);
-              //  binding.refreshRecyclerView.setRefreshing(true);
-               // setMyCoursesRequestsAdapter();
-                //database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
 
             else if("UPDATE_POSTED_DATA_FOR_PARENT".equals(intent.getAction())){
                 myCoursesBtnClicked();
             }
             else if("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
-                btn1Clicked = false;
-                btn2Clicked = false;
+                myCoursesBtnForParent = false;
+                myPostedRequestsBtnForParent = false;
                 browseTeacherPostedRequestsForParent=true;
-                myPostedRequestsItemForParent=true;
+                myReceivedRequestsForParent =false;
+                binding.filterLayout.setVisibility(View.VISIBLE);
                 setPostedTeacherRequestsForParent();
             }
         }
@@ -229,6 +234,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void initialize(){
         initDatabase();
         initCoursesRecyclerView();
+        binding.filterLayout.setVisibility(View.GONE);
         setMyPostedRequestsAdapter();
         binding.myPostedRequestsBtn.setOnClickListener(x->{
             myCoursesBtnClicked();
@@ -239,16 +245,16 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         });
 
         binding.refreshRecyclerView.setOnRefreshListener(()->{
-            if(btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+            if(myCoursesBtnForParent && !myPostedRequestsBtnForParent && !browseTeacherPostedRequestsForParent && !myReceivedRequestsForParent){
                 refreshAction(1);
             }
-            else if(!btn1Clicked && btn2Clicked && !browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+            else if(!myCoursesBtnForParent && myPostedRequestsBtnForParent && !browseTeacherPostedRequestsForParent && !myReceivedRequestsForParent){
                 refreshAction(2);
             }
-            else if(!btn1Clicked && !btn2Clicked && browseTeacherPostedRequestsForParent && !myPostedRequestsItemForParent){
+            else if(!myCoursesBtnForParent && !myPostedRequestsBtnForParent && browseTeacherPostedRequestsForParent && !myReceivedRequestsForParent){
                 refreshAction(3); // update browse teacher posted list for parent ..
             }
-            else if(!btn1Clicked && !btn2Clicked && !browseTeacherPostedRequestsForParent && myPostedRequestsItemForParent){
+            else if(!myCoursesBtnForParent && !myPostedRequestsBtnForParent && !browseTeacherPostedRequestsForParent && myReceivedRequestsForParent){
                 refreshAction(4); // update posted parent requests for know list for parent ..
                 // it will be received requests and btn2 will be posted requests
             }
@@ -292,21 +298,23 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void myCoursesBtnClicked(){
         binding.parentFragmentSearch.clearFocus();
         binding.parentFragmentSearch.setQuery(null,false);
-        setMyCoursesRequestsAdapter();
-        btn1Clicked = true;
-        btn2Clicked = false;
+        binding.filterLayout.setVisibility(View.GONE);
+        myCoursesBtnForParent = true;
+        myPostedRequestsBtnForParent = false;
         browseTeacherPostedRequestsForParent = false ;
-        myPostedRequestsItemForParent = false;
+        myReceivedRequestsForParent = false;
+        setMyCoursesRequestsAdapter();
     }
 
     private void myPostedRequestsBtnClicked(){
         binding.parentFragmentSearch.clearFocus();
         binding.parentFragmentSearch.setQuery(null,false);
-        setMyPostedRequestsAdapter();
-        btn1Clicked = false;
-        btn2Clicked = true;
+        binding.filterLayout.setVisibility(View.GONE);
+        myCoursesBtnForParent = false;
+        myPostedRequestsBtnForParent = true;
         browseTeacherPostedRequestsForParent = false ;
-        myPostedRequestsItemForParent = false ;
+        myReceivedRequestsForParent = false ;
+        setMyPostedRequestsAdapter();
     }
 
     private void setMyCoursesRequestsAdapter(){
@@ -321,7 +329,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchInParentRequestsData(newText);
+                searchInParentPostedRequestsForParent(newText);
                 return true;
             }
         });
@@ -342,7 +350,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchInParentRequestsData(newText);
+                searchInParentPostedRequestsForParent(newText);
                 return true;
             }
         });
@@ -351,7 +359,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
 
-    private void searchInParentRequestsData(String str){
+    private void searchInParentPostedRequestsForParent(String str){
         String text = str.toLowerCase().trim();
         List<TeacherMatchModel> teacherMatchModelList = new ArrayList<>();
         for(TeacherMatchModel model : parentPostedRequestsList){
@@ -360,20 +368,23 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     || model.getChoseDays().toLowerCase().trim().contains(text) || model.getCourses().toLowerCase().trim().contains(text)
                     || model.getLocation().toLowerCase().trim().contains(text) || model.getTeachingMethod().toLowerCase().trim().contains(text)
                     || model.getStartTime().toLowerCase().trim().contains(text) || model.getEndTime().toLowerCase().trim().contains(text)
-                    || model.getChildren().getChildAge().toLowerCase().trim().contains(text) || (""+model.getChildren().getChildGender()).toLowerCase().trim().contains(text)){
+                    || (model.getCustomChildData().getChildAge()+"").toLowerCase().trim().contains(text) || (""+model.getCustomChildData().getGender()).toLowerCase().trim().contains(text)){
                 teacherMatchModelList.add(model);
             }
-            if(teacherMatchModelList.isEmpty()){
-                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-            }
-            else {
-                //postedTeacherRequestsAdapter.filteredList(teacherMatchModelList);
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-
-            }
-
+        }
+        if(teacherMatchModelList.isEmpty()){
+            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+            binding.noTeacherPostedRequests.setVisibility(View.GONE);
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+        }
+        else {
+            //postedTeacherRequestsAdapter.filteredList(teacherMatchModelList);
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+            binding.noTeacherPostedRequests.setVisibility(View.GONE);
+            binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+            parentPostedRequests.filteredList(teacherMatchModelList);
         }
     }
 
@@ -439,6 +450,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         String teachingMethod=jsonObject.getString("teachingMethod");
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
+                        double priceMin = jsonObject.getDouble("priceMin");
+                        double priceMax = jsonObject.getDouble("priceMax");
                         if(i==parentInformation.length() - 1){
                             String phoneNumbers = jsonObject.getString("phoneNumbers");
                             if(phoneNumbers.contains(",")){
@@ -463,9 +476,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                             }
                         }
 
-                        tempTeacherMatchModelList.add(new TeacherMatchModel(matchingId,new CustomChildData(childId,childName,childGrade,childGender),
+                        tempTeacherMatchModelList.add(new TeacherMatchModel(matchingId,new CustomChildData(childId,childName,childGrade,childGender,childAge),
                                 matchingChoseDays,courses,location,
-                                teachingMethod,startTime,endTime,new Parent(email,idNumber,firstName,lastName,parentBirthDate,parentId,parentAddress,phoneNumbersList)));
+                                teachingMethod,startTime,endTime,priceMin,priceMax,new Parent(email,idNumber,firstName,lastName,parentBirthDate,parentId,parentAddress,phoneNumbersList)));
                 }
                 parentPostedRequestsList = tempTeacherMatchModelList;
                 updateParentPostedRequests();
@@ -482,10 +495,20 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
         }
         else{
-            parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList,getContext(),this);
+            assert getView() != null;
+            parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList, getContext(), this);
+            /*binding.postedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator(){
+                @Override
+                public void onAddFinished(RecyclerView.ViewHolder item) {
+                    super.onAddFinished(item);
+                    item.itemView.setAlpha(0);
+                    item.itemView.animate().alpha(1).setDuration(2000).start();
+                }
+            });*/
             binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+            Snackbar.make(getView(), "Your Posted Data Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
             // parentPostedRequests.filteredList(tempTeacherMatchModelList);
         }
         binding.refreshRecyclerView.setRefreshing(false);
@@ -548,6 +571,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             dialogParentPostedRequestCardBinding.teachingMethodTextView.setText(requestModel.getTeachingMethod());
             dialogParentPostedRequestCardBinding.timeTextView.setText(requestModel.getStartTime() + " - "+requestModel.getEndTime());
             dialogParentPostedRequestCardBinding.locationTextView.setText(requestModel.getLocation());
+            dialogParentPostedRequestCardBinding.priceTextView.setText(requestModel.getPriceMinimum()+"$"+" - "+requestModel.getPriceMaximum()+"$");
 
 
             dialogParentPostedRequestCardBinding.closeImageView.setOnClickListener(a->{
@@ -557,6 +581,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 requestModelTemp = requestModel;
                 showPopupMenuForCard();
             });
+
         }
     }
 
@@ -638,7 +663,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     selectedChildId = data.getChildId();
                     selectedChildName = splittedString[0].trim();
                     selectedChildGrade = splittedString[1].trim();
-                    selectedChildGender = data.getGender();
                     updatedCoursesSpinner();
                 }
 
@@ -654,6 +678,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             endTime=requestModel.getEndTime();
             postTeacherRequestPopupWindowBinding.startTimeEdtText.setText(requestModel.getStartTime());
             postTeacherRequestPopupWindowBinding.endTimeEdtText.setText(requestModel.getEndTime());
+            postTeacherRequestPopupWindowBinding.priceFromEditText.setText(requestModel.getPriceMinimum()+"");
+            postTeacherRequestPopupWindowBinding.priceToEditText.setText(requestModel.getPriceMaximum()+"");
 
 
 
@@ -717,22 +743,31 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Courses","Please Choose At least one course ..");
                 }
                 else {
-                    StringBuilder courses= new StringBuilder();
-                    for(int i=0 ; i < coursesList.size() ; i++){
-                        if(i + 1 != coursesList.size()){
-                            courses.append(coursesList.get(i)).append(" , ");
-                        }
-                        else {
-                            courses.append(coursesList.get(i));
-                        }
+                    double priceMin = Double.parseDouble(postTeacherRequestPopupWindowBinding.priceFromEditText.getText().toString());
+                    double priceMax = Double.parseDouble(postTeacherRequestPopupWindowBinding.priceToEditText.getText().toString());
+
+                    if(postTeacherRequestPopupWindowBinding.priceFromEditText.getText().toString().isEmpty() || postTeacherRequestPopupWindowBinding.priceToEditText.getText().toString().isEmpty()||priceMin < 1.0 ||priceMax > 100.0 || priceMin >= priceMax){
+                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Invalid Price","Please Choose A Valid Price Value ..\n0.0 - 100 $");
                     }
-                    String city = postTeacherRequestPopupWindowBinding.locationSpinner.getSelectedItem().toString();
-                    String teachingMethodStr = postTeacherRequestPopupWindowBinding.teachingMethod.getSelectedItem().toString();
-                    tmm = new TeacherMatchModel(requestModel.getMatchingId(),new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
-                            ,selectedDays.toString(),courses.toString(),
-                            city,
-                            teachingMethodStr,startTime,endTime);
-                    database.updateParentPostedRequest(email,tmm,this);
+                    else {
+                        StringBuilder courses= new StringBuilder();
+                        for(int i=0 ; i < coursesList.size() ; i++){
+                            if(i + 1 != coursesList.size()){
+                                courses.append(coursesList.get(i)).append(" , ");
+                            }
+                            else {
+                                courses.append(coursesList.get(i));
+                            }
+                        }
+                        String city = postTeacherRequestPopupWindowBinding.locationSpinner.getSelectedItem().toString();
+                        String teachingMethodStr = postTeacherRequestPopupWindowBinding.teachingMethod.getSelectedItem().toString();
+                        tmm = new TeacherMatchModel(requestModel.getMatchingId(),new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
+                                ,selectedDays.toString(),courses.toString(),
+                                city,
+                                teachingMethodStr,startTime,endTime,priceMin,priceMax);
+                        database.updateParentPostedRequest(email,tmm,this);
+
+                    }
                 }
             }
         }
@@ -801,7 +836,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
                 SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
                 String amPm = amPmFormat.format(c.getTime());
-                amPmStart = amPm;
 
 
                 SimpleDateFormat format = new SimpleDateFormat("h:mm a");
@@ -828,7 +862,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
                 SimpleDateFormat amPmFormat = new SimpleDateFormat("a");
                 String amPm = amPmFormat.format(c.getTime());
-                amPmEnd = amPm;
 
                 SimpleDateFormat format = new SimpleDateFormat("h:mm a");
                 String time = format.format(c.getTime());
@@ -862,7 +895,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
     }
     private void setFlexBoxAddedCoursesForPostedRequest(){
-        splittedCourses  = requestModel.getCourses().trim().split(",");
+        String[] splittedCourses = requestModel.getCourses().trim().split(",");
         try{
             for(String str : splittedCourses){
                 if(!checkIfCourseAddedToList(str))
@@ -999,6 +1032,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             try {
+                String gender;
+                String birthDate;
                 if(parentInformation.length() == 1){
                     JSONObject jsonObject = parentInformation.getJSONObject(0);
                     firstName = jsonObject.getString("firstname").toLowerCase();
@@ -1090,22 +1125,17 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     @Override
     public void onDataUpdate(int flag) {
         if(flag == 1){
-           // MyAlertDialog.showDialogForDone(getContext(),"Done","Data Updated ..");
-            // ToDo (ERROR THE DATA IS NOT UPDATED ...)
-            //binding.tempProgressBar.setVisibility(View.VISIBLE);
             postTeacherRequestPopupWindowBinding.progressBarLayout.setVisibility(View.VISIBLE);
             this.requestModel = tmm ;
             clickedCardDialog.dismiss();
-          //  database.getParentInformation(email,this);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    //binding.tempProgressBar.setVisibility(View.GONE);
                     postTeacherRequestPopupWindowBinding.progressBarLayout.setVisibility(View.GONE);
                     updateParentPostedRequestDialog.dismiss();
                     database.getParentPostedMatchingInformation(email,ParentFragment.this);
                 }
-            },3000);
+            },1000);
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"ERROR","An Error occurred please try again later ..");
@@ -1131,12 +1161,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     }
 
     private void setPostedTeacherRequestsForParent(){
-        btn1Clicked=false;
-        btn2Clicked=false;
+        myCoursesBtnForParent=false;
+        myPostedRequestsBtnForParent=false;
         browseTeacherPostedRequestsForParent = true;
-        myPostedRequestsItemForParent = false;
+        myReceivedRequestsForParent = false;
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+
         database.getAllTeacherPostedRequestsForParent(this);
     }
 
@@ -1181,6 +1212,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 String teacherAvailabilityForJob = jsonObject.getString("availabilityForJob");
                 String location = jsonObject.getString("location");
                 String teachingMethod = jsonObject.getString("teachingMethod");
+                double price = jsonObject.getDouble("price");
                 if(i==teacherPostsData.length() - 1){
                     String teacherPhoneNumbers = jsonObject.getString("phoneNumbers");
                     if(teacherPhoneNumbers.contains(",")){
@@ -1208,7 +1240,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         new Teacher(teacherEmail,idNumber,studentOrGraduate+"",expectedGraduationYear,teacherCollege,
                                 teacherField,teacherGender,teacherBirthDate,teacherStaticAvailability,educationLevel,teacherAddressesList,
                                 teacherPhoneNumbersList,teacherFirstName+" "+teacherLastName
-                                ),teacherPostStartTime,teacherPostEndTime));
+                                ),teacherPostStartTime,teacherPostEndTime,price));
             }
             setTeacherPostsForParent();
         }
@@ -1222,6 +1254,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.noChildrenCourses.setVisibility(View.GONE);
         }
         else {
+            assert getView() != null;
             teacherPostedRequestsAdapter =
                     new TeacherPostedRequestsAdapter(teacherPostedRequestsForParentList,getContext(),this);
             binding.postedRequestsRecyclerView.setAdapter(teacherPostedRequestsAdapter);
@@ -1230,14 +1263,84 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.noChildrenCourses.setVisibility(View.GONE);
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.refreshRecyclerView.setRefreshing(false);
+
+            binding.parentFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    searchInTeacherPostedDataForParent(newText);
+                    return true;
+                }
+            });
+
+            Snackbar.make(getView(), "Teacher Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+        }
+    }
+
+    private void searchInTeacherPostedDataForParent(String textToSearch){
+        textToSearch = textToSearch.toLowerCase();
+        List<TeacherPostRequest> teacherPostRequestSearchList = new ArrayList<>();
+        for(TeacherPostRequest model : teacherPostedRequestsForParentList){
+            int flag = 0 ;
+            if(model.getLocation().toLowerCase().contains(textToSearch) || model.getCourses().toLowerCase().contains(textToSearch) ||
+            model.getEducationLevel().toLowerCase().contains(textToSearch) || model.getEndTime().toLowerCase().equalsIgnoreCase(textToSearch)||
+            model.getAvailability().toLowerCase().contains(textToSearch) || model.getDuration().toLowerCase().contains(textToSearch) ||
+            model.getStartTime().toLowerCase().contains(textToSearch) || model.getTeacherEmail().toLowerCase().contains(textToSearch) ||
+            model.getTeachingMethod().toLowerCase().contains(textToSearch) || model.getTeacherData().getEducationalLevel().toLowerCase().contains(textToSearch) ||
+            model.getTeacherData().getTeacherName().toLowerCase().contains(textToSearch) || model.getTeacherData().getAvailability().toLowerCase().contains(textToSearch) || model.getTeacherData().getField().toLowerCase().contains(textToSearch)){
+                Log.d("Model.Location ---> "+model.getLocation(),"Model.Location ---> "+model.getLocation());
+                flag = 1 ;
+                teacherPostRequestSearchList.add(model);
+            }
+
+            else if(model.getTeacherData().getGender() == 1 && textToSearch.equalsIgnoreCase("Male"))
+                teacherPostRequestSearchList.add(model);
+            else if(model.getTeacherData().getGender() == 0 && textToSearch.equalsIgnoreCase("Female"))
+                teacherPostRequestSearchList.add(model);
+
+            if(flag == 0){
+                for(Address address : model.getTeacherData().getAddressesList()){
+                    if(address.getCity().toLowerCase().contains(textToSearch) || address.getCountry().toLowerCase().contains(textToSearch)){
+                        flag = 1 ;
+                        teacherPostRequestSearchList.add(model);
+                        break;
+                    }
+                }
+            }
+
+            if(flag == 0){
+                for(String phone : model.getTeacherData().getPhoneNumbersList()){
+                    if (phone.equalsIgnoreCase(textToSearch)){
+                        teacherPostRequestSearchList.add(model);
+                        break;
+                    }
+                }
+            }
+        }
+        if(teacherPostRequestSearchList.isEmpty()){
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.noTeacherPostedRequests.setVisibility(View.VISIBLE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+        }
+        else {
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.noTeacherPostedRequests.setVisibility(View.GONE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+            teacherPostedRequestsAdapter.filteredList(teacherPostRequestSearchList);
+            binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void onTeacherPostClicked(TeacherPostRequest teacherPostRequest) {
         if(getContext() != null){
-            Dialog teacherPostedCardDialog = new Dialog(getContext());
-            TeacherPostedRequestsCardToShowToParentBinding teacherPostedRequestsCardToShowToParentBinding = TeacherPostedRequestsCardToShowToParentBinding.inflate(LayoutInflater.from(getContext()));
+            teacherPostedCardDialog = new Dialog(getContext());
+            teacherPostedRequestsCardToShowToParentBinding = TeacherPostedRequestsCardToShowToParentBinding.inflate(LayoutInflater.from(getContext()));
             teacherPostedCardDialog.setContentView(teacherPostedRequestsCardToShowToParentBinding.getRoot());
             teacherPostedCardDialog.setCancelable(false);
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
@@ -1270,10 +1373,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             teacherPostedRequestsCardToShowToParentBinding.teacherPhoneNumberTextView.setText(teacherPhones);
             teacherPostedRequestsCardToShowToParentBinding.coursesTextView.setText(teacherPostRequest.getCourses());
             teacherPostedRequestsCardToShowToParentBinding.teachingMethodTextView.setText(teacherPostRequest.getTeachingMethod());
+            teacherPostedRequestsCardToShowToParentBinding.choseDaysTextView.setText(teacherPostRequest.getTeacherData().getAvailability());
             teacherPostedRequestsCardToShowToParentBinding.durationTextView.setText(teacherPostRequest.getDuration());
             teacherPostedRequestsCardToShowToParentBinding.timeTextView.setText(String.format("%s - %s", teacherPostRequest.getStartTime(), teacherPostRequest.getEndTime()));
             teacherPostedRequestsCardToShowToParentBinding.locationTextView.setText(teacherPostRequest.getLocation());
             teacherPostedRequestsCardToShowToParentBinding.collegeTextView.setText(teacherPostRequest.getTeacherData().getField());
+            teacherPostedRequestsCardToShowToParentBinding.priceTextView.setText(teacherPostRequest.getPrice()+"$");
             String teacherGender = "Male";
             if(teacherPostRequest.getTeacherData().getGender() == 0){
                 teacherGender = "Female";
@@ -1293,9 +1398,118 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             else
                 teacherPostedRequestsCardToShowToParentBinding.gradesTextView.setText("1st  -  12th Grades");
 
-
+            teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
+                sendRequestToTeacherBtnClicked(teacherPostRequest);
+            });
         }
     }
+
+    private void sendRequestToTeacherBtnClicked(TeacherPostRequest teacherPostRequest){
+        if(getContext() != null){
+            tempTeacherPostRequestForSendingRequest = teacherPostRequest ;
+            sendRequestToTeacherDialog = new Dialog(getContext());
+            dialogSendRequestToTeacherLayoutBinding = DialogSendRequestToTeacherLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            sendRequestToTeacherDialog.setContentView(dialogSendRequestToTeacherLayoutBinding.getRoot());
+            sendRequestToTeacherDialog.setCancelable(false);
+
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(sendRequestToTeacherDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            sendRequestToTeacherDialog.getWindow().setAttributes(layoutParams);
+            sendRequestToTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            if(sendRequestToTeacherDialog.getWindow() != null)
+                sendRequestToTeacherDialog.getWindow().setLayout(1300,ViewGroup.LayoutParams.WRAP_CONTENT);
+            sendRequestToTeacherDialog.show();
+
+            dialogSendRequestToTeacherLayoutBinding.closeImage.setOnClickListener(c->{
+                sendRequestToTeacherDialog.dismiss();
+            });
+
+            dialogSendRequestToTeacherLayoutBinding.teacherNameTextView.setText(teacherPostRequest.getTeacherData().getTeacherName());
+            dialogSendRequestToTeacherLayoutBinding.coursesTextView.setText(teacherPostRequest.getCourses());
+            dialogSendRequestToTeacherLayoutBinding.teachingMethodTextView.setText(teacherPostRequest.getTeachingMethod());
+            dialogSendRequestToTeacherLayoutBinding.priceTextView.setText(teacherPostRequest.getPrice()+"");
+
+            database.getParentChildrenForRequest(email,this);
+        }
+    }
+
+    private void setChildrenSpinnerData(){
+        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(getContext(),childrenSpinnerList);
+        dialogSendRequestToTeacherLayoutBinding.childrenSpinner.setAdapter(adapter);
+        dialogSendRequestToTeacherLayoutBinding.childrenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                CustomChildData data = (CustomChildData) parent.getItemAtPosition(position);
+                String[] splittedString = data.toString().split(",");
+                selectedChildId = data.getChildId();
+                selectedChildName = splittedString[0].trim();
+                selectedChildGrade = splittedString[1].trim();
+                selectedChildGender = data.getGender();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        List<CustomChildData> listOfChildrenForRequest = new ArrayList<>();
+        dialogSendRequestToTeacherLayoutBinding.addChildBtn.setOnClickListener(z->{
+            if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Elementary School") && Integer.parseInt(selectedChildGrade) > 0 && Integer.parseInt(selectedChildGrade) <= 5){
+                // accept child .. 1 - 5
+            }
+            else if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Middle School") && Integer.parseInt(selectedChildGrade) > 5 && Integer.parseInt(selectedChildGrade) <= 10){
+                // accept child ... 6 - 10
+            }
+
+            else if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("High School") && Integer.parseInt(selectedChildGrade) > 10 && Integer.parseInt(selectedChildGrade) <= 12){
+                // accept child 11 - 12
+            }
+            else if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Any")){
+                // accept all children
+            }
+            else {
+                // show Error that is not acceptable ...
+            }
+
+            CustomChildData childData = new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade),selectedChildGender);
+            if(!checkIfChildAddedToFlexBox(listOfChildrenForRequest,childData)){
+                listOfChildrenForRequest.add(childData);
+                updateRequestFlexBoxForParent(listOfChildrenForRequest);
+            }
+            else {
+                MyAlertDialog.childWarningAlreadyExists(getContext());
+            }
+        });
+    }
+
+    private void updateRequestFlexBoxForParent(List<CustomChildData> listOfChildren){
+        if(dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount() > 0)
+            dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.removeAllViews();
+        for(CustomChildData child : listOfChildren){
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            View customView = inflater.inflate(R.layout.custom_child_view,dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout,false);
+            TextView childName = customView.findViewById(R.id.textViewChildName);
+            ImageView deleteImageView = customView.findViewById(R.id.imageViewDelete);
+            childName.setText(child.getChildName()+" , "+child.getChildGrade());
+            deleteImageView.setOnClickListener(xs->{
+                dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.removeView(customView);
+            });
+            Toast.makeText(getContext(), childName.getText().toString(), Toast.LENGTH_SHORT).show();
+            dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.addView(customView);
+        }
+    }
+
+    private boolean checkIfChildAddedToFlexBox(List<CustomChildData> listOfChildren , CustomChildData customChildData){
+        for(CustomChildData child : listOfChildren){
+            if(child.getChildId() == customChildData.getChildId())
+                return true;
+        }
+        return false;
+    }
+
+
     private String calculateAge(String teacherBirthDate){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate birthDate = LocalDate.parse(teacherBirthDate,formatter);
@@ -1327,6 +1541,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             parentFilterLayoutBinding.filterCancelBtn.setOnClickListener(c->{
                 filterDialog.dismiss();
             });
+
+            filterSelectedLocationList.clear();
+            filterSelectedGradeList.clear();
+            filterSelectedGenderList.clear();
+            filterSelectedCoursesList.clear();
+            filterTeachingMethodList.clear();
 
 
             setLocationFlexBox();
@@ -1384,458 +1604,770 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         String locationEditTextStr = parentFilterLayoutBinding.locationEditText.getText().toString();
         String coursesEditTextStr = parentFilterLayoutBinding.coursesEditText.getText().toString();
 
-        if(!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
+        if(getView() != null){
+            if(!filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
 
-            if(browseTeacherPostedRequestsForParent){
-                List<TeacherPostRequest> filteredList =
-                        filterDataObject.filterBasedOnLocationList(teacherPostedRequestsForParentList,filterSelectedLocationList);
-                if(filteredList.isEmpty()){
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-                }
-                else{
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                    teacherPostedRequestsAdapter.filteredList(filteredList);
-                }
-            }
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
-
-            if(browseTeacherPostedRequestsForParent){
-                List<TeacherPostRequest> filteredList =
-                        filterDataObject.filterBasedOnCoursesList(teacherPostedRequestsForParentList,filterSelectedCoursesList);
-                if(filteredList.isEmpty()){
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-                }
-                else{
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationList(teacherPostedRequestsForParentList,filterSelectedLocationList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
                 }
             }
-        }
 
-        else if(!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
+            else if(filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
 
-            if(browseTeacherPostedRequestsForParent){
-                List<TeacherPostRequest> filteredList =
-                        filterDataObject.filterBasedOnLocationListAndCoursesList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList);
-                if(filteredList.isEmpty()){
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-                }
-                else{
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                    teacherPostedRequestsAdapter.filteredList(filteredList);
-                }
-            }
-        }
-        else if(!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-            if(browseTeacherPostedRequestsForParent){
-                List<TeacherPostRequest> filteredList =
-                        filterDataObject.filterBasedOnLocationListAndGenderList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedGenderList);
-                if(filteredList.isEmpty()){
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-                }
-                else{
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnCoursesList(teacherPostedRequestsForParentList,filterSelectedCoursesList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
                 }
             }
-        }
 
-        else if(!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
 
-            if(browseTeacherPostedRequestsForParent){
-                List<TeacherPostRequest> filteredList =
-                        filterDataObject.filterBasedOnLocationListAndGradeList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedGradeList);
-                if(filteredList.isEmpty()){
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-                }
-                else{
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-                    teacherPostedRequestsAdapter.filteredList(filteredList);
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListAndCoursesList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
                 }
             }
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListAndGenderList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedGenderList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+            }
+
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListAndGradeList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedGradeList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+            }
+
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListAndTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListCoursesListAndGenderList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList,filterSelectedGenderList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+            }
+
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListCoursesListAndGradeList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList,filterSelectedGradeList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListCoursesListAndTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+            }
+
+
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListCoursesListGenderListAndGradeList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList,filterSelectedGenderList,filterSelectedGradeList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+            }
+
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnLocationListCoursesListGenderListAndTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList,filterSelectedGenderList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+            else if(!filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnAllList(teacherPostedRequestsForParentList,filterSelectedLocationList,filterSelectedCoursesList,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedCoursesAndGenderList(teacherPostedRequestsForParentList,filterSelectedCoursesList,filterSelectedGenderList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedCoursesAndGradeList(teacherPostedRequestsForParentList,filterSelectedCoursesList,filterSelectedGradeList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedCoursesAndTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedCoursesList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedCoursesAndGenderListAndGradeList(teacherPostedRequestsForParentList,filterSelectedCoursesList,filterSelectedGenderList,filterSelectedGradeList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedCoursesAndGenderListAndTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedCoursesList,filterSelectedGenderList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    !filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedCoursesAndGenderListGradeAndTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedCoursesList,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnGenderListGradeList(teacherPostedRequestsForParentList,filterSelectedGenderList,filterSelectedGradeList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnGenderListTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedGenderList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+
+            else if(filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnGenderListGradeTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+
+            }
+            else if(filterSelectedLocationList.isEmpty() &&
+                    filterSelectedCoursesList.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                if(browseTeacherPostedRequestsForParent){
+                    List<TeacherPostRequest> filteredList =
+                            filterDataObject.filterBasedOnGradeTeachingMethodList(teacherPostedRequestsForParentList,filterSelectedGradeList,filterTeachingMethodList);
+                    if(filteredList.isEmpty()){
+                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
+                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                    else{
+                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
+                        binding.noPostedRequestTextView.setVisibility(View.GONE);
+                        binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                        teacherPostedRequestsAdapter.filteredList(filteredList);
+                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                    }
+                }
+            }
+
+
+            if(!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
+                filterBasedOnLocationNoList(locationEditTextStr);
+            }
+
+
+            else if(locationEditTextStr.isEmpty() && !coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnCoursesNoList(coursesEditTextStr);
+            }
+
+
+
+            else if(!locationEditTextStr.isEmpty() && !coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationAndCoursesNoList(locationEditTextStr,coursesEditTextStr);
+            }
+
+
+            else if(locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnSelectedGenderList();
+            }
+
+
+            else if(locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnSelectedGradeList();
+            }
+
+            else if(locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnSelectedTeachingMethodList();
+            }
+            else if(!locationEditTextStr.isEmpty() &&
+                    coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListAndGenderList(locationEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListAndGradeList(locationEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListAndTeachingMethodList(locationEditTextStr);
+            }
+            else if(!locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListCoursesNoListAndGenderList(locationEditTextStr,coursesEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListCoursesNoListAndGradeList(locationEditTextStr,coursesEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListCoursesNoListAndTeachingMethodList(locationEditTextStr,coursesEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListCoursesNoListGenderListAndGradeList(locationEditTextStr,coursesEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListCoursesNoListGenderListAndTeachingMethodList(locationEditTextStr,coursesEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+
+                filterBasedOnLocationNoListCoursesNoListGradeListAndTeachingMethodList(locationEditTextStr,coursesEditTextStr);
+            }
+
+            else if(locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()) {
+
+                filterBasedOnCourseNoListAndGenderList(coursesEditTextStr);
+            }
+
+            else if(locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()) {
+
+                filterBasedOnCourseNoListAndGradeList(coursesEditTextStr);
+            }
+
+            else if(locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()) {
+
+                filterBasedOnCourseNoListAndTeachingMethodList(coursesEditTextStr);
+            }
+
+            else if(locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()) {
+
+                filterBasedOnCourseNoListAndGenderAndGrade(coursesEditTextStr);
+            }
+
+            else if(locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()) {
+
+                filterBasedOnCourseNoListAndGenderGradeAndTeachingMethod(coursesEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
+                filterBasedOnLocationNoListGenderAndGradeList(locationEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+                filterBasedOnLocationNoListGenderAndTeachingMethodList(locationEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+                filterBasedOnLocationNoListGradeAndTeachingMethodList(locationEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    !coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+                filterBasedOnLocationCoursesNoListGenderGradeTeachingMethodList(locationEditTextStr,coursesEditTextStr);
+            }
+
+            else if(!locationEditTextStr.isEmpty() &&
+                    coursesEditTextStr.isEmpty() &&
+                    !filterSelectedGenderList.isEmpty() &&
+                    !filterSelectedGradeList.isEmpty() &&
+                    !filterTeachingMethodList.isEmpty()){
+                filterBasedOnLocationNoListGenderGradeTeachingMethodList(locationEditTextStr);
+            }
+
+            // ToDo ... more ...
         }
-
-        else if(!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-            //ToDo I am HEREEE
-
-        }
-        else if(!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-        else if(!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-
-        else if(filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-        else if(filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-        }
-
-
-        if(!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
-            filterBasedOnLocationNoList(locationEditTextStr);
-        }
-
-
-        else if(locationEditTextStr.isEmpty() && !coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnCoursesNoList(coursesEditTextStr);
-        }
-
-
-
-        else if(!locationEditTextStr.isEmpty() && !coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationAndCoursesNoList(locationEditTextStr,coursesEditTextStr);
-        }
-
-
-        else if(locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnSelectedGenderList();
-        }
-
-
-        else if(locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnSelectedGradeList();
-        }
-
-        else if(locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnSelectedTeachingMethodList();
-        }
-        else if(!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListAndGenderList(locationEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListAndGradeList(locationEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListAndTeachingMethodList(locationEditTextStr);
-        }
-        else if(!locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListCoursesNoListAndGenderList(locationEditTextStr,coursesEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListCoursesNoListAndGradeList(locationEditTextStr,coursesEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListCoursesNoListAndTeachingMethodList(locationEditTextStr,coursesEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListCoursesNoListGenderListAndGradeList(locationEditTextStr,coursesEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListCoursesNoListGenderListAndTeachingMethodList(locationEditTextStr,coursesEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-
-            filterBasedOnLocationNoListCoursesNoListGradeListAndTeachingMethodList(locationEditTextStr,coursesEditTextStr);
-        }
-
-        else if(locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()) {
-
-            filterBasedOnCourseNoListAndGenderList(coursesEditTextStr);
-        }
-
-        else if(locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()) {
-
-            filterBasedOnCourseNoListAndGradeList(coursesEditTextStr);
-        }
-
-        else if(locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()) {
-
-            filterBasedOnCourseNoListAndTeachingMethodList(coursesEditTextStr);
-        }
-
-        else if(locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()) {
-
-            filterBasedOnCourseNoListAndGenderAndGrade(coursesEditTextStr);
-        }
-
-        else if(locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()) {
-
-            filterBasedOnCourseNoListAndGenderGradeAndTeachingMethod(coursesEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty()){
-            filterBasedOnLocationNoListGenderAndGradeList(locationEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-            filterBasedOnLocationNoListGenderAndTeachingMethodList(locationEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-            filterBasedOnLocationNoListGradeAndTeachingMethodList(locationEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                !coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-            filterBasedOnLocationCoursesNoListGenderGradeTeachingMethodList(locationEditTextStr,coursesEditTextStr);
-        }
-
-        else if(!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty()){
-            filterBasedOnLocationNoListGenderGradeTeachingMethodList(locationEditTextStr);
-        }
-
-        // ToDo ... more ...
     }
 
     private void filterBasedOnLocationNoListGenderGradeTeachingMethodList(String location){
+        assert getView() != null ;
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherBasedOnLocationNoListGenderGradeTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
@@ -1843,17 +2375,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationCoursesNoListGenderGradeTeachingMethodList(String location,String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostRequestsBasedOnLocationCoursesNoListGenderGradeTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
@@ -1861,17 +2397,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationNoListGradeAndTeachingMethodList(String location){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListGradeAndTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGradeList,filterTeachingMethodList);
@@ -1879,17 +2419,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationNoListGenderAndTeachingMethodList(String location){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListGenderAndTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGenderList,filterTeachingMethodList);
@@ -1897,17 +2441,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationNoListGenderAndGradeList(String location){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListGenderAndGradeList(teacherPostedRequestsForParentList,location,filterSelectedGenderList,filterSelectedGradeList);
@@ -1915,17 +2463,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnCourseNoListAndGenderGradeAndTeachingMethod(String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnCourseNoListAndGenderGradeAndTeachingMethod(teacherPostedRequestsForParentList,courses,filterSelectedGenderList,filterSelectedGradeList,filterTeachingMethodList);
@@ -1933,17 +2485,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnCourseNoListAndGenderAndGrade(String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnCourseNoListAndGenderAndGrade(teacherPostedRequestsForParentList,courses,filterSelectedGenderList,filterSelectedGradeList);
@@ -1951,17 +2507,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnCourseNoListAndTeachingMethodList(String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnCoursesNoListAndTeachingMethod(teacherPostedRequestsForParentList,courses,filterTeachingMethodList);
@@ -1969,17 +2529,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnCourseNoListAndGradeList(String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnCoursesNoListAndGrade(teacherPostedRequestsForParentList,courses,filterSelectedGradeList);
@@ -1987,17 +2551,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnCourseNoListAndGenderList(String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnCoursesNoListAndGenderList(teacherPostedRequestsForParentList,courses,filterSelectedGenderList);
@@ -2005,18 +2573,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListGradeListAndTeachingMethodList(String location,String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListCoursesNoListGradeListAndTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterSelectedGradeList,filterTeachingMethodList);
@@ -2024,17 +2596,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationNoListCoursesNoListGenderListAndTeachingMethodList(String location,String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListCoursesNoListGenderListAndTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList,filterTeachingMethodList);
@@ -2042,18 +2618,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListGenderListAndGradeList(String location,String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListCoursesNoListGenderListAndGradeList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList,filterSelectedGradeList);
@@ -2061,17 +2641,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationNoListCoursesNoListAndTeachingMethodList(String location,String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListCoursesNoListAndTeachingMethodList(teacherPostedRequestsForParentList,location,courses,filterTeachingMethodList);
@@ -2079,18 +2663,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListAndGradeList(String location,String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListCoursesNoListAndGradeList(teacherPostedRequestsForParentList,location,courses,filterSelectedGradeList);
@@ -2098,18 +2686,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
 
     private void filterBasedOnLocationNoListCoursesNoListAndGenderList(String location,String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListCoursesNoListAndGenderList(teacherPostedRequestsForParentList,location,courses,filterSelectedGenderList);
@@ -2117,18 +2709,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
 
     private void filterBasedOnLocationNoListAndTeachingMethodList(String location){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListAndTeachingMethodList(teacherPostedRequestsForParentList,location,filterSelectedGradeList);
@@ -2136,18 +2732,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
 
     }
 
     private void filterBasedOnLocationNoListAndGradeList(String location){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListAndGradeList(teacherPostedRequestsForParentList,location,filterSelectedGradeList);
@@ -2155,18 +2755,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
 
     private void filterBasedOnLocationNoListAndGenderList(String location){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnLocationNoListAndGenderList(teacherPostedRequestsForParentList,location,filterSelectedGenderList);
@@ -2174,12 +2778,14 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
@@ -2187,24 +2793,30 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private void filterBasedOnSelectedTeachingMethodList(){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList = filterDataObject.filterBasedOnSelectedTeachingMethodList(teacherPostedRequestsForParentList,filterTeachingMethodList);
             if(filteredList.isEmpty()){
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
 
     private void filterBasedOnSelectedGradeList(){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostRequestsBasedOnSelectedGradeList(teacherPostedRequestsForParentList, filterSelectedGradeList);
@@ -2217,11 +2829,14 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnSelectedGenderList(){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterBasedOnSelectedGenderList(teacherPostedRequestsForParentList,filterSelectedGenderList);
@@ -2229,17 +2844,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationAndCoursesNoList(String location, String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostRequestBasedOnLocationAndCourse(teacherPostedRequestsForParentList,location,courses);
@@ -2247,35 +2866,43 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnLocationNoList(String location){
-         if(browseTeacherPostedRequestsForParent){
+        assert getView() != null ;
+
+        if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostedBasedOnLocation(teacherPostedRequestsForParentList,location);
             if(filteredList.isEmpty()){
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
 
     private void filterBasedOnCoursesNoList(String courses){
+        assert getView() != null ;
+
         if(browseTeacherPostedRequestsForParent){
             List<TeacherPostRequest> filteredList =
                     filterDataObject.filterTeacherPostRequestBasedOnCourse(teacherPostedRequestsForParentList,courses);
@@ -2283,12 +2910,14 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
                 binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
                 binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
             else{
                 binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                 binding.noPostedRequestTextView.setVisibility(View.GONE);
                 binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
                 teacherPostedRequestsAdapter.filteredList(filteredList);
+                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
             }
         }
     }
@@ -2302,7 +2931,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private void setTeachingMethodFlexBox(){
-        teachingMethodArrayForFilter = getResources().getStringArray(R.array.teachingMethodsFilter);
+        String[] teachingMethodArrayForFilter = getResources().getStringArray(R.array.teachingMethodsFilter);
         if(getContext() != null){
             if(parentFilterLayoutBinding.teachingMethodFlexBox.getChildCount() > 0)
                 parentFilterLayoutBinding.teachingMethodFlexBox.removeAllViews();
@@ -2353,7 +2982,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void setChildGradeFlexBox(){
         if(getContext() != null){
-            childGradeArrayForFilter = getResources().getStringArray(R.array.childGradeFilter);
+            String[] childGradeArrayForFilter = getResources().getStringArray(R.array.childGradeFilter);
             if(parentFilterLayoutBinding.childrenGradeFlexBox.getChildCount() > 0){
                 parentFilterLayoutBinding.childrenGradeFlexBox.removeAllViews();
             }
@@ -2424,7 +3053,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void setGenderFlexBox(){
         if(getContext() != null){
-            childGenderArrayForFilter = getResources().getStringArray(R.array.childGenderFilter);
+            String[] childGenderArrayForFilter = getResources().getStringArray(R.array.childGenderFilter);
             if(parentFilterLayoutBinding.childrenGenderFlexBox.getChildCount() > 0){
                 parentFilterLayoutBinding.childrenGenderFlexBox.removeAllViews();
             }
@@ -2478,7 +3107,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private void setCoursesFlexBox(){
-        coursesArrayForFilter = getResources().getStringArray(R.array.allCourses);
+        String[] coursesArrayForFilter = getResources().getStringArray(R.array.allCourses);
         if(parentFilterLayoutBinding.coursesFlexBox.getChildCount() > 0)
             parentFilterLayoutBinding.coursesFlexBox.removeAllViews();
 
@@ -2538,7 +3167,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private void setLocationFlexBox(){
-        locationArrayForFilter = getResources().getStringArray(R.array.locationArray);
+        assert getContext() != null ;
+        String[] locationArrayForFilter = getResources().getStringArray(R.array.locationArray);
         if(parentFilterLayoutBinding.locationFlexBox1.getChildCount() > 0)
             parentFilterLayoutBinding.locationFlexBox1.removeAllViews();
 
@@ -2588,6 +3218,34 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     }
 
 
+    @Override
+    public void getChildrenForRequestResult(int flag, JSONArray childrenData) {
+        if(flag == 1){
+            if(!childrenSpinnerList.isEmpty()){
+                childrenSpinnerList.clear();
+            }
+            if(!parentChildrenList.isEmpty()){
+                parentChildrenList.clear();
+            }
 
-
+            for(int i=0;i<childrenData.length();i++){
+                try {
+                    JSONObject jsonObject = childrenData.getJSONObject(i);
+                    int childId = jsonObject.getInt("childId");
+                    String childName = jsonObject.getString("childName");
+                    String childAge = jsonObject.getString("childAge");
+                    int childGenderVal = jsonObject.getInt("childGender");
+                    parentChildrenList.add(new Children(childName,childAge,childGenderVal,jsonObject.getInt("childGrade")));
+                    childrenSpinnerList.add(new CustomChildData(childId,childName,jsonObject.getInt("childGrade"),childGenderVal));
+                }
+                catch(JSONException e){
+                    throw new RuntimeException(e);
+                }
+            }
+            setChildrenSpinnerData();
+        }
+        else {
+            MyAlertDialog.errorDialog(getContext());
+        }
+    }
 }

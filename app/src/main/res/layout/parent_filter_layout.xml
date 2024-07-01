@@ -197,7 +197,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="5dp"
-            android:text="Children Gender"
+            android:text="Gender"
             android:paddingEnd="2dp"
             android:textSize="24sp" />
 
@@ -251,7 +251,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="5dp"
-            android:text="Children Grade"
+            android:text="Grades"
             android:paddingEnd="2dp"
             android:textSize="24sp" />
 

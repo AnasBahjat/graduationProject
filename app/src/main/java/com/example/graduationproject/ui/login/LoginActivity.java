@@ -29,15 +29,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     private Database database;
     private ActivityLoginBinding binding ;
 
-    private ActivityResultLauncher<String> resultLauncher= registerForActivityResult(new ActivityResultContracts.RequestPermission(),
-            isGranted-> {
-        if(isGranted){
-
-        }
-        else {
-
-        }
-    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +38,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         setContentView(binding.getRoot());
         initialize();
     }
-
 
     @Override
     protected void onRestart() {

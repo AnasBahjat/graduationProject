@@ -131,6 +131,18 @@
         android:textSize="20sp"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/noMatchedData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Matched Data .."
+        android:textColor="#7E7A7A"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:textSize="20sp"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"/>
+
     <ProgressBar
         android:id="@+id/loadingProgressBar"
         android:layout_width="65dp"

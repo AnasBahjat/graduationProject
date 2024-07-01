@@ -330,35 +330,41 @@
         android:textColor="#1A8E9E"
         />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/sendRequestBtn"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/usedColor"
-        android:textAllCaps="false"
-        android:text="Send Request"
+    <ImageView
+        android:id="@+id/priceImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/price_icon"
+        android:layout_below="@id/locationTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        />
+    <TextView
+        android:id="@+id/priceTextViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price Range : "
         android:textSize="16sp"
         android:layout_below="@id/locationTextView"
-        android:layout_toStartOf="@id/sendMessageToParentBtn"
-        android:layout_marginEnd="15dp"
-        android:layout_marginTop="35dp"
-        android:layout_marginBottom="20dp"
-        android:textColor="@color/black"/>
+        android:layout_toEndOf="@id/priceImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"/>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/sendMessageToParentBtn"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        android:layout_below="@id/locationTextView"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/usedColor"
-        android:text="Message Parent"
-        android:textAllCaps="false"
+    <TextView
+        android:id="@+id/priceTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:layout_marginTop="35dp"
-        android:layout_marginEnd="5dp"
-        android:layout_alignParentEnd="true"/>
+        android:layout_below="@id/locationTextView"
+        android:layout_toEndOf="@id/priceTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"
+        android:layout_marginBottom="30dp"
+        />
 
 
     <ImageView

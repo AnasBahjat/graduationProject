@@ -535,10 +535,18 @@ public class FilterData {
         if(locationList.contains("Any"))
             return listOfData;
 
+        for(String tpr : locationList)
+            Log.d("Loaction is ------------> "+tpr.length(),"Loaction is ------------> "+tpr.length());
+
+        Log.d("----------------","-------------------------");
+        for(TeacherPostRequest tpr : listOfData)
+            Log.d("Loaction is ------------> "+tpr.getLocation().length(),"Loaction is ------------> "+tpr.getLocation().length());
+
+
         List<TeacherPostRequest> filteredList = new ArrayList<>();
         for(TeacherPostRequest tpr : listOfData){
             for(String location : locationList){
-                if(tpr.getLocation().toLowerCase().contains(location)){
+                if(tpr.getLocation().toLowerCase().contains(location.toLowerCase())){
                     filteredList.add(tpr);
                     break;
                 }
@@ -556,7 +564,7 @@ public class FilterData {
         List<TeacherPostRequest> filteredList = new ArrayList<>();
         for(TeacherPostRequest tpr : listOfData){
             for(String course : coursesList){
-                if(tpr.getCourses().toLowerCase().contains(course)){
+                if(tpr.getCourses().toLowerCase().contains(course.toLowerCase())){
                     filteredList.add(tpr);
                     break;
                 }
@@ -581,12 +589,151 @@ public class FilterData {
         return filterBasedOnLocationList(filteredGenderList,locationList);
     }
 
+
+
     public List<TeacherPostRequest> filterBasedOnLocationListAndGradeList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> gradeList){
         if(gradeList == null || locationList == null)
             return listOfData;
         List<TeacherPostRequest> filteredGradeList = filterTeacherPostRequestsBasedOnSelectedGradeList(listOfData,gradeList);
         return filterBasedOnLocationList(filteredGradeList,locationList);
     }
+
+
+
+    public List<TeacherPostRequest> filterBasedOnLocationListAndTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> teachingMethodList){
+        if(teachingMethodList == null || locationList == null)
+            return listOfData;
+        List<TeacherPostRequest> filteredteachingMethodList = filterBasedOnSelectedTeachingMethodList(listOfData,teachingMethodList);
+        return filterBasedOnLocationList(filteredteachingMethodList,locationList);
+    }
+
+
+
+    public List<TeacherPostRequest> filterBasedOnLocationListCoursesListAndGenderList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> coursesList,List<String> genderList){
+        if(coursesList == null || locationList == null || genderList == null)
+            return listOfData;
+        List<TeacherPostRequest> locationAndCoursesFilteredList = filterBasedOnLocationListAndCoursesList(listOfData,locationList,coursesList);
+        return filterBasedOnSelectedGenderList(locationAndCoursesFilteredList,genderList);
+    }
+
+
+
+    public List<TeacherPostRequest> filterBasedOnLocationListCoursesListAndGradeList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> coursesList,List<String> gradeList){
+        if(coursesList == null || locationList == null || gradeList == null)
+            return listOfData;
+        List<TeacherPostRequest> locationAndCoursesFilteredList = filterBasedOnLocationListAndCoursesList(listOfData,locationList,coursesList);
+        return filterTeacherPostRequestsBasedOnSelectedGradeList(locationAndCoursesFilteredList,gradeList);
+    }
+
+    public List<TeacherPostRequest> filterBasedOnLocationListCoursesListAndTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> coursesList,List<String> teachingMethodList){
+        if(coursesList == null || locationList == null || teachingMethodList == null)
+            return listOfData;
+        List<TeacherPostRequest> locationAndCoursesFilteredList = filterBasedOnLocationListAndCoursesList(listOfData,locationList,coursesList);
+        return filterBasedOnSelectedTeachingMethodList(locationAndCoursesFilteredList,teachingMethodList);
+    }
+
+
+
+    public List<TeacherPostRequest> filterBasedOnLocationListCoursesListGenderListAndGradeList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> coursesList,List<String> genderList,List<String> gradeList){
+        if(coursesList == null || locationList == null || gradeList == null || genderList == null)
+            return listOfData;
+        List<TeacherPostRequest> locationCoursesGradeFilteredList = filterBasedOnLocationListCoursesListAndGradeList(listOfData,locationList,coursesList,gradeList);
+        return filterBasedOnSelectedGenderList(locationCoursesGradeFilteredList,genderList);
+    }
+
+    public List<TeacherPostRequest> filterBasedOnLocationListCoursesListGenderListAndTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> coursesList,List<String> genderList,List<String> teachingMethod){
+        if(coursesList == null || locationList == null || teachingMethod == null || genderList == null)
+            return listOfData;
+        List<TeacherPostRequest> locationCoursesGradeFilteredList = filterBasedOnLocationListCoursesListAndGenderList(listOfData,locationList,coursesList,genderList);
+        return filterBasedOnSelectedTeachingMethodList(locationCoursesGradeFilteredList,teachingMethod);
+    }
+
+    public List<TeacherPostRequest> filterBasedOnAllList(List<TeacherPostRequest> listOfData,List<String> locationList,List<String> coursesList,List<String> genderList,List<String> gradeList,List<String> teachingMethod){
+        if(coursesList == null || locationList == null || teachingMethod == null || genderList == null || gradeList == null)
+            return listOfData;
+        List<TeacherPostRequest> locationCoursesGenderGradeFilteredList = filterBasedOnLocationListCoursesListGenderListAndGradeList(listOfData,locationList,coursesList,genderList,gradeList);
+        return filterBasedOnSelectedTeachingMethodList(locationCoursesGenderGradeFilteredList,teachingMethod);
+    }
+
+    public List<TeacherPostRequest> filterBasedCoursesAndGenderList(List<TeacherPostRequest> listOfData,List<String> coursesList,List<String> genderList){
+        if(coursesList == null  || genderList == null)
+            return listOfData;
+        List<TeacherPostRequest> coursesFilteredList = filterBasedOnCoursesList(listOfData,coursesList);
+        return filterBasedOnSelectedGenderList(coursesFilteredList,genderList);
+    }
+
+    public List<TeacherPostRequest> filterBasedCoursesAndGradeList(List<TeacherPostRequest> listOfData,List<String> coursesList,List<String> gradeList){
+        if(coursesList == null  || gradeList == null)
+            return listOfData;
+        List<TeacherPostRequest> coursesFilteredList = filterBasedOnCoursesList(listOfData,coursesList);
+        return filterTeacherPostRequestsBasedOnSelectedGradeList(coursesFilteredList,gradeList);
+    }
+
+    public List<TeacherPostRequest> filterBasedCoursesAndTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> coursesList,List<String> teachingMethod){
+        if(coursesList == null  || teachingMethod == null)
+            return listOfData;
+        List<TeacherPostRequest> coursesFilteredList = filterBasedOnCoursesList(listOfData,coursesList);
+        return filterBasedOnSelectedTeachingMethodList(coursesFilteredList,teachingMethod);
+    }
+
+    public List<TeacherPostRequest> filterBasedCoursesAndGenderListAndGradeList(List<TeacherPostRequest> listOfData,List<String> coursesList,List<String> genderList,List<String> gradeList){
+        if(coursesList == null  || genderList == null || gradeList == null)
+            return listOfData;
+        List<TeacherPostRequest> coursesGradeFilteredList = filterBasedCoursesAndGradeList(listOfData,coursesList,gradeList);
+        return filterBasedOnSelectedGenderList(coursesGradeFilteredList,genderList);
+    }
+
+    public List<TeacherPostRequest> filterBasedCoursesAndGenderListAndTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> coursesList,List<String> genderList,List<String> teachingMethodList){
+        if(coursesList == null  || genderList == null || teachingMethodList == null)
+            return listOfData;
+        List<TeacherPostRequest> coursesGenderFilteredList = filterBasedCoursesAndGenderList(listOfData,coursesList,genderList);
+        return filterBasedOnSelectedTeachingMethodList(coursesGenderFilteredList,teachingMethodList);
+    }
+
+    public List<TeacherPostRequest> filterBasedCoursesAndGenderListGradeAndTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> coursesList,List<String> genderList,List<String> gradeList,List<String> teachingMethodList){
+        if(coursesList == null  || genderList == null || gradeList == null|| teachingMethodList == null)
+            return listOfData;
+        List<TeacherPostRequest> coursesGenderGradeFilteredList = filterBasedCoursesAndGenderListAndGradeList(listOfData,coursesList,genderList,gradeList);
+        return filterBasedOnSelectedTeachingMethodList(coursesGenderGradeFilteredList,teachingMethodList);
+    }
+
+    public List<TeacherPostRequest> filterBasedOnGenderListGradeList(List<TeacherPostRequest> listOfData,List<String> genderList,List<String> gradeList){
+        if(genderList == null || gradeList == null)
+            return listOfData;
+        List<TeacherPostRequest> genderFilteredList = filterBasedOnSelectedGenderList(listOfData,genderList);
+        return filterTeacherPostRequestsBasedOnSelectedGradeList(genderFilteredList,gradeList);
+    }
+
+    public List<TeacherPostRequest> filterBasedOnGenderListTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> genderList,List<String> teachingMethod){
+        if(genderList == null || teachingMethod == null)
+            return listOfData;
+        List<TeacherPostRequest> genderFilteredList = filterBasedOnSelectedGenderList(listOfData,genderList);
+        return filterBasedOnSelectedTeachingMethodList(genderFilteredList,teachingMethod);
+    }
+
+    public List<TeacherPostRequest> filterBasedOnGenderListGradeTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> genderList,List<String> gradeList,List<String> teachingMethod){
+        if(genderList == null || teachingMethod == null)
+            return listOfData;
+        List<TeacherPostRequest> gradeGenderFilteredList = filterBasedOnGenderListGradeList(listOfData,genderList,gradeList);
+        return filterBasedOnSelectedTeachingMethodList(gradeGenderFilteredList,teachingMethod);
+    }
+
+    public List<TeacherPostRequest> filterBasedOnGradeTeachingMethodList(List<TeacherPostRequest> listOfData,List<String> gradeList,List<String> teachingMethod){
+        if(gradeList == null || teachingMethod == null)
+            return listOfData;
+        List<TeacherPostRequest> gradeFilteredList = filterTeacherPostRequestsBasedOnSelectedGradeList(listOfData,gradeList);
+        return filterBasedOnSelectedTeachingMethodList(gradeFilteredList,teachingMethod);
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 

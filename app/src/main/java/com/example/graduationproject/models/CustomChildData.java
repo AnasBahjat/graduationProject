@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 public class CustomChildData implements Parcelable {
     private int childId;
     private String childName ;
+    private int childAge ;
     private int childGrade ;
     private int gender ;
 
@@ -24,11 +25,20 @@ public class CustomChildData implements Parcelable {
         this.gender=gender;
     }
 
+    public CustomChildData(int childId, String childName, int childGrade,int gender,int childAge){
+        this.childId = childId;
+        this.childName = childName;
+        this.childGrade = childGrade;
+        this.gender=gender;
+        this.childAge = childAge;
+    }
+
     protected CustomChildData(Parcel in) {
         childId = in.readInt();
         childName = in.readString();
         childGrade = in.readInt();
         gender = in.readInt();
+        childAge = in.readInt();
     }
 
     public static final Creator<CustomChildData> CREATOR = new Creator<CustomChildData>() {
@@ -75,6 +85,14 @@ public class CustomChildData implements Parcelable {
         this.childGrade = childGrade;
     }
 
+    public int getChildAge() {
+        return childAge;
+    }
+
+    public void setChildAge(int childAge) {
+        this.childAge = childAge;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -92,5 +110,6 @@ public class CustomChildData implements Parcelable {
         dest.writeString(childName);
         dest.writeInt(childGrade);
         dest.writeInt(gender);
+        dest.writeInt(childAge);
     }
 }

@@ -184,10 +184,44 @@
             android:layout_marginEnd="20dp"
             />
 
+
+        <ImageView
+            android:id="@+id/priceImageView"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_below="@id/timeTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/price_icon"/>
+        <TextView
+            android:id="@+id/priceTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="Price Range :"
+            android:layout_toEndOf="@id/priceImageView"
+            android:layout_marginStart="8dp"
+            android:layout_below="@id/timeTextView"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/priceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/priceTextViewTemp"
+            android:layout_below="@id/timeTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/timeTextView"
+            android:layout_below="@id/priceTextView"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="8dp"
             >
