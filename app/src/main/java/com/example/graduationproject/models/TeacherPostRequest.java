@@ -18,6 +18,8 @@ public class TeacherPostRequest implements Parcelable {
     private String startTime ;
     private String endTime ;
     private double price ;
+    private String startDate ;
+    private String endDate ;
 
     public TeacherPostRequest(int teacherPostRequestId,String teacherEmail,
                               String courses, String educationLevel,
@@ -53,7 +55,7 @@ public class TeacherPostRequest implements Parcelable {
     public TeacherPostRequest(int teacherPostRequestId,String teacherEmail,
                               String courses, String educationLevel,
                               String duration,String availability, String location, String teachingMethod,
-                              String startTime,String endTime,double price) {
+                              String startTime,String endTime,double price,String startDate,String endDate) {
         this.teacherPostRequestId = teacherPostRequestId;
         this.teacherEmail = teacherEmail;
         this.courses = courses;
@@ -65,6 +67,8 @@ public class TeacherPostRequest implements Parcelable {
         this.startTime=startTime;
         this.endTime=endTime;
         this.price = price;
+        this.startDate=startDate;
+        this.endDate=endDate;
     }
 
 
@@ -92,7 +96,7 @@ public class TeacherPostRequest implements Parcelable {
     public TeacherPostRequest(int teacherPostRequestId, String teacherEmail,
                               String courses, String educationLevel,
                               String duration,String availability, String location,
-                              String teachingMethod, Teacher teacherData,String startTime,String endTime,double price) {
+                              String teachingMethod, Teacher teacherData,String startTime,String endTime,double price,String startDate,String endDate) {
         this.teacherPostRequestId = teacherPostRequestId;
         this.teacherEmail = teacherEmail;
         this.courses = courses;
@@ -105,6 +109,8 @@ public class TeacherPostRequest implements Parcelable {
         this.startTime=startTime;
         this.endTime=endTime;
         this.price = price;
+        this.startDate=startDate;
+        this.endDate=endDate;
     }
 
     protected TeacherPostRequest(Parcel in) {
@@ -120,6 +126,8 @@ public class TeacherPostRequest implements Parcelable {
         startTime = in.readString();
         endTime = in.readString();
         price=in.readDouble();
+        startDate = in.readString();
+        endDate = in.readString();
     }
 
     public double getPrice() {
@@ -230,6 +238,22 @@ public class TeacherPostRequest implements Parcelable {
         this.teachingMethod = teachingMethod;
     }
 
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -249,5 +273,7 @@ public class TeacherPostRequest implements Parcelable {
         dest.writeString(startTime);
         dest.writeString(endTime);
         dest.writeDouble(price);
+        dest.writeString(startDate);
+        dest.writeString(endDate);
     }
 }

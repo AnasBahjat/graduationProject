@@ -29,6 +29,7 @@ import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListene
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
+import com.example.graduationproject.listeners.ParentRequestToSendListener;
 import com.example.graduationproject.listeners.PostedTeacherRequestsListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TeacherAvailabilityListener;
@@ -38,6 +39,7 @@ import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Parent;
+import com.example.graduationproject.models.ParentRequestToSend;
 import com.example.graduationproject.models.Profile;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
@@ -627,6 +629,8 @@ public class Database {
                 data.put("endTime",teacherMatchModel.getEndTime());
                 data.put("priceMin",teacherMatchModel.getPriceMinimum()+"");
                 data.put("priceMax",teacherMatchModel.getPriceMaximum()+"");
+                data.put("startDate",teacherMatchModel.getStartDate());
+                data.put("endDate",teacherMatchModel.getEndDate());
                 return  data;
             }
         };
@@ -746,6 +750,8 @@ public class Database {
                 data.put("teachingMethod", teacherMatchModel.getTeachingMethod());
                 data.put("priceMin", teacherMatchModel.getPriceMinimum()+"");
                 data.put("priceMax", teacherMatchModel.getPriceMaximum()+"");
+                data.put("startDate", teacherMatchModel.getStartDate());
+                data.put("endDate", teacherMatchModel.getEndDate());
                 return data;
             }
         };
@@ -803,6 +809,8 @@ public class Database {
                 data.put("startTime",teacherPostRequest.getStartTime());
                 data.put("endTime",teacherPostRequest.getEndTime());
                 data.put("price",teacherPostRequest.getPrice()+"");
+                data.put("startDate",teacherPostRequest.getStartDate());
+                data.put("endDate",teacherPostRequest.getEndDate());
                 return data;
             }
         };
@@ -909,6 +917,8 @@ public class Database {
                 data.put("startTime",teacherPostRequest.getStartTime());
                 data.put("endTime",teacherPostRequest.getEndTime());
                 data.put("price",teacherPostRequest.getPrice()+"");
+                data.put("startDate",teacherPostRequest.getStartDate());
+                data.put("endDate",teacherPostRequest.getEndDate());
                 return data;
             }
         };
@@ -1010,6 +1020,43 @@ public class Database {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    public void addParentSentRequestToTeacherWithList(ParentRequestToSend parentRequestToSend,final ParentRequestToSendListener parentRequestToSendListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.addParentSentRequestToTeacherWithList,resp->{
+
+        },err->{
+
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherPostRequestId",parentRequestToSend.getTeacherPostRequestId()+"");
+                data.put("parentEmail",parentRequestToSend.getParentEmail());
+                data.put("childrenIds",parentRequestToSend.getChildrenIds()+"");
+                return data;
+            }
+        };
+
+    }
+
+    public void addParentSentRequestToTeacherNoList(ParentRequestToSend parentRequestToSend,final ParentRequestToSendListener parentRequestToSendListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.addParentSentRequestToTeacherNoList,resp->{
+
+        },err->{
+
+        }){
+            @Override
+            protected Map<String, String> getParams()   {
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherPostRequestId",parentRequestToSend.getTeacherPostRequestId()+"");
+                data.put("parentEmail",parentRequestToSend.getParentEmail());
+                data.put("childId",parentRequestToSend.getChildId()+"");
+                return data;
+            }
+        };
 
     }
 }

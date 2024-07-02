@@ -74,6 +74,8 @@ import com.example.graduationproject.ui.commonFragment.ProfileFragment;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
@@ -86,11 +88,15 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -759,6 +765,13 @@ public class TeacherActivity extends AppCompatActivity implements
             setEndTime();
         });
 
+        teacherLookForJobLayoutBinding.startDateEdtText.setOnClickListener(z->{
+            setStartDate();
+        });
+        teacherLookForJobLayoutBinding.endDateEdtText.setOnClickListener(c->{
+            setEndDate();
+        });
+
         teacherLookForJobLayoutBinding.postTeacherRequest.setOnClickListener(a->{
             try {
                 postTeacherRequestBtnClicked();
@@ -766,8 +779,33 @@ public class TeacherActivity extends AppCompatActivity implements
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void setEndDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select End Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            teacherLookForJobLayoutBinding.endDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
 
     }
+
+    private void setStartDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Start Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            teacherLookForJobLayoutBinding.startDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
+    }
+
 
 
     private void setStartTime(){
@@ -852,6 +890,8 @@ public class TeacherActivity extends AppCompatActivity implements
         String location = teacherLookForJobLayoutBinding.locationSpinner.getSelectedItem().toString();
         String teachingMethod = teacherLookForJobLayoutBinding.teachingMethodSpinner.getSelectedItem().toString();
         String price = teacherLookForJobLayoutBinding.priceEditText.getText().toString();
+        String startDate = teacherLookForJobLayoutBinding.startDateEdtText.getText().toString();
+        String endDate = teacherLookForJobLayoutBinding.endDateEdtText.getText().toString();
         if(teacherLookForJobLayoutBinding.coursesFlexBoxLayout.getChildCount() == 0){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please add at least one course ..");
         }
@@ -860,31 +900,64 @@ public class TeacherActivity extends AppCompatActivity implements
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong Duration","Please choose a valid number of months , 0 - 12 months ..");
             }
             else {
-                if(!checkStartAndEndTime()){
-                    MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
+                if(!checkStartAndEndDate(Integer.parseInt(duration))){
+                    MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong Date","Please choose a valid start and end dates in future with  "+duration+" months period");
                 }
                 else {
-                    if(teacherLookForJobLayoutBinding.priceEditText.getText().toString().isEmpty() || Double.parseDouble(price) < 1.0 || Double.parseDouble(price) > 100.0){
-                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Invalid Price","Please Enter A valid Price Value in $ ..");
+                    if(!checkStartAndEndTime()){
+                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
                     }
                     else {
-                        StringBuilder coursesStr = new StringBuilder();
-                        for(int i=0;i<teacherAddedCoursesList.size();i++){
-                            if(i + 1 != teacherAddedCoursesList.size()){
-                                coursesStr.append(teacherAddedCoursesList.get(i)).append(" , ");
-                            }
-                            else {
-                                coursesStr.append(teacherAddedCoursesList.get(i));
-                            }
+                        if(teacherLookForJobLayoutBinding.priceEditText.getText().toString().isEmpty() || Double.parseDouble(price) < 1.0 || Double.parseDouble(price) > 100.0){
+                            MyAlertDialog.showCustomAlertDialogLoginError(this,"Invalid Price","Please Enter A valid Price Value in $ ..");
                         }
-                        tpr = new TeacherPostRequest(lastTeacherPostId+1,
-                                email,coursesStr.toString(),educationalLevel,duration,staticAvailability,location,teachingMethod,startTime,endTime,Double.parseDouble(price));
-                        database.insertTeacherPostRequest(tpr,this);
+                        else {
+                            StringBuilder coursesStr = new StringBuilder();
+                            for(int i=0;i<teacherAddedCoursesList.size();i++){
+                                if(i + 1 != teacherAddedCoursesList.size()){
+                                    coursesStr.append(teacherAddedCoursesList.get(i)).append(" , ");
+                                }
+                                else {
+                                    coursesStr.append(teacherAddedCoursesList.get(i));
+                                }
+                            }
+                            tpr = new TeacherPostRequest(lastTeacherPostId+1,
+                                    email,coursesStr.toString(),educationalLevel,duration,staticAvailability,location,teachingMethod,startTime,endTime,Double.parseDouble(price),startDate,endDate);
+                            database.insertTeacherPostRequest(tpr,this);
+                        }
                     }
                 }
             }
         }
     }
+
+    private boolean checkStartAndEndDate(int duration){
+        try {
+            return areDatesValid(teacherLookForJobLayoutBinding.startDateEdtText.getText().toString(), teacherLookForJobLayoutBinding.endDateEdtText.getText().toString(),duration);
+        } catch (ParseException e) {
+           return false ;
+        }
+    }
+
+
+
+    public boolean areDatesValid(String startDateStr, String endDateStr,int duration) throws ParseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        LocalDate startDate = LocalDate.parse(startDateStr, formatter);
+        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
+
+        LocalDate currentDate = LocalDate.now();
+
+        if (startDate.isAfter(currentDate) && endDate.isAfter(currentDate)) {
+            if (startDate.isBefore(endDate)) {
+                int monthsDifference = Period.between(startDate, endDate).getMonths() + (Period.between(startDate, endDate).getYears() * 12);
+                return monthsDifference == duration;
+            }
+        }
+        return false;
+    }
+
 
     private boolean checkStartAndEndTime() throws ParseException {
         Date startDate = timeFormat.parse(startTime);

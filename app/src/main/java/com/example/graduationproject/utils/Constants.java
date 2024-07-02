@@ -30,4 +30,6 @@ public class Constants {
     public static String  deleteParentPostedRequest ="http://"+ip+"/graduationProject/deleteParentPostedRequest.php";
     public static String  getAllTeacherPostedRequests ="http://"+ip+"/graduationProject/getAllTeacherPostedRequestsForParent.php";
     public static String  getCurrentProfileData ="http://"+ip+"/graduationProject/getCurrentProfileData.php";
+    public static String  addParentSentRequestToTeacherWithList ="http://"+ip+"/graduationProject/addParentSentRequestToTeacherWithList.php";
+    public static String  addParentSentRequestToTeacherNoList ="http://"+ip+"/graduationProject/addParentSentRequestToTeacherNoList.php";
 }

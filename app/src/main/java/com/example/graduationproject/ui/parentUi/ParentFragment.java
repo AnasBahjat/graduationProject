@@ -59,11 +59,13 @@ import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Parent;
+import com.example.graduationproject.models.ParentRequestToSend;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
 import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
@@ -80,6 +82,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -452,6 +455,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         String endTime = jsonObject.getString("endTime");
                         double priceMin = jsonObject.getDouble("priceMin");
                         double priceMax = jsonObject.getDouble("priceMax");
+                        String startDate = jsonObject.getString("startDate");
+                        String endDate = jsonObject.getString("endDate");
                         if(i==parentInformation.length() - 1){
                             String phoneNumbers = jsonObject.getString("phoneNumbers");
                             if(phoneNumbers.contains(",")){
@@ -478,7 +483,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
                         tempTeacherMatchModelList.add(new TeacherMatchModel(matchingId,new CustomChildData(childId,childName,childGrade,childGender,childAge),
                                 matchingChoseDays,courses,location,
-                                teachingMethod,startTime,endTime,priceMin,priceMax,new Parent(email,idNumber,firstName,lastName,parentBirthDate,parentId,parentAddress,phoneNumbersList)));
+                                teachingMethod,startTime,endTime,priceMin,priceMax,startDate,endDate,new Parent(email,idNumber,firstName,lastName,parentBirthDate,parentId,parentAddress,phoneNumbersList)));
                 }
                 parentPostedRequestsList = tempTeacherMatchModelList;
                 updateParentPostedRequests();
@@ -519,7 +524,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         currentClickedPostedCardId = requestModel.getMatchingId();
         binding.progressBarLayout.setVisibility(View.VISIBLE);
         binding.overlayView.setVisibility(View.VISIBLE);
-       // database.getParentInformation(email,this);
         this.requestModel = requestModel;
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -572,7 +576,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             dialogParentPostedRequestCardBinding.timeTextView.setText(requestModel.getStartTime() + " - "+requestModel.getEndTime());
             dialogParentPostedRequestCardBinding.locationTextView.setText(requestModel.getLocation());
             dialogParentPostedRequestCardBinding.priceTextView.setText(requestModel.getPriceMinimum()+"$"+" - "+requestModel.getPriceMaximum()+"$");
-
+            dialogParentPostedRequestCardBinding.dateTextView.setText(requestModel.getStartDate()+"  -  "+requestModel.getEndDate());
 
             dialogParentPostedRequestCardBinding.closeImageView.setOnClickListener(a->{
                 clickedCardDialog.dismiss();
@@ -680,6 +684,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             postTeacherRequestPopupWindowBinding.endTimeEdtText.setText(requestModel.getEndTime());
             postTeacherRequestPopupWindowBinding.priceFromEditText.setText(requestModel.getPriceMinimum()+"");
             postTeacherRequestPopupWindowBinding.priceToEditText.setText(requestModel.getPriceMaximum()+"");
+            postTeacherRequestPopupWindowBinding.startDateEdtText.setText(requestModel.getStartDate());
+            postTeacherRequestPopupWindowBinding.endDateEdtText.setText(requestModel.getEndDate());
+            //postTeacherRequestPopupWindowBinding.startDateEdtText.setText(requestModel.getStartDate());
+           // postTeacherRequestPopupWindowBinding.startDateEdtText.setText(requestModel.getEndDate());
 
 
 
@@ -689,6 +697,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             postTeacherRequestPopupWindowBinding.endTimeEdtText.setOnClickListener(j->{
                 setEndTime();
+            });
+            postTeacherRequestPopupWindowBinding.startDateEdtText.setOnClickListener(z->{
+                setStartDate();
+            });
+            postTeacherRequestPopupWindowBinding.endDateEdtText.setOnClickListener(c->{
+                setEndDate();
             });
 
 
@@ -735,42 +749,99 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Days Error","Please Choose at least one day a week to match a teacher data");
         }
         else {
-            if(!checkStartAndEndTime()){
-                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong timing","Please Choose valid start and end time, and make sure there are at least one hour..");
+            if(!checkStartAndEndDate()){
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong Date","Please choose a valid start and end dates in future .. ");
             }
             else {
-                if(postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.getChildCount() == 0){
-                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Courses","Please Choose At least one course ..");
+                if(!checkStartAndEndTime()){
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong timing","Please Choose valid start and end time, and make sure there are at least one hour..");
                 }
                 else {
-                    double priceMin = Double.parseDouble(postTeacherRequestPopupWindowBinding.priceFromEditText.getText().toString());
-                    double priceMax = Double.parseDouble(postTeacherRequestPopupWindowBinding.priceToEditText.getText().toString());
-
-                    if(postTeacherRequestPopupWindowBinding.priceFromEditText.getText().toString().isEmpty() || postTeacherRequestPopupWindowBinding.priceToEditText.getText().toString().isEmpty()||priceMin < 1.0 ||priceMax > 100.0 || priceMin >= priceMax){
-                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Invalid Price","Please Choose A Valid Price Value ..\n0.0 - 100 $");
+                    if(postTeacherRequestPopupWindowBinding.flexboxLayoutMatchTeacher.getChildCount() == 0){
+                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Courses","Please Choose At least one course ..");
                     }
                     else {
-                        StringBuilder courses= new StringBuilder();
-                        for(int i=0 ; i < coursesList.size() ; i++){
-                            if(i + 1 != coursesList.size()){
-                                courses.append(coursesList.get(i)).append(" , ");
-                            }
-                            else {
-                                courses.append(coursesList.get(i));
-                            }
+                        double priceMin = Double.parseDouble(postTeacherRequestPopupWindowBinding.priceFromEditText.getText().toString());
+                        double priceMax = Double.parseDouble(postTeacherRequestPopupWindowBinding.priceToEditText.getText().toString());
+                        String startDate = postTeacherRequestPopupWindowBinding.startDateEdtText.getText().toString();
+                        String endDate = postTeacherRequestPopupWindowBinding.endDateEdtText.getText().toString();
+                        if(postTeacherRequestPopupWindowBinding.priceFromEditText.getText().toString().isEmpty() || postTeacherRequestPopupWindowBinding.priceToEditText.getText().toString().isEmpty()||priceMin < 1.0 ||priceMax > 100.0 || priceMin >= priceMax){
+                            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Invalid Price","Please Choose A Valid Price Value ..\n0.0 - 100 $");
                         }
-                        String city = postTeacherRequestPopupWindowBinding.locationSpinner.getSelectedItem().toString();
-                        String teachingMethodStr = postTeacherRequestPopupWindowBinding.teachingMethod.getSelectedItem().toString();
-                        tmm = new TeacherMatchModel(requestModel.getMatchingId(),new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
-                                ,selectedDays.toString(),courses.toString(),
-                                city,
-                                teachingMethodStr,startTime,endTime,priceMin,priceMax);
-                        database.updateParentPostedRequest(email,tmm,this);
+                        else {
+                            StringBuilder courses= new StringBuilder();
+                            for(int i=0 ; i < coursesList.size() ; i++){
+                                if(i + 1 != coursesList.size()){
+                                    courses.append(coursesList.get(i)).append(" , ");
+                                }
+                                else {
+                                    courses.append(coursesList.get(i));
+                                }
+                            }
+                            String city = postTeacherRequestPopupWindowBinding.locationSpinner.getSelectedItem().toString();
+                            String teachingMethodStr = postTeacherRequestPopupWindowBinding.teachingMethod.getSelectedItem().toString();
+                            tmm = new TeacherMatchModel(requestModel.getMatchingId(),new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
+                                    ,selectedDays.toString(),courses.toString(),
+                                    city,
+                                    teachingMethodStr,startTime,endTime,priceMin,priceMax,startDate,endDate);
+                            database.updateParentPostedRequest(email,tmm,this);
 
+                        }
                     }
                 }
             }
         }
+    }
+
+    private boolean checkStartAndEndDate(){
+        try {
+            return areDatesValid(postTeacherRequestPopupWindowBinding.startDateEdtText.getText().toString(), postTeacherRequestPopupWindowBinding.endDateEdtText.getText().toString());
+        } catch (ParseException e) {
+            return false ;
+        }
+    }
+
+
+
+    public  boolean areDatesValid(String startDateStr, String endDateStr) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+
+        Date startDate = sdf.parse(startDateStr);
+        Date endDate = sdf.parse(endDateStr);
+
+        Date currentDate = new Date();
+
+        if (startDate.after(currentDate) && endDate.after(currentDate)) {
+            return startDate.before(endDate);
+        }
+
+        return false;
+    }
+
+    private void setEndDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select End Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            postTeacherRequestPopupWindowBinding.endDateEdtText.setText(date);
+        });
+        materialDatePicker.show(requireActivity().getSupportFragmentManager(),"");
+
+    }
+
+    private void setStartDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Start Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            postTeacherRequestPopupWindowBinding.startDateEdtText.setText(date);
+        });
+        materialDatePicker.show(requireActivity().getSupportFragmentManager(),"");
     }
 
     private boolean checkStartAndEndTime() throws ParseException {
@@ -1213,6 +1284,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 String location = jsonObject.getString("location");
                 String teachingMethod = jsonObject.getString("teachingMethod");
                 double price = jsonObject.getDouble("price");
+                String startDate = jsonObject.getString("startDate");
+                String endDate = jsonObject.getString("endDate");
                 if(i==teacherPostsData.length() - 1){
                     String teacherPhoneNumbers = jsonObject.getString("phoneNumbers");
                     if(teacherPhoneNumbers.contains(",")){
@@ -1240,7 +1313,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         new Teacher(teacherEmail,idNumber,studentOrGraduate+"",expectedGraduationYear,teacherCollege,
                                 teacherField,teacherGender,teacherBirthDate,teacherStaticAvailability,educationLevel,teacherAddressesList,
                                 teacherPhoneNumbersList,teacherFirstName+" "+teacherLastName
-                                ),teacherPostStartTime,teacherPostEndTime,price));
+                                ),teacherPostStartTime,teacherPostEndTime,price,startDate,endDate));
             }
             setTeacherPostsForParent();
         }
@@ -1374,11 +1447,17 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             teacherPostedRequestsCardToShowToParentBinding.coursesTextView.setText(teacherPostRequest.getCourses());
             teacherPostedRequestsCardToShowToParentBinding.teachingMethodTextView.setText(teacherPostRequest.getTeachingMethod());
             teacherPostedRequestsCardToShowToParentBinding.choseDaysTextView.setText(teacherPostRequest.getTeacherData().getAvailability());
-            teacherPostedRequestsCardToShowToParentBinding.durationTextView.setText(teacherPostRequest.getDuration());
+            teacherPostedRequestsCardToShowToParentBinding.dateTextView.setText(teacherPostRequest.getStartDate()+"  -  "+teacherPostRequest.getEndDate());
             teacherPostedRequestsCardToShowToParentBinding.timeTextView.setText(String.format("%s - %s", teacherPostRequest.getStartTime(), teacherPostRequest.getEndTime()));
             teacherPostedRequestsCardToShowToParentBinding.locationTextView.setText(teacherPostRequest.getLocation());
             teacherPostedRequestsCardToShowToParentBinding.collegeTextView.setText(teacherPostRequest.getTeacherData().getField());
             teacherPostedRequestsCardToShowToParentBinding.priceTextView.setText(teacherPostRequest.getPrice()+"$");
+            if(teacherPostRequest.getDuration().equalsIgnoreCase("1")){
+                teacherPostedRequestsCardToShowToParentBinding.durationTextView.setText(teacherPostRequest.getDuration()+" Month");
+            }
+            else {
+                teacherPostedRequestsCardToShowToParentBinding.durationTextView.setText(teacherPostRequest.getDuration()+" Months");
+            }
             String teacherGender = "Male";
             if(teacherPostRequest.getTeacherData().getGender() == 0){
                 teacherGender = "Female";
@@ -1428,7 +1507,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             dialogSendRequestToTeacherLayoutBinding.teacherNameTextView.setText(teacherPostRequest.getTeacherData().getTeacherName());
             dialogSendRequestToTeacherLayoutBinding.coursesTextView.setText(teacherPostRequest.getCourses());
-            dialogSendRequestToTeacherLayoutBinding.teachingMethodTextView.setText(teacherPostRequest.getTeachingMethod());
+            dialogSendRequestToTeacherLayoutBinding.locationTextView.setText(teacherPostRequest.getLocation());
             dialogSendRequestToTeacherLayoutBinding.priceTextView.setText(teacherPostRequest.getPrice()+"");
 
             database.getParentChildrenForRequest(email,this);
@@ -1456,30 +1535,60 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         });
         List<CustomChildData> listOfChildrenForRequest = new ArrayList<>();
         dialogSendRequestToTeacherLayoutBinding.addChildBtn.setOnClickListener(z->{
-            if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Elementary School") && Integer.parseInt(selectedChildGrade) > 0 && Integer.parseInt(selectedChildGrade) <= 5){
-                // accept child .. 1 - 5
-            }
-            else if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Middle School") && Integer.parseInt(selectedChildGrade) > 5 && Integer.parseInt(selectedChildGrade) <= 10){
-                // accept child ... 6 - 10
-            }
-
-            else if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("High School") && Integer.parseInt(selectedChildGrade) > 10 && Integer.parseInt(selectedChildGrade) <= 12){
-                // accept child 11 - 12
-            }
-            else if(tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Any")){
-                // accept all children
-            }
-            else {
-                // show Error that is not acceptable ...
-            }
-
-            CustomChildData childData = new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade),selectedChildGender);
-            if(!checkIfChildAddedToFlexBox(listOfChildrenForRequest,childData)){
-                listOfChildrenForRequest.add(childData);
-                updateRequestFlexBoxForParent(listOfChildrenForRequest);
+            if((tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Elementary School") && Integer.parseInt(selectedChildGrade) > 0 && Integer.parseInt(selectedChildGrade) <= 5) ||
+                    (tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Middle School") && Integer.parseInt(selectedChildGrade) > 5 && Integer.parseInt(selectedChildGrade) <= 10)||
+                    (tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("High School") && Integer.parseInt(selectedChildGrade) > 10 && Integer.parseInt(selectedChildGrade) <= 12)||
+                    (tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Any"))){
+                CustomChildData childData = new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade),selectedChildGender);
+                if(!checkIfChildAddedToFlexBox(listOfChildrenForRequest,childData)){
+                    listOfChildrenForRequest.add(childData);
+                    updateRequestFlexBoxForParent(listOfChildrenForRequest);
+                }
+                else {
+                    MyAlertDialog.childWarningAlreadyExists(getContext());
+                }
             }
             else {
-                MyAlertDialog.childWarningAlreadyExists(getContext());
+                if(tempTeacherPostRequestForSendingRequest.getEducationLevel().equalsIgnoreCase("Elementary School"))
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","Teacher Can Teach Only 1st - 5th Grades");
+                else if(tempTeacherPostRequestForSendingRequest.getEducationLevel().equalsIgnoreCase("Middle School"))
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","Teacher Can Teach Only 6th - 10th Grades");
+                else if(tempTeacherPostRequestForSendingRequest.getEducationLevel().equalsIgnoreCase("High School"))
+                     MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","Teacher Can Teach Only 11th - 12th Grades");
+            }
+        });
+
+        dialogSendRequestToTeacherLayoutBinding.confirmRequestToSendToTeacherBtn.setOnClickListener(p->{
+            if(dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount() == 0){
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No child ","Please add at least one child to send the request to teacher ..");
+            }
+            else {
+                if(dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount() == 1){
+                    View customView = dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildAt(0);
+                    TextView textView = customView.findViewById(R.id.textViewChildName);
+                    String[] split = textView.getText().toString().split(",");
+                    int id = Integer.parseInt(split[1].trim());
+                    ParentRequestToSend parentRequestToSend = new ParentRequestToSend(tempTeacherPostRequestForSendingRequest.getTeacherPostRequestId(),email,id);
+                    // store in database and send notification to teacher ..
+                }
+                else {
+                    String childIds = "";
+                    List<Integer> childrenIds = new ArrayList<>();
+                    for(int i = 0 ;i < dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount();i++){
+                        View customView = dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildAt(i);
+                        TextView textView = customView.findViewById(R.id.textViewChildName);
+                        String[] split = textView.getText().toString().split(",");
+                        childrenIds.add(Integer.parseInt(split[1].trim()));
+                        if(i == 0 ){
+                            childIds = split[1].trim();
+                        }
+                        else {
+                            childIds += " , "+Integer.parseInt(split[1].trim());
+                        }
+                    }
+                    ParentRequestToSend parentRequestToSend = new ParentRequestToSend(tempTeacherPostRequestForSendingRequest.getTeacherPostRequestId(),email,childrenIds);
+
+                }
             }
         });
     }

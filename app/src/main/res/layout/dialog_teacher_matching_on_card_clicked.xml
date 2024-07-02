@@ -224,57 +224,22 @@
         android:textColor="#1A8E9E"/>
 
     <ImageView
-        android:id="@+id/teachingMethodImageView"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:src="@drawable/teaching_method_icon_2"
-        android:layout_below="@id/choseDaysTextView"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="20dp"
-        />
-    <TextView
-        android:id="@+id/teachingMethodTextViewTemp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Teaching Method : "
-        android:textSize="16sp"
-        android:layout_below="@id/choseDaysTextView"
-        android:layout_toEndOf="@id/teachingMethodImageView"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="10dp"/>
-
-    <TextView
-        android:id="@+id/teachingMethodTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_below="@id/choseDaysTextView"
-        android:layout_toEndOf="@id/teachingMethodTextViewTemp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="7dp"
-        android:layout_marginEnd="10dp"
-        android:textColor="#1A8E9E"/>
-
-
-    <ImageView
         android:id="@+id/timeImageView"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:src="@drawable/clock_icon"
-        android:layout_below="@id/teachingMethodTextView"
+        android:layout_below="@id/dateTextView"
         android:layout_alignParentStart="true"
         android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
         />
     <TextView
-        android:id="@+id/timeTextViewTemp"
+        android:id="@+id/timeMethodTextViewTemp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Time : "
         android:textSize="16sp"
-        android:layout_below="@id/teachingMethodTextView"
+        android:layout_below="@id/dateTextView"
         android:layout_toEndOf="@id/timeImageView"
         android:layout_marginTop="20dp"
         android:layout_marginStart="10dp"/>
@@ -284,8 +249,77 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:layout_below="@id/teachingMethodTextView"
-        android:layout_toEndOf="@id/timeTextViewTemp"
+        android:layout_below="@id/dateTextView"
+        android:layout_toEndOf="@id/timeMethodTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"/>
+
+    <ImageView
+        android:id="@+id/dateImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/calendar_icon"
+        android:layout_below="@id/choseDaysTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        />
+    <TextView
+        android:id="@+id/dateTextViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date  : "
+        android:textSize="16sp"
+        android:layout_below="@id/choseDaysTextView"
+        android:layout_toEndOf="@id/dateImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:id="@+id/dateTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@id/choseDaysTextView"
+        android:layout_toEndOf="@id/dateTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"/>
+
+
+    <ImageView
+        android:id="@+id/teachingMethodImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/teaching_method_icon_2"
+        android:layout_below="@id/timeTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        />
+    <TextView
+        android:id="@+id/teachingMethodViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teaching Method : "
+        android:textSize="16sp"
+        android:layout_below="@id/timeTextView"
+        android:layout_toEndOf="@id/teachingMethodImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:id="@+id/teachingMethodTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@id/timeTextView"
+        android:layout_toEndOf="@id/teachingMethodViewTemp"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
         android:layout_marginStart="7dp"
@@ -298,7 +332,7 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:src="@drawable/location_icon"
-        android:layout_below="@id/timeTextView"
+        android:layout_below="@id/teachingMethodTextView"
         android:layout_alignParentStart="true"
         android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
@@ -309,7 +343,7 @@
         android:layout_height="wrap_content"
         android:text="Location : "
         android:textSize="16sp"
-        android:layout_below="@id/timeTextView"
+        android:layout_below="@id/teachingMethodTextView"
         android:layout_toEndOf="@id/locationImageView"
         android:layout_marginTop="20dp"
         android:layout_marginStart="10dp"/>
@@ -319,7 +353,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:layout_below="@id/timeTextView"
+        android:layout_below="@id/teachingMethodTextView"
         android:layout_toEndOf="@id/locationTextViewTemp"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"

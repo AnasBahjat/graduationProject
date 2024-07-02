@@ -31,11 +31,13 @@ import android.widget.Toast;
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.MatchingTeacherAdapter;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
+import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestCardLayoutBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.databinding.UpdatePostedTeacherLookForAJobLayoutBinding;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
+import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherPostListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.database.Database;
@@ -51,6 +53,7 @@ import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.integrity.internal.r;
 
@@ -60,12 +63,16 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -73,7 +80,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         AddTeacherMatchingListener,
         PostedTeacherRequestsListener,
         TeacherPostRequestClickListener, OnTeacherPostRequestUpdateListener,
-        DeletePostedRequestListener {
+        DeletePostedRequestListener, ParentInformationListener {
 
     private FragmentTeacherBinding binding ;
 
@@ -105,6 +112,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private List<String> coursesList =new ArrayList<>();
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
     private  String teacherAvailability ;
+    private TeacherMatchModel tempTeacherMatchModel;
 
     private Dialog deleteRequestConfirmationDialog ;
 
@@ -485,10 +493,12 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     @Override
     public void onCardClicked(TeacherMatchModel teacherMatchModel) {
-        Intent intent = new Intent();
+        tempTeacherMatchModel = teacherMatchModel;
+        database.getParentInformation(teacherMatchModel.getParentEmail(),this);
+     /*   Intent intent = new Intent();
         intent.setAction("START_MATCHING_FRAGMENT_FOR_TEACHER");
         intent.putExtra("teacherMatchModel",(Serializable)teacherMatchModel);
-        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);*/
     }
 
     private void sendRefreshBroadcast(int flag){
@@ -544,9 +554,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     String endTime = jsonObject.getString("endTime");
                     double priceMin = jsonObject.getDouble("priceMin");
                     double priceMax = jsonObject.getDouble("priceMax");
+                    String startDate = jsonObject.getString("startDate");
+                    String endDate = jsonObject.getString("endDate");
                     TeacherMatchModel teacherMatchModel=new TeacherMatchModel(matchingId,parentEmail,new CustomChildData(childId,childName,childGrade),
                             choseDays,choseCourses,location,teachingMethod,
-                            new Children(childName,childAge,childGender,childGrade),startTime,endTime,priceMin,priceMax);
+                            new Children(childName,childAge,childGender,childGrade),startTime,endTime,priceMin,priceMax,startDate,endDate);
                     teacherMatchModelData.add(teacherMatchModel);
                 }
                // matchingTeacherAdapter.filteredList(teacherMatchModelData);
@@ -605,6 +617,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         String teachingMethod = jsonObject.getString("teachingMethod");
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
+                        String startDate = jsonObject.getString("startDate");
+                        String endDate = jsonObject.getString("endDate");
                         double price =jsonObject.getDouble("price");
                         if(i==data.length() - 1){
                             String phoneNumbers = jsonObject.getString("phoneNumbers");
@@ -628,11 +642,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                                 teacherAddressesList.add(new Address(splitCurrentAddress[0].trim(),splitCurrentAddress[1].trim()));
                             }
                         }
-                        //teacherPostedRequestsList.add(new TeacherPostRequest(postId,teacherEmail,courses,educationLevel,duration,location,teachingMethod));
                         teacherPostedRequestsList.add(new TeacherPostRequest(postId,email,courses,educationLevel,duration,availability,location,
                                 teachingMethod,new Teacher(email,idNumber,studentOrGraduate+"",
                                 expectedGraduationYear,college,field,gender,availability,educationLevel,
-                                teacherAddressesList,teacherPhoneNumbersList,firstName+" "+lastname),startTime,endTime,price));
+                                teacherAddressesList,teacherPhoneNumbersList,firstName+" "+lastname),startTime,endTime,price,startDate,endDate));
                     }
                     updatePostedAdapterData();
                     binding.refreshRecyclerView.setRefreshing(false);
@@ -684,6 +697,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             teacherPostedRequestCardLayoutBinding.timeTextView.setText(teacherPostRequest.getTeacherData().getAvailability());
             teacherPostedRequestCardLayoutBinding.locationTextView.setText(teacherPostRequest.getLocation());
             teacherPostedRequestCardLayoutBinding.priceTextView.setText(teacherPostRequest.getPrice()+"$");
+            teacherPostedRequestCardLayoutBinding.dateTextView.setText(teacherPostRequest.getStartDate()+"  -  "+teacherPostRequest.getEndDate());
             teacherPostedRequestCardLayoutBinding.cardSettings.setOnClickListener(z->{
                 showSettingsPopupMenu(teacherPostRequest);
             });
@@ -773,6 +787,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             updatePostedTeacherLookForAJobLayoutBinding.startTimeEdtText.setText(teacherPostRequest.getStartTime());
             updatePostedTeacherLookForAJobLayoutBinding.endTimeEdtText.setText(teacherPostRequest.getEndTime());
             updatePostedTeacherLookForAJobLayoutBinding.priceEditText.setText(teacherPostRequest.getPrice()+"");
+            updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.setText(teacherPostRequest.getStartDate());
+            updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.setText(teacherPostRequest.getEndDate());
             startTime = teacherPostRequest.getStartTime();
             endTime = teacherPostRequest.getEndTime();
 
@@ -782,6 +798,14 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             updatePostedTeacherLookForAJobLayoutBinding.endTimeEdtText.setOnClickListener(v->{
                 setEndTime();
             });
+
+            updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.setOnClickListener(z->{
+                setStartDate();
+            });
+            updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.setOnClickListener(z->{
+                setEndDate();
+            });
+
 
             String[] locationEntries = getResources().getStringArray(R.array.locationArray);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, locationEntries);
@@ -800,7 +824,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         }
     }
 
+
+
     private void updateBtnClicked(TeacherPostRequest teacherPostRequest) throws ParseException {
+        String startDate = updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.getText().toString();
+        String endDate = updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.getText().toString();
         if(updatePostedTeacherLookForAJobLayoutBinding.coursesFlexBoxLayout.getChildCount() == 0){
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Courses Error","Please choose at least one course and add it ,,");
         }
@@ -817,51 +845,107 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong duration","The duration must be at least one month and at most 12 months");
                 }
                 else {
-                    if(!checkStartAndEndTime()){
-                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong timing","Please Choose valid start and end time, and make sure there are at least one hour..");
+                    if(!checkStartAndEndDate(Integer.parseInt(updatePostedTeacherLookForAJobLayoutBinding.numberOfMonthsEdtText.getText().toString()))){
+                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong Date","Please choose a valid start and end dates in future with  "+(Integer.parseInt(updatePostedTeacherLookForAJobLayoutBinding.numberOfMonthsEdtText.getText().toString()))+" months period");
                     }
                     else {
-                        double price = Double.parseDouble(updatePostedTeacherLookForAJobLayoutBinding.priceEditText.getText().toString());
-                        if(updatePostedTeacherLookForAJobLayoutBinding.priceEditText.getText().toString().isEmpty() || price < 1.0 || price > 100.0)
-                            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Invalid Price","Please Choose A Valid Price Value ..\n0.0 - 100 $");
+                        if(!checkStartAndEndTime()){
+                            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Wrong timing","Please Choose valid start and end time, and make sure there are at least one hour..");
+                        }
                         else {
-                            StringBuilder updatedCourses = new StringBuilder();
-                            String updatedEducationLevel = updatePostedTeacherLookForAJobLayoutBinding.educationalLevelSpinner.getSelectedItem().toString();
-                            StringBuilder updatedDays = new StringBuilder();
-                            String updatedNumOfMonths = updatePostedTeacherLookForAJobLayoutBinding.numberOfMonthsEdtText.getText().toString();
-                            String updatedLocation = updatePostedTeacherLookForAJobLayoutBinding.locationSpinner.getSelectedItem().toString();
-                            String updatedTeachingMethod = updatePostedTeacherLookForAJobLayoutBinding.teachingMethodSpinner.getSelectedItem().toString();
-                            for(int i = 0 ;i < coursesList.size();i++){
-                                if(i + 1 != coursesList.size())
-                                    updatedCourses.append(coursesList.get(i)).append(" , ");
-                                else
-                                    updatedCourses.append(coursesList.get(i));
-                            }
-                            if(updatePostedTeacherLookForAJobLayoutBinding.saturday.isChecked())
-                                updatedDays.append("Sat , ");
-                            if(updatePostedTeacherLookForAJobLayoutBinding.sunday.isChecked())
-                                updatedDays.append("Sun , ");
-                            if(updatePostedTeacherLookForAJobLayoutBinding.monday.isChecked())
-                                updatedDays.append("Mon , ");
-                            if(updatePostedTeacherLookForAJobLayoutBinding.tuesday.isChecked())
-                                updatedDays.append("Tues , ");
-                            if(updatePostedTeacherLookForAJobLayoutBinding.wednesday.isChecked())
-                                updatedDays.append("Wed , ");
-                            if(updatePostedTeacherLookForAJobLayoutBinding.thursday.isChecked())
-                                updatedDays.append("Thur , ");
-                            if(updatePostedTeacherLookForAJobLayoutBinding.friday.isChecked())
-                                updatedDays.append("Fri");
+                            double price = Double.parseDouble(updatePostedTeacherLookForAJobLayoutBinding.priceEditText.getText().toString());
+                            if(updatePostedTeacherLookForAJobLayoutBinding.priceEditText.getText().toString().isEmpty() || price < 1.0 || price > 100.0)
+                                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Invalid Price","Please Choose A Valid Price Value ..\n0.0 - 100 $");
+                            else {
+                                StringBuilder updatedCourses = new StringBuilder();
+                                String updatedEducationLevel = updatePostedTeacherLookForAJobLayoutBinding.educationalLevelSpinner.getSelectedItem().toString();
+                                StringBuilder updatedDays = new StringBuilder();
+                                String updatedNumOfMonths = updatePostedTeacherLookForAJobLayoutBinding.numberOfMonthsEdtText.getText().toString();
+                                String updatedLocation = updatePostedTeacherLookForAJobLayoutBinding.locationSpinner.getSelectedItem().toString();
+                                String updatedTeachingMethod = updatePostedTeacherLookForAJobLayoutBinding.teachingMethodSpinner.getSelectedItem().toString();
+                                for(int i = 0 ;i < coursesList.size();i++){
+                                    if(i + 1 != coursesList.size())
+                                        updatedCourses.append(coursesList.get(i)).append(" , ");
+                                    else
+                                        updatedCourses.append(coursesList.get(i));
+                                }
+                                if(updatePostedTeacherLookForAJobLayoutBinding.saturday.isChecked())
+                                    updatedDays.append("Sat , ");
+                                if(updatePostedTeacherLookForAJobLayoutBinding.sunday.isChecked())
+                                    updatedDays.append("Sun , ");
+                                if(updatePostedTeacherLookForAJobLayoutBinding.monday.isChecked())
+                                    updatedDays.append("Mon , ");
+                                if(updatePostedTeacherLookForAJobLayoutBinding.tuesday.isChecked())
+                                    updatedDays.append("Tues , ");
+                                if(updatePostedTeacherLookForAJobLayoutBinding.wednesday.isChecked())
+                                    updatedDays.append("Wed , ");
+                                if(updatePostedTeacherLookForAJobLayoutBinding.thursday.isChecked())
+                                    updatedDays.append("Thur , ");
+                                if(updatePostedTeacherLookForAJobLayoutBinding.friday.isChecked())
+                                    updatedDays.append("Fri");
 
-                            TeacherPostRequest tpr = new TeacherPostRequest(teacherPostRequest.getTeacherPostRequestId(),
-                                    teacherPostRequest.getTeacherEmail(),updatedCourses.toString(),updatedEducationLevel,
-                                    updatedNumOfMonths,updatedDays.toString(),updatedLocation,updatedTeachingMethod,startTime,endTime,price);
-                            binding.progressBarLayout.setVisibility(View.VISIBLE);
-                            database.updateTeacherPostedRequest(tpr,this);
+                                TeacherPostRequest tpr = new TeacherPostRequest(teacherPostRequest.getTeacherPostRequestId(),
+                                        teacherPostRequest.getTeacherEmail(),updatedCourses.toString(),updatedEducationLevel,
+                                        updatedNumOfMonths,updatedDays.toString(),updatedLocation,updatedTeachingMethod,startTime,endTime,price,startDate,endDate);
+                                binding.progressBarLayout.setVisibility(View.VISIBLE);
+                                database.updateTeacherPostedRequest(tpr,this);
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private void setEndDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select End Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.setText(date);
+        });
+        materialDatePicker.show(requireActivity().getSupportFragmentManager(),"");
+    }
+
+    private void setStartDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Start Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.setText(date);
+        });
+        materialDatePicker.show(requireActivity().getSupportFragmentManager(),"");
+    }
+
+    private boolean checkStartAndEndDate(int duration){
+        try {
+            return areDatesValid(updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.getText().toString(), updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.getText().toString(),duration);
+        } catch (ParseException e) {
+            return false ;
+        }
+    }
+
+
+
+    public boolean areDatesValid(String startDateStr, String endDateStr,int duration) throws ParseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        LocalDate startDate = LocalDate.parse(startDateStr, formatter);
+        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
+
+        LocalDate currentDate = LocalDate.now();
+
+        if (startDate.isAfter(currentDate) && endDate.isAfter(currentDate)) {
+            if (startDate.isBefore(endDate)) {
+                int monthsDifference = Period.between(startDate, endDate).getMonths() + (Period.between(startDate, endDate).getYears() * 12);
+                return monthsDifference == duration;
+            }
+        }
+        return false;
     }
 
     private boolean checkStartAndEndTime() throws ParseException {
@@ -1103,5 +1187,111 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         else if(flag == -3){
 
         }
+    }
+
+    @Override
+    public void onResultParentInformation(int resultFlag, JSONArray parentInformation) {
+        if (resultFlag == -1) {
+            // error
+        } else if (resultFlag == -2) {
+            // No data
+        } else if (resultFlag == -3) {
+            // connection error
+        } else if (resultFlag == -4) {
+            // volley error
+        } else {
+            try {
+                List<String> parentPhoneNumbersList = new ArrayList<>();
+                List<Address> parentAddressesList = new ArrayList<>();
+                String parentFirstName = "";
+                String parentLastName = "";
+                for (int i = 0; i < parentInformation.length(); i++) {
+                    JSONObject jsonObject = parentInformation.getJSONObject(i);
+                    parentFirstName = jsonObject.getString("firstname");
+                    parentFirstName = parentFirstName.substring(0, 1).toUpperCase() + parentFirstName.substring(1).toLowerCase();
+                    parentLastName = jsonObject.getString("lastname");
+                    parentLastName = parentLastName.substring(0, 1).toUpperCase() + parentLastName.substring(1).toLowerCase();
+                    String parentBirthDate = jsonObject.getString("birthDate");
+                    String parentGender = "Male";
+                    int parentGenderVal = jsonObject.getInt("gender");
+                    if (parentGenderVal == 0)
+                        parentGender = "Female";
+                    String parentIdNumber = jsonObject.getString("idNumber");
+                    if (i == 0) {
+                        String parentPhoneNumbers = jsonObject.getString("phoneNumbers");
+                        if (parentPhoneNumbers.contains(",")) {
+                            String[] splitTeacherPhoneNumbers = parentPhoneNumbers.split(",");
+                            parentPhoneNumbersList.addAll(Arrays.asList(splitTeacherPhoneNumbers));
+                        } else
+                            parentPhoneNumbersList.add(parentPhoneNumbers);
+                        String parentAddresses = jsonObject.getString("addresses");
+                        if (parentAddresses.contains("|")) {
+                            String[] splitAddresses = parentAddresses.split("\\|");
+                            for (String splitAddress : splitAddresses) {
+                                String[] splitAddressObject = splitAddress.split(",");
+                                parentAddressesList.add(new Address(splitAddressObject[0].trim(), splitAddressObject[1].trim()));
+                            }
+                        } else {
+                            String[] split = parentAddresses.split(",");
+                            parentAddressesList.add(new Address(split[0].trim(), split[1].trim()));
+                        }
+                    }
+                }
+                showTeacherMatchDialog(tempTeacherMatchModel, parentFirstName + " " + parentLastName, parentPhoneNumbersList);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void showTeacherMatchDialog(TeacherMatchModel teacherMatchModel,String parentName ,List<String> parentPhoneNumbers){
+        if(getContext() != null){
+            DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding = DialogTeacherMatchingOnCardClickedBinding.inflate(LayoutInflater.from(getContext()));
+            Dialog dialog = new Dialog(getContext());
+            dialog.setContentView(dialogTeacherMatchingOnCardClickedBinding.getRoot());
+            dialog.setCancelable(false);
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(dialog.getWindow().getAttributes());
+            layoutParams.width = 1250;
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setAttributes(layoutParams);
+            if(dialog.getWindow() != null)
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
+
+            dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x->{
+
+            });
+
+            dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z->{
+                dialog.dismiss();
+            });
+
+            setDataToMatchDialog(dialogTeacherMatchingOnCardClickedBinding,teacherMatchModel,parentName,parentPhoneNumbers);
+        }
+    }
+
+    private void setDataToMatchDialog(DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding, TeacherMatchModel teacherMatchModel,String parentName,List<String> parentPhoneNumbers){
+        dialogTeacherMatchingOnCardClickedBinding.childNameTextView.setText(teacherMatchModel.getChildren().getChildName());
+        dialogTeacherMatchingOnCardClickedBinding.parentNameTextView.setText(parentName);
+        dialogTeacherMatchingOnCardClickedBinding.parentEmailTextView.setText(teacherMatchModel.getParentEmail());
+        StringBuilder phoneNumbers = new StringBuilder();
+        if(parentPhoneNumbers.size() > 1){
+            for(int i=0;i<parentPhoneNumbers.size();i++){
+                if( i + 1 != parentPhoneNumbers.size())
+                    phoneNumbers.append(parentPhoneNumbers.get(i)).append(" , ");
+                else
+                    phoneNumbers.append(parentPhoneNumbers.get(i));
+            }
+        }
+        else
+            phoneNumbers.append(parentPhoneNumbers.get(0));
+        dialogTeacherMatchingOnCardClickedBinding.parentPhoneNumberTextView.setText(phoneNumbers.toString());
+        dialogTeacherMatchingOnCardClickedBinding.coursesTextView.setText(teacherMatchModel.getCourses());
+        dialogTeacherMatchingOnCardClickedBinding.choseDaysTextView.setText(teacherMatchModel.getChoseDays());
+        dialogTeacherMatchingOnCardClickedBinding.teachingMethodTextView.setText(teacherMatchModel.getTeachingMethod());
+        dialogTeacherMatchingOnCardClickedBinding.timeTextView.setText(teacherMatchModel.getStartTime() + " - "+teacherMatchModel.getEndTime());
+        dialogTeacherMatchingOnCardClickedBinding.locationTextView.setText(teacherMatchModel.getLocation());
+        dialogTeacherMatchingOnCardClickedBinding.dateTextView.setText(teacherMatchModel.getStartDate()+"  -  "+teacherMatchModel.getEndDate());
     }
 }

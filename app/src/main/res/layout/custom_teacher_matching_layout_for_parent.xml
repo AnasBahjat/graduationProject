@@ -152,10 +152,44 @@
             />
 
         <ImageView
-            android:id="@+id/clockIcon"
+            android:id="@+id/dateImageView"
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:layout_below="@id/teachingMethodTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="14dp"
+            android:src="@drawable/calendar_icon" />
+        <TextView
+            android:id="@+id/dateTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date Period: "
+            android:layout_toEndOf="@id/dateImageView"
+            android:layout_below="@id/teachingMethodTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/dateTextViewTemp"
+            android:layout_below="@id/teachingMethodTextView"
+            android:textSize="15sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
+
+        <ImageView
+            android:id="@+id/clockIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_below="@id/dateTextView"
             android:layout_alignParentStart="true"
             android:layout_marginStart="20dp"
             android:layout_marginTop="12dp"
@@ -168,7 +202,7 @@
             android:text="Time :"
             android:layout_toEndOf="@id/clockIcon"
             android:layout_marginStart="8dp"
-            android:layout_below="@id/teachingMethodTextView"
+            android:layout_below="@id/dateTextView"
             android:layout_marginTop="10dp"/>
 
         <TextView
@@ -177,7 +211,7 @@
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:layout_toEndOf="@id/timeTextViewTemp"
-            android:layout_below="@id/teachingMethodTextView"
+            android:layout_below="@id/dateTextView"
             android:layout_marginTop="10dp"
             android:layout_marginStart="8dp"
             android:textColor="#1A8E9E"

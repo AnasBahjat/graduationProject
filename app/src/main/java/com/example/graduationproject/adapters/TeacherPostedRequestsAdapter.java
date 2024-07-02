@@ -69,11 +69,7 @@ public class TeacherPostedRequestsAdapter extends RecyclerView.Adapter<TeacherPo
             binding.availableTextView.setText(requestModel.getAvailability());
             binding.educationLevelTextView.setText(requestModel.getTeacherData().getEducationalLevel());
             binding.priceTextView.setText(requestModel.getPrice()+"$");
-
-            if(requestModel.getDuration().equalsIgnoreCase("1"))
-                binding.durationTextView.setText(requestModel.getDuration()+" Month");
-            else
-                binding.durationTextView.setText(requestModel.getDuration()+" Months");
+            binding.dateTextView.setText(requestModel.getStartDate()+"  -  "+requestModel.getEndDate());
 
 
             binding.teacherPostJobLayout.setOnClickListener(b->{

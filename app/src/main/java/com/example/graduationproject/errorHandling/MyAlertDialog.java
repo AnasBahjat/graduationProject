@@ -208,7 +208,7 @@ public class MyAlertDialog {
         TextView titleTextView = view.findViewById(R.id.titleTextView);
         TextView errorTextView = view.findViewById(R.id.errorTextView);
         titleTextView.setText("Child Error");
-        errorTextView.setText("Course Is Already added , check the container below ..");
+        errorTextView.setText("Child Is Already added , check the container below ..");
         errorTextView.setTextColor(context.getColor(R.color.black));
         builder.setView(view);
         builder.setPositiveButton("OK", null);

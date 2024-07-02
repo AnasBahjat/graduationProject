@@ -62,6 +62,7 @@ import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
@@ -72,10 +73,14 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 
@@ -111,7 +116,7 @@ public class ParentActivity extends AppCompatActivity implements
     private EditText childAgeEditText ;
     private Spinner childGenderSpinner,childGradeSpinner,locationSpinner,teachingMethodSpinner ;
     private Button addNewChildButton,addCourseButton;
-    private EditText priceFromEditText,priceToEditText ;
+    private EditText priceFromEditText,priceToEditText,startDateEdtText,endDateEdtText ;
     private TextInputLayout childNameText;
     private TextInputLayout ageText;
     AlertDialog newChildDialog;
@@ -610,6 +615,8 @@ public class ParentActivity extends AppCompatActivity implements
         teachingMethodSpinner = dialogView.findViewById(R.id.teachingMethod);
         priceFromEditText = dialogView.findViewById(R.id.priceFromEditText);
         priceToEditText = dialogView.findViewById(R.id.priceToEditText);
+        startDateEdtText = dialogView.findViewById(R.id.startDateEdtText);
+        endDateEdtText = dialogView.findViewById(R.id.endDateEdtText);
 
         EditText startTimePickerEditText = dialogView.findViewById(R.id.startTimeEdtText);
         EditText endTimePickerEditText= dialogView.findViewById(R.id.endTimeEdtText);
@@ -632,6 +639,13 @@ public class ParentActivity extends AppCompatActivity implements
 
         closeImageView.setOnClickListener(ad->{
             searchingForTeacherDialog.dismiss();
+        });
+
+        startDateEdtText.setOnClickListener(z->{
+            setStartDate();
+        });
+        endDateEdtText.setOnClickListener(b->{
+            setEndDate();
         });
 
 
@@ -739,6 +753,32 @@ public class ParentActivity extends AppCompatActivity implements
             }
         });
     }
+
+    private void setEndDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select End Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            endDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
+
+    }
+
+    private void setStartDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Start Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            startDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
+    }
+
     @SuppressLint("SimpleDateFormat")
     private void setStartAndEndTime(){
         Calendar calendar = Calendar.getInstance();
@@ -794,50 +834,72 @@ public class ParentActivity extends AppCompatActivity implements
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Days Error","Please Choose at least one day a week to match a teacher data");
         }
         else {
-            if(!checkStartAndEndTime()){
-                MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
+            if(!checkStartAndEndDate()){
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong Date","Please choose a valid start and end dates in future .. ");
             }
             else {
-                if(flexboxCoursesForMatchingTeacherLayout.getChildCount() == 0){
-                    MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please Choose At least one course ..");
+                if(!checkStartAndEndTime()){
+                    MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
                 }
                 else {
-                    double priceMinimum = Double.parseDouble(priceFromEditText.getText().toString());
-                    double priceMaximum = Double.parseDouble(priceToEditText.getText().toString());
-
-                    if(priceFromEditText.getText().toString().isEmpty() || priceToEditText.getText().toString().isEmpty()|| priceMinimum < 1.0 || priceMaximum > 100.0 || priceMinimum >= priceMaximum)
-                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong price","Please Choose Valid Price Range Values ..");
+                    if(flexboxCoursesForMatchingTeacherLayout.getChildCount() == 0){
+                        MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please Choose At least one course ..");
+                    }
                     else {
-                        if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
-                            StringBuilder courses= new StringBuilder();
-                            for(int i=0 ; i < coursesListForMatchingTeacher.size() ; i++){
-                                if(i + 1 != coursesListForMatchingTeacher.size()){
-                                    courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
+                        double priceMinimum = Double.parseDouble(priceFromEditText.getText().toString());
+                        double priceMaximum = Double.parseDouble(priceToEditText.getText().toString());
+
+                        if(priceFromEditText.getText().toString().isEmpty() || priceToEditText.getText().toString().isEmpty()|| priceMinimum < 1.0 || priceMaximum > 100.0 || priceMinimum >= priceMaximum)
+                            MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong price","Please Choose Valid Price Range Values ..");
+                        else {
+                            if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
+                                StringBuilder courses= new StringBuilder();
+                                for(int i=0 ; i < coursesListForMatchingTeacher.size() ; i++){
+                                    if(i + 1 != coursesListForMatchingTeacher.size()){
+                                        courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
+                                    }
+                                    else {
+                                        courses.append(coursesListForMatchingTeacher.get(i));
+                                    }
                                 }
-                                else {
-                                    courses.append(coursesListForMatchingTeacher.get(i));
-                                }
+
+                                TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
+                                        ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime,priceMinimum,priceMaximum,startDateEdtText.getText().toString(),endDateEdtText.getText().toString());
+                                database.addNewTeacherMatching(email,teacherMatchModel,this);
                             }
-
-                            TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
-                                    ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime,priceMinimum,priceMaximum);
-
-                            TeacherMatchModel teacherMatchModel1 = new TeacherMatchModel(lastMatchingId+1
-                                    ,email,
-                                    new CustomChildData(selectedChildId,selectedChildName,
-                                            Integer.parseInt(selectedChildGrade.trim())),
-                                    selectedDays.toString(),courses.toString(),
-                                    city,teachingMethodStr,
-                                    new Children(selectedChildName,"12",selectedChildGender,
-                                            Integer.parseInt(selectedChildGrade.trim())),startTime,endTime,priceMinimum,priceMaximum);
-                            // intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
-                            database.addNewTeacherMatching(email,teacherMatchModel,this);
                         }
                     }
                 }
             }
         }
     }
+
+    private boolean checkStartAndEndDate(){
+        try {
+            return areDatesValid(startDateEdtText.getText().toString(), endDateEdtText.getText().toString());
+        } catch (ParseException e) {
+            return false ;
+        }
+    }
+
+
+
+    public  boolean areDatesValid(String startDateStr, String endDateStr) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+
+        Date startDate = sdf.parse(startDateStr);
+        Date endDate = sdf.parse(endDateStr);
+
+        Date currentDate = new Date();
+
+        if (startDate.after(currentDate) && endDate.after(currentDate)) {
+            return startDate.before(endDate);
+        }
+
+        return false;
+    }
+
     private boolean checkStartAndEndTime() throws ParseException {
         Date startDate = timeFormat.parse(startTime);
         Date endDate = timeFormat.parse(endTime);

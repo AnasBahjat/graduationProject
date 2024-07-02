@@ -309,13 +309,48 @@
         android:textColor="#1A8E9E"
         />
 
+    <ImageView
+        android:id="@+id/dateImageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/calendar_icon"
+        android:layout_below="@id/timeTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        />
+    <TextView
+        android:id="@+id/dateTextViewTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date Period : "
+        android:textSize="16sp"
+        android:layout_below="@id/timeTextView"
+        android:layout_toEndOf="@id/dateImageView"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:id="@+id/dateTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@id/timeTextView"
+        android:layout_toEndOf="@id/dateTextViewTemp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="#1A8E9E"
+        />
+
 
     <ImageView
         android:id="@+id/locationImageView"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:src="@drawable/location_icon"
-        android:layout_below="@id/timeTextView"
+        android:layout_below="@id/dateTextView"
         android:layout_alignParentStart="true"
         android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
@@ -326,7 +361,7 @@
         android:layout_height="wrap_content"
         android:text="Location : "
         android:textSize="16sp"
-        android:layout_below="@id/timeTextView"
+        android:layout_below="@id/dateTextView"
         android:layout_toEndOf="@id/locationImageView"
         android:layout_marginTop="20dp"
         android:layout_marginStart="10dp"
@@ -337,7 +372,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:layout_below="@id/timeTextView"
+        android:layout_below="@id/dateTextView"
         android:layout_toEndOf="@id/locationTextViewTemp"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
