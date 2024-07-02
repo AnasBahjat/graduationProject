@@ -1022,41 +1022,35 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void addParentSentRequestToTeacherWithList(ParentRequestToSend parentRequestToSend,final ParentRequestToSendListener parentRequestToSendListener){
+    public void addParentSentRequestToTeacher(ParentRequestToSend parentRequestToSend,final ParentRequestToSendListener parentRequestToSendListener){
         requestQueue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.addParentSentRequestToTeacherWithList,resp->{
-
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.addParentSentRequestToTeacher,resp->{
+            if(resp.equalsIgnoreCase("Connection Error"))
+                parentRequestToSendListener.onRequestSent(-2);
+            else if(resp.equalsIgnoreCase("Error"))
+                parentRequestToSendListener.onRequestSent(0);
+            else if(resp.equalsIgnoreCase("Done"))
+                parentRequestToSendListener.onRequestSent(1);
+            else
+                parentRequestToSendListener.onRequestSent(-3);
         },err->{
-
+            parentRequestToSendListener.onRequestSent(-1);
         }){
             @Override
             protected Map<String, String> getParams() {
-                Map<String,String> data = new HashMap<>();
-                data.put("teacherPostRequestId",parentRequestToSend.getTeacherPostRequestId()+"");
-                data.put("parentEmail",parentRequestToSend.getParentEmail());
-                data.put("childrenIds",parentRequestToSend.getChildrenIds()+"");
+                Map<String, String> data = new HashMap<>();
+                data.put("teacherPostRequestId", String.valueOf(parentRequestToSend.getTeacherPostRequestId()));
+                data.put("parentEmail", parentRequestToSend.getParentEmail());
+                data.put("teacherEmail", parentRequestToSend.getTeacherEmail());
+                JSONArray jsonArray = new JSONArray();
+                for (Integer childId : parentRequestToSend.getChildrenIds()) {
+                    jsonArray.put(childId);
+                }
+                data.put("childrenIds", jsonArray.toString());
                 return data;
             }
         };
-
-    }
-
-    public void addParentSentRequestToTeacherNoList(ParentRequestToSend parentRequestToSend,final ParentRequestToSendListener parentRequestToSendListener){
-        requestQueue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.addParentSentRequestToTeacherNoList,resp->{
-
-        },err->{
-
-        }){
-            @Override
-            protected Map<String, String> getParams()   {
-                Map<String,String> data = new HashMap<>();
-                data.put("teacherPostRequestId",parentRequestToSend.getTeacherPostRequestId()+"");
-                data.put("parentEmail",parentRequestToSend.getParentEmail());
-                data.put("childId",parentRequestToSend.getChildId()+"");
-                return data;
-            }
-        };
+        requestQueue.add(stringRequest);
 
     }
 }

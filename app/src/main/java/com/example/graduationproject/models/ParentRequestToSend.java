@@ -5,19 +5,24 @@ import java.util.List;
 public class ParentRequestToSend {
     private int teacherPostRequestId ;
     private String parentEmail ;
-    private int childId ;
+    private String teacherEmail ;
     private List<Integer> childrenIds ;
 
-    public ParentRequestToSend(int teacherPostRequestId,String parentEmail , int child){
+
+
+    public ParentRequestToSend(int teacherPostRequestId,String parentEmail,String teacherEmail,List<Integer> children){
         this.teacherPostRequestId = teacherPostRequestId;
         this.parentEmail = parentEmail;
-        this.childId = child;
+        this.teacherEmail = teacherEmail;
+        this.childrenIds = children;
     }
 
-    public ParentRequestToSend(int teacherPostRequestId,String parentEmail,List<Integer> children){
-        this.teacherPostRequestId = teacherPostRequestId;
-        this.parentEmail = parentEmail;
-        this.childrenIds = children;
+    public String getTeacherEmail() {
+        return teacherEmail;
+    }
+
+    public void setTeacherEmail(String teacherEmail) {
+        this.teacherEmail = teacherEmail;
     }
 
     public int getTeacherPostRequestId() {
@@ -36,13 +41,7 @@ public class ParentRequestToSend {
         this.parentEmail = parentEmail;
     }
 
-    public int getChildId() {
-        return childId;
-    }
 
-    public void setChildId(int childId) {
-        this.childId = childId;
-    }
 
     public List<Integer> getChildrenIds() {
         return childrenIds;

@@ -151,19 +151,52 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:layout_below="@id/coursesTextView"
-            android:layout_toEndOf="@id/teachingMethodTextViewTemp"
+            android:layout_toEndOf="@id/locationTextViewTemp"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20dp"
             android:layout_marginStart="7dp"
             android:layout_marginEnd="10dp"
             android:textColor="#1A8E9E"/>
 
+
+        <ImageView
+            android:id="@+id/dateImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/locationTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/calendar_icon"/>
+        <TextView
+            android:id="@+id/dateTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Date Period :"
+            android:layout_toEndOf="@id/dateImageView"
+            android:layout_marginStart="8dp"
+            android:layout_below="@id/locationTextView"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_toEndOf="@id/dateTextViewTemp"
+            android:layout_below="@id/locationTextView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
         <ImageView
             android:id="@+id/priceImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_below="@id/locationTextView"
-            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/dateTextView"
             android:layout_alignParentStart="true"
             android:layout_marginStart="15dp"
             android:layout_marginTop="20dp"
@@ -176,7 +209,7 @@
             android:text="Price Per Hour :"
             android:layout_toEndOf="@id/priceImageView"
             android:layout_marginStart="8dp"
-            android:layout_below="@id/locationTextView"
+            android:layout_below="@id/dateTextView"
             android:layout_marginTop="20dp"/>
 
         <TextView
@@ -185,12 +218,14 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:layout_toEndOf="@id/priceViewTemp"
-            android:layout_below="@id/locationTextView"
+            android:layout_below="@id/dateTextView"
             android:layout_marginTop="20dp"
             android:layout_marginStart="8dp"
             android:textColor="#1A8E9E"
             android:layout_marginEnd="20dp"
             />
+
+
 
 
         <LinearLayout

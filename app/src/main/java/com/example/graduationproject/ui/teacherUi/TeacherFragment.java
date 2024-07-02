@@ -693,11 +693,14 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             teacherPostedRequestCardLayoutBinding.teacherPhoneNumberTextView.setText(phonesStringBuilder.toString());
             teacherPostedRequestCardLayoutBinding.coursesTextView.setText(teacherPostRequest.getCourses());
             teacherPostedRequestCardLayoutBinding.teachingMethodTextView.setText(teacherPostRequest.getTeachingMethod());
-            teacherPostedRequestCardLayoutBinding.durationTextView.setText(teacherPostRequest.getDuration());
             teacherPostedRequestCardLayoutBinding.timeTextView.setText(teacherPostRequest.getTeacherData().getAvailability());
             teacherPostedRequestCardLayoutBinding.locationTextView.setText(teacherPostRequest.getLocation());
             teacherPostedRequestCardLayoutBinding.priceTextView.setText(teacherPostRequest.getPrice()+"$");
             teacherPostedRequestCardLayoutBinding.dateTextView.setText(teacherPostRequest.getStartDate()+"  -  "+teacherPostRequest.getEndDate());
+            if(teacherPostRequest.getDuration().equalsIgnoreCase("1"))
+                teacherPostedRequestCardLayoutBinding.durationTextView.setText(teacherPostRequest.getDuration()+" Month");
+            else
+                teacherPostedRequestCardLayoutBinding.durationTextView.setText(teacherPostRequest.getDuration()+" Months");
             teacherPostedRequestCardLayoutBinding.cardSettings.setOnClickListener(z->{
                 showSettingsPopupMenu(teacherPostRequest);
             });

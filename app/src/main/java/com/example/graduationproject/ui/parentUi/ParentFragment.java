@@ -53,6 +53,7 @@ import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentPostRequestClickListener;
 import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
+import com.example.graduationproject.listeners.ParentRequestToSendListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Address;
@@ -95,7 +96,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         UpdateTeacherPostedRequestListener,
         ParentPostRequestDeleteListener,
         OnAllTeacherPostedRequestsForParentListener,
-        TeacherPostRequestClickListener, GetParentChildrenForRequest {
+        TeacherPostRequestClickListener, GetParentChildrenForRequest, ParentRequestToSendListener {
 
     private String email;
     private String firstName;
@@ -1452,6 +1453,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             teacherPostedRequestsCardToShowToParentBinding.locationTextView.setText(teacherPostRequest.getLocation());
             teacherPostedRequestsCardToShowToParentBinding.collegeTextView.setText(teacherPostRequest.getTeacherData().getField());
             teacherPostedRequestsCardToShowToParentBinding.priceTextView.setText(teacherPostRequest.getPrice()+"$");
+            teacherPostedRequestsCardToShowToParentBinding.dateTextView.setText(teacherPostRequest.getStartDate()+" - "+teacherPostRequest.getEndDate());
             if(teacherPostRequest.getDuration().equalsIgnoreCase("1")){
                 teacherPostedRequestsCardToShowToParentBinding.durationTextView.setText(teacherPostRequest.getDuration()+" Month");
             }
@@ -1509,6 +1511,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             dialogSendRequestToTeacherLayoutBinding.coursesTextView.setText(teacherPostRequest.getCourses());
             dialogSendRequestToTeacherLayoutBinding.locationTextView.setText(teacherPostRequest.getLocation());
             dialogSendRequestToTeacherLayoutBinding.priceTextView.setText(teacherPostRequest.getPrice()+"");
+            dialogSendRequestToTeacherLayoutBinding.dateTextView.setText(teacherPostRequest.getStartDate()+" - "+teacherPostRequest.getEndDate());
 
             database.getParentChildrenForRequest(email,this);
         }
@@ -1550,11 +1553,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             }
             else {
                 if(tempTeacherPostRequestForSendingRequest.getEducationLevel().equalsIgnoreCase("Elementary School"))
-                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","Teacher Can Teach Only 1st - 5th Grades");
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","This Teacher Can Teach Only 1st - 5th Grades For This Post");
                 else if(tempTeacherPostRequestForSendingRequest.getEducationLevel().equalsIgnoreCase("Middle School"))
-                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","Teacher Can Teach Only 6th - 10th Grades");
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","This Teacher Can Teach Only 6th - 10th Grades For This Post");
                 else if(tempTeacherPostRequestForSendingRequest.getEducationLevel().equalsIgnoreCase("High School"))
-                     MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","Teacher Can Teach Only 11th - 12th Grades");
+                     MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Teacher unavailable","This Teacher Can Teach Only 11th - 12th Grades For This Post");
             }
         });
 
@@ -1563,32 +1566,16 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No child ","Please add at least one child to send the request to teacher ..");
             }
             else {
-                if(dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount() == 1){
-                    View customView = dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildAt(0);
-                    TextView textView = customView.findViewById(R.id.textViewChildName);
-                    String[] split = textView.getText().toString().split(",");
-                    int id = Integer.parseInt(split[1].trim());
-                    ParentRequestToSend parentRequestToSend = new ParentRequestToSend(tempTeacherPostRequestForSendingRequest.getTeacherPostRequestId(),email,id);
-                    // store in database and send notification to teacher ..
+                List<Integer> childrenIds = new ArrayList<>();
+                for(int i = 0 ;i < dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount();i++){
+                    View customView = dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildAt(i);
+                    TextView textView = customView.findViewById(R.id.childIdTextView);
+                    //String[] split = textView.getText().toString().split(",");
+                    childrenIds.add(Integer.parseInt(textView.getText().toString()));
                 }
-                else {
-                    String childIds = "";
-                    List<Integer> childrenIds = new ArrayList<>();
-                    for(int i = 0 ;i < dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount();i++){
-                        View customView = dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildAt(i);
-                        TextView textView = customView.findViewById(R.id.textViewChildName);
-                        String[] split = textView.getText().toString().split(",");
-                        childrenIds.add(Integer.parseInt(split[1].trim()));
-                        if(i == 0 ){
-                            childIds = split[1].trim();
-                        }
-                        else {
-                            childIds += " , "+Integer.parseInt(split[1].trim());
-                        }
-                    }
-                    ParentRequestToSend parentRequestToSend = new ParentRequestToSend(tempTeacherPostRequestForSendingRequest.getTeacherPostRequestId(),email,childrenIds);
-
-                }
+                ParentRequestToSend parentRequestToSend = new ParentRequestToSend(tempTeacherPostRequestForSendingRequest.getTeacherPostRequestId(),email,tempTeacherPostRequestForSendingRequest.getTeacherEmail(),childrenIds);
+                database.addParentSentRequestToTeacher(parentRequestToSend,this);
+                // check added children if already added previously to this request ,,
             }
         });
     }
@@ -1598,10 +1585,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.removeAllViews();
         for(CustomChildData child : listOfChildren){
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            View customView = inflater.inflate(R.layout.custom_child_view,dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout,false);
+            View customView = inflater.inflate(R.layout.custom_child_view_with_id,dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout,false);
             TextView childName = customView.findViewById(R.id.textViewChildName);
+            TextView childId = customView.findViewById(R.id.childIdTextView);
             ImageView deleteImageView = customView.findViewById(R.id.imageViewDelete);
             childName.setText(child.getChildName()+" , "+child.getChildGrade());
+            childId.setText(child.getChildId()+"");
+            childId.setVisibility(View.GONE);
             deleteImageView.setOnClickListener(xs->{
                 dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.removeView(customView);
             });
@@ -3352,6 +3342,27 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 }
             }
             setChildrenSpinnerData();
+        }
+        else {
+            MyAlertDialog.errorDialog(getContext());
+        }
+    }
+
+    @Override
+    public void onRequestSent(int flag) {
+        if(flag == -2){
+
+        }
+        else if(flag == -1){
+
+        }
+        else if(flag == 0){
+
+        }
+        else if(flag == 1){
+            MyAlertDialog.showCustomAlerDialogForRegistrationDone(getContext());
+            teacherPostedCardDialog.dismiss();
+            sendRequestToTeacherDialog.dismiss();
         }
         else {
             MyAlertDialog.errorDialog(getContext());
