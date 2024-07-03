@@ -5,7 +5,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 public class Notifications implements Parcelable {
-
+    private int notificationId ;
     private int notificationType ; // 0 : Confirm account ..
     private String notificationTitle;
     private String notificationBody;
@@ -17,11 +17,28 @@ public class Notifications implements Parcelable {
         this.isNotificationRead=isNotificationRead;
     }
 
+    public Notifications(int notificationId, int notificationType, String notificationTitle, String notificationBody, int isNotificationRead) {
+        this.notificationId = notificationId;
+        this.notificationType = notificationType;
+        this.notificationTitle = notificationTitle;
+        this.notificationBody = notificationBody;
+        this.isNotificationRead = isNotificationRead;
+    }
+
     protected Notifications(Parcel in) {
+        notificationId = in.readInt();
         notificationType = in.readInt();
         notificationTitle = in.readString();
         notificationBody = in.readString();
         isNotificationRead = in.readInt();
+    }
+
+    public int getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(int notificationId) {
+        this.notificationId = notificationId;
     }
 
     public static final Creator<Notifications> CREATOR = new Creator<Notifications>() {
@@ -79,6 +96,7 @@ public class Notifications implements Parcelable {
         dest.writeString(notificationTitle);
         dest.writeString(notificationBody);
         dest.writeInt(isNotificationRead);
+        dest.writeInt(notificationId);
     }
 
     @NonNull

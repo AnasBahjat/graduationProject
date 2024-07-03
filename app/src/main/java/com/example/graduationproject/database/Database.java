@@ -26,6 +26,7 @@ import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.OnProfileDataFetchListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
+import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
@@ -1051,6 +1052,51 @@ public class Database {
             }
         };
         requestQueue.add(stringRequest);
+    }
 
+    public void getTeacherReceivedRequests(String email , final OnTeacherReceivedRequestsListener onTeacherReceivedRequests ){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getTeacherReceivedRequests,res->{
+            if(res.equalsIgnoreCase("Connection Error"))
+                onTeacherReceivedRequests.onTeacherRequestsReceived(-2,null);
+            else if(res.equalsIgnoreCase("Error"))
+                onTeacherReceivedRequests.onTeacherRequestsReceived(-1,null);
+            else if(res.equalsIgnoreCase("No Requests"))
+                onTeacherReceivedRequests.onTeacherRequestsReceived(0,null);
+            else {
+                try {
+                    onTeacherReceivedRequests.onTeacherRequestsReceived(1,new JSONArray(res));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        },err->{
+            onTeacherReceivedRequests.onTeacherRequestsReceived(-2,null);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("email",email);
+                return data ;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void setNotificationIsRead(int notificationId){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.setNotificationIsRead,res->{
+
+        },err->{
+
+        }){
+            @Override
+            protected Map<String, String> getParams()  {
+                Map<String,String> data = new HashMap<>();
+                data.put("id",notificationId+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 }

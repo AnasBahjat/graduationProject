@@ -183,6 +183,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 binding.filterLayout.setVisibility(View.VISIBLE);
                 setPostedTeacherRequestsForParent();
             }
+            else if("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
+                //ToDo (show clicked notification data ..)
+            }
         }
     };
 
@@ -205,6 +208,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             parentFragmentIntentFilter.addAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
             parentFragmentIntentFilter.addAction("UPDATE_POSTED_DATA_FOR_PARENT");
             parentFragmentIntentFilter.addAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
+            parentFragmentIntentFilter.addAction("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
             int flags = 0 ;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 flags = Context.RECEIVER_NOT_EXPORTED;
@@ -1575,9 +1579,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 }
                 ParentRequestToSend parentRequestToSend = new ParentRequestToSend(tempTeacherPostRequestForSendingRequest.getTeacherPostRequestId(),email,tempTeacherPostRequestForSendingRequest.getTeacherEmail(),childrenIds);
                 database.addParentSentRequestToTeacher(parentRequestToSend,this);
+                updateTeacherNotifications();
                 // check added children if already added previously to this request ,,
             }
         });
+    }
+    private void updateTeacherNotifications(){
+
     }
 
     private void updateRequestFlexBoxForParent(List<CustomChildData> listOfChildren){

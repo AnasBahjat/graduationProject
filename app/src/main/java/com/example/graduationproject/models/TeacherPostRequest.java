@@ -21,10 +21,28 @@ public class TeacherPostRequest implements Parcelable {
     private String startDate ;
     private String endDate ;
 
-    public TeacherPostRequest(int teacherPostRequestId,String teacherEmail,
+    public TeacherPostRequest(int teacherPostRequestId, String teacherEmail, String courses,
+                              String duration, String availability, String location, String startTime,
+                              String endTime, String startDate,
+                              String endDate, double price, String teachingMethod) {
+        this.teacherPostRequestId = teacherPostRequestId;
+        this.teacherEmail = teacherEmail;
+        this.courses = courses;
+        this.duration = duration;
+        this.availability = availability;
+        this.location = location;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.price = price;
+        this.teachingMethod = teachingMethod;
+    }
+
+    public TeacherPostRequest(int teacherPostRequestId, String teacherEmail,
                               String courses, String educationLevel,
                               String duration, String location, String teachingMethod,
-                              String startTime,String endTime) {
+                              String startTime, String endTime) {
         this.teacherPostRequestId = teacherPostRequestId;
         this.teacherEmail = teacherEmail;
         this.courses = courses;

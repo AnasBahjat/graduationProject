@@ -53,6 +53,7 @@ import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
+import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
@@ -92,7 +93,7 @@ public class ParentActivity extends AppCompatActivity implements
         AddNewChildListener,
         AddTeacherMatchingListener,
         ParentListenerForParentPostedRequests,
-        LastMatchingIdListener {
+        LastMatchingIdListener, NotificationClickListener {
 
     private Database database;
     private String email,firstName,lastName,password,birthDate,phoneNumber,city,country,doneInformation ;
@@ -241,7 +242,7 @@ public class ParentActivity extends AppCompatActivity implements
                 parentBinding.numOfNotifications.setText("");
                 notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             }
-            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this));
+            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this,this));
         }
     }
 
@@ -453,7 +454,7 @@ public class ParentActivity extends AppCompatActivity implements
             try {
                 for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
-                    Notifications notification = new Notifications(Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
+                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
                             Integer.parseInt(jsonObject.getString("isRead")));
                     notList.add(notification);
@@ -485,7 +486,7 @@ public class ParentActivity extends AppCompatActivity implements
     private void updateNotificationsPopupWindow(){
         if(!notificationsList.isEmpty()){
             notificationPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList, this));
+            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList, this,this));
             notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             notificationPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
         }
@@ -1188,6 +1189,18 @@ public class ParentActivity extends AppCompatActivity implements
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","An error occurred please try again later ..");
             System.exit(-2);
+        }
+    }
+
+    @Override
+    public void onNotificationClicked(Notifications notification) {
+        if(notification.getNotificationType() == 0){
+            showParentInformationPopupWindow();
+        }
+        else if(notification.getNotificationType()==3){
+            Intent intent = new Intent();
+            intent.setAction("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
+            sendBroadcast(intent);
         }
     }
 }

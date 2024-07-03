@@ -58,6 +58,7 @@ import com.example.graduationproject.databinding.TeacherLookForJobLayoutBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
+import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
@@ -105,8 +106,8 @@ public class TeacherActivity extends AppCompatActivity implements
         TeacherAccountConfirmationListener,
         NotificationsListListener,
         AddTeacherMatchingListener,
-        ParentInformationListener,TeacherPostListener,
-        LastMatchingIdListener, TeacherAvailabilityListener {
+        ParentInformationListener, TeacherPostListener,
+        LastMatchingIdListener, TeacherAvailabilityListener, NotificationClickListener {
     private Database database;
     private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,doneInformation;
     private ActivityTeacherBinding binding ;
@@ -252,7 +253,7 @@ public class TeacherActivity extends AppCompatActivity implements
                 binding.numOfNotifications.setText("");
                 notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             }
-            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this,this));
         }
         //notificationsPopupWindowBinding.notificationsRecyclerView.notify();
     }
@@ -288,6 +289,7 @@ public class TeacherActivity extends AppCompatActivity implements
         intentFilter.addAction("SHOW_TEACHER_INFORMATION_WINDOW");
         intentFilter.addAction("UPDATE_NOTIFICATIONS_RECYCLER_VIEW");
         intentFilter.addAction("UPDATE_TEACHER_UI");
+
         int flags = 0 ;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
             flags = Context.RECEIVER_NOT_EXPORTED;
@@ -360,6 +362,11 @@ public class TeacherActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         if(menuItem.getItemId() == R.id.LookForJob){
             showTeacherLookForJobDialog();
+        }
+        else if(menuItem.getItemId() == R.id.viewTeacherReceivedRequests){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            sendBroadcast(intent);
         }
         else if(menuItem.getItemId() == R.id.availablePosts){
             Intent intent = new Intent();
@@ -1058,7 +1065,7 @@ public class TeacherActivity extends AppCompatActivity implements
             try {
                 for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
-                    Notifications notification = new Notifications(Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
+                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
                             Integer.parseInt(jsonObject.getString("isRead")));
                     notificationsList.add(notification);
@@ -1087,7 +1094,7 @@ public class TeacherActivity extends AppCompatActivity implements
     private void updateNotificationsPopUpWindow(){
         if(!notList.isEmpty()){
             notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList, this));
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList, this,this));
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
         }
@@ -1399,6 +1406,19 @@ public class TeacherActivity extends AppCompatActivity implements
         }
         else {
 
+        }
+    }
+
+    @Override
+    public void onNotificationClicked(Notifications notification) {
+        if(notification.getNotificationType() == 1){
+            showTeacherInformationPopupWindow();
+        }
+        else if(notification.getNotificationType() == 2){
+            database.setNotificationIsRead(notification.getNotificationId());
+            Intent intent = new Intent();
+            intent.setAction("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
+            sendBroadcast(intent);
         }
     }
 }

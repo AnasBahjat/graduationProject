@@ -37,6 +37,7 @@ import com.example.graduationproject.databinding.UpdateParentPostedRequestBindin
 import com.example.graduationproject.databinding.UpdatePostedTeacherLookForAJobLayoutBinding;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
+import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherPostListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
@@ -50,9 +51,11 @@ import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
+import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
+import com.example.graduationproject.models.TeacherReceivedRequest;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.integrity.internal.r;
@@ -61,6 +64,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.Serializable;
+import java.text.ChoiceFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -80,7 +84,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         AddTeacherMatchingListener,
         PostedTeacherRequestsListener,
         TeacherPostRequestClickListener, OnTeacherPostRequestUpdateListener,
-        DeletePostedRequestListener, ParentInformationListener {
+        DeletePostedRequestListener, ParentInformationListener,
+        OnTeacherReceivedRequestsListener {
 
     private FragmentTeacherBinding binding ;
 
@@ -94,7 +99,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private boolean myPostedRequestsBtnForTeacher = false ;
     private boolean isBroadcastReceiverRegistered = false;
     boolean browseParentPostedRequestsBtnForTeacher = false;
-
+    private boolean showTeacherReceivedRequestBtn = false;
     List<TeacherPostRequest> teacherPostedRequestsList = new ArrayList<>();
 
     private TeacherPostedRequestsAdapter teacherPostedRequestsAdapter ;
@@ -131,6 +136,14 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 browseParentPostedRequestsBtnForTeacher = true;
                 database.getTeacherMatchingData(email,TeacherFragment.this);
             }
+            else if("SHOW_TEACHER_RECEIVED_REQUESTS".equalsIgnoreCase(intent.getAction())){
+                showTeacherReceivedRequestBtn = true;
+                database.getTeacherReceivedRequests(email,TeacherFragment.this);
+            }
+            else if("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
+                Toast.makeText(getContext(), "Received Request Notification clicked ..", Toast.LENGTH_SHORT).show();
+                //ToDo (show the clicked request notification ...)
+            }
         }
     };
 
@@ -151,6 +164,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             parentFragmentIntentFilter.addAction("UPDATE_TEACHER_POSTED_REQUESTS");
             parentFragmentIntentFilter.addAction("SHOW_AVAILABLE_JOBS_FOR_TEACHER");
             parentFragmentIntentFilter.addAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
+            parentFragmentIntentFilter.addAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            parentFragmentIntentFilter.addAction("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
             int flags = 0 ;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 flags = Context.RECEIVER_NOT_EXPORTED;
@@ -1296,5 +1311,80 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         dialogTeacherMatchingOnCardClickedBinding.timeTextView.setText(teacherMatchModel.getStartTime() + " - "+teacherMatchModel.getEndTime());
         dialogTeacherMatchingOnCardClickedBinding.locationTextView.setText(teacherMatchModel.getLocation());
         dialogTeacherMatchingOnCardClickedBinding.dateTextView.setText(teacherMatchModel.getStartDate()+"  -  "+teacherMatchModel.getEndDate());
+    }
+
+    @Override
+    public void onTeacherRequestsReceived(int flag, JSONArray requestsData) {
+        if(flag == -2){
+
+        }
+        else if(flag == -1){
+
+        }
+        else if(flag == 0){
+            //set no received requests to teacher ..
+        }
+        else if(flag == 1) {
+            if(requestsData != null){
+                try {
+                    List<TeacherReceivedRequest> teacherReceivedRequestsList = new ArrayList<>();
+                    for(int i = requestsData.length() - 1 ;i >= 0 ; i--){
+                        List<Children> childrenList = new ArrayList<>();
+                        List<String> parentPhoneList = new ArrayList<>();
+                        JSONObject jsonObject = requestsData.getJSONObject(i);
+                        int parentRequestId = jsonObject.getInt("requestId");
+                        int teacherPostRequestId = jsonObject.getInt("postId");
+                        String parentEmail = jsonObject.getString("parentEmail");
+                        String teacherEmail = jsonObject.getString("teacherEmail");
+                        String requestDateAndTime = jsonObject.getString("requestDate");
+                        String requestDate = requestDateAndTime.split(" ")[0];
+                        String requestTime = requestDateAndTime.split(" ")[1];
+                        int isAccepted = jsonObject.getInt("isAccepted");
+                        JSONArray children = jsonObject.getJSONArray("children");
+                        for(int j = children.length() - 1 ; j >= 0 ; j--){
+                            JSONObject childObject = children.getJSONObject(j);
+                            int childId = childObject.getInt("childId");
+                            String childName = childObject.getString("childName");
+                            String childGrade = childObject.getString("childGrade");
+                            int childAge = childObject.getInt("childAge");
+                            int childGender = childObject.getInt("childGender");
+                            int childRequestId = childObject.getInt("childRequestId");
+                            childrenList.add(new Children(childId,childName,childAge+"",childGender,Integer.parseInt(childGrade),childRequestId));
+                        }
+                        String courses = jsonObject.getString("courses");
+                        String availabilityForJob = jsonObject.getString("availabilityForJob");
+                        String duration = jsonObject.getString("duration");
+                        String startTime =  jsonObject.getString("startTime");
+                        String endTime =  jsonObject.getString("endTime");
+                        String startDate =  jsonObject.getString("startDate");
+                        String endDate =  jsonObject.getString("endDate");
+                        double price = jsonObject.getDouble("price");
+                        String location = jsonObject.getString("location");
+                        String teachingMethod = jsonObject.getString("teachingMethod");
+                        String parentPhoneNumbersStr = jsonObject.getString("parentPhoneNumbers");
+                        String[] splitPhone = parentPhoneNumbersStr.split(",");
+                        for(String phone : splitPhone){
+                            parentPhoneList.add(phone.trim());
+                        }
+                        teacherReceivedRequestsList.add(new TeacherReceivedRequest(parentRequestId,new TeacherPostRequest(teacherPostRequestId,teacherEmail,courses,duration,
+                                availabilityForJob,location,startTime,endTime,startDate,endDate,price,teachingMethod),
+                                new Parent(parentEmail,parentPhoneList),
+                                childrenList,isAccepted,requestDate,requestTime));
+                    }
+                    setTeacherReceivedRequests(teacherReceivedRequestsList);
+                }
+                catch (Exception e){
+                    throw new RuntimeException(e);
+                }
+            }
+
+        }
+        else {
+
+        }
+    }
+
+    private void setTeacherReceivedRequests(List<TeacherReceivedRequest> teacherReceivedRequests){
+
     }
 }
