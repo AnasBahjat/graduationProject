@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
 import android.util.Log;
@@ -30,12 +31,16 @@ import android.widget.Toast;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.MatchingTeacherAdapter;
+import com.example.graduationproject.adapters.TeacherReceivedRequestAdapter;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
 import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestCardLayoutBinding;
+import com.example.graduationproject.databinding.TeacherReceivedRequestsDialogLayoutBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.databinding.UpdatePostedTeacherLookForAJobLayoutBinding;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
+import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
+import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
@@ -51,11 +56,13 @@ import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
+import com.example.graduationproject.models.DateTimeModel;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
 import com.example.graduationproject.models.TeacherReceivedRequest;
+import com.example.graduationproject.utils.DateUtils;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.integrity.internal.r;
@@ -85,7 +92,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         PostedTeacherRequestsListener,
         TeacherPostRequestClickListener, OnTeacherPostRequestUpdateListener,
         DeletePostedRequestListener, ParentInformationListener,
-        OnTeacherReceivedRequestsListener {
+        OnTeacherReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener {
 
     private FragmentTeacherBinding binding ;
 
@@ -120,6 +127,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private TeacherMatchModel tempTeacherMatchModel;
 
     private Dialog deleteRequestConfirmationDialog ;
+    private Dialog teacherReceivedRequestDialog  ;
+    TeacherReceivedRequestsDialogLayoutBinding teacherReceivedRequestsDialogLayoutBinding;
+    private int tempTeacherPostId;
+    private DateTimeModel currentRequestDate ;
+
 
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -141,7 +153,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 database.getTeacherReceivedRequests(email,TeacherFragment.this);
             }
             else if("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
-                Toast.makeText(getContext(), "Received Request Notification clicked ..", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Show Teacher Received Request ..", Toast.LENGTH_SHORT).show();
                 //ToDo (show the clicked request notification ...)
             }
         }
@@ -1371,7 +1383,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                                 new Parent(parentEmail,parentPhoneList),
                                 childrenList,isAccepted,requestDate,requestTime));
                     }
-                    setTeacherReceivedRequests(teacherReceivedRequestsList);
+                    if(teacherReceivedRequestDialog != null && teacherReceivedRequestDialog.isShowing()){
+                        teacherReceivedRequestDialog.dismiss();
+                    }
+                    setTeacherReceivedRequestsToRequestsDialog(teacherReceivedRequestsList);
+                    teacherReceivedRequestsDialogLayoutBinding.refreshRecyclerView.setRefreshing(false);
                 }
                 catch (Exception e){
                     throw new RuntimeException(e);
@@ -1384,7 +1400,132 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         }
     }
 
-    private void setTeacherReceivedRequests(List<TeacherReceivedRequest> teacherReceivedRequests){
+    private void setTeacherReceivedRequestsToRequestsDialog(List<TeacherReceivedRequest> teacherReceivedRequests){
+        if(getContext() != null && !teacherReceivedRequests.isEmpty()){
+            teacherReceivedRequestDialog = new Dialog(getContext());
+            teacherReceivedRequestsDialogLayoutBinding = TeacherReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            teacherReceivedRequestDialog.setContentView(teacherReceivedRequestsDialogLayoutBinding.getRoot());
+            teacherReceivedRequestDialog.setCancelable(false);
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(teacherReceivedRequestDialog.getWindow()).getAttributes());
+            layoutParams.width = 1250;
+            layoutParams.height = 2500;
+            teacherReceivedRequestDialog.getWindow().setAttributes(layoutParams);
+            if(teacherReceivedRequestDialog.getWindow() != null)
+                teacherReceivedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            teacherReceivedRequestDialog.show();
 
+            teacherReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(z->{
+                teacherReceivedRequestDialog.dismiss();
+            });
+            teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            TeacherReceivedRequestAdapter teacherReceivedRequestAdapter = new TeacherReceivedRequestAdapter(teacherReceivedRequests,this);
+            teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setAdapter(teacherReceivedRequestAdapter);
+            teacherReceivedRequestsDialogLayoutBinding.refreshRecyclerView.setOnRefreshListener(() ->
+                    database.getTeacherReceivedRequests(email,TeacherFragment.this));
+
+        }
+        else {
+            MyAlertDialog.warningDialog(getContext(),"No Requests","You Don't Have Any Requests ..");
+        }
+    }
+
+
+
+    @Override
+    public void onAcceptDeclineClicked(int flag, TeacherReceivedRequest teacherReceivedRequest) {
+        if(flag == 1){
+            // check for time confliction with other accepted courses
+            tempTeacherPostId = teacherReceivedRequest.getTeacherPostRequest().getTeacherPostRequestId();
+            String availability = teacherReceivedRequest.getTeacherPostRequest().getAvailability().trim();
+            if(availability.equalsIgnoreCase("Weekend")){
+                teacherReceivedRequest.getTeacherPostRequest().setAvailability("Thur , Fri");
+            }
+            else if(availability.equalsIgnoreCase("Any")){
+                teacherReceivedRequest.getTeacherPostRequest().setAvailability("Sat , Sun , Mon , Tues , Thur , Fri");
+            }
+            availability = teacherReceivedRequest.getTeacherPostRequest().getAvailability().trim();
+            if(!availability.isEmpty() && availability.charAt(availability.length() - 1) == ','){
+                availability = (availability.substring(0, availability.length() - 1)).trim();
+                teacherReceivedRequest.getTeacherPostRequest().setAvailability(availability);
+            }
+            currentRequestDate = new DateTimeModel(teacherReceivedRequest.getTeacherPostRequest().getStartDate(),
+                    teacherReceivedRequest.getTeacherPostRequest().getEndDate(),
+                    teacherReceivedRequest.getTeacherPostRequest().getStartTime(),
+                    teacherReceivedRequest.getTeacherPostRequest().getEndTime(),
+                    teacherReceivedRequest.getTeacherPostRequest().getAvailability());
+            database.getAllTeacherCoursesDates(email,this);
+        }
+        else if(flag == 2){
+            // decline request ..
+        }
+    }
+
+    @Override
+    public void onCoursesReceived(int flag, JSONArray coursesInformation) {
+        if(flag == 1){
+            try {
+                if(coursesInformation != null){
+                    int conflictFlag = 0 ;
+                    for(int i = 0 ; i < coursesInformation.length() ; i++){
+                        JSONObject jsonObject=coursesInformation.getJSONObject(i);
+                        int teacherCourseId = jsonObject.getInt("courseId");
+                        int teacherPostId = jsonObject.getInt("postId");
+                        String startDate = jsonObject.getString("startDate");
+                        String endDate = jsonObject.getString("endDate");
+                        String startTime = jsonObject.getString("startTime");
+                        String endTime = jsonObject.getString("endTime");
+                        String availabilityForJob = (jsonObject.getString("availabilityForJob")).trim();
+                        String days = "";
+                        if(availabilityForJob.equalsIgnoreCase("Weekend")){
+                            days = "Thur , Fri";
+                        }
+                        else if(availabilityForJob.equalsIgnoreCase("Any")){
+                            days = "Sat , Sun , Mon , Tues , Thur , Fri";
+                        }
+                        if(availabilityForJob.charAt(availabilityForJob.length() - 1) == ','){
+                            days = availabilityForJob.substring(0, availabilityForJob.length() - 1).trim();
+                        }
+                        if(teacherCourseId != tempTeacherPostId){
+                            Log.d("Current Req Start Date ----> "+currentRequestDate.getStartDate(),"Current Req Start Date ----> "+currentRequestDate.getStartDate());
+                            Log.d("Current Req end Date ----> "+currentRequestDate.getEndDate(),"Current Req end Date ----> "+currentRequestDate.getEndDate());
+                            Log.d("Current Req Start time ----> "+currentRequestDate.getStartTime(),"Current Req Start time ----> "+currentRequestDate.getStartTime());
+                            Log.d("Current Req end Date ----> "+currentRequestDate.getEndTime(),"Current Req end Date ----> "+currentRequestDate.getEndTime());
+                            Log.d("Current Req end Date ----> "+currentRequestDate.getEndTime(),"Current Req end Date ----> "+currentRequestDate.getEndTime());
+                            Log.d("Current Req end Date ----> "+currentRequestDate.getDays(),"Current Req end Date ----> "+currentRequestDate.getDays());
+                            Log.d("Length ----> "+currentRequestDate.getDays().length(),"Current Req end Date ----> "+currentRequestDate.getDays().length());
+
+                            Log.d("DB req ----> "+startDate,"DB req ----> "+startDate);
+                            Log.d("DB req ----> "+endDate,"DB req ----> "+endDate);
+                            Log.d("DB req ----> "+startTime,"DB req ----> "+startTime);
+                            Log.d("DB req ----> "+endTime,"DB req ----> "+endTime);
+                            Log.d("DB req ----> "+endTime,"DB req ----> "+endTime);
+                            Log.d("DB req ----> "+days,"DB req ----> "+days);
+                            Log.d("DB req ----> "+days,"DB req ----> "+days);
+                            Log.d("Length ----> "+days.length(),"Current Req end Date ----> "+days.length());
+
+                            if(DateUtils.checkForConflict(currentRequestDate,new DateTimeModel(startDate,endDate,startTime,endTime,days))){
+                               MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Conflict","This Request Make A conflict with one of your existing courses");
+                               conflictFlag = 1;
+                               break;
+                           }
+                        }
+                    }
+                    if(conflictFlag != 1){
+                        // accept the request ..
+                    }
+                    teacherReceivedRequestDialog.dismiss();
+                }
+            }
+            catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+        else if(flag == 0){
+            // there are no courses so no conflict ...
+        }
+        else {
+
+        }
     }
 }

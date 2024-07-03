@@ -35,6 +35,8 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        binding.emailEditText.setText("anas31@gmail.com");
+        binding.passwordEditText.setText("Anas123123123");
         setContentView(binding.getRoot());
         initialize();
     }

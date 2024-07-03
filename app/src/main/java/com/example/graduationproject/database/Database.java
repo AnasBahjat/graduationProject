@@ -25,6 +25,7 @@ import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.OnProfileDataFetchListener;
+import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
@@ -1094,6 +1095,39 @@ public class Database {
             protected Map<String, String> getParams()  {
                 Map<String,String> data = new HashMap<>();
                 data.put("id",notificationId+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getAllTeacherCoursesDates(String teacherEmail,final OnTeacherCoursesReceivedListener onTeacherCoursesReceivedListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getTeacherCoursesDates,resp->{
+            if(resp.equalsIgnoreCase("No Courses")){
+                onTeacherCoursesReceivedListener.onCoursesReceived(0,null);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onTeacherCoursesReceivedListener.onCoursesReceived(-1,null);
+            }
+            else if (resp.equalsIgnoreCase("Connection Error")){
+                onTeacherCoursesReceivedListener.onCoursesReceived(-2,null);
+            }
+            else {
+                try {
+                    onTeacherCoursesReceivedListener.onCoursesReceived(1,new JSONArray(resp));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        },err->{
+            onTeacherCoursesReceivedListener.onCoursesReceived(-1,null);
+        }){
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherEmail",teacherEmail);
                 return data;
             }
         };

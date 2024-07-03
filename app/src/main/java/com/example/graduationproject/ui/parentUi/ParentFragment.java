@@ -184,7 +184,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 setPostedTeacherRequestsForParent();
             }
             else if("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
-                //ToDo (show clicked notification data ..)
+                Toast.makeText(getContext(), "Show Parent Received Request ..", Toast.LENGTH_SHORT).show();
             }
         }
     };

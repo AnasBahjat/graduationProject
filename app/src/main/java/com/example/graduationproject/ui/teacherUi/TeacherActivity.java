@@ -1416,6 +1416,7 @@ public class TeacherActivity extends AppCompatActivity implements
         }
         else if(notification.getNotificationType() == 2){
             database.setNotificationIsRead(notification.getNotificationId());
+            decrementNotificationsNumber();
             Intent intent = new Intent();
             intent.setAction("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
             sendBroadcast(intent);

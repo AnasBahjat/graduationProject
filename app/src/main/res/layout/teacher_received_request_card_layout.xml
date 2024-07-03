@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="30dp"
+    android:layout_marginBottom="2dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    app:cardElevation="5dp"
+    android:backgroundTint="#E4ECEC"
+    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/user" />
+
+
+
+        <ImageView
+            android:id="@+id/coursesImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/courses_icon"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_alignParentTop="true"/>
+
+        <TextView
+            android:id="@+id/coursesTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:text="Courses : "
+            android:layout_toEndOf="@id/coursesImageView"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/coursesTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@id/coursesTextViewTemp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp" />
+
+
+        <ImageView
+            android:id="@+id/dateImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/calendar_icon"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/coursesTextView"/>
+
+        <TextView
+            android:id="@+id/dateTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:text="Date Range:"
+            android:layout_toEndOf="@id/dateImageView"
+            android:layout_below="@id/coursesTextView"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="17dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@id/dateTextViewTemp"
+            android:layout_below="@id/coursesTextView"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/daysImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/days_icon"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/dateTextView"/>
+
+        <TextView
+            android:id="@+id/daysTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:text="Days : "
+            android:layout_toEndOf="@id/daysImageView"
+            android:layout_below="@id/dateTextView"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/daysTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@id/daysTextViewTemp"
+            android:layout_below="@id/dateTextView"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/timeImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/days_icon"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/daysTextView"/>
+
+        <TextView
+            android:id="@+id/timeTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:text="Start - End Time : "
+            android:layout_toEndOf="@id/timeImageView"
+            android:layout_below="@id/daysTextView"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/timeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="17dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@id/timeTextViewTemp"
+            android:layout_below="@id/daysTextView"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/locationImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/location_icon"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/timeTextView"/>
+
+        <TextView
+            android:id="@+id/locationViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:text="Location : "
+            android:layout_toEndOf="@id/locationImageView"
+            android:layout_below="@id/timeTextView"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="17dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@id/locationViewTemp"
+            android:layout_below="@id/timeTextView"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+
+        <ImageView
+            android:id="@+id/teachingMethodImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/teaching_method_icon_2"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_below="@id/locationTextView"/>
+
+        <TextView
+            android:id="@+id/teachingMethodViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:text="Teaching Method : "
+            android:layout_toEndOf="@id/teachingMethodImageView"
+            android:layout_below="@id/locationTextView"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/teachingMethodTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="17dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@id/teachingMethodViewTemp"
+            android:layout_below="@id/locationTextView"
+            android:textColor="#1A8E9E"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/acceptBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teachingMethodTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="17dp"
+            android:backgroundTint="@color/usedColor"
+            android:text="Accept"
+            android:textAllCaps="false"
+            android:layout_marginBottom="10dp"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/declineBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teachingMethodTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="110dp"
+            android:backgroundTint="@color/usedColor"
+            android:text="Decline"
+            android:layout_marginBottom="10dp"
+            android:textAllCaps="false"
+            android:textSize="16sp" />
+
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>
