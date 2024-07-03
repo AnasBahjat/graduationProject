@@ -1,5 +1,7 @@
 package com.example.graduationproject.ui.parentUi;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -10,9 +12,12 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.text.Editable;
@@ -519,7 +524,34 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
             Snackbar.make(getView(), "Your Posted Data Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
-            // parentPostedRequests.filteredList(tempTeacherMatchModelList);
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    final int position = viewHolder.getAdapterPosition();
+                    final View itemView = viewHolder.itemView;
+
+                    itemView.animate()
+                            .translationX(itemView.getWidth())
+                            .alpha(0)
+                            .setDuration(300)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    parentPostedRequestsList.remove(position);
+                                    parentPostedRequests.notifyItemRemoved(position);
+                                    itemView.setTranslationX(0);
+                                    itemView.setAlpha(1);
+                                }
+                            }).start();
+                }
+            });
+            itemTouchHelper.attachToRecyclerView(binding.postedRequestsRecyclerView);
         }
         binding.refreshRecyclerView.setRefreshing(false);
     }
@@ -3368,7 +3400,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
         }
         else if(flag == 1){
-            MyAlertDialog.showCustomAlerDialogForRegistrationDone(getContext());
+            MyAlertDialog.showDialogForDone(getContext(),"Request Sent","Request Sent To The Teacher , Wait For His/Her Response  ");
             teacherPostedCardDialog.dismiss();
             sendRequestToTeacherDialog.dismiss();
         }

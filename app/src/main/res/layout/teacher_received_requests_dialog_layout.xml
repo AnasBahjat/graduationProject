@@ -80,4 +80,14 @@
                 android:background="@drawable/rounded_corners_recycler_view"
                 android:layout_marginBottom="0dp"/>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@+id/noReceivedRequestsForTeacher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="#6D6D6D"
+        android:text="No Received Requests"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
 </RelativeLayout>

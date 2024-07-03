@@ -13,6 +13,7 @@ import com.example.graduationproject.databinding.TeacherReceivedRequestsDialogLa
 import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
 import com.example.graduationproject.models.Job;
 import com.example.graduationproject.models.Teacher;
+import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherReceivedRequest;
 
 import java.util.List;
@@ -48,6 +49,16 @@ public class TeacherReceivedRequestAdapter extends RecyclerView.Adapter<TeacherR
         return teacherReceivedRequestList.size();
     }
 
+    public void filteredList(List<TeacherReceivedRequest> filteredReceivedRequests){
+        this.teacherReceivedRequestList=filteredReceivedRequests;
+        notifyDataSetChanged();
+    }
+
+
+    public void deleteItem(TeacherReceivedRequest teacherReceivedRequest){
+        teacherReceivedRequestList.remove(teacherReceivedRequest);
+        notifyDataSetChanged();
+    }
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private final TeacherReceivedRequestCardLayoutBinding binding;
         OnAcceptDeclineTeacherRequestsListener onAcceptDeclineTeacherRequestsListener;

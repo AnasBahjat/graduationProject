@@ -25,6 +25,7 @@ import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.OnProfileDataFetchListener;
+import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
@@ -1128,6 +1129,50 @@ public class Database {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String> data = new HashMap<>();
                 data.put("teacherEmail",teacherEmail);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void insertTeacherCourse(String email,int requestId,int postId,final OnTeacherCourseAddedListener onTeacherCourseAddedListener) {
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertTeacherCourse,resp->{
+            if(resp.equalsIgnoreCase("Done")){
+                onTeacherCourseAddedListener.onTeacherCourseAdded(1);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onTeacherCourseAddedListener.onTeacherCourseAdded(-1);
+            }
+            else {
+                onTeacherCourseAddedListener.onTeacherCourseAdded(-2);
+            }
+        },error ->{
+            onTeacherCourseAddedListener.onTeacherCourseAdded(-1);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherEmail",email);
+                data.put("requestId",requestId+"");
+                data.put("postId",postId+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void setTeacherReceivedRequestToDecline(int requestId){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.deleteRequestFromSent, response ->{
+
+        },error -> {
+
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("requestId",requestId+"");
                 return data;
             }
         };

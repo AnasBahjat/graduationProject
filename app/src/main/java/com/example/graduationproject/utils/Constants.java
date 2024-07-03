@@ -34,4 +34,6 @@ public class Constants {
     public static String  getTeacherReceivedRequests ="http://"+ip+"/graduationProject/getTeacherReceivedRequests.php";
     public static String  setNotificationIsRead ="http://"+ip+"/graduationProject/setNotificationIsRead.php";
     public static String  getTeacherCoursesDates ="http://"+ip+"/graduationProject/getTeacherCoursesDates.php";
+    public static String  insertTeacherCourse ="http://"+ip+"/graduationProject/insertTeacherCourse.php";
+    public static String  deleteRequestFromSent ="http://"+ip+"/graduationProject/deleteRequestFromSent.php";
 }

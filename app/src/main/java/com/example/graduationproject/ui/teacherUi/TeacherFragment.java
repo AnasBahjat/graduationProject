@@ -1,5 +1,7 @@
 package com.example.graduationproject.ui.teacherUi;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -11,9 +13,10 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.util.Log;
@@ -36,15 +39,14 @@ import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBindin
 import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestCardLayoutBinding;
 import com.example.graduationproject.databinding.TeacherReceivedRequestsDialogLayoutBinding;
-import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.databinding.UpdatePostedTeacherLookForAJobLayoutBinding;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
+import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
-import com.example.graduationproject.listeners.TeacherPostListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
@@ -65,13 +67,11 @@ import com.example.graduationproject.models.TeacherReceivedRequest;
 import com.example.graduationproject.utils.DateUtils;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.play.integrity.internal.r;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.Serializable;
-import java.text.ChoiceFormat;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -81,7 +81,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -92,7 +91,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         PostedTeacherRequestsListener,
         TeacherPostRequestClickListener, OnTeacherPostRequestUpdateListener,
         DeletePostedRequestListener, ParentInformationListener,
-        OnTeacherReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener {
+        OnTeacherReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener, OnTeacherCourseAddedListener {
 
     private FragmentTeacherBinding binding ;
 
@@ -126,11 +125,15 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private  String teacherAvailability ;
     private TeacherMatchModel tempTeacherMatchModel;
 
+
+    private TeacherReceivedRequestAdapter teacherReceivedRequestAdapter;
     private Dialog deleteRequestConfirmationDialog ;
     private Dialog teacherReceivedRequestDialog  ;
     TeacherReceivedRequestsDialogLayoutBinding teacherReceivedRequestsDialogLayoutBinding;
-    private int tempTeacherPostId;
+    private int tempTeacherPostId,tempRequestId;
     private DateTimeModel currentRequestDate ;
+    private TeacherReceivedRequest tempTeacherReceivedRequestObject;
+    private List<TeacherReceivedRequest> tempTeacherReceivedRequestsList;
 
 
 
@@ -1334,7 +1337,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
         }
         else if(flag == 0){
-            //set no received requests to teacher ..
+            setTeacherReceivedRequestsToRequestsDialog(null);
         }
         else if(flag == 1) {
             if(requestsData != null){
@@ -1382,6 +1385,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                                 availabilityForJob,location,startTime,endTime,startDate,endDate,price,teachingMethod),
                                 new Parent(parentEmail,parentPhoneList),
                                 childrenList,isAccepted,requestDate,requestTime));
+
                     }
                     if(teacherReceivedRequestDialog != null && teacherReceivedRequestDialog.isShowing()){
                         teacherReceivedRequestDialog.dismiss();
@@ -1401,7 +1405,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
     private void setTeacherReceivedRequestsToRequestsDialog(List<TeacherReceivedRequest> teacherReceivedRequests){
-        if(getContext() != null && !teacherReceivedRequests.isEmpty()){
+        if(getContext() != null){
+            tempTeacherReceivedRequestsList= teacherReceivedRequests;
             teacherReceivedRequestDialog = new Dialog(getContext());
             teacherReceivedRequestsDialogLayoutBinding = TeacherReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
             teacherReceivedRequestDialog.setContentView(teacherReceivedRequestsDialogLayoutBinding.getRoot());
@@ -1418,15 +1423,22 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             teacherReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(z->{
                 teacherReceivedRequestDialog.dismiss();
             });
-            teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            TeacherReceivedRequestAdapter teacherReceivedRequestAdapter = new TeacherReceivedRequestAdapter(teacherReceivedRequests,this);
-            teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setAdapter(teacherReceivedRequestAdapter);
+
             teacherReceivedRequestsDialogLayoutBinding.refreshRecyclerView.setOnRefreshListener(() ->
                     database.getTeacherReceivedRequests(email,TeacherFragment.this));
 
-        }
-        else {
-            MyAlertDialog.warningDialog(getContext(),"No Requests","You Don't Have Any Requests ..");
+            if(teacherReceivedRequests != null && !teacherReceivedRequests.isEmpty()){
+                teacherReceivedRequestsDialogLayoutBinding.noReceivedRequestsForTeacher.setVisibility(View.GONE);
+                teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setVisibility(View.VISIBLE);
+
+                teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                teacherReceivedRequestAdapter = new TeacherReceivedRequestAdapter(teacherReceivedRequests,this);
+                teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setAdapter(teacherReceivedRequestAdapter);
+            }
+            else {
+                teacherReceivedRequestsDialogLayoutBinding.noReceivedRequestsForTeacher.setVisibility(View.VISIBLE);
+                teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -1434,9 +1446,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     @Override
     public void onAcceptDeclineClicked(int flag, TeacherReceivedRequest teacherReceivedRequest) {
+        tempTeacherReceivedRequestObject = teacherReceivedRequest;
         if(flag == 1){
-            // check for time confliction with other accepted courses
             tempTeacherPostId = teacherReceivedRequest.getTeacherPostRequest().getTeacherPostRequestId();
+            tempRequestId = teacherReceivedRequest.getParentRequestId();
             String availability = teacherReceivedRequest.getTeacherPostRequest().getAvailability().trim();
             if(availability.equalsIgnoreCase("Weekend")){
                 teacherReceivedRequest.getTeacherPostRequest().setAvailability("Thur , Fri");
@@ -1449,6 +1462,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 availability = (availability.substring(0, availability.length() - 1)).trim();
                 teacherReceivedRequest.getTeacherPostRequest().setAvailability(availability);
             }
+
             currentRequestDate = new DateTimeModel(teacherReceivedRequest.getTeacherPostRequest().getStartDate(),
                     teacherReceivedRequest.getTeacherPostRequest().getEndDate(),
                     teacherReceivedRequest.getTeacherPostRequest().getStartTime(),
@@ -1456,8 +1470,18 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     teacherReceivedRequest.getTeacherPostRequest().getAvailability());
             database.getAllTeacherCoursesDates(email,this);
         }
-        else if(flag == 2){
-            // decline request ..
+        else{
+            database.setTeacherReceivedRequestToDecline(teacherReceivedRequest.getParentRequestId());
+            int position = tempTeacherReceivedRequestsList.indexOf(teacherReceivedRequest);
+            tempTeacherReceivedRequestsList.remove(tempTeacherReceivedRequestObject);
+            teacherReceivedRequestAdapter.notifyItemRemoved(position);
+            teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+            assert getView() != null ;
+            Snackbar.make(getView(), "Request Declined ..", Snackbar.LENGTH_SHORT).setDuration(1500).show();
+            if(teacherReceivedRequestDialog.isShowing()){
+                teacherReceivedRequestDialog.dismiss();
+            }
+            setTeacherReceivedRequestsToRequestsDialog(null);
         }
     }
 
@@ -1486,33 +1510,21 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         if(availabilityForJob.charAt(availabilityForJob.length() - 1) == ','){
                             days = availabilityForJob.substring(0, availabilityForJob.length() - 1).trim();
                         }
-                        if(teacherCourseId != tempTeacherPostId){
-                            Log.d("Current Req Start Date ----> "+currentRequestDate.getStartDate(),"Current Req Start Date ----> "+currentRequestDate.getStartDate());
-                            Log.d("Current Req end Date ----> "+currentRequestDate.getEndDate(),"Current Req end Date ----> "+currentRequestDate.getEndDate());
-                            Log.d("Current Req Start time ----> "+currentRequestDate.getStartTime(),"Current Req Start time ----> "+currentRequestDate.getStartTime());
-                            Log.d("Current Req end Date ----> "+currentRequestDate.getEndTime(),"Current Req end Date ----> "+currentRequestDate.getEndTime());
-                            Log.d("Current Req end Date ----> "+currentRequestDate.getEndTime(),"Current Req end Date ----> "+currentRequestDate.getEndTime());
-                            Log.d("Current Req end Date ----> "+currentRequestDate.getDays(),"Current Req end Date ----> "+currentRequestDate.getDays());
-                            Log.d("Length ----> "+currentRequestDate.getDays().length(),"Current Req end Date ----> "+currentRequestDate.getDays().length());
 
-                            Log.d("DB req ----> "+startDate,"DB req ----> "+startDate);
-                            Log.d("DB req ----> "+endDate,"DB req ----> "+endDate);
-                            Log.d("DB req ----> "+startTime,"DB req ----> "+startTime);
-                            Log.d("DB req ----> "+endTime,"DB req ----> "+endTime);
-                            Log.d("DB req ----> "+endTime,"DB req ----> "+endTime);
-                            Log.d("DB req ----> "+days,"DB req ----> "+days);
-                            Log.d("DB req ----> "+days,"DB req ----> "+days);
-                            Log.d("Length ----> "+days.length(),"Current Req end Date ----> "+days.length());
-
-                            if(DateUtils.checkForConflict(currentRequestDate,new DateTimeModel(startDate,endDate,startTime,endTime,days))){
-                               MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Conflict","This Request Make A conflict with one of your existing courses");
+                        if(teacherPostId != tempTeacherPostId){
+                            if(DateUtils.isConflict(currentRequestDate, new DateTimeModel(startDate, endDate, startTime, endTime, days))){
+                               MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Course Conflict","This Request Make A conflict with one of your existing courses");
                                conflictFlag = 1;
                                break;
                            }
                         }
                     }
                     if(conflictFlag != 1){
-                        // accept the request ..
+                        database.insertTeacherCourse(email,tempRequestId,tempTeacherPostId,this);
+                        int position = tempTeacherReceivedRequestsList.indexOf(tempTeacherReceivedRequestObject);
+                        tempTeacherReceivedRequestsList.remove(tempTeacherReceivedRequestObject);
+                        teacherReceivedRequestAdapter.notifyItemRemoved(position);
+                        teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
                     }
                     teacherReceivedRequestDialog.dismiss();
                 }
@@ -1522,7 +1534,24 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             }
         }
         else if(flag == 0){
-            // there are no courses so no conflict ...
+            database.insertTeacherCourse(email,tempRequestId,tempTeacherPostId,this);
+            //teacherReceivedRequestAdapter.deleteItem(tempTeacherReceivedRequestObject);
+            int position = tempTeacherReceivedRequestsList.indexOf(tempTeacherReceivedRequestObject);
+            tempTeacherReceivedRequestsList.remove(tempTeacherReceivedRequestObject);
+            teacherReceivedRequestAdapter.notifyItemRemoved(position);
+            teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        }
+        else {
+
+        }
+    }
+
+    @Override
+    public void onTeacherCourseAdded(int flag) {
+        if(flag == 1){
+            assert getView() != null ;
+            Snackbar.make(getView(), "Course Added To Your Courses ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
+           // teacherReceivedRequestAdapter.deleteItem(tempTeacherReceivedRequestObject);
         }
         else {
 
