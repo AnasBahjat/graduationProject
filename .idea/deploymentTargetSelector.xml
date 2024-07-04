@@ -3,11 +3,11 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DIALOG" />
-        <DropdownSelection timestamp="2024-07-03T22:18:40.659245800Z">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2024-07-04T12:36:57.565446100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Asus\.android\avd\My_Emulator_-_Anas_API_32.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Asus\.android\avd\Pixel_8_Pro_API_33.avd" />
             </handle>
           </Target>
         </DropdownSelection>

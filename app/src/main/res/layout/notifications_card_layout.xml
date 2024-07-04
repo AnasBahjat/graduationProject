@@ -2,9 +2,9 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/notificationLayout"
-    android:layout_width="350dp"
+    android:layout_width="match_parent"
     android:layout_height="110dp"
-    app:cardCornerRadius="13dp">
+    app:cardElevation="5dp">
 
         <TextView
             android:id="@+id/notificationTitle"

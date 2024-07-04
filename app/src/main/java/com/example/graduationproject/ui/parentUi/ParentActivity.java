@@ -225,8 +225,20 @@ public class ParentActivity extends AppCompatActivity implements
                 parentBinding.numOfNotifications.setVisibility(View.GONE);
             }
             else {
-                parentBinding.numOfNotifications.setText(""+notificationsList.size());
-                parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                int notCount = 0;
+                for(Notifications not : notificationsList){
+                    if(not.getIsNotificationRead() == 0){
+                        notCount++;
+                    }
+                }
+                if(notCount == 0){
+                    parentBinding.numOfNotifications.setText("");
+                    parentBinding.numOfNotifications.setVisibility(View.GONE);
+                }
+                else {
+                    parentBinding.numOfNotifications.setText(""+notCount);
+                    parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                }
             }
 
         }
@@ -235,8 +247,21 @@ public class ParentActivity extends AppCompatActivity implements
     private void updateNotificationsAdapter(){
         if(notificationsList != null){
             if(!notificationsList.isEmpty()){
-                parentBinding.numOfNotifications.setText(""+notificationsList.size());
-                notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+                int notCount = 0;
+                for(Notifications not : notificationsList){
+                    if(not.getIsNotificationRead() == 0){
+                        notCount++;
+                    }
+                }
+                if(notCount == 0){
+                    parentBinding.numOfNotifications.setText("");
+                    notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+
+                }
+                else {
+                    parentBinding.numOfNotifications.setText(""+notCount);
+                    notificationPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+                }
             }
             else{
                 parentBinding.numOfNotifications.setText("");
@@ -456,16 +481,30 @@ public class ParentActivity extends AppCompatActivity implements
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
                     Notifications notification = new Notifications(jsonObject.getInt("notificationId"),Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
-                            Integer.parseInt(jsonObject.getString("isRead")));
+                            Integer.parseInt(jsonObject.getString("isRead")),
+                            jsonObject.getInt("parentSentRequestId"));
                     notList.add(notification);
                 }
                 if(!notificationsList.isEmpty()){
                     notificationsList.clear();
                 }
+
+
                 notificationsList.addAll(notList);
                 if(!notificationsList.isEmpty()){
-                    parentBinding.numOfNotifications.setText(""+notList.size());
-                    parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                    int notCount = 0 ;
+                    for(Notifications not : notificationsList){
+                        if(not.getIsNotificationRead() == 0)
+                            notCount++;
+                    }
+                    if(notCount == 0){
+                        parentBinding.numOfNotifications.setText("");
+                        parentBinding.numOfNotifications.setVisibility(View.GONE);
+                    }
+                    else {
+                        parentBinding.numOfNotifications.setText(""+notCount);
+                        parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                    }
                 }
                 else {
                     parentBinding.numOfNotifications.setText("");

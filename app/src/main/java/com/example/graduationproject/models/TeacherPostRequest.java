@@ -21,7 +21,7 @@ public class TeacherPostRequest implements Parcelable {
     private String startDate ;
     private String endDate ;
 
-    public TeacherPostRequest(int teacherPostRequestId, String teacherEmail, String courses,
+    public TeacherPostRequest(int teacherPostRequestId, String teacherEmail, String courses,String educationLevel,
                               String duration, String availability, String location, String startTime,
                               String endTime, String startDate,
                               String endDate, double price, String teachingMethod) {
@@ -30,6 +30,7 @@ public class TeacherPostRequest implements Parcelable {
         this.courses = courses;
         this.duration = duration;
         this.availability = availability;
+        this.educationLevel=educationLevel ;
         this.location = location;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -54,10 +55,38 @@ public class TeacherPostRequest implements Parcelable {
         this.endTime=endTime;
     }
 
-    public TeacherPostRequest(int teacherPostRequestId,String teacherEmail,
+    public TeacherPostRequest(String teacherEmail,
+                              int teacherPostRequestId,
+                              String courses,
+                              String educationLevel,
+                              String duration,
+                              String availability,
+                              String location,
+                              String teachingMethod,
+                              String startDate,
+                              String endDate,
+                              String startTime,
+                              String endTime,
+                              double price) {
+        this.teacherEmail = teacherEmail;
+        this.teacherPostRequestId = teacherPostRequestId;
+        this.courses = courses;
+        this.educationLevel = educationLevel;
+        this.duration = duration;
+        this.availability = availability;
+        this.location = location;
+        this.teachingMethod = teachingMethod;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.price = price;
+    }
+
+    public TeacherPostRequest(int teacherPostRequestId, String teacherEmail,
                               String courses, String educationLevel,
-                              String duration,String availability, String location, String teachingMethod,
-                              String startTime,String endTime) {
+                              String duration, String availability, String location, String teachingMethod,
+                              String startTime, String endTime) {
         this.teacherPostRequestId = teacherPostRequestId;
         this.teacherEmail = teacherEmail;
         this.courses = courses;

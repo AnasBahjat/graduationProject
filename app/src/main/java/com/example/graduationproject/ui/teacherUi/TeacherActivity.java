@@ -75,6 +75,7 @@ import com.example.graduationproject.ui.commonFragment.ProfileFragment;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
+import com.example.graduationproject.utils.SpacesItemDecoration;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.navigation.NavigationBarView;
@@ -234,9 +235,24 @@ public class TeacherActivity extends AppCompatActivity implements
             binding.fragmentsContainer.setVisibility(View.VISIBLE);
             if(notList.isEmpty()){
                 binding.numOfNotifications.setText("");
+                binding.numOfNotifications.setVisibility(View.GONE);
             }
             else {
-                binding.numOfNotifications.setText(""+notList.size());
+                int count = 0;
+                for(Notifications not : notList){
+                    if(not.getIsNotificationRead() == 0){
+                        count++;
+                    }
+                }
+                if(count==0){
+                    binding.numOfNotifications.setVisibility(View.GONE);
+                    binding.numOfNotifications.setText("");
+                }
+                else {
+                    binding.numOfNotifications.setText(""+count);
+                    binding.numOfNotifications.setVisibility(View.VISIBLE);
+
+                }
             }
         }
     }
@@ -246,8 +262,20 @@ public class TeacherActivity extends AppCompatActivity implements
     private void updateNotificationsAdapter(){
         if(notList != null){
             if(!notList.isEmpty()){
-                binding.numOfNotifications.setText(""+notList.size());
-                notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+                int count = 0;
+                for(Notifications not : notList){
+                    if(not.getIsNotificationRead() == 0){
+                        count++;
+                    }
+                }
+                if(count == 0){
+                    binding.numOfNotifications.setText("");
+                    binding.numOfNotifications.setVisibility(View.GONE);
+                }
+                else {
+                    binding.numOfNotifications.setText(""+count);
+                    notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+                }
             }
             else{
                 binding.numOfNotifications.setText("");
@@ -316,8 +344,22 @@ public class TeacherActivity extends AppCompatActivity implements
             ((ViewGroup) popupView.getParent()).removeView(popupView);
         }
 
-        notificationPopupWindow = new PopupWindow(popupView,910,1500,true);
-        notificationPopupWindow.showAsDropDown(binding.notificationImage,-770,0);
+        int[] location = new int[2];
+        notificationsPopupWindowBinding.getRoot().getLocationOnScreen(location);
+        int anchorX = location[0];
+        int anchorY = location[1];
+
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int popupWidth = notificationsPopupWindowBinding.getRoot().getMeasuredWidth();
+        int xOffset = 0;
+
+        if (anchorX + popupWidth > screenWidth) {
+            xOffset = screenWidth - (anchorX + popupWidth);
+        }
+
+        notificationPopupWindow = new PopupWindow(popupView,ViewGroup.LayoutParams.WRAP_CONTENT,1500,true);
+        notificationPopupWindow.showAsDropDown(binding.notificationImage,xOffset,0);
+
 
         notificationsPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
             if(doneInformation.equals("1"))
@@ -590,7 +632,7 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     private void decrementNotificationsNumber(){
-        if(!binding.numOfNotifications.getText().toString().isEmpty()){
+        if(binding.numOfNotifications.getVisibility() == View.VISIBLE && !binding.numOfNotifications.getText().toString().isEmpty()){
             int numOfNotifications = Integer.parseInt(binding.numOfNotifications.getText().toString());
             if(numOfNotifications - 1 > 0){
                 binding.numOfNotifications.setText(""+(Integer.parseInt(binding.numOfNotifications.getText().toString()) - 1));
@@ -1065,21 +1107,33 @@ public class TeacherActivity extends AppCompatActivity implements
             try {
                 for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
-                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
+                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),
+                            Integer.parseInt(jsonObject.getString("notificationType")),
+                            jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
-                            Integer.parseInt(jsonObject.getString("isRead")));
+                            jsonObject.getInt("isRead"),
+                            jsonObject.getInt("teacherRequestId"));
                     notificationsList.add(notification);
                 }
                 if(!notList.isEmpty()){
                     notList.clear();
                 }
                 notList.addAll(notificationsList);
-                if(!notList.isEmpty()){
-                    binding.numOfNotifications.setText(""+notList.size());
+                    int count = 0;
+                    for(Notifications not : notList){
+                        if(not.getIsNotificationRead() == 0){
+                            count++;
+                        }
+                    }
+                    if(count == 0){
+                        binding.numOfNotifications.setText("");
+                        binding.numOfNotifications.setVisibility(View.GONE);
+                    }
+                    else {
+                        binding.numOfNotifications.setText(""+count);
+                        binding.numOfNotifications.setVisibility(View.VISIBLE);
+                    }
                 }
-                else
-                    binding.numOfNotifications.setText("");
-            }
             catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -1095,6 +1149,7 @@ public class TeacherActivity extends AppCompatActivity implements
         if(!notList.isEmpty()){
             notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList, this,this));
+            notificationsPopupWindowBinding.notificationsRecyclerView.addItemDecoration(new SpacesItemDecoration(5));
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
         }
