@@ -39,4 +39,6 @@ public class Constants {
     public static String  addTeacherSentRequestToParent ="http://"+ip+"/graduationProject/addTeacherSentRequestToParent.php";
     public static String  checkIfTeacherRequestSentBefore ="http://"+ip+"/graduationProject/checkIfTeacherRequestSentBefore.php";
     public static String  checkIfParentRequestSentBefore ="http://"+ip+"/graduationProject/checkIfParentRequestSentBefore.php";
+    public static String  getParentReceivedRequest ="http://"+ip+"/graduationProject/getParentReceivedRequest.php";
+    public static String  getAllParentChildrenCoursesDates ="http://"+ip+"/graduationProject/getAllParentChildrenCoursesDates.php";
 }

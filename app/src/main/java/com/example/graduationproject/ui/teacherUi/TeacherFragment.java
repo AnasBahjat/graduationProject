@@ -1,7 +1,5 @@
 package com.example.graduationproject.ui.teacherUi;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -14,9 +12,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.util.Log;
@@ -46,7 +42,7 @@ import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListene
 import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
-import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
+import com.example.graduationproject.listeners.OnReceivedRequestsListener;
 import com.example.graduationproject.listeners.OnTeacherToParentRequestSentListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
@@ -93,7 +89,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         PostedTeacherRequestsListener,
         TeacherPostRequestClickListener, OnTeacherPostRequestUpdateListener,
         DeletePostedRequestListener, ParentInformationListener,
-        OnTeacherReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener, OnTeacherCourseAddedListener, OnTeacherToParentRequestSentListener, OnCheckIfRequestSentBeforeListener {
+        OnReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener, OnTeacherCourseAddedListener, OnTeacherToParentRequestSentListener, OnCheckIfRequestSentBeforeListener {
 
     private FragmentTeacherBinding binding ;
 
@@ -1363,7 +1359,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
     @Override
-    public void onTeacherRequestsReceived(int flag, JSONArray requestsData) {
+    public void onRequestsReceived(int flag, JSONArray requestsData) {
         if(flag == -2){
 
         }
@@ -1482,7 +1478,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
 
-
     @Override
     public void onAcceptDeclineClicked(int flag, TeacherReceivedRequest teacherReceivedRequest) {
         tempTeacherReceivedRequestObject = teacherReceivedRequest;
@@ -1540,7 +1535,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
                         String availabilityForJob = (jsonObject.getString("availabilityForJob")).trim();
-                        Log.d("Availability -------> "+availabilityForJob,"Availability -------> "+availabilityForJob);
                         String days = availabilityForJob ;
                         if(availabilityForJob.equalsIgnoreCase("Weekend")){
                             days = "Thur , Fri";

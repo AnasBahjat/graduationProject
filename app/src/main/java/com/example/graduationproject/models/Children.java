@@ -23,7 +23,8 @@ public class Children implements Parcelable {
         this.grade=grade;
     }
 
-    public Children(int childId, String childName, String childAge, int childGender, int grade, int childRequestId) {
+    public Children(int childId, String childName, String childAge,
+                    int childGender, int grade, int childRequestId) {
         this.childId = childId;
         this.childName = childName;
         this.childAge = childAge;

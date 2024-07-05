@@ -22,11 +22,18 @@ public class Teacher implements Parcelable {
     private List<String> phoneNumbersList ;
     private int gender ;
     private String birthDate ;
-
     private String teacherName;
-    public Teacher(String email,String idNumber,
-                   String studentOrGraduate,String expectedGraduationYear,
-                   String college,String field,
+
+    public Teacher(String teacherName, String email, List<String> phoneNumbersList, String birthDate) {
+        this.teacherName = teacherName;
+        this.email = email;
+        this.phoneNumbersList = phoneNumbersList;
+        this.birthDate = birthDate;
+    }
+
+    public Teacher(String email, String idNumber,
+                   String studentOrGraduate, String expectedGraduationYear,
+                   String college, String field,
                    String availability,
                    String educationalLevel ,
                    Address address){

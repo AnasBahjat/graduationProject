@@ -25,12 +25,13 @@ import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
+import com.example.graduationproject.listeners.OnParentCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherToParentRequestSentListener;
 import com.example.graduationproject.listeners.OnProfileDataFetchListener;
 import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
-import com.example.graduationproject.listeners.OnTeacherReceivedRequestsListener;
+import com.example.graduationproject.listeners.OnReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
@@ -59,7 +60,6 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -1061,24 +1061,24 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void getTeacherReceivedRequests(String email , final OnTeacherReceivedRequestsListener onTeacherReceivedRequests ){
+    public void getTeacherReceivedRequests(String email , final OnReceivedRequestsListener onTeacherReceivedRequests ){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getTeacherReceivedRequests,res->{
             if(res.equalsIgnoreCase("Connection Error"))
-                onTeacherReceivedRequests.onTeacherRequestsReceived(-2,null);
+                onTeacherReceivedRequests.onRequestsReceived(-2,null);
             else if(res.equalsIgnoreCase("Error"))
-                onTeacherReceivedRequests.onTeacherRequestsReceived(-1,null);
+                onTeacherReceivedRequests.onRequestsReceived(-1,null);
             else if(res.equalsIgnoreCase("No Requests"))
-                onTeacherReceivedRequests.onTeacherRequestsReceived(0,null);
+                onTeacherReceivedRequests.onRequestsReceived(0,null);
             else {
                 try {
-                    onTeacherReceivedRequests.onTeacherRequestsReceived(1,new JSONArray(res));
+                    onTeacherReceivedRequests.onRequestsReceived(1,new JSONArray(res));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }
         },err->{
-            onTeacherReceivedRequests.onTeacherRequestsReceived(-2,null);
+            onTeacherReceivedRequests.onRequestsReceived(-2,null);
         }){
             @Override
             protected Map<String, String> getParams(){
@@ -1284,5 +1284,68 @@ public class Database {
         };
         requestQueue.add(stringRequest);
     }*/
+
+    public void getParentReceivedRequest(String parentEmail, final OnReceivedRequestsListener onReceivedRequestsListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentReceivedRequest,resp->{
+            if(resp.equalsIgnoreCase("No Requests")){
+                onReceivedRequestsListener.onRequestsReceived(0,null);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onReceivedRequestsListener.onRequestsReceived(-1,null);
+
+            }
+            else if(resp.equalsIgnoreCase("Connection Error")){
+                onReceivedRequestsListener.onRequestsReceived(-2,null);
+
+            }
+            else {
+                try {
+                    onReceivedRequestsListener.onRequestsReceived(1,new JSONArray(resp));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        },err->{
+            onReceivedRequestsListener.onRequestsReceived(-2,null);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",parentEmail);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getAllParentChildrenCoursesDates(String email,final OnParentCoursesReceivedListener onParentCoursesReceivedListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllParentChildrenCoursesDates,resp->{
+            if(resp.equalsIgnoreCase("No Courses")){
+                onParentCoursesReceivedListener.onParentCoursesReceived(0,null);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onParentCoursesReceivedListener.onParentCoursesReceived(-1,null);
+            }
+            else if(resp.equalsIgnoreCase("Connection Error")){
+                onParentCoursesReceivedListener.onParentCoursesReceived(-2,null);
+            }
+            else {
+                try {
+                    onParentCoursesReceivedListener.onParentCoursesReceived(1,new JSONArray(resp));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        },err->{
+            onParentCoursesReceivedListener.onParentCoursesReceived(-2,null);
+
+        }){
+
+        };
+        requestQueue.add(stringRequest);
+    }
 
 }

@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
 import com.example.graduationproject.adapters.ParentPostedRequestsAdapter;
+import com.example.graduationproject.adapters.ParentReceivedRequestAdapter;
 import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
@@ -48,12 +49,16 @@ import com.example.graduationproject.databinding.DialogParentPostedRequestCardBi
 import com.example.graduationproject.databinding.DialogSendRequestToTeacherLayoutBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
 import com.example.graduationproject.databinding.ParentFilterLayoutBinding;
+import com.example.graduationproject.databinding.ParentReceivedRequestsDialogLayoutBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestsCardToShowToParentBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.GetParentChildrenForRequest;
+import com.example.graduationproject.listeners.OnAcceptDeclineParentRequestsListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
+import com.example.graduationproject.listeners.OnParentCoursesReceivedListener;
+import com.example.graduationproject.listeners.OnReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentPostRequestClickListener;
@@ -65,6 +70,7 @@ import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Parent;
+import com.example.graduationproject.models.ParentReceivedRequest;
 import com.example.graduationproject.models.ParentRequestToSend;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
@@ -101,7 +107,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         UpdateTeacherPostedRequestListener,
         ParentPostRequestDeleteListener,
         OnAllTeacherPostedRequestsForParentListener,
-        TeacherPostRequestClickListener, GetParentChildrenForRequest, ParentRequestToSendListener {
+        TeacherPostRequestClickListener, GetParentChildrenForRequest, ParentRequestToSendListener,
+        OnReceivedRequestsListener, OnAcceptDeclineParentRequestsListener, OnParentCoursesReceivedListener {
 
     private String email;
     private String firstName;
@@ -144,6 +151,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private final List<TeacherPostRequest> teacherPostedRequestsForParentList = new ArrayList<>();
 
     private TeacherPostRequest tempTeacherPostRequestForSendingRequest ;
+    private ParentReceivedRequest currentParentReceivedRequest;
 
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
@@ -161,6 +169,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     Dialog sendRequestToTeacherDialog ;
     DialogSendRequestToTeacherLayoutBinding dialogSendRequestToTeacherLayoutBinding;
     int selectedChildGender ;
+    private List<ParentReceivedRequest> parentReceivedRequestsList = new ArrayList<>();
+    private Dialog parentReceivedRequestDialog ;
+    private ParentReceivedRequestsDialogLayoutBinding parentReceivedRequestsDialogLayoutBinding;
+    private ParentReceivedRequestAdapter parentReceivedRequestAdapter;
 
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -174,7 +186,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 myPostedRequestsBtnForParent = false;
                 browseTeacherPostedRequestsForParent=false;
                 myReceivedRequestsForParent =true;
-                //ToDo(Show parent received requests ..);
+                database.getParentReceivedRequest(email,ParentFragment.this);
             }
 
             else if("UPDATE_POSTED_DATA_FOR_PARENT".equals(intent.getAction())){
@@ -211,6 +223,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             IntentFilter parentFragmentIntentFilter = new IntentFilter();
             parentFragmentIntentFilter.addAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
             parentFragmentIntentFilter.addAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
+            parentFragmentIntentFilter.addAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
             parentFragmentIntentFilter.addAction("UPDATE_POSTED_DATA_FOR_PARENT");
             parentFragmentIntentFilter.addAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
             parentFragmentIntentFilter.addAction("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
@@ -3406,6 +3419,169 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             MyAlertDialog.errorDialog(getContext());
+        }
+    }
+
+    @Override
+    public void onRequestsReceived(int flag, JSONArray requestsData) {
+        if(flag == 1){
+            if(!parentReceivedRequestsList.isEmpty())
+                parentReceivedRequestsList.clear();
+
+            try {
+                if(requestsData != null && requestsData.length() > 0){
+                    for(int i = requestsData.length() - 1 ; i >= 0 ;i--){
+                        JSONObject jsonObject = requestsData.getJSONObject(i);
+                        int requestId = jsonObject.getInt("requestId");
+                        String parentEmail = jsonObject.getString("parentEmail");
+                        String teacherEmail = jsonObject.getString("teacherEmail");
+                        String requestDate = jsonObject.getString("requestDate");
+                        int isAccepted = jsonObject.getInt("isAccepted");
+                        int matchingId = jsonObject.getInt("matchingId");
+                        int childId = jsonObject.getInt("childId");
+                        String choseDays = jsonObject.getString("choseDays");
+                        String courses = jsonObject.getString("courses");
+                        String location = jsonObject.getString("location");
+                        String teachingMethod = jsonObject.getString("teachingMethod");
+                        String startTime = jsonObject.getString("startTime");
+                        String endTime = jsonObject.getString("endTime");
+                        String startDate = jsonObject.getString("startDate");
+                        String endDate = jsonObject.getString("endDate");
+                        double priceMin = jsonObject.getDouble("priceMin");
+                        double priceMax = jsonObject.getDouble("priceMax");
+                        String childName = jsonObject.getString("childName");
+                        String childAge = jsonObject.getString("childAge");
+                        String childGender = "Male";
+                        if(jsonObject.getString("childGender").equalsIgnoreCase("0")){
+                            childGender = "Female";
+                        }
+                        String childGrade = jsonObject.getString("childGrade");
+                        String teacherFirstName = jsonObject.getString("firstName");
+                        teacherFirstName = teacherFirstName.substring(0, 1).toUpperCase() + teacherFirstName.substring(1).toLowerCase();
+                        String teacherLastName = jsonObject.getString("lastName");
+                        teacherLastName = teacherLastName.substring(0, 1).toUpperCase() + teacherLastName.substring(1).toLowerCase();
+
+                        String birthDate = jsonObject.getString("birthDate");
+                        String phoneNumbers = jsonObject.getString("teacherPhoneNumbers");
+                        String [] split = phoneNumbers.split(",");
+                        String []splitReqDateAndTime = requestDate.split(" ");
+                        String requestDateStr = splitReqDateAndTime[0];
+                        String requestTimeStr = splitReqDateAndTime[1];
+                        List<String> teacherPhoneList = new ArrayList<>(Arrays.asList(split));
+                        parentReceivedRequestsList.add(new ParentReceivedRequest(requestId,new TeacherMatchModel(matchingId,parentEmail,
+                                new CustomChildData(childId,childName,Integer.parseInt(childGrade),jsonObject.getInt("childGender"),Integer.parseInt(childAge)),choseDays
+                                ,courses,location,teachingMethod,new Children(childId,childName,childAge,jsonObject.getInt("childGender"),Integer.parseInt(childGrade),requestId),
+                                startTime,endTime,priceMin,priceMax,startDate,endDate),new Teacher(teacherFirstName+" "+teacherLastName,teacherEmail,teacherPhoneList,birthDate),
+                                isAccepted,requestDateStr,requestTimeStr));
+                    }
+                    showParentReceivedRequestsDialog();
+                }
+            }
+            catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else if(flag == 0){
+
+        }
+        else if(flag == -1){
+
+        }
+        else {
+
+        }
+    }
+
+    private void showParentReceivedRequestsDialog(){
+        if(parentReceivedRequestsList != null && parentReceivedRequestsList.isEmpty() && getContext() != null){
+            parentReceivedRequestDialog = new Dialog(getContext());
+            parentReceivedRequestsDialogLayoutBinding = ParentReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            parentReceivedRequestDialog.setContentView(parentReceivedRequestsDialogLayoutBinding.getRoot());
+            parentReceivedRequestDialog.setCancelable(false);
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(parentReceivedRequestDialog.getWindow()).getAttributes());
+            layoutParams.width = 1250;
+            layoutParams.height = 2500;
+            parentReceivedRequestDialog.getWindow().setAttributes(layoutParams);
+            if(parentReceivedRequestDialog.getWindow() != null)
+                parentReceivedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            parentReceivedRequestDialog.show();
+
+            parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            parentReceivedRequestAdapter = new ParentReceivedRequestAdapter(parentReceivedRequestsList,this);
+            parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setAdapter(parentReceivedRequestAdapter);
+
+        }
+    }
+
+    @Override
+    public void onParentAcceptDeclineClicked(int flag, ParentReceivedRequest parentReceivedRequest) {
+        currentParentReceivedRequest = parentReceivedRequest;
+        if(flag == 1){
+            int requestId = parentReceivedRequest.getRequestId();
+            int childId = parentReceivedRequest.getTeacherMatchModel().getCustomChildData().getChildId();
+            String availability = parentReceivedRequest.getTeacherMatchModel().getChoseDays().trim();
+            if(availability.equalsIgnoreCase("Weekend")){
+                parentReceivedRequest.getTeacherMatchModel().setChoseDays("Thur , Fri");
+            }
+
+            else if(availability.equalsIgnoreCase("Any")){
+                parentReceivedRequest.getTeacherMatchModel().setChoseDays("Sat , Sun , Mon , Tues , Thur , Fri");
+            }
+
+            availability = parentReceivedRequest.getTeacherMatchModel().getChoseDays().trim();
+            if(!availability.isEmpty() && availability.charAt(availability.length() - 1) == ','){
+                availability = (availability.substring(0, availability.length() - 1)).trim();
+                parentReceivedRequest.getTeacherMatchModel().setChoseDays(availability);
+            }
+            database.getAllParentChildrenCoursesDates(email,this);
+
+            // accept the request and
+        }
+        else {
+            // decline the request ..
+        }
+    }
+
+    @Override
+    public void onParentCoursesReceived(int flag, JSONArray parentCourses) {
+        if (flag == 0) {
+
+        } else if (flag == 1) {
+            if (parentCourses != null && parentCourses.length() > 0) {
+                try {
+                    for (int i = 0; i < parentCourses.length(); i++) {
+                        JSONObject jsonObject = parentCourses.getJSONObject(i);
+                        int courseId = jsonObject.getInt("courseId");
+                        int requestId = jsonObject.getInt("requestId");
+                        int childId = jsonObject.getInt("childId");
+                        String startDate = jsonObject.getString("startDate");
+                        String endDate = jsonObject.getString("endDate");
+                        String startTime = jsonObject.getString("startTime");
+                        String endTime = jsonObject.getString("endTime");
+                        String choseDays = jsonObject.getString("choseDays");
+
+                        String days = choseDays;
+                        if (choseDays.equalsIgnoreCase("Weekend")) {
+                            days = "Thur , Fri";
+                        } else if (choseDays.equalsIgnoreCase("Any")) {
+                            days = "Sat , Sun , Mon , Tues , Thur , Fri";
+                        }
+                        if (choseDays.charAt(choseDays.length() - 1) == ',') {
+                            days = choseDays.substring(0, choseDays.length() - 1).trim();
+                        }
+                        if (currentParentReceivedRequest.getRequestId() != requestId &&
+                                currentParentReceivedRequest.getTeacherMatchModel().getCustomChildData().getChildId() != childId)
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        else if (flag == -1) {
+
+        } else {
+
         }
     }
 }
