@@ -24,6 +24,7 @@ import com.example.graduationproject.listeners.GetParentChildrenForRequest;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
+import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnTeacherToParentRequestSentListener;
 import com.example.graduationproject.listeners.OnProfileDataFetchListener;
 import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
@@ -58,6 +59,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -1224,4 +1226,63 @@ public class Database {
         };
         requestQueue.add(stringRequest);
     }
+
+    public void checkIfTeacherRequestSentBefore(String teacherEmail,TeacherMatchModel teacherMatchModel,final OnCheckIfRequestSentBeforeListener onCheckIfRequestSentBefore){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.checkIfTeacherRequestSentBefore,resp->{
+            if (resp.equalsIgnoreCase("Exists")){
+                onCheckIfRequestSentBefore.onRequestSent(0);
+            }
+            else if(resp.equalsIgnoreCase("Not Exist")){
+                onCheckIfRequestSentBefore.onRequestSent(1);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onCheckIfRequestSentBefore.onRequestSent(-1);
+            }
+            else {
+                onCheckIfRequestSentBefore.onRequestSent(-2);
+            }
+        },err->{
+            onCheckIfRequestSentBefore.onRequestSent(-2);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherEmail",teacherEmail);
+                data.put("parentEmail",teacherMatchModel.getParentEmail());
+                data.put("matchingId",teacherMatchModel.getMatchingId()+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    /*public void checkIfParentRequestSentBefore(String parentEmail,TeacherPostRequest teacherPostRequest,final OnCheckIfRequestSentBeforeListener onCheckIfRequestSentBefore){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.checkIfParentRequestSentBefore,resp->{
+            if (resp.equalsIgnoreCase("Exists")){
+                onCheckIfRequestSentBefore.onRequestSent(0);
+            }
+            else if(resp.equalsIgnoreCase("Not Exist")){
+                onCheckIfRequestSentBefore.onRequestSent(1);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onCheckIfRequestSentBefore.onRequestSent(-1);
+            }
+            else {
+                onCheckIfRequestSentBefore.onRequestSent(-2);
+            }
+        },err->{
+            onCheckIfRequestSentBefore.onRequestSent(-2);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",parentEmail);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }*/
+
 }

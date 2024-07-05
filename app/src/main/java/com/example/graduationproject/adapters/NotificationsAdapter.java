@@ -76,7 +76,14 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             if(notification.getIsNotificationRead()==1){
                 binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
                 binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
-
+            }
+            if(notification.getIsNotificationRead()==2){
+                binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
+                binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
+            }
+            if(notification.getIsNotificationRead()==3){
+                binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
+                binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
             }
         }
     }

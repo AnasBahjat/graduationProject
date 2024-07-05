@@ -482,7 +482,7 @@ public class ParentActivity extends AppCompatActivity implements
                     Notifications notification = new Notifications(jsonObject.getInt("notificationId"),Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
                             Integer.parseInt(jsonObject.getString("isRead")),
-                            jsonObject.getInt("parentSentRequestId"));
+                            jsonObject.getInt("parentRequestId"));
                     notList.add(notification);
                 }
                 if(!notificationsList.isEmpty()){
@@ -1237,9 +1237,24 @@ public class ParentActivity extends AppCompatActivity implements
             showParentInformationPopupWindow();
         }
         else if(notification.getNotificationType()==3){
+            database.setNotificationIsRead(notification.getNotificationId());
+            decrementNotificationsNumber();
             Intent intent = new Intent();
             intent.setAction("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
             sendBroadcast(intent);
+        }
+    }
+
+    private void decrementNotificationsNumber(){
+        if(parentBinding.numOfNotifications.getVisibility() == View.VISIBLE && !parentBinding.numOfNotifications.getText().toString().isEmpty()){
+            int numOfNotifications = Integer.parseInt(parentBinding.numOfNotifications.getText().toString());
+            if(numOfNotifications - 1 > 0){
+                parentBinding.numOfNotifications.setText(""+(Integer.parseInt(parentBinding.numOfNotifications.getText().toString()) - 1));
+            }
+            else {
+                parentBinding.numOfNotifications.setText("");
+                parentBinding.numOfNotifications.setVisibility(View.GONE);
+            }
         }
     }
 }

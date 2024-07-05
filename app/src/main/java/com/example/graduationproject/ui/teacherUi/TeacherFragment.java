@@ -42,6 +42,7 @@ import com.example.graduationproject.databinding.TeacherReceivedRequestsDialogLa
 import com.example.graduationproject.databinding.UpdatePostedTeacherLookForAJobLayoutBinding;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
+import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
@@ -92,7 +93,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         PostedTeacherRequestsListener,
         TeacherPostRequestClickListener, OnTeacherPostRequestUpdateListener,
         DeletePostedRequestListener, ParentInformationListener,
-        OnTeacherReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener, OnTeacherCourseAddedListener, OnTeacherToParentRequestSentListener {
+        OnTeacherReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener, OnTeacherCourseAddedListener, OnTeacherToParentRequestSentListener, OnCheckIfRequestSentBeforeListener {
 
     private FragmentTeacherBinding binding ;
 
@@ -116,7 +117,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     TeacherPostRequest newTeacherRequest ;
     Dialog teacherPostedRequestCardDialog;
     private TeacherPostedRequestCardLayoutBinding teacherPostedRequestCardLayoutBinding ;
-
+    String parentFirstName = "";
+    String parentLastName = "";
     private String amPmStart,amPmEnd;
     private String startTime ="12:00 PM", endTime="12:00 PM";
     UpdatePostedTeacherLookForAJobLayoutBinding updatePostedTeacherLookForAJobLayoutBinding;
@@ -137,7 +139,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private List<TeacherReceivedRequest> tempTeacherReceivedRequestsList;
     private Dialog parentPostedRequestsForTeacherDialog;
     private DialogTeacherMatchingOnCardClickedBinding dialogTeacherMatchingOnCardClickedBinding;
-
+    private TeacherMatchModel tempTeacherMatchModelForCheckTeacherSentRequest;
 
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -373,6 +375,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             binding.refreshRecyclerView.setRefreshing(false);
             binding.addedCoursesRecyclerView.setAdapter(teacherPostedRequestsAdapter);
         }
+        assert getView() != null;
+        Snackbar.make(getView(), "Your Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
     }
 
     private void getTeacherDataFromActivity(){
@@ -454,9 +458,12 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 return true;
             }
         });
+        assert getView() != null;
+        Snackbar.make(getView(), "Parent Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
         myCoursesBtnForParent = false ;
         myPostedRequestsBtnForTeacher = false;
         updateBtnStatus();
+
     }
 
     private  void  updateBtnStatus(){
@@ -534,7 +541,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private void sendRefreshBroadcast(int flag){
         if(flag == 1){
-           // database.getTeacherMatchingData(email,this);
+            // set teacher Courses ...
         }
         else if(flag == 2){
             database.getTeacherPostedRequests(email,this);
@@ -593,6 +600,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     teacherMatchModelData.add(teacherMatchModel);
                 }
                // matchingTeacherAdapter.filteredList(teacherMatchModelData);
+
                 setAvailableTeacherMatchingAdapter();
                 binding.refreshRecyclerView.setRefreshing(false);
             }
@@ -694,6 +702,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     @Override
     public void onTeacherPostClicked(TeacherPostRequest teacherPostRequest) {
+        binding.loadingProgressBar2.setVisibility(View.VISIBLE);
         if(getContext() != null){
             teacherPostedRequestCardDialog = new Dialog(getContext());
             teacherPostedRequestCardLayoutBinding = TeacherPostedRequestCardLayoutBinding.inflate(LayoutInflater.from(getContext()));
@@ -706,8 +715,12 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             teacherPostedRequestCardDialog.getWindow().setAttributes(layoutParams);
             if(teacherPostedRequestCardDialog.getWindow() != null)
                 teacherPostedRequestCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            teacherPostedRequestCardDialog.show();
+            //teacherPostedRequestCardDialog.show();
 
+            new Handler().postDelayed(()->{
+                binding.loadingProgressBar2.setVisibility(View.GONE);
+                teacherPostedRequestCardDialog.show();
+            },300);
             teacherPostedRequestCardLayoutBinding.closeImageView.setOnClickListener(x->{
                 teacherPostedRequestCardDialog.dismiss();
             });
@@ -1238,8 +1251,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             try {
                 List<String> parentPhoneNumbersList = new ArrayList<>();
                 List<Address> parentAddressesList = new ArrayList<>();
-                String parentFirstName = "";
-                String parentLastName = "";
+
                 for (int i = 0; i < parentInformation.length(); i++) {
                     JSONObject jsonObject = parentInformation.getJSONObject(i);
                     parentFirstName = jsonObject.getString("firstname");
@@ -1272,7 +1284,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         }
                     }
                 }
+                binding.loadingProgressBar2.setVisibility(View.VISIBLE);
                 showTeacherMatchDialog(tempTeacherMatchModel, parentFirstName + " " + parentLastName, parentPhoneNumbersList);
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -1281,6 +1295,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private void showTeacherMatchDialog(TeacherMatchModel teacherMatchModel,String parentName ,List<String> parentPhoneNumbers){
         if(getContext() != null){
+            tempTeacherMatchModelForCheckTeacherSentRequest = teacherMatchModel;
             dialogTeacherMatchingOnCardClickedBinding = DialogTeacherMatchingOnCardClickedBinding.inflate(LayoutInflater.from(getContext()));
             parentPostedRequestsForTeacherDialog = new Dialog(getContext());
             parentPostedRequestsForTeacherDialog.setContentView(dialogTeacherMatchingOnCardClickedBinding.getRoot());
@@ -1292,11 +1307,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             parentPostedRequestsForTeacherDialog.getWindow().setAttributes(layoutParams);
             if(parentPostedRequestsForTeacherDialog.getWindow() != null)
                 parentPostedRequestsForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            parentPostedRequestsForTeacherDialog.show();
-
-            dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x->{
-                database.addTeacherSentRequestToParent(email,teacherMatchModel,this);
-            });
+           // parentPostedRequestsForTeacherDialog.show();
+            database.checkIfTeacherRequestSentBefore(email,teacherMatchModel,this);
 
             dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z->{
                 parentPostedRequestsForTeacherDialog.dismiss();
@@ -1602,7 +1614,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         if(flag == 1){
             assert getView() != null ;
             Snackbar.make(getView(), "Course Added To Your Courses ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
-           // teacherReceivedRequestAdapter.deleteItem(tempTeacherReceivedRequestObject);
+           // teacherReceivedRequestAdapter.deleteItem(tempTeacherReceivedRequestOeeebject);
         }
         else {
 
@@ -1615,15 +1627,57 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             MyAlertDialog.warningDialog(getContext(),"Request Sent Before","You Sent A request to this parent before wait for him to response Or Remove The Request");
         }
         else if(flag == 1){
-            parentPostedRequestsForTeacherDialog.dismiss();
+            //parentPostedRequestsForTeacherDialog.dismiss();
             MyAlertDialog.showDialogForDone(getContext(),"Request Sent","Request Sent To Parent , Wait For The response ..");
+            dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.VISIBLE);
+            dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setVisibility(View.GONE);
         }
         else if(flag == -1){
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Something Went Wrong , Please try again later ..");
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Network Error","Connection Error, Please try again later ..");
+        }
+    }
 
+
+
+    @Override
+    public void onRequestSent(int flag) {
+        if(flag == 1){
+            new Handler().postDelayed(() -> {
+                dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setVisibility(View.VISIBLE);
+                dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x->{
+                    database.addTeacherSentRequestToParent(email,tempTeacherMatchModelForCheckTeacherSentRequest,this);
+                });
+                dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.GONE);
+                parentPostedRequestsForTeacherDialog.show();
+                binding.loadingProgressBar2.setVisibility(View.GONE);
+            },400);
+        }
+        else if(flag == 0){
+            new Handler().postDelayed(()->{
+                dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.VISIBLE);
+                dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setVisibility(View.GONE);
+                parentPostedRequestsForTeacherDialog.show();
+                binding.loadingProgressBar2.setVisibility(View.GONE);
+            },400);
+        }
+        else if(flag == -1){
+            new Handler().postDelayed(()->{
+                dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.VISIBLE);
+                dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setVisibility(View.GONE);
+                parentPostedRequestsForTeacherDialog.show();
+                binding.loadingProgressBar2.setVisibility(View.GONE);
+            },400);
+        }
+        else {
+            new Handler().postDelayed(()->{
+                dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.VISIBLE);
+                dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setVisibility(View.GONE);
+                parentPostedRequestsForTeacherDialog.show();
+                binding.loadingProgressBar2.setVisibility(View.GONE);
+            },400);
         }
     }
 }

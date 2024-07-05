@@ -622,7 +622,40 @@
         android:layout_below="@id/priceTextView"
         android:text="Send Request"
         android:textAllCaps="false"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        />
+
+
+    <LinearLayout
+        android:id="@+id/requestSentView"
+        android:focusable="false"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:background="@drawable/rounded_background"
+        android:layout_below="@id/priceTextView"
+        android:layout_toStartOf="@+id/sendMessageToTeacherBtn"
+        android:padding="10dp"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/check_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Request Sent"
+            android:textSize="16sp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
 
 
 

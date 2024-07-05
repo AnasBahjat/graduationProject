@@ -538,7 +538,41 @@
             android:layout_marginEnd="15dp"
             android:layout_marginTop="35dp"
             android:layout_marginBottom="20dp"
-            android:textColor="@color/black"/>
+            android:textColor="@color/black"
+            />
+
+        <LinearLayout
+            android:id="@+id/requestSentView"
+            android:focusable="false"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_background"
+            android:layout_below="@id/locationTextView"
+            android:layout_toStartOf="@id/sendMessageToParentBtn"
+            android:padding="10dp"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/check_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Request Sent"
+                android:textSize="16sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:textColor="@android:color/black"/>
+        </LinearLayout>
+
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/sendMessageToParentBtn"
