@@ -28,7 +28,7 @@ import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListene
 import com.example.graduationproject.listeners.OnParentCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherToParentRequestSentListener;
 import com.example.graduationproject.listeners.OnProfileDataFetchListener;
-import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
+import com.example.graduationproject.listeners.OnCourseAddedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnReceivedRequestsListener;
@@ -158,7 +158,6 @@ public class Database {
                     }
                 }
                 else {
-                    Toast.makeText(context,"--------------------------",Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -1140,20 +1139,20 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void insertTeacherCourse(TeacherPostRequest tpr, final OnTeacherCourseAddedListener onTeacherCourseAddedListener) {
+    public void insertTeacherCourse(TeacherPostRequest tpr, final OnCourseAddedListener onTeacherCourseAddedListener) {
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertTeacherCourse,resp->{
             if(resp.equalsIgnoreCase("Done")){
-                onTeacherCourseAddedListener.onTeacherCourseAdded(1);
+                onTeacherCourseAddedListener.onCourseAdded(1);
             }
             else if(resp.equalsIgnoreCase("Error")){
-                onTeacherCourseAddedListener.onTeacherCourseAdded(-1);
+                onTeacherCourseAddedListener.onCourseAdded(-1);
             }
             else {
-                onTeacherCourseAddedListener.onTeacherCourseAdded(-2);
+                onTeacherCourseAddedListener.onCourseAdded(-2);
             }
         },error ->{
-            onTeacherCourseAddedListener.onTeacherCourseAdded(-1);
+            onTeacherCourseAddedListener.onCourseAdded(-1);
         }){
             @Override
             protected Map<String, String> getParams(){
@@ -1343,7 +1342,65 @@ public class Database {
             onParentCoursesReceivedListener.onParentCoursesReceived(-2,null);
 
         }){
+            @Override
+            protected Map<String, String> getParams()  {
+                Map<String,String> data = new HashMap<>();
+                data.put("email",email);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
 
+    public void insertParentCourse(int requestId,double price,TeacherMatchModel tmr, final OnCourseAddedListener onCourseAddedListener) {
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertParentCourse,resp->{
+            if(resp.equalsIgnoreCase("Done")){
+                onCourseAddedListener.onCourseAdded(1);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onCourseAddedListener.onCourseAdded(-1);
+            }
+            else {
+                onCourseAddedListener.onCourseAdded(-2);
+            }
+        },error ->{
+            onCourseAddedListener.onCourseAdded(-1);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",tmr.getParentEmail());
+                data.put("requestId",requestId+"");
+                data.put("childId",tmr.getCustomChildData().getChildId()+"");
+                data.put("choseDays",tmr.getChoseDays());
+                data.put("courses", tmr.getCourses());
+                data.put("location",tmr.getLocation());
+                data.put("teachingMethod",tmr.getTeachingMethod());
+                data.put("startTime",tmr.getStartTime());
+                data.put("endTime",tmr.getEndTime());
+                data.put("startDate",tmr.getStartDate());
+                data.put("endDate",tmr.getEndDate());
+                data.put("price",price+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void setParentReceivedRequestToDecline(int requestId){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.deleteParentRequestFromSent, response ->{
+
+        },error -> {
+
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("requestId",requestId+"");
+                return data;
+            }
         };
         requestQueue.add(stringRequest);
     }

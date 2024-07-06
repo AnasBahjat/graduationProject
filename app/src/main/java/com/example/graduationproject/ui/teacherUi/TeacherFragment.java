@@ -39,7 +39,7 @@ import com.example.graduationproject.databinding.UpdatePostedTeacherLookForAJobL
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
 import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
-import com.example.graduationproject.listeners.OnTeacherCourseAddedListener;
+import com.example.graduationproject.listeners.OnCourseAddedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnReceivedRequestsListener;
@@ -89,7 +89,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         PostedTeacherRequestsListener,
         TeacherPostRequestClickListener, OnTeacherPostRequestUpdateListener,
         DeletePostedRequestListener, ParentInformationListener,
-        OnReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener, OnTeacherCourseAddedListener, OnTeacherToParentRequestSentListener, OnCheckIfRequestSentBeforeListener {
+        OnReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener, OnTeacherCoursesReceivedListener, OnCourseAddedListener, OnTeacherToParentRequestSentListener, OnCheckIfRequestSentBeforeListener {
 
     private FragmentTeacherBinding binding ;
 
@@ -1604,7 +1604,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
     @Override
-    public void onTeacherCourseAdded(int flag) {
+    public void onCourseAdded(int flag) {
         if(flag == 1){
             assert getView() != null ;
             Snackbar.make(getView(), "Course Added To Your Courses ", Snackbar.LENGTH_SHORT).setDuration(2000).show();

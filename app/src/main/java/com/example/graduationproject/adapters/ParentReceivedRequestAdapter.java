@@ -59,17 +59,16 @@ public class ParentReceivedRequestAdapter extends RecyclerView.Adapter<ParentRec
             this.onAcceptDeclineParentRequestsListener = onAcceptDeclineParentRequestsListener;
         }
         public void bind(ParentReceivedRequest parentReceivedRequest){
-            String phoneString = "";
+            StringBuilder phoneString = new StringBuilder();
             binding.teacherNameTextView.setText(parentReceivedRequest.getTeacher().getTeacherName());
             List<String> phoneList = parentReceivedRequest.getTeacher().getPhoneNumbersList();
-            for(int i = 0 ; i <phoneList.size();i++){
-                if(i + 1 != phoneList.size() - 1){
-                    phoneString += phoneList.get(i)+" ,";
-                }
-                else {
-                    phoneString+= phoneList.get(i);
-                }
+            for(String phone : phoneList){
+                phoneString.append(phone).append("\n");
             }
+            if (phoneString.length() > 0) {
+                phoneString.setLength(phoneString.length() - 1);
+            }
+
             binding.phoneNumberTextView.setText(phoneString);
             binding.coursesTextView.setText(parentReceivedRequest.getTeacherMatchModel().getCourses());
             binding.dateTextView.setText(String.format("%s - %s", parentReceivedRequest.getTeacherMatchModel().getStartDate(), parentReceivedRequest.getTeacherMatchModel().getEndDate()));
@@ -77,7 +76,7 @@ public class ParentReceivedRequestAdapter extends RecyclerView.Adapter<ParentRec
             binding.timeTextView.setText(String.format("%s - %s", parentReceivedRequest.getTeacherMatchModel().getStartTime(), parentReceivedRequest.getTeacherMatchModel().getEndTime()));
             binding.locationTextView.setText(parentReceivedRequest.getTeacherMatchModel().getLocation());
             binding.teachingMethodTextView.setText(parentReceivedRequest.getTeacherMatchModel().getTeachingMethod());
-            binding.priceTextView.setText(String.format("%s$  -  %s", parentReceivedRequest.getTeacherMatchModel().getPriceMinimum(), parentReceivedRequest.getTeacherMatchModel().getPriceMaximum()));
+            binding.priceTextView.setText(String.format("%s$  -  %s$", parentReceivedRequest.getTeacherMatchModel().getPriceMinimum(), parentReceivedRequest.getTeacherMatchModel().getPriceMaximum()));
             binding.acceptBtn.setOnClickListener(z->{
                 onAcceptDeclineParentRequestsListener.onParentAcceptDeclineClicked(1,parentReceivedRequest);
             });

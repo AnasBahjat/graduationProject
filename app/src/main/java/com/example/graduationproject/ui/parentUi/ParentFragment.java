@@ -15,9 +15,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
 import android.text.Editable;
@@ -57,6 +59,7 @@ import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.GetParentChildrenForRequest;
 import com.example.graduationproject.listeners.OnAcceptDeclineParentRequestsListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
+import com.example.graduationproject.listeners.OnCourseAddedListener;
 import com.example.graduationproject.listeners.OnParentCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnReceivedRequestsListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
@@ -69,12 +72,14 @@ import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListene
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
+import com.example.graduationproject.models.DateTimeModel;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.ParentReceivedRequest;
 import com.example.graduationproject.models.ParentRequestToSend;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
+import com.example.graduationproject.utils.DateUtils;
 import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -108,7 +113,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         ParentPostRequestDeleteListener,
         OnAllTeacherPostedRequestsForParentListener,
         TeacherPostRequestClickListener, GetParentChildrenForRequest, ParentRequestToSendListener,
-        OnReceivedRequestsListener, OnAcceptDeclineParentRequestsListener, OnParentCoursesReceivedListener {
+        OnReceivedRequestsListener, OnAcceptDeclineParentRequestsListener, OnParentCoursesReceivedListener, OnCourseAddedListener {
 
     private String email;
     private String firstName;
@@ -173,6 +178,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private Dialog parentReceivedRequestDialog ;
     private ParentReceivedRequestsDialogLayoutBinding parentReceivedRequestsDialogLayoutBinding;
     private ParentReceivedRequestAdapter parentReceivedRequestAdapter;
+    private int tempRequestId ;
 
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -182,10 +188,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
             else if("SHOW_RECEIVED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
-                myCoursesBtnForParent = false;
-                myPostedRequestsBtnForParent = false;
-                browseTeacherPostedRequestsForParent=false;
-                myReceivedRequestsForParent =true;
                 database.getParentReceivedRequest(email,ParentFragment.this);
             }
 
@@ -3427,7 +3429,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         if(flag == 1){
             if(!parentReceivedRequestsList.isEmpty())
                 parentReceivedRequestsList.clear();
-
             try {
                 if(requestsData != null && requestsData.length() > 0){
                     for(int i = requestsData.length() - 1 ; i >= 0 ;i--){
@@ -3474,7 +3475,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                                 startTime,endTime,priceMin,priceMax,startDate,endDate),new Teacher(teacherFirstName+" "+teacherLastName,teacherEmail,teacherPhoneList,birthDate),
                                 isAccepted,requestDateStr,requestTimeStr));
                     }
-                    showParentReceivedRequestsDialog();
+                    if(parentReceivedRequestDialog != null && parentReceivedRequestDialog.isShowing()){
+                        parentReceivedRequestDialog.dismiss();
+                    }
+                    showParentReceivedRequestsDialog(1);
+                    parentReceivedRequestsDialogLayoutBinding.refreshRecyclerView.setRefreshing(false);
                 }
             }
             catch (JSONException e) {
@@ -3482,7 +3487,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             }
         }
         else if(flag == 0){
-
+            if(parentReceivedRequestDialog != null&& parentReceivedRequestDialog.isShowing()){
+                parentReceivedRequestDialog.dismiss();
+            }
+            showParentReceivedRequestsDialog(-1);
+            parentReceivedRequestsDialogLayoutBinding.refreshRecyclerView.setRefreshing(false);
         }
         else if(flag == -1){
 
@@ -3492,8 +3501,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
     }
 
-    private void showParentReceivedRequestsDialog(){
-        if(parentReceivedRequestsList != null && parentReceivedRequestsList.isEmpty() && getContext() != null){
+    private void showParentReceivedRequestsDialog(int flag){
+        if(getContext() != null){
             parentReceivedRequestDialog = new Dialog(getContext());
             parentReceivedRequestsDialogLayoutBinding = ParentReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
             parentReceivedRequestDialog.setContentView(parentReceivedRequestsDialogLayoutBinding.getRoot());
@@ -3506,11 +3515,26 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             if(parentReceivedRequestDialog.getWindow() != null)
                 parentReceivedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             parentReceivedRequestDialog.show();
+            parentReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(v->{
+                parentReceivedRequestDialog.dismiss();
+            });
 
-            parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            parentReceivedRequestAdapter = new ParentReceivedRequestAdapter(parentReceivedRequestsList,this);
-            parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setAdapter(parentReceivedRequestAdapter);
+            parentReceivedRequestsDialogLayoutBinding.refreshRecyclerView.setOnRefreshListener(() -> database.getParentReceivedRequest(email,ParentFragment.this));
 
+
+            if (parentReceivedRequestsList != null && !parentReceivedRequestsList.isEmpty() && flag == 1){
+                parentReceivedRequestsDialogLayoutBinding.noReceivedRequestsForParent.setVisibility(View.GONE);
+                parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setVisibility(View.VISIBLE);
+
+                parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                parentReceivedRequestAdapter = new ParentReceivedRequestAdapter(parentReceivedRequestsList,this);
+                parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setAdapter(parentReceivedRequestAdapter);
+            }
+            else {
+                parentReceivedRequestsDialogLayoutBinding.noReceivedRequestsForParent.setVisibility(View.VISIBLE);
+                parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setVisibility(View.GONE);
+
+            }
         }
     }
 
@@ -3540,27 +3564,46 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             // decline the request ..
+            database.setParentReceivedRequestToDecline(currentParentReceivedRequest.getRequestId());
+            int position = parentReceivedRequestsList.indexOf(currentParentReceivedRequest);
+            parentReceivedRequestsList.remove(currentParentReceivedRequest);
+            parentReceivedRequestAdapter.notifyItemRemoved(position);
+            parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+            assert getView() != null ;
+            Snackbar.make(getView(), "Request Declined ..", Snackbar.LENGTH_SHORT).setDuration(1500).show();
+            if(parentReceivedRequestDialog.isShowing()){
+                parentReceivedRequestDialog.dismiss();
+            }
+            showParentReceivedRequestsDialog(-1);
         }
     }
 
     @Override
     public void onParentCoursesReceived(int flag, JSONArray parentCourses) {
+        Toast.makeText(getContext(), ""+flag, Toast.LENGTH_SHORT).show();
         if (flag == 0) {
-
-        } else if (flag == 1) {
+            double price = (currentParentReceivedRequest.getTeacherMatchModel().getPriceMaximum() + currentParentReceivedRequest.getTeacherMatchModel().getPriceMinimum()) / 2 ;
+            database.insertParentCourse(currentParentReceivedRequest.getRequestId(),price,currentParentReceivedRequest.getTeacherMatchModel(),this);
+            int position = parentReceivedRequestsList.indexOf(currentParentReceivedRequest);
+            parentReceivedRequestsList.remove(currentParentReceivedRequest);
+            parentReceivedRequestAdapter.notifyItemRemoved(position);
+            parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        }
+        else if (flag == 1) {
             if (parentCourses != null && parentCourses.length() > 0) {
                 try {
+                    int conflictFlag = 0;
                     for (int i = 0; i < parentCourses.length(); i++) {
                         JSONObject jsonObject = parentCourses.getJSONObject(i);
                         int courseId = jsonObject.getInt("courseId");
                         int requestId = jsonObject.getInt("requestId");
+                        tempRequestId = requestId;
                         int childId = jsonObject.getInt("childId");
                         String startDate = jsonObject.getString("startDate");
                         String endDate = jsonObject.getString("endDate");
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
                         String choseDays = jsonObject.getString("choseDays");
-
                         String days = choseDays;
                         if (choseDays.equalsIgnoreCase("Weekend")) {
                             days = "Thur , Fri";
@@ -3571,8 +3614,28 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                             days = choseDays.substring(0, choseDays.length() - 1).trim();
                         }
                         if (currentParentReceivedRequest.getRequestId() != requestId &&
-                                currentParentReceivedRequest.getTeacherMatchModel().getCustomChildData().getChildId() != childId)
+                                currentParentReceivedRequest.getTeacherMatchModel().getCustomChildData().getChildId() != childId){
+                            if(DateUtils.isConflict(new DateTimeModel(currentParentReceivedRequest.getTeacherMatchModel().getStartDate(),
+                                    currentParentReceivedRequest.getTeacherMatchModel().getEndDate(),
+                                    currentParentReceivedRequest.getTeacherMatchModel().getStartTime(),
+                                    currentParentReceivedRequest.getTeacherMatchModel().getEndTime(),
+                                    currentParentReceivedRequest.getTeacherMatchModel().getChoseDays()),new DateTimeModel(startDate,endDate,startTime,endTime,days))){
+                                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Course Conflict","This Request Make A conflict with one of your existing courses for "+currentParentReceivedRequest.getTeacherMatchModel().getCustomChildData().getChildName());
+                                conflictFlag = 1;
+                                break ;
+                            }
+                        }
                     }
+                    if(conflictFlag != 1){
+                        //showPriceDialog();
+                        double price = (currentParentReceivedRequest.getTeacherMatchModel().getPriceMaximum() + currentParentReceivedRequest.getTeacherMatchModel().getPriceMinimum()) / 2 ;
+                        database.insertParentCourse(currentParentReceivedRequest.getRequestId(),price,currentParentReceivedRequest.getTeacherMatchModel(),this);
+                        int position = parentReceivedRequestsList.indexOf(currentParentReceivedRequest);
+                        parentReceivedRequestsList.remove(currentParentReceivedRequest);
+                        parentReceivedRequestAdapter.notifyItemRemoved(position);
+                        parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+                    }
+                   // parentReceivedRequestDialog.dismiss();
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -3582,6 +3645,17 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
         } else {
 
+        }
+    }
+
+    @Override
+    public void onCourseAdded(int flag) {
+        if(flag == 1){
+            assert getView() != null;
+            Snackbar.make(getView(), "Course Added !! ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
         }
     }
 }
