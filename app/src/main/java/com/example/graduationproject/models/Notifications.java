@@ -45,15 +45,17 @@ public class Notifications implements Parcelable {
         this.teacherSentRequestId = teacherSentRequestId;
     }
 
-    protected Notifications(Parcel in) {
-        notificationId = in.readInt();
-        notificationType = in.readInt();
-        notificationTitle = in.readString();
-        notificationBody = in.readString();
-        isNotificationRead = in.readInt();
-        parentSentRequestId = in.readInt();
-        teacherSentRequestId= in.readInt();
+    public Notifications(int notificationId, int notificationType, String notificationTitle, String notificationBody, int isNotificationRead, int parentSentRequestId, int teacherSentRequestId) {
+        this.notificationId = notificationId;
+        this.notificationType = notificationType;
+        this.notificationTitle = notificationTitle;
+        this.notificationBody = notificationBody;
+        this.isNotificationRead = isNotificationRead;
+        this.parentSentRequestId = parentSentRequestId;
+        this.teacherSentRequestId = teacherSentRequestId;
     }
+
+
 
     public int getNotificationId() {
         return notificationId;
@@ -128,20 +130,39 @@ public class Notifications implements Parcelable {
         return 0;
     }
 
+    protected Notifications(Parcel in) {
+        notificationId = in.readInt();
+        notificationType = in.readInt();
+        notificationTitle = in.readString();
+        notificationBody = in.readString();
+        isNotificationRead = in.readInt();
+        parentSentRequestId = in.readInt();
+        teacherSentRequestId= in.readInt();
+    }
+
+
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeInt(notificationId);
         dest.writeInt(notificationType);
         dest.writeString(notificationTitle);
         dest.writeString(notificationBody);
         dest.writeInt(isNotificationRead);
-        dest.writeInt(notificationId);
         dest.writeInt(parentSentRequestId);
         dest.writeInt(teacherSentRequestId);
     }
 
-    @NonNull
+    /*@NonNull
     @Override
     public String toString() {
-        return "Notifications{notificationType='"+notificationType+"', notificationTitle="+notificationTitle+"', notificationBody="+notificationBody+"', isNotificationRead="+isNotificationRead+"}";
-    }
+        return "Notifications{" +
+                "notificationId=" + notificationId +
+                ", notificationType=" + notificationType +
+                ", notificationTitle='" + notificationTitle + '\'' +
+                ", notificationBody='" + notificationBody + '\'' +
+                ", isNotificationRead=" + isNotificationRead +
+                ", parentSentRequestId=" + parentSentRequestId +
+                ", teacherSentRequestId=" + teacherSentRequestId +
+                '}';
+    }*/
 }

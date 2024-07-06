@@ -26,7 +26,7 @@ public class Constants {
     public static String  getTeacherPostedRequests ="http://"+ip+"/graduationProject/getTeacherPostedRequests.php";
     public static String  getTeacherAvailability ="http://"+ip+"/graduationProject/getTeacherAvailability.php";
     public static String  updateTeacherPostedRequest ="http://"+ip+"/graduationProject/updateTeacherPostedRequest.php";
-    public static String deleteTeacherPostedRequest ="http://"+ip+"/graduationProject/deleteTeacherPostedRequest.php";
+    public static String  deleteTeacherPostedRequest ="http://"+ip+"/graduationProject/deleteTeacherPostedRequest.php";
     public static String  deleteParentPostedRequest ="http://"+ip+"/graduationProject/deleteParentPostedRequest.php";
     public static String  getAllTeacherPostedRequests ="http://"+ip+"/graduationProject/getAllTeacherPostedRequestsForParent.php";
     public static String  getCurrentProfileData ="http://"+ip+"/graduationProject/getCurrentProfileData.php";
@@ -43,4 +43,7 @@ public class Constants {
     public static String  getAllParentChildrenCoursesDates ="http://"+ip+"/graduationProject/getAllParentChildrenCoursesDates.php";
     public static String  insertParentCourse ="http://"+ip+"/graduationProject/insertParentCourse.php";
     public static String  deleteParentRequestFromSent ="http://"+ip+"/graduationProject/deleteParentReceivedFromSent.php";
+    public static String  deleteTeacherSentRequest ="http://"+ip+"/graduationProject/deleteTeacherSentRequest.php";
+    public static String  deleteParentSentRequest ="http://"+ip+"/graduationProject/deleteParentSentRequest.php";
+    public static String  getTeacherSpecificReceivedRequest ="http://"+ip+"/graduationProject/getTeacherSpecificReceivedRequest.php";
 }

@@ -543,7 +543,6 @@
 
         <LinearLayout
             android:id="@+id/requestSentView"
-            android:focusable="false"
             android:layout_width="wrap_content"
             android:layout_height="55dp"
             android:layout_marginEnd="15dp"
@@ -555,14 +554,18 @@
             android:layout_toStartOf="@id/sendMessageToParentBtn"
             android:padding="10dp"
             android:gravity="center"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true">
 
             <ImageView
+                android:id="@+id/requestSentImageView"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/check_icon" />
 
             <TextView
+                android:id="@+id/requestSentTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Request Sent"

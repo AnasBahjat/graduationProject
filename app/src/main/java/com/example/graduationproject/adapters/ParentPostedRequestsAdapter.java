@@ -60,7 +60,6 @@ public class ParentPostedRequestsAdapter extends RecyclerView.Adapter<ParentPost
             this.listener = listener;
         }
         public void bind(TeacherMatchModel requestModel){
-
             binding.childNameTextView.setText(requestModel.getCustomChildData().getChildName());
             binding.coursesTextView.setText(requestModel.getCourses());
             binding.locationTextView.setText(requestModel.getLocation());

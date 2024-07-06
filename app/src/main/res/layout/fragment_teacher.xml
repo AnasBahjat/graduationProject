@@ -193,7 +193,8 @@
         android:layout_marginStart="35dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="15dp"
-        android:layout_toEndOf="@+id/teacherSuggestionLayout">
+        android:layout_toEndOf="@+id/teacherSuggestionLayout"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/filterImage"

@@ -50,7 +50,7 @@ import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBindin
 import com.example.graduationproject.databinding.DialogParentPostedRequestCardBinding;
 import com.example.graduationproject.databinding.DialogSendRequestToTeacherLayoutBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
-import com.example.graduationproject.databinding.ParentFilterLayoutBinding;
+import com.example.graduationproject.databinding.FilterLayoutBinding;
 import com.example.graduationproject.databinding.ParentReceivedRequestsDialogLayoutBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestsCardToShowToParentBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
@@ -59,9 +59,12 @@ import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.GetParentChildrenForRequest;
 import com.example.graduationproject.listeners.OnAcceptDeclineParentRequestsListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
+import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnCourseAddedListener;
 import com.example.graduationproject.listeners.OnParentCoursesReceivedListener;
+import com.example.graduationproject.listeners.OnParentToTeacherRequestSentListener;
 import com.example.graduationproject.listeners.OnReceivedRequestsListener;
+import com.example.graduationproject.listeners.OnSentRequestDeletedListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.ParentPostRequestClickListener;
@@ -113,7 +116,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         ParentPostRequestDeleteListener,
         OnAllTeacherPostedRequestsForParentListener,
         TeacherPostRequestClickListener, GetParentChildrenForRequest, ParentRequestToSendListener,
-        OnReceivedRequestsListener, OnAcceptDeclineParentRequestsListener, OnParentCoursesReceivedListener, OnCourseAddedListener {
+        OnReceivedRequestsListener, OnAcceptDeclineParentRequestsListener, OnParentCoursesReceivedListener, OnCourseAddedListener, OnCheckIfRequestSentBeforeListener, OnParentToTeacherRequestSentListener, OnSentRequestDeletedListener {
 
     private String email;
     private String firstName;
@@ -161,7 +164,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
     private Dialog filterDialog ;
-    private ParentFilterLayoutBinding parentFilterLayoutBinding ;
+    private FilterLayoutBinding filterLayoutBinding ;
     private final List<String> filterSelectedLocationList = new ArrayList<>();
     private final List<String> filterSelectedCoursesList = new ArrayList<>();
     private final List<String> filterSelectedGenderList = new ArrayList<>();
@@ -179,6 +182,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private ParentReceivedRequestsDialogLayoutBinding parentReceivedRequestsDialogLayoutBinding;
     private ParentReceivedRequestAdapter parentReceivedRequestAdapter;
     private int tempRequestId ;
+    private TeacherPostRequest tempTeacherPostRequest ;
 
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -471,9 +475,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         int childGrade = jsonObject.getInt("childGrade");
                         int matchingId = jsonObject.getInt("matchingId");
                         String matchingChoseDays = jsonObject.getString("choseDays");
-                        Log.e("Post "+i+" courses -----> "+matchingChoseDays,"Post "+i+" courses -----> "+matchingChoseDays);
                         String courses = jsonObject.getString("courses");
-                        Log.e("Post "+i+" courses -----> "+courses,"Post "+i+" courses -----> "+courses);
                         String location = jsonObject.getString("location");
                         String teachingMethod=jsonObject.getString("teachingMethod");
                         String startTime = jsonObject.getString("startTime");
@@ -1463,6 +1465,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @Override
     public void onTeacherPostClicked(TeacherPostRequest teacherPostRequest) {
+        tempTeacherPostRequest = teacherPostRequest;
         if(getContext() != null){
             teacherPostedCardDialog = new Dialog(getContext());
             teacherPostedRequestsCardToShowToParentBinding = TeacherPostedRequestsCardToShowToParentBinding.inflate(LayoutInflater.from(getContext()));
@@ -1476,8 +1479,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             teacherPostedCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             if(teacherPostedCardDialog.getWindow() != null)
                 teacherPostedCardDialog.getWindow().setLayout(1300,ViewGroup.LayoutParams.WRAP_CONTENT);
-            teacherPostedCardDialog.show();
-
+            //teacherPostedCardDialog.show();
+            database.checkIfParentRequestSentBefore(email,teacherPostRequest,this);
             teacherPostedRequestsCardToShowToParentBinding.closeImageView.setOnClickListener(c->{
                 teacherPostedCardDialog.dismiss();
             });
@@ -1498,7 +1501,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             teacherPostedRequestsCardToShowToParentBinding.teacherPhoneNumberTextView.setText(teacherPhones);
             teacherPostedRequestsCardToShowToParentBinding.coursesTextView.setText(teacherPostRequest.getCourses());
             teacherPostedRequestsCardToShowToParentBinding.teachingMethodTextView.setText(teacherPostRequest.getTeachingMethod());
-            teacherPostedRequestsCardToShowToParentBinding.choseDaysTextView.setText(teacherPostRequest.getTeacherData().getAvailability());
+            teacherPostedRequestsCardToShowToParentBinding.choseDaysTextView.setText(teacherPostRequest.getAvailability());
             teacherPostedRequestsCardToShowToParentBinding.dateTextView.setText(teacherPostRequest.getStartDate()+"  -  "+teacherPostRequest.getEndDate());
             teacherPostedRequestsCardToShowToParentBinding.timeTextView.setText(String.format("%s - %s", teacherPostRequest.getStartTime(), teacherPostRequest.getEndTime()));
             teacherPostedRequestsCardToShowToParentBinding.locationTextView.setText(teacherPostRequest.getLocation());
@@ -1530,9 +1533,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             else
                 teacherPostedRequestsCardToShowToParentBinding.gradesTextView.setText("1st  -  12th Grades");
 
-            teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
-                sendRequestToTeacherBtnClicked(teacherPostRequest);
+            teacherPostedRequestsCardToShowToParentBinding.requestSentView.setOnClickListener(v->{
+                database.deleteParentSentRequestToTeacher(email,teacherPostRequest,this);
             });
+
+           /* teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
+                sendRequestToTeacherBtnClicked(teacherPostRequest);
+            });*/
         }
     }
 
@@ -1587,6 +1594,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             }
         });
+        Log.d("2----------------->","2222222222222222222");
+
+
         List<CustomChildData> listOfChildrenForRequest = new ArrayList<>();
         dialogSendRequestToTeacherLayoutBinding.addChildBtn.setOnClickListener(z->{
             if((tempTeacherPostRequestForSendingRequest.getTeacherData().getEducationalLevel().equalsIgnoreCase("Elementary School") && Integer.parseInt(selectedChildGrade) > 0 && Integer.parseInt(selectedChildGrade) <= 5) ||
@@ -1612,6 +1622,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             }
         });
 
+        Log.d("3----------------->","33333333333333333333333333");
+
+
         dialogSendRequestToTeacherLayoutBinding.confirmRequestToSendToTeacherBtn.setOnClickListener(p->{
             if(dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.getChildCount() == 0){
                 MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No child ","Please add at least one child to send the request to teacher ..");
@@ -1626,7 +1639,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 }
                 ParentRequestToSend parentRequestToSend = new ParentRequestToSend(tempTeacherPostRequestForSendingRequest.getTeacherPostRequestId(),email,tempTeacherPostRequestForSendingRequest.getTeacherEmail(),childrenIds);
                 database.addParentSentRequestToTeacher(parentRequestToSend,this);
-                updateTeacherNotifications();
+                //updateTeacherNotifications();
                 // check added children if already added previously to this request ,,
             }
         });
@@ -1675,9 +1688,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void showFilterDialogForParent(){
         if(getContext() != null){
-            parentFilterLayoutBinding = ParentFilterLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            filterLayoutBinding = FilterLayoutBinding.inflate(LayoutInflater.from(getContext()));
             filterDialog = new Dialog(getContext());
-            filterDialog.setContentView(parentFilterLayoutBinding.getRoot());
+            filterDialog.setContentView(filterLayoutBinding.getRoot());
             filterDialog.setCancelable(false);
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(Objects.requireNonNull(filterDialog.getWindow()).getAttributes());
@@ -1688,11 +1701,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 filterDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             filterDialog.show();
 
-            parentFilterLayoutBinding.closeImage.setOnClickListener(z->{
+            filterLayoutBinding.closeImage.setOnClickListener(z->{
                 filterDialog.dismiss();
             });
 
-            parentFilterLayoutBinding.filterCancelBtn.setOnClickListener(c->{
+            filterLayoutBinding.filterCancelBtn.setOnClickListener(c->{
                 filterDialog.dismiss();
             });
 
@@ -1709,7 +1722,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             setChildGradeFlexBox();
             setTeachingMethodFlexBox();
 
-            parentFilterLayoutBinding.locationEditText.addTextChangedListener(new TextWatcher() {
+            filterLayoutBinding.locationEditText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -1717,7 +1730,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    setFlexBoxEnabled(parentFilterLayoutBinding.locationFlexBox1, s.toString().isEmpty());
+                    setFlexBoxEnabled(filterLayoutBinding.locationFlexBox1, s.toString().isEmpty());
                 }
 
                 @Override
@@ -1726,7 +1739,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 }
             });
 
-            parentFilterLayoutBinding.coursesEditText.addTextChangedListener(new TextWatcher() {
+            filterLayoutBinding.coursesEditText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -1734,7 +1747,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    setFlexBoxEnabled(parentFilterLayoutBinding.coursesFlexBox, s.toString().isEmpty());
+                    setFlexBoxEnabled(filterLayoutBinding.coursesFlexBox, s.toString().isEmpty());
                 }
 
                 @Override
@@ -1745,7 +1758,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
 
-            parentFilterLayoutBinding.filterConfirmBtn.setOnClickListener(Z->{
+            filterLayoutBinding.filterConfirmBtn.setOnClickListener(Z->{
                 updateFilteredRecyclerView();
                 filterDialog.dismiss();
             });
@@ -1755,8 +1768,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private void updateFilteredRecyclerView(){
-        String locationEditTextStr = parentFilterLayoutBinding.locationEditText.getText().toString();
-        String coursesEditTextStr = parentFilterLayoutBinding.coursesEditText.getText().toString();
+        String locationEditTextStr = filterLayoutBinding.locationEditText.getText().toString();
+        String coursesEditTextStr = filterLayoutBinding.coursesEditText.getText().toString();
 
         if(getView() != null){
             if(!filterSelectedLocationList.isEmpty() &&
@@ -3087,8 +3100,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void setTeachingMethodFlexBox(){
         String[] teachingMethodArrayForFilter = getResources().getStringArray(R.array.teachingMethodsFilter);
         if(getContext() != null){
-            if(parentFilterLayoutBinding.teachingMethodFlexBox.getChildCount() > 0)
-                parentFilterLayoutBinding.teachingMethodFlexBox.removeAllViews();
+            if(filterLayoutBinding.teachingMethodFlexBox.getChildCount() > 0)
+                filterLayoutBinding.teachingMethodFlexBox.removeAllViews();
 
             if(!filterTeachingMethodList.isEmpty())
                 filterTeachingMethodList.clear();
@@ -3129,7 +3142,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         filterTeachingMethodList.add(appCompatButton.getText().toString());
                     }
                 });
-                parentFilterLayoutBinding.teachingMethodFlexBox.addView(appCompatButton);
+                filterLayoutBinding.teachingMethodFlexBox.addView(appCompatButton);
             }
         }
     }
@@ -3137,8 +3150,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void setChildGradeFlexBox(){
         if(getContext() != null){
             String[] childGradeArrayForFilter = getResources().getStringArray(R.array.childGradeFilter);
-            if(parentFilterLayoutBinding.childrenGradeFlexBox.getChildCount() > 0){
-                parentFilterLayoutBinding.childrenGradeFlexBox.removeAllViews();
+            if(filterLayoutBinding.childrenGradeFlexBox.getChildCount() > 0){
+                filterLayoutBinding.childrenGradeFlexBox.removeAllViews();
             }
             if(!filterSelectedGradeList.isEmpty())
                 filterSelectedGradeList.clear();
@@ -3200,7 +3213,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         }
                     }
                 });
-                parentFilterLayoutBinding.childrenGradeFlexBox.addView(appCompatButton);
+                filterLayoutBinding.childrenGradeFlexBox.addView(appCompatButton);
             }
         }
     }
@@ -3208,8 +3221,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void setGenderFlexBox(){
         if(getContext() != null){
             String[] childGenderArrayForFilter = getResources().getStringArray(R.array.childGenderFilter);
-            if(parentFilterLayoutBinding.childrenGenderFlexBox.getChildCount() > 0){
-                parentFilterLayoutBinding.childrenGenderFlexBox.removeAllViews();
+            if(filterLayoutBinding.childrenGenderFlexBox.getChildCount() > 0){
+                filterLayoutBinding.childrenGenderFlexBox.removeAllViews();
             }
 
             if(!filterSelectedGenderList.isEmpty())
@@ -3252,7 +3265,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         filterSelectedGenderList.add(appCompatButton.getText().toString());
                     }
                 });
-                parentFilterLayoutBinding.childrenGenderFlexBox.addView(appCompatButton);
+                filterLayoutBinding.childrenGenderFlexBox.addView(appCompatButton);
             }
         }
     }
@@ -3262,8 +3275,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void setCoursesFlexBox(){
         String[] coursesArrayForFilter = getResources().getStringArray(R.array.allCourses);
-        if(parentFilterLayoutBinding.coursesFlexBox.getChildCount() > 0)
-            parentFilterLayoutBinding.coursesFlexBox.removeAllViews();
+        if(filterLayoutBinding.coursesFlexBox.getChildCount() > 0)
+            filterLayoutBinding.coursesFlexBox.removeAllViews();
 
         if(!filterSelectedCoursesList.isEmpty())
             filterSelectedCoursesList.clear();
@@ -3306,7 +3319,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         filterSelectedCoursesList.add(appCompatButton.getText().toString());
                     }
                 });
-                parentFilterLayoutBinding.coursesFlexBox.addView(appCompatButton);
+                filterLayoutBinding.coursesFlexBox.addView(appCompatButton);
             }
         }
     }
@@ -3323,8 +3336,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void setLocationFlexBox(){
         assert getContext() != null ;
         String[] locationArrayForFilter = getResources().getStringArray(R.array.locationArray);
-        if(parentFilterLayoutBinding.locationFlexBox1.getChildCount() > 0)
-            parentFilterLayoutBinding.locationFlexBox1.removeAllViews();
+        if(filterLayoutBinding.locationFlexBox1.getChildCount() > 0)
+            filterLayoutBinding.locationFlexBox1.removeAllViews();
 
         if(!filterSelectedLocationList.isEmpty())
             filterSelectedLocationList.clear();
@@ -3367,7 +3380,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     filterSelectedLocationList.add(appCompatButton.getText().toString());
                 }
             });
-            parentFilterLayoutBinding.locationFlexBox1.addView(appCompatButton);
+            filterLayoutBinding.locationFlexBox1.addView(appCompatButton);
         }
     }
 
@@ -3406,18 +3419,39 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     @Override
     public void onRequestSent(int flag) {
         if(flag == -2){
-
+            new Handler().postDelayed(()->{
+                teacherPostedRequestsCardToShowToParentBinding.requestSentView.setVisibility(View.VISIBLE);
+                teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setVisibility(View.GONE);
+                teacherPostedCardDialog.show();
+                binding.progressBar.setVisibility(View.GONE);
+            },400);
         }
         else if(flag == -1){
-
+            new Handler().postDelayed(()->{
+                teacherPostedRequestsCardToShowToParentBinding.requestSentView.setVisibility(View.VISIBLE);
+                teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setVisibility(View.GONE);
+                teacherPostedCardDialog.show();
+                binding.progressBar.setVisibility(View.GONE);
+            },400);
         }
         else if(flag == 0){
-
+            new Handler().postDelayed(()->{
+                teacherPostedRequestsCardToShowToParentBinding.requestSentView.setVisibility(View.VISIBLE);
+                teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setVisibility(View.GONE);
+                teacherPostedCardDialog.show();
+                binding.progressBar.setVisibility(View.GONE);
+            },400);
         }
         else if(flag == 1){
-            MyAlertDialog.showDialogForDone(getContext(),"Request Sent","Request Sent To The Teacher , Wait For His/Her Response  ");
-            teacherPostedCardDialog.dismiss();
-            sendRequestToTeacherDialog.dismiss();
+           new Handler().postDelayed(()->{
+               teacherPostedRequestsCardToShowToParentBinding.requestSentView.setVisibility(View.GONE);
+               teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setVisibility(View.VISIBLE);
+               teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
+                   sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
+               });
+               teacherPostedCardDialog.show();
+               binding.progressBar.setVisibility(View.GONE);
+           },400);
         }
         else {
             MyAlertDialog.errorDialog(getContext());
@@ -3563,7 +3597,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             // accept the request and
         }
         else {
-            // decline the request ..
             database.setParentReceivedRequestToDecline(currentParentReceivedRequest.getRequestId());
             int position = parentReceivedRequestsList.indexOf(currentParentReceivedRequest);
             parentReceivedRequestsList.remove(currentParentReceivedRequest);
@@ -3571,10 +3604,19 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
             assert getView() != null ;
             Snackbar.make(getView(), "Request Declined ..", Snackbar.LENGTH_SHORT).setDuration(1500).show();
-            if(parentReceivedRequestDialog.isShowing()){
+            if(parentReceivedRequestsList.isEmpty()){
+                parentReceivedRequestsDialogLayoutBinding.noReceivedRequestsForParent.setVisibility(View.VISIBLE);
+                parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setVisibility(View.GONE);
+            }
+            else {
+                parentReceivedRequestsDialogLayoutBinding.noReceivedRequestsForParent.setVisibility(View.GONE);
+                parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setVisibility(View.VISIBLE);
+
+            }
+           /* if(parentReceivedRequestDialog.isShowing()){
                 parentReceivedRequestDialog.dismiss();
             }
-            showParentReceivedRequestsDialog(-1);
+            showParentReceivedRequestsDialog(-1);*/
         }
     }
 
@@ -3656,6 +3698,49 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
+        }
+    }
+
+    @Override
+    public void onParentToTeacherRequestSent(int flag) {
+        if(flag == 0){
+            MyAlertDialog.warningDialog(getContext(),"Request Sent Before","You Sent A request to this parent before wait for him to response Or Remove The Request");
+        }
+        else if(flag == 1){
+            teacherPostedRequestsCardToShowToParentBinding.requestSentView.setVisibility(View.VISIBLE);
+            teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setVisibility(View.GONE);
+            sendRequestToTeacherDialog.dismiss();
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Something Went Wrong , Please try again later ..");
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Network Error","Connection Error, Please try again later ..");
+            sendRequestToTeacherDialog.dismiss();
+            //teacherPostedCardDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onSentRequestDeleted(int flag) {
+        if(flag == 0){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Request","This Request May Be Deleted Before ..");
+        }
+        else if(flag == 1){
+            teacherPostedRequestsCardToShowToParentBinding.requestSentView.setVisibility(View.GONE);
+            teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setVisibility(View.VISIBLE);
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Request Error","An Error Occurred ,This Request May Be Deleted Before ..");
+        }
+
+        else if(flag == 2){
+            MyAlertDialog.warningDialog(getContext(),"Unable To Delete","This Request Is Accepted By Parent , communicate with parent to delete it ..");
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Network Error","Network Error Occurred , Please try again Later ..");
+            //sendRequestToTeacherDialog.dismiss();
+            //teacherPostedCardDialog.dismiss();
         }
     }
 }

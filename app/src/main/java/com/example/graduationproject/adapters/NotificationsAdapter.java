@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.text.style.AlignmentSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -62,26 +63,32 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             binding.notificationTitle.setText(notification.getNotificationTitle());
             binding.notificationBody.setText(notification.getNotificationBody());
             binding.notificationLayout.setOnClickListener(v ->{
-               // notification.setIsNotificationRead(1);
-                //notificationClicked(notification.getNotificationType(),notification);
+                binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
                 clickListener.onNotificationClicked(notification);
             });
 
             if(notification.getIsNotificationRead()==0){
                 binding.notificationLayout.setBackgroundColor(context.getColor(R.color.unreadColor));
-               // binding.notificationLayout.setBackground(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_unread_notification));
                 binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_unread_notification));
             }
 
-            if(notification.getIsNotificationRead()==1){
+            else if(notification.getIsNotificationRead()==1){
                 binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
                 binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
             }
-            if(notification.getIsNotificationRead()==2){
+            else if(notification.getNotificationType()==2){ // parent sent request to teacher (this will be shown in the teacher notifications)
                 binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
                 binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
             }
-            if(notification.getIsNotificationRead()==3){
+            else if(notification.getNotificationType()==3){ // teacher sent request to parent (this will be shown in the parent notifications)
+                binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
+                binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
+            }
+            else if(notification.getNotificationType()==7){ // teacher sent request to parent (this will be shown in the parent notifications)
+                binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
+                binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
+            }
+            else if(notification.getNotificationType()==8){ // teacher sent request to parent (this will be shown in the parent notifications)
                 binding.notificationLayout.setBackgroundColor(context.getColor(R.color.white));
                 binding.notificationLayout.setBackgroundDrawable(AppCompatResources.getDrawable(context,R.drawable.rounded_corner_read_notification));
             }

@@ -59,6 +59,24 @@ public class TeacherReceivedRequestAdapter extends RecyclerView.Adapter<TeacherR
         teacherReceivedRequestList.remove(teacherReceivedRequest);
         notifyDataSetChanged();
     }
+
+    public TeacherReceivedRequest getItemById(int requestId){
+        for(TeacherReceivedRequest trr : teacherReceivedRequestList){
+            if(trr.getParentRequestId() == requestId){
+                return trr;
+            }
+        }
+        return null ;
+    }
+
+    public int getPosition(TeacherReceivedRequest item){
+        for(int i=0;i < teacherReceivedRequestList.size();i++){
+            if(teacherReceivedRequestList.get(i).getParentRequestId() == item.getParentRequestId()){
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private final TeacherReceivedRequestCardLayoutBinding binding;
         OnAcceptDeclineTeacherRequestsListener onAcceptDeclineTeacherRequestsListener;

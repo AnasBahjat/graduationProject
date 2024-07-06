@@ -3,6 +3,7 @@ package com.example.graduationproject.utils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.graduationproject.listeners.ParentPostRequestClickListener;
 import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
@@ -725,17 +726,165 @@ public class FilterData {
         return filterBasedOnSelectedTeachingMethodList(gradeFilteredList,teachingMethod);
     }
 
+    //-----------------------------------------------------------------------------------------------//-----------------------------------------------------------------------------------------------//-----------------------------------------------------------------------------------------------
 
 
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnLocationListOnly(List<TeacherMatchModel> listOfData, List<String> locationList){
+        if(locationList==null || locationList.isEmpty()){
+            return listOfData;
+        }
+
+        if(locationList.contains("Any"))
+            return listOfData;
+
+        List<TeacherMatchModel> filteredList = new ArrayList<>();
+        for(TeacherMatchModel tmm : listOfData){
+            for(String location : locationList){
+                if(tmm.getLocation().toLowerCase().contains(location.toLowerCase())){
+                    filteredList.add(tmm);
+                    break;
+                }
+            }
+        }
+        return filteredList;
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnCoursesListOnly(List<TeacherMatchModel> listOfData, List<String> coursesList){
+        if(coursesList==null || coursesList.isEmpty()){
+            return listOfData;
+        }
+
+        if(coursesList.contains("Any"))
+            return listOfData;
+
+        List<TeacherMatchModel> filteredList = new ArrayList<>();
+        for(TeacherMatchModel tmm : listOfData){
+            for(String course : coursesList){
+                if(tmm.getCourses().toLowerCase().contains(course.toLowerCase())){
+                    filteredList.add(tmm);
+                    break;
+                }
+            }
+        }
+        return filteredList;
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnGradeListOnly(List<TeacherMatchModel> listOfData, List<String> gradeList){
+        if(gradeList==null || gradeList.isEmpty()){
+            return listOfData;
+        }
+
+        if(gradeList.contains("Any"))
+            return listOfData;
+
+        List<TeacherMatchModel> filteredList = new ArrayList<>();
+        for(TeacherMatchModel tmm : listOfData){
+            for(String grade : gradeList){
+                int gradeVal = Integer.parseInt(grade);
+                int childGrade = tmm.getChildren().getGrade();
+                if((childGrade > 0 && childGrade <= 5) && (gradeVal > 0 && gradeVal <= 5)){
+                    filteredList.add(tmm);
+                    break;
+                }
+                else if((childGrade > 5 && childGrade <= 10) && (gradeVal > 5 && gradeVal <= 10)){
+                    filteredList.add(tmm);
+                    break;
+                }
+                else if((childGrade > 10 && childGrade <= 12)&& (gradeVal > 10 && gradeVal <= 12)){
+                    filteredList.add(tmm);
+                    break;
+                }
+            }
+        }
+        return filteredList;
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnGenderListOnly(List<TeacherMatchModel> listOfData,List<String> genderList){
+        if(genderList == null || genderList.contains("Any"))
+            return  listOfData;
 
 
+        List<TeacherMatchModel> filteredListBasedOnGenderList = new ArrayList<>();
+        for(TeacherMatchModel tmm : listOfData){
+            for(String genderVal : genderList){
+                if(tmm.getChildren().getChildGender() == 1 && genderVal.equalsIgnoreCase("Male")){
+                    filteredListBasedOnGenderList.add(tmm);
+                    break;
+                }
+                else if(tmm.getChildren().getChildGender() == 0 && genderVal.equalsIgnoreCase("Female")){
+                    filteredListBasedOnGenderList.add(tmm);
+                    break;
+                }
+            }
+        }
+        return filteredListBasedOnGenderList;
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnTeachingMethodListOnly(List<TeacherMatchModel> listOfData,List<String> teachingMethodList){
+        if(teachingMethodList == null ||teachingMethodList.contains("Any"))
+            return listOfData;
 
 
+        List<TeacherMatchModel> filteredListBasedOnTeachingMethodList = new ArrayList<>();
+        for(TeacherMatchModel tmm : listOfData){
+            for(String teachingMethod : teachingMethodList){
+                if(tmm.getTeachingMethod().equalsIgnoreCase(teachingMethod)){
+                    filteredListBasedOnTeachingMethodList.add(tmm);
+                    break;
+                }
+            }
+        }
+        return filteredListBasedOnTeachingMethodList;
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnPriceOnly(List<TeacherMatchModel> listOfData,double minPrice,double maxPrice){
+        if(minPrice == 0 || maxPrice == 0){
+            return listOfData;
+        }
+        if(minPrice > maxPrice)
+            return listOfData;
+        List<TeacherMatchModel> filteredList = new ArrayList<>();
+        for(TeacherMatchModel tmm : listOfData){
+            if(tmm.getPriceMinimum() >= minPrice && tmm.getPriceMinimum() <= maxPrice && tmm.getPriceMaximum() >= minPrice && tmm.getPriceMaximum() <= maxPrice){
+                filteredList.add(tmm);
+            }
+        }
+        return filteredList;
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnLocationAndCoursesList(List<TeacherMatchModel> listOfData , List<String> locationList,List<String> coursesList){
+        if(locationList == null || coursesList == null)
+            return listOfData;
+        List<TeacherMatchModel> filteredLocationList = filterTeacherAvailableRequestsBasedOnLocationListOnly(listOfData,locationList);
+        return filterTeacherAvailableRequestsBasedOnCoursesListOnly(filteredLocationList,coursesList);
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnLocationAndGradeList(List<TeacherMatchModel> listOfData , List<String> locationList,List<String> gradeList){
+        if(locationList == null || gradeList == null)
+            return listOfData;
+        List<TeacherMatchModel> filteredLocationList = filterTeacherAvailableRequestsBasedOnLocationListOnly(listOfData,locationList);
+        return filterTeacherAvailableRequestsBasedOnGradeListOnly(filteredLocationList,gradeList);
+    }
+
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnLocationAndGenderList(List<TeacherMatchModel> listOfData , List<String> locationList,List<String> genderList){
+        if(locationList == null || genderList == null)
+            return listOfData;
+        List<TeacherMatchModel> filteredLocationList = filterTeacherAvailableRequestsBasedOnLocationListOnly(listOfData,locationList);
+        return filterTeacherAvailableRequestsBasedOnGenderListOnly(filteredLocationList,genderList);
+    }
 
 
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnLocationAndTeachingMethodList(List<TeacherMatchModel> listOfData , List<String> locationList,List<String> teachingMethod){
+        if(locationList == null || teachingMethod == null)
+            return listOfData;
+        List<TeacherMatchModel> filteredLocationList = filterTeacherAvailableRequestsBasedOnLocationListOnly(listOfData,locationList);
+        return filterTeacherAvailableRequestsBasedOnTeachingMethodListOnly(filteredLocationList,teachingMethod);
+    }
 
-
-
-
-
+    public List<TeacherMatchModel> filterTeacherAvailableRequestsBasedOnLocationAndTeachingMethodList(List<TeacherMatchModel> listOfData , List<String> locationList,double priceMin,double priceMax){
+        if(locationList == null || priceMin == 0 || priceMax == 0)
+            return listOfData;
+        List<TeacherMatchModel> filteredLocationList = filterTeacherAvailableRequestsBasedOnLocationListOnly(listOfData,locationList);
+        return filterTeacherAvailableRequestsBasedOnPriceOnly(filteredLocationList,priceMin,priceMax);
+    }
 }

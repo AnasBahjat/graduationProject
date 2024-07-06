@@ -38,6 +38,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.work.Data;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
@@ -62,6 +65,7 @@ import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.utils.FetchNotificationsPeriodically;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationBarView;
@@ -83,6 +87,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 
 public class ParentActivity extends AppCompatActivity implements
@@ -132,6 +137,9 @@ public class ParentActivity extends AppCompatActivity implements
     private String amPmStart ;
     private String amPmEnd;
 
+    private PeriodicWorkRequest periodicWorkRequest ;
+
+
     private View popupView;
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
 
@@ -147,6 +155,11 @@ public class ParentActivity extends AppCompatActivity implements
         parentBinding = ActivityParentBinding.inflate(getLayoutInflater());
         setContentView(parentBinding.getRoot());
         getIntentDate();
+        Data inputData = new Data.Builder().putString("email",email).build();
+        periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                FetchNotificationsPeriodically.class,15,
+                TimeUnit.MINUTES).setInputData(inputData).build();
+       // WorkManager.getInstance(this).enqueue(periodicWorkRequest);
         init();
     }
 
@@ -479,10 +492,13 @@ public class ParentActivity extends AppCompatActivity implements
             try {
                 for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
-                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
+                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),
+                            Integer.parseInt(jsonObject.getString("notificationType")),
+                            jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
-                            Integer.parseInt(jsonObject.getString("isRead")),
-                            jsonObject.getInt("parentRequestId"));
+                            jsonObject.getInt("isRead"),
+                            jsonObject.getInt("parentRequestId"),
+                            jsonObject.getInt("teacherRequestId"));
                     notList.add(notification);
                 }
                 if(!notificationsList.isEmpty()){
@@ -886,10 +902,9 @@ public class ParentActivity extends AppCompatActivity implements
                         MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please Choose At least one course ..");
                     }
                     else {
-                        double priceMinimum = Double.parseDouble(priceFromEditText.getText().toString());
-                        double priceMaximum = Double.parseDouble(priceToEditText.getText().toString());
-
-                        if(priceFromEditText.getText().toString().isEmpty() || priceToEditText.getText().toString().isEmpty()|| priceMinimum < 1.0 || priceMaximum > 100.0 || priceMinimum >= priceMaximum)
+                        if(priceFromEditText.getText().toString().isEmpty() || priceToEditText.getText().toString().isEmpty() ||
+                                Double.parseDouble(priceFromEditText.getText().toString()) < 1.0 || Double.parseDouble(priceToEditText.getText().toString()) > 100.0 ||
+                                Double.parseDouble(priceFromEditText.getText().toString()) >= Double.parseDouble(priceToEditText.getText().toString()))
                             MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong price","Please Choose Valid Price Range Values ..");
                         else {
                             if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
@@ -904,7 +919,8 @@ public class ParentActivity extends AppCompatActivity implements
                                 }
 
                                 TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
-                                        ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime,priceMinimum,priceMaximum,startDateEdtText.getText().toString(),endDateEdtText.getText().toString());
+                                        ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime,Double.parseDouble(priceFromEditText.getText().toString()),
+                                        Double.parseDouble(priceToEditText.getText().toString()),startDateEdtText.getText().toString(),endDateEdtText.getText().toString());
                                 database.addNewTeacherMatching(email,teacherMatchModel,this);
                             }
                         }
@@ -1240,7 +1256,7 @@ public class ParentActivity extends AppCompatActivity implements
             database.setNotificationIsRead(notification.getNotificationId());
             decrementNotificationsNumber();
             Intent intent = new Intent();
-            intent.setAction("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
+            intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
             sendBroadcast(intent);
         }
     }

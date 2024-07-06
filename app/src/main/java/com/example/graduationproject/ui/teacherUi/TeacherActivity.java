@@ -41,6 +41,9 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.Data;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.graduationproject.adapters.NotificationsAdapter;
 import com.example.graduationproject.backgroundActions.NotificationsService;
@@ -75,6 +78,7 @@ import com.example.graduationproject.ui.commonFragment.ProfileFragment;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
+import com.example.graduationproject.utils.FetchNotificationsPeriodically;
 import com.example.graduationproject.utils.SpacesItemDecoration;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
@@ -101,6 +105,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class TeacherActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -140,6 +145,9 @@ public class TeacherActivity extends AppCompatActivity implements
     private String staticAvailability ;
 
     private String startTime ="12:00 PM", endTime="12:00 PM";
+
+    private PeriodicWorkRequest periodicWorkRequest ;
+
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -171,6 +179,12 @@ public class TeacherActivity extends AppCompatActivity implements
         binding = ActivityTeacherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getIntentDate();
+        Data inputData = new Data.Builder().putString("email",email).build();
+        periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                FetchNotificationsPeriodically.class,15,
+                TimeUnit.MINUTES).setInputData(inputData).build();
+        //WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+
         initialize();
     }
 
@@ -1046,11 +1060,6 @@ public class TeacherActivity extends AppCompatActivity implements
     }
 
 
-
-
-
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -1112,6 +1121,7 @@ public class TeacherActivity extends AppCompatActivity implements
                             jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
                             jsonObject.getInt("isRead"),
+                            jsonObject.getInt("parentRequestId"),
                             jsonObject.getInt("teacherRequestId"));
                     notificationsList.add(notification);
                 }
@@ -1261,9 +1271,6 @@ public class TeacherActivity extends AppCompatActivity implements
 
         dialog.show();
 
-        dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x->{
-
-        });
 
         dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z->{
             dialog.dismiss();
@@ -1473,7 +1480,7 @@ public class TeacherActivity extends AppCompatActivity implements
             database.setNotificationIsRead(notification.getNotificationId());
             decrementNotificationsNumber();
             Intent intent = new Intent();
-            intent.setAction("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
+            intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
             sendBroadcast(intent);
         }
     }

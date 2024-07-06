@@ -623,8 +623,8 @@
         android:text="Send Request"
         android:textAllCaps="false"
         android:textSize="16sp"
-        />
 
+        />
 
     <LinearLayout
         android:id="@+id/requestSentView"
@@ -637,10 +637,11 @@
         android:orientation="horizontal"
         android:background="@drawable/rounded_background"
         android:layout_below="@id/priceTextView"
-        android:layout_toStartOf="@+id/sendMessageToTeacherBtn"
+        android:layout_toStartOf="@id/sendMessageToTeacherBtn"
         android:padding="10dp"
         android:gravity="center"
-        android:visibility="gone">
+        android:visibility="gone"
+        >
 
         <ImageView
             android:layout_width="30dp"
@@ -656,8 +657,4 @@
             android:paddingEnd="8dp"
             android:textColor="@android:color/black"/>
     </LinearLayout>
-
-
-
-
 </RelativeLayout>
