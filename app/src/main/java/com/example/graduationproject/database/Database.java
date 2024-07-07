@@ -25,10 +25,13 @@ import com.example.graduationproject.listeners.LastMatchingIdListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
+import com.example.graduationproject.listeners.OnParentCoursesFetchedForConflictListener;
 import com.example.graduationproject.listeners.OnParentCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnParentSentRequestFetchListener;
 import com.example.graduationproject.listeners.OnParentToTeacherRequestSentListener;
 import com.example.graduationproject.listeners.OnSentRequestDeletedListener;
+import com.example.graduationproject.listeners.OnTeacherCoursesFetchedForConflictListener;
+import com.example.graduationproject.listeners.OnTeacherCoursesFetchedListener;
 import com.example.graduationproject.listeners.OnTeacherToParentRequestSentListener;
 import com.example.graduationproject.listeners.OnProfileDataFetchListener;
 import com.example.graduationproject.listeners.OnCourseAddedListener;
@@ -60,6 +63,7 @@ import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -1143,6 +1147,9 @@ public class Database {
     public void insertTeacherCourse(TeacherPostRequest tpr, final OnCourseAddedListener onTeacherCourseAddedListener) {
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertTeacherCourse,resp->{
+            Toast.makeText(context, resp, Toast.LENGTH_SHORT).show();
+            Log.d("Response ---------> "+resp,"Response ---------> "+resp);
+
             if(resp.equalsIgnoreCase("Done")){
                 onTeacherCourseAddedListener.onCourseAdded(1);
             }
@@ -1524,6 +1531,78 @@ public class Database {
             protected Map<String, String> getParams(){
                 Map<String,String> data = new HashMap<>();
                 data.put("requestId",parentSentRequestId+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getAllTeacherCourses(String teacherEmail,final OnTeacherCoursesFetchedListener onTeacherCoursesFetchedListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherCourses,resp->{},err->{}){};
+
+    }
+
+    public void getAllTeacherCoursesDatesBeforeSendRequest(String teacherEmail,final OnTeacherCoursesFetchedForConflictListener onTeacherCoursesFetched){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherCoursesDatesAndTime,resp->{
+            try {
+                if(resp.equalsIgnoreCase("Error")){
+                    onTeacherCoursesFetched.onTeacherCoursesFetched(-1,null,null);
+                }
+                else if(resp.equalsIgnoreCase("Connection Error")){
+                    onTeacherCoursesFetched.onTeacherCoursesFetched(-2,null,null);
+                }
+                else {
+                    JSONObject jsonResponse = new JSONObject(resp);
+                    JSONArray teacherTableCourses = jsonResponse.getJSONArray("teacherCourses");
+                    JSONArray parentTableCourses = jsonResponse.getJSONArray("parentChildrenCourses");
+                    onTeacherCoursesFetched.onTeacherCoursesFetched(1,teacherTableCourses,parentTableCourses);
+                }
+            }
+            catch(Exception e){
+                onTeacherCoursesFetched.onTeacherCoursesFetched(-2,null,null);
+            }
+        },err->{
+            onTeacherCoursesFetched.onTeacherCoursesFetched(-1,null,null);
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherEmail",teacherEmail);
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getAllParentCoursesDatesBeforeSendRequest(String parentEmail,final OnParentCoursesFetchedForConflictListener onParentCOursesFetchedForConflictListener){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllParentCoursesDatesAndTime,resp->{
+            try {
+                if(resp.equalsIgnoreCase("Error")){
+                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-1,null,null);
+                }
+                else if(resp.equalsIgnoreCase("Connection Error")){
+                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-2,null,null);
+                }
+                else {
+                    JSONObject jsonResponse = new JSONObject(resp);
+                    JSONArray teacherTableCourses = jsonResponse.getJSONArray("teacherCourses");
+                    JSONArray parentTableCourses = jsonResponse.getJSONArray("parentCourses");
+                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(1,teacherTableCourses,parentTableCourses);
+                }
+            }
+            catch(Exception e){
+               // onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-2,null,null);
+            }
+        },err->{
+            onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-1,null,null);
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",parentEmail);
                 return data;
             }
         };

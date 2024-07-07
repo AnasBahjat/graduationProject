@@ -29,13 +29,20 @@ public class DateUtils {
         Log.d("start time 1 "+startTime1,"start time 1 "+startTime1);
         Log.d("end time 1 "+endTime1,"end time 1 "+endTime1);
         Log.d("days 1 "+days1,"days 1 "+days1);
+        Log.d("days 1 "+days1,"days 1 ----> "+days1.length());
         Log.d("-------------------------------","---------------------------");
 
         Log.d("start date 2 "+startDate2,"start date2 "+startDate2);
         Log.d("end date 2 "+endDate2,"end date 2 "+endDate2);
         Log.d("start date 2 "+startTime2,"start date 2 "+startTime2);
-        Log.d("end date 2 "+endTime2,"end date 2 "+endTime1);
-        Log.d("end 2 "+days2,"start date 2 "+days2);
+        Log.d("end date 2 "+endTime2,"end date 2 "+endTime2);
+        Log.d("end 2 "+days2,"days 2 "+days2);
+        Log.d("end 2 "+days2,"days 2 -------> "+days2.length());
+
+
+
+
+
 
 
 

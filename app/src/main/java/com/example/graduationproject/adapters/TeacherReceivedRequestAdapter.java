@@ -87,6 +87,20 @@ public class TeacherReceivedRequestAdapter extends RecyclerView.Adapter<TeacherR
             this.onAcceptDeclineTeacherRequestsListener=onAcceptDeclineTeacherRequestsListener;
         }
         public void bind(TeacherReceivedRequest teacherReceivedRequest){
+            binding.parentNameTextView.setText(String.format("%s %s", teacherReceivedRequest.getParent().getFirstName(), teacherReceivedRequest.getParent().getFirstName()));
+
+            StringBuilder phoneString = new StringBuilder();
+            List<String> phoneList = teacherReceivedRequest.getParent().getPhoneNumbersList();
+            for(String phone : phoneList){
+                phoneString.append(phone).append("\n");
+            }
+            if (phoneString.length() > 0) {
+                phoneString.setLength(phoneString.length() - 1);
+            }
+
+            binding.phoneNumberTextView.setText(phoneString);
+
+
             binding.coursesTextView.setText(teacherReceivedRequest.getTeacherPostRequest().getCourses());
             binding.dateTextView.setText(String.format("%s - %s", teacherReceivedRequest.getTeacherPostRequest().getStartDate(), teacherReceivedRequest.getTeacherPostRequest().getEndDate()));
             binding.daysTextView.setText(teacherReceivedRequest.getTeacherPostRequest().getAvailability());

@@ -49,6 +49,7 @@ import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsLis
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnCourseAddedListener;
 import com.example.graduationproject.listeners.OnParentSentRequestFetchListener;
+import com.example.graduationproject.listeners.OnTeacherCoursesFetchedForConflictListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnReceivedRequestsListener;
@@ -108,7 +109,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         OnReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener,
         OnTeacherCoursesReceivedListener, OnCourseAddedListener, OnTeacherToParentRequestSentListener,
         OnCheckIfRequestSentBeforeListener,
-        OnSentRequestDeletedListener {
+        OnSentRequestDeletedListener, OnTeacherCoursesFetchedForConflictListener {
 
     private FragmentTeacherBinding binding;
 
@@ -169,6 +170,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private final FilterData filterDataObject = new FilterData();
     private final List<String> filterTeachingMethodList = new ArrayList<>();
     private boolean isFilterDialogShowing = false ;
+    private DateTimeModel tempRequestToSendDateTimeModel;
+    private TeacherMatchModel currentCourseToSendRequestMatchModel ;
 
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -185,7 +188,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 browseParentPostedRequestsBtnForTeacher = true;
                 database.getTeacherMatchingData(email, TeacherFragment.this);
                 binding.filterLayout.setVisibility(View.VISIBLE);
-            } else if ("SHOW_TEACHER_RECEIVED_REQUESTS".equalsIgnoreCase(intent.getAction())) {
+            }
+
+
+
+            else if ("SHOW_TEACHER_RECEIVED_REQUESTS".equalsIgnoreCase(intent.getAction())) {
                 showTeacherReceivedRequestBtn = true;
                 database.getTeacherReceivedRequests(email, TeacherFragment.this);
             }
@@ -212,16 +219,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             }*/
         }
     };
-
-    private void scrollToRequest(int requestId) {
-        for (int i = 0; i < teacherReceivedRequestAdapter.getItemCount(); i++) {
-            TeacherReceivedRequest item = teacherReceivedRequestAdapter.getItemById(requestId);
-            if (item.getParentRequestId() == requestId) {
-                teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.scrollToPosition(i);
-                break;
-            }
-        }
-    }
 
 
     @Override
@@ -315,7 +312,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_inactive);
         setMyCoursesAdapter();
-
     }
 
     private void btnMyPostedRequestsClicked() {
@@ -480,6 +476,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 return true;
             }
         });
+       // database.getAllTeacherCourses(email,this);
     }
 
     private void setAvailableTeacherMatchingAdapter() {
@@ -1319,6 +1316,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
     private void showTeacherMatchDialog(TeacherMatchModel teacherMatchModel, String parentName, List<String> parentPhoneNumbers) {
+        currentCourseToSendRequestMatchModel = teacherMatchModel;
         if (getContext() != null) {
             tempTeacherMatchModelForCheckTeacherSentRequest = teacherMatchModel;
             dialogTeacherMatchingOnCardClickedBinding = DialogTeacherMatchingOnCardClickedBinding.inflate(LayoutInflater.from(getContext()));
@@ -1333,7 +1331,17 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             if (parentPostedRequestsForTeacherDialog.getWindow() != null)
                 parentPostedRequestsForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             // parentPostedRequestsForTeacherDialog.show();
-            database.checkIfTeacherRequestSentBefore(email, teacherMatchModel, this);
+            tempRequestToSendDateTimeModel = new DateTimeModel(teacherMatchModel.getStartDate(),
+                    teacherMatchModel.getEndDate(),
+                    teacherMatchModel.getStartTime(),
+                    teacherMatchModel.getEndTime(),
+                    teacherMatchModel.getChoseDays());
+
+
+            database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
+           // database.getAllTeacherCoursesDatesBeforeSendRequest(email,this);
+
+          //ToDo ----> after there is no conflict do this -->  database.checkIfTeacherRequestSentBefore(email, teacherMatchModel, this);
 
             dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z -> {
                 parentPostedRequestsForTeacherDialog.dismiss();
@@ -1411,6 +1419,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         List<Children> childrenList = new ArrayList<>();
                         List<String> parentPhoneList = new ArrayList<>();
                         JSONObject jsonObject = requestsData.getJSONObject(i);
+                        String parentFirstName = jsonObject.getString("firstName");
+                        parentFirstName = parentFirstName.substring(0, 1).toUpperCase() + parentFirstName.substring(1).toLowerCase();
+                        String parentLastName = jsonObject.getString("lastName");
+                        parentLastName = parentLastName.substring(0, 1).toUpperCase() + parentLastName.substring(1).toLowerCase();
                         int parentRequestId = jsonObject.getInt("requestId");
                         int teacherPostRequestId = jsonObject.getInt("postId");
                         String parentEmail = jsonObject.getString("parentEmail");
@@ -1448,7 +1460,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         }
                         teacherReceivedRequestsList.add(new TeacherReceivedRequest(parentRequestId, new TeacherPostRequest(teacherPostRequestId, teacherEmail, courses, educationLevel, duration,
                                 availabilityForJob, location, startTime, endTime, startDate, endDate, price, teachingMethod),
-                                new Parent(parentEmail, parentPhoneList),
+                                new Parent(parentEmail,parentFirstName,parentLastName, parentPhoneList,0),
                                 childrenList, isAccepted, requestDate, requestTime));
 
                     }
@@ -1650,7 +1662,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             Snackbar.make(getView(), "Course Added To Your Courses ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
             // teacherReceivedRequestAdapter.deleteItem(tempTeacherReceivedRequestOeeebject);
         } else {
-
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"ERRRRROR","ERRRRRROR FLAG -->"+flag);
         }
     }
 
@@ -1660,13 +1672,15 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         if (flag == 1) {
             new Handler().postDelayed(() -> {
                 dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setVisibility(View.VISIBLE);
-                dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x -> {
-                    database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
-                });
                 dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.GONE);
                 parentPostedRequestsForTeacherDialog.show();
                 binding.loadingProgressBar2.setVisibility(View.GONE);
             }, 400);
+
+            dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x -> {
+                database.getAllTeacherCoursesDatesBeforeSendRequest(email,this);
+                //database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
+            });
         } else if (flag == 0) {
             new Handler().postDelayed(() -> {
                 dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.VISIBLE);
@@ -1691,6 +1705,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         }
     }
 
+
+
     @Override
     public void onTeacherToParentRequestSent(int flag) {
         if (flag == 0) {
@@ -1701,8 +1717,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             dialogTeacherMatchingOnCardClickedBinding.requestSentView.setVisibility(View.VISIBLE);
             dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setVisibility(View.GONE);
             dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x -> {
-                database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
+               // database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
+                database.getAllTeacherCoursesDatesBeforeSendRequest(email,this);
             });
+
         } else if (flag == -1) {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error", "Something Went Wrong , Please try again later ..");
         } else {
@@ -2183,1126 +2201,163 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         }
     }
 
-    private void updateFilteredRecyclerView() {
-        String locationEditTextStr = filterLayoutBinding.locationEditText.getText().toString();
-        String coursesEditTextStr = filterLayoutBinding.coursesEditText.getText().toString();
-        assert getView() != null;
-
-        if (!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationListOnly(parentPostedRequestsForTeacherList, filterSelectedLocationList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCoursesListOnly(parentPostedRequestsForTeacherList, filterSelectedCoursesList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGradeListOnly(parentPostedRequestsForTeacherList, filterSelectedGradeList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGenderListOnly(parentPostedRequestsForTeacherList, filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnTeachingMethodListOnly(parentPostedRequestsForTeacherList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnPriceOnly(parentPostedRequestsForTeacherList,
-                                Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCoursesList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndGradeList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedGradeList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndGenderList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndPriceList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndGradeList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterSelectedGradeList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndGenderList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndPriceList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()), Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndGradeList(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterSelectedGradeList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndGenderList(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()), Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndGradeAndGenderList(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterSelectedGradeList, filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndGradeAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterSelectedGradeList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndGradeAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterSelectedGradeList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndGenderAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterSelectedGenderList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndGenderAndPriceList(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterSelectedGenderList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnCourseAndTeachingMethodListAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedCoursesList, filterTeachingMethodList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGradeAndGenderList(parentPostedRequestsForTeacherList,
-                                filterSelectedGradeList, filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGradeAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedGradeList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGradeAndPriceList(parentPostedRequestsForTeacherList,
-                                filterSelectedGradeList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGradeAndGenderAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedGradeList, filterSelectedGenderList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGradeAndGenderAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedGradeList, filterSelectedGenderList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGenderAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedGenderList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGenderAndPriceList(parentPostedRequestsForTeacherList,
-                                filterSelectedGenderList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnTeachingMethodAndPriceList(parentPostedRequestsForTeacherList,
-                                filterTeachingMethodList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndGradeAndGenderList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterSelectedGradeList, filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndGradeAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterSelectedGradeList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndGradeListAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterSelectedGradeList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndGenderAndTeachingMethodList(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterSelectedGenderList, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndGenderListAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterSelectedGenderList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!filterSelectedLocationList.isEmpty() &&
-                !filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCourseAndTeachingMethodListAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedLocationList, filterSelectedCoursesList, filterTeachingMethodList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGradeAndTeachingMethodListAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedGradeList, filterTeachingMethodList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (filterSelectedLocationList.isEmpty() &&
-                filterSelectedCoursesList.isEmpty() && !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() && !filterTeachingMethodList.isEmpty() &&
-                !filterLayoutBinding.priceFromEditText.getText().toString().isEmpty() &&
-                !filterLayoutBinding.priceToEditText.getText().toString().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnGenderAndTeachingMethodListAndPrice(parentPostedRequestsForTeacherList,
-                                filterSelectedGenderList, filterTeachingMethodList, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
+    @Override
+    public void onTeacherCoursesFetched(int flag, JSONArray coursesDatesTeacherTable, JSONArray coursesDateParentTable) {
+        if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
+            binding.loadingProgressBar2.setVisibility(View.GONE);
         }
+        else if(flag == -2){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Connection is Unstable , please try again later ..");
+            binding.loadingProgressBar2.setVisibility(View.GONE);
+        }
+        else if(flag == 1){
+            if(coursesDateParentTable != null && coursesDatesTeacherTable != null){
+                try {
+                    if(coursesDatesTeacherTable.length() > 0 && coursesDateParentTable.length() > 0){
+                        Log.d("1111111111111111","111111111111111111");
+                        int conflictFlag = 0;
+                        for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
+                            JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
+                            String startDate = jsonObject.getString("startDate");
+                            String endDate = jsonObject.getString("endDate");
+                            String startTime = jsonObject.getString("startTime");
+                            String endTime = jsonObject.getString("endTime");
+                            String availability = jsonObject.getString("availabilityForJob");
+                            String days = availability;
+                            if (availability.equalsIgnoreCase("Weekend")) {
+                                days = "Thur , Fri";
+                            } else if (availability.equalsIgnoreCase("Any")) {
+                                days = "Sat , Sun , Mon , Tues , Thur , Fri";
+                            }
+                            if (availability.charAt(availability.length() - 1) == ',') {
+                                days = availability.substring(0, availability.length() - 1).trim();
+                            }
 
-        if (!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().trim().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().trim().isEmpty()) {
-            filterBasedOnLocationNoList(locationEditTextStr);
-        } else if (locationEditTextStr.isEmpty() && !coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().trim().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().trim().isEmpty()) {
-            filterBasedOnCoursesNoList(coursesEditTextStr);
-        } else if (!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() &&
-                !filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().trim().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().trim().isEmpty()) {
-            filterBasedOnLocationNoListAndGenderList(locationEditTextStr);
+                            if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
+                                Log.d("2222222222222222222222","2222222222222222222222");
+                               // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
+                                conflictFlag = 1;
+                                break;
+                            }
+                        }
+                        if(conflictFlag == 0){
+                            Log.d("33333333333333333333333333","33333333333333333333333333");
+                            for(int i = 0 ; i < coursesDateParentTable.length() ; i++){
+                                JSONObject jsonObject = coursesDateParentTable.getJSONObject(i);
+                                String startDate = jsonObject.getString("startDate");
+                                String endDate = jsonObject.getString("endDate");
+                                String startTime = jsonObject.getString("startTime");
+                                String endTime = jsonObject.getString("endTime");
+                                String availability = jsonObject.getString("choseDays");
+                                String days = availability;
+                                if (availability.equalsIgnoreCase("Weekend")) {
+                                    days = "Thur , Fri";
+                                } else if (availability.equalsIgnoreCase("Any")) {
+                                    days = "Sat , Sun , Mon , Tues , Thur , Fri";
+                                }
+                                if (availability.charAt(availability.length() - 1) == ',') {
+                                    days = availability.substring(0, availability.length() - 1).trim();
+                                }
 
+                                if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
+                                   // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
+                                    Log.d("44444444444444444444444444444","44444444444444444444444444444");
+                                    conflictFlag = 1;
+                                    break;
+                                }
+                            }
+                        }
+                        if(conflictFlag == 1){
+                            Log.d("555555555555555555555555","555555555555555555555555");
+                            MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
+                            binding.loadingProgressBar2.setVisibility(View.GONE);
+                        }
+                        else {
+                            Log.d("6666666666666666666666666","6666666666666666666666666");
+                            //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
+                            database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
+                        }
 
-        } else if (!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                !filterSelectedGradeList.isEmpty() &&
-                filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().trim().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().trim().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationNoListAndGradeList(parentPostedRequestsForTeacherList, locationEditTextStr, filterSelectedGradeList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-        } else if (!locationEditTextStr.isEmpty() &&
-                coursesEditTextStr.isEmpty() &&
-                filterSelectedGenderList.isEmpty() &&
-                filterSelectedGradeList.isEmpty() &&
-                !filterTeachingMethodList.isEmpty() &&
-                filterLayoutBinding.priceFromEditText.getText().toString().trim().isEmpty() &&
-                filterLayoutBinding.priceToEditText.getText().toString().trim().isEmpty()) {
-            if (browseParentPostedRequestsBtnForTeacher) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationNoListAndTeachingMethodList(parentPostedRequestsForTeacherList, locationEditTextStr, filterTeachingMethodList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                }
-            }
-
-
-            else if (!locationEditTextStr.isEmpty() &&
-                    coursesEditTextStr.isEmpty() &&
-                    filterSelectedGenderList.isEmpty() &&
-                    filterSelectedGradeList.isEmpty() &&
-                    filterTeachingMethodList.isEmpty() &&
-                    !filterLayoutBinding.priceFromEditText.getText().toString().trim().isEmpty() &&
-                    !filterLayoutBinding.priceToEditText.getText().toString().trim().isEmpty()) {
-                    List<TeacherMatchModel> filteredList =
-                            filterDataObject.filterTeacherAvailableRequestsBasedOnLocationNoListAndPrice(parentPostedRequestsForTeacherList, locationEditTextStr, Double.parseDouble(filterLayoutBinding.priceFromEditText.getText().toString().trim()),
-                                    Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString().trim()));
-                    if (filteredList.isEmpty()) {
-                        binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                        binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                        binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                        Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                    } else {
-                        binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                        binding.noPostedRequestTextView.setVisibility(View.GONE);
-                        binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                        matchingTeacherAdapter.filteredList(filteredList);
-                        Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
                     }
-            }
+                    else if(coursesDatesTeacherTable.length() > 0 && coursesDateParentTable.length() == 0){
+                        int conflictFlag = 0;
+                        for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
+                            JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
+                            String startDate = jsonObject.getString("startDate");
+                            String endDate = jsonObject.getString("endDate");
+                            String startTime = jsonObject.getString("startTime");
+                            String endTime = jsonObject.getString("endTime");
+                            String availability = jsonObject.getString("availabilityForJob");
+                            String days = availability;
+                            if (availability.equalsIgnoreCase("Weekend")) {
+                                days = "Thur , Fri";
+                            } else if (availability.equalsIgnoreCase("Any")) {
+                                days = "Sat , Sun , Mon , Tues , Thur , Fri";
+                            }
+                            if (availability.charAt(availability.length() - 1) == ',') {
+                                days = availability.substring(0, availability.length() - 1).trim();
+                            }
 
-            else if (!coursesEditTextStr.isEmpty() && !filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty() && filterLayoutBinding.priceFromEditText.getText().toString().trim().isEmpty() && filterLayoutBinding.priceToEditText.getText().toString().trim().isEmpty()) {
-                List<TeacherMatchModel> filteredList =
-                        filterDataObject.filterTeacherAvailableRequestsBasedOnLocationAndCoursesNoListAndGenderList(parentPostedRequestsForTeacherList,
-                                locationEditTextStr,coursesEditTextStr,filterSelectedGenderList);
-                if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                    Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-                } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                    binding.noPostedRequestTextView.setVisibility(View.GONE);
-                    binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                    matchingTeacherAdapter.filteredList(filteredList);
-                    Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+                            if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
+                               // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
+                                conflictFlag = 1;
+                                break;
+                            }
+                        }
+                        if(conflictFlag == 1){
+                            MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
+                            binding.loadingProgressBar2.setVisibility(View.GONE);
+                        }
+                        else {
+                          //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
+                            database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
+                        }
+                    }
+                    else if(coursesDateParentTable.length() > 0 && coursesDatesTeacherTable.length() == 0){
+                        int conflictFlag = 0;
+                        for(int i = 0 ; i < coursesDateParentTable.length() ; i++){
+                            JSONObject jsonObject = coursesDateParentTable.getJSONObject(i);
+                            String startDate = jsonObject.getString("startDate");
+                            String endDate = jsonObject.getString("endDate");
+                            String startTime = jsonObject.getString("startTime");
+                            String endTime = jsonObject.getString("endTime");
+                            String availability = jsonObject.getString("choseDays");
+                            String days = availability;
+                            if (availability.equalsIgnoreCase("Weekend")) {
+                                days = "Thur , Fri";
+                            } else if (availability.equalsIgnoreCase("Any")) {
+                                days = "Sat , Sun , Mon , Tues , Thur , Fri";
+                            }
+                            if (availability.charAt(availability.length() - 1) == ',') {
+                                days = availability.substring(0, availability.length() - 1).trim();
+                            }
+                            if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
+                                // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
+                                conflictFlag = 1;
+                                break;
+                            }
+                        }
+                        if(conflictFlag == 1){
+                            MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
+                            binding.loadingProgressBar2.setVisibility(View.GONE);
+                        }
+                        else {
+                        //    database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
+                            database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
+                        }
+                    }
+                    else {
+                      //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
+                        database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
+                    }
+                }
+                catch (Exception e){
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
                 }
             }
-        }
-    }
-
-
-
-    private void filterBasedOnLocationNoList(String location){
-        assert getView() != null ;
-        if(browseParentPostedRequestsBtnForTeacher){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterTeacherAvailableRequestsBasedOnLocationNoList(parentPostedRequestsForTeacherList,location);
-            if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-            }
-            else{
-                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                matchingTeacherAdapter.filteredList(filteredList);
-                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-            }
-        }
-    }
-
-    private void filterBasedOnCoursesNoList(String courses){
-        assert getView() != null ;
-        if(browseParentPostedRequestsBtnForTeacher){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterTeacherAvailableRequestsBasedOnCoursesNoList(parentPostedRequestsForTeacherList,courses);
-            if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-            }
-            else{
-                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                matchingTeacherAdapter.filteredList(filteredList);
-                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
-            }
-        }
-    }
-
-    private void filterBasedOnLocationNoListAndGenderList(String location){
-        assert getView() != null ;
-        if(browseParentPostedRequestsBtnForTeacher){
-            List<TeacherMatchModel> filteredList =
-                    filterDataObject.filterTeacherAvailableRequestsBasedOnLocationNoListAndGenderList(parentPostedRequestsForTeacherList,location,filterSelectedGenderList);
-            if(filteredList.isEmpty()){
-                binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-                binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-                Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
-            }
-            else{
-                binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
-                binding.noPostedRequestTextView.setVisibility(View.GONE);
-                binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-                matchingTeacherAdapter.filteredList(filteredList);
-                Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
+            else {
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Error fetching data , please try again after 5 minutes ...");
             }
         }
     }

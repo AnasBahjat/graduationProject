@@ -177,6 +177,19 @@ public class TeacherPostRequest implements Parcelable {
         endDate = in.readString();
     }
 
+    public boolean isGradeValid(int grade) {
+        if (educationLevel.equalsIgnoreCase("elementary school")) {
+            return grade >= 1 && grade <= 5;
+        } else if (educationLevel.equalsIgnoreCase("middle school")) {
+            return grade >= 6 && grade <= 10;
+        } else if (educationLevel.equalsIgnoreCase("high school")) {
+            return grade >= 11 && grade <= 12;
+        } else if (educationLevel.equalsIgnoreCase("any")) {
+            return true;
+        }
+        return false;
+    }
+
     public double getPrice() {
         return price;
     }
