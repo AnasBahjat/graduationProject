@@ -163,7 +163,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
-    private Dialog filterDialog ;
+    private Dialog filterDialog;
+    private boolean isFilterDialogShowing=false;
     private FilterLayoutBinding filterLayoutBinding ;
     private final List<String> filterSelectedLocationList = new ArrayList<>();
     private final List<String> filterSelectedCoursesList = new ArrayList<>();
@@ -292,7 +293,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             }
         });
         binding.filterLayout.setOnClickListener(z->{
-            showFilterDialogForParent();
+            if(!isFilterDialogShowing)
+                showFilterDialogForParent();
         });
     }
 
@@ -1688,6 +1690,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void showFilterDialogForParent(){
         if(getContext() != null){
+            filterDialog = new Dialog(getContext());
             filterLayoutBinding = FilterLayoutBinding.inflate(LayoutInflater.from(getContext()));
             filterDialog = new Dialog(getContext());
             filterDialog.setContentView(filterLayoutBinding.getRoot());
@@ -1699,13 +1702,17 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             filterDialog.getWindow().setAttributes(layoutParams);
             if(filterDialog.getWindow() != null)
                 filterDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+            isFilterDialogShowing = true;
             filterDialog.show();
 
             filterLayoutBinding.closeImage.setOnClickListener(z->{
+                isFilterDialogShowing=false;
                 filterDialog.dismiss();
             });
 
             filterLayoutBinding.filterCancelBtn.setOnClickListener(c->{
+                isFilterDialogShowing=false;
                 filterDialog.dismiss();
             });
 
@@ -1759,6 +1766,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
             filterLayoutBinding.filterConfirmBtn.setOnClickListener(Z->{
+                isFilterDialogShowing=false;
                 updateFilteredRecyclerView();
                 filterDialog.dismiss();
             });
@@ -2328,7 +2336,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             }
 
 
-            if(!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() && filterSelectedGenderList.isEmpty() && filterSelectedGradeList.isEmpty() && filterTeachingMethodList.isEmpty()){
+            if(!locationEditTextStr.isEmpty() && coursesEditTextStr.isEmpty() &&
+                    filterSelectedGenderList.isEmpty() &&
+                    filterSelectedGradeList.isEmpty() &&
+                    filterTeachingMethodList.isEmpty()){
                 filterBasedOnLocationNoList(locationEditTextStr);
             }
 
