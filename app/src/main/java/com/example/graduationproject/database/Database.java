@@ -51,6 +51,7 @@ import com.example.graduationproject.listeners.UpdateParentInformation;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Parent;
+import com.example.graduationproject.models.ParentReceivedRequest;
 import com.example.graduationproject.models.ParentRequestToSend;
 import com.example.graduationproject.models.Profile;
 import com.example.graduationproject.models.Teacher;
@@ -59,6 +60,7 @@ import com.example.graduationproject.models.TeacherPostRequest;
 import com.example.graduationproject.network.ApiService;
 import com.example.graduationproject.network.RetrofitInitializer;
 import com.example.graduationproject.utils.Constants;
+import com.example.graduationproject.utils.DateUtils;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -232,7 +234,6 @@ public class Database {
                 if(response.isSuccessful() && response.body() != null){
                     try {
                         String message = response.body().string();
-                        Log.d("--------> "+message,"--------> "+message);
                         if ("True".equals(message)) {
                             requestResult.onSuccess(1);
                         } else if ("exist".equals(message)) {
@@ -270,7 +271,6 @@ public class Database {
                 requestFlagSetResult.onSuccess(-2);
             }
             else {
-                Log.d("sssssssssssss----> "+s,"sssssssssssss----> "+s);
                 requestFlagSetResult.onSuccess(0);
             }
         }, volleyError -> {
@@ -1144,12 +1144,11 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void insertTeacherCourse(TeacherPostRequest tpr, final OnCourseAddedListener onTeacherCourseAddedListener) {
+    public void insertTeacherCourse(TeacherPostRequest tpr,String parentEmail,int childId, final OnCourseAddedListener onTeacherCourseAddedListener) {
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertTeacherCourse,resp->{
-            Toast.makeText(context, resp, Toast.LENGTH_SHORT).show();
-            Log.d("Response ---------> "+resp,"Response ---------> "+resp);
-
+           // Toast.makeText(context, resp, Toast.LENGTH_SHORT).show();
+            Log.d("ERROR adding course --------> "+resp,"Errrr adding course ----> "+resp);
             if(resp.equalsIgnoreCase("Done")){
                 onTeacherCourseAddedListener.onCourseAdded(1);
             }
@@ -1166,6 +1165,8 @@ public class Database {
             protected Map<String, String> getParams(){
                 Map<String,String> data = new HashMap<>();
                 data.put("teacherEmail",tpr.getTeacherEmail());
+                data.put("parentEmail",parentEmail);
+                data.put("childId",childId+"");
                 data.put("requestId",tpr.getTeacherPostRequestId()+"");
                 data.put("courses",tpr.getCourses());
                 data.put("educationLevel",tpr.getEducationLevel());
@@ -1361,7 +1362,7 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void insertParentCourse(int requestId,double price,TeacherMatchModel tmr, final OnCourseAddedListener onCourseAddedListener) {
+    /*public void insertParentCourse(int requestId,double price,TeacherMatchModel tmr,String teacherEmail, final OnCourseAddedListener onCourseAddedListener) {
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertParentCourse,resp->{
             if(resp.equalsIgnoreCase("Done")){
@@ -1380,6 +1381,7 @@ public class Database {
             protected Map<String, String> getParams(){
                 Map<String,String> data = new HashMap<>();
                 data.put("parentEmail",tmr.getParentEmail());
+                data.put("teacherEmail",teacherEmail);
                 data.put("requestId",requestId+"");
                 data.put("childId",tmr.getCustomChildData().getChildId()+"");
                 data.put("choseDays",tmr.getChoseDays());
@@ -1395,6 +1397,63 @@ public class Database {
             }
         };
         requestQueue.add(stringRequest);
+    }*/
+
+    public void insertParentCourse(double price, ParentReceivedRequest prr, final OnCourseAddedListener onCourseAddedListener) {
+        Log.d("Child Id is ---------> "+prr.getTeacherMatchModel().getChildId(),"Child Id is ---------> "+prr.getTeacherMatchModel().getChildId());
+        Log.d("Child Id is ---------> "+prr.getTeacherMatchModel().getCustomChildData().getChildId(),"Child Id is ---------> "+prr.getTeacherMatchModel().getCustomChildData().getChildId());
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.insertParentCourse,resp->{
+            Log.d("cccccccccc------> "+resp,"cccccccccc------> "+resp);
+            if(resp.equalsIgnoreCase("Done")){
+                onCourseAddedListener.onCourseAdded(1);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onCourseAddedListener.onCourseAdded(-1);
+            }
+            else {
+                onCourseAddedListener.onCourseAdded(-2);
+            }
+        },error ->{
+            onCourseAddedListener.onCourseAdded(-1);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",prr.getTeacherMatchModel().getParentEmail());
+                data.put("teacherEmail",prr.getTeacher().getEmail());
+                data.put("requestId",prr.getRequestId()+"");
+                data.put("childId",prr.getTeacherMatchModel().getCustomChildData().getChildId()+"");
+                data.put("choseDays",prr.getTeacherMatchModel().getChoseDays());
+                data.put("courses", prr.getTeacherMatchModel().getCourses());
+                data.put("location",prr.getTeacherMatchModel().getLocation());
+                data.put("teachingMethod",prr.getTeacherMatchModel().getTeachingMethod());
+                data.put("startTime",prr.getTeacherMatchModel().getStartTime());
+                data.put("endTime",prr.getTeacherMatchModel().getEndTime());
+                data.put("startDate",prr.getTeacherMatchModel().getStartDate());
+                data.put("endDate",prr.getTeacherMatchModel().getEndDate());
+                data.put("duration", DateUtils.calculateDurationInDays(prr.getTeacherMatchModel().getStartDate(),prr.getTeacherMatchModel().getEndDate())+"");
+                data.put("educationLevel", getEducationLevel(prr.getTeacherMatchModel().getCustomChildData().getChildGrade()));
+                data.put("price",price+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    private String getEducationLevel(int grade){
+        if(grade > 0 && grade <= 5){
+            return  "Elementary School";
+        }
+        else if(grade > 5 && grade <= 10){
+            return  "Middle School";
+        }
+        else if(grade > 10 && grade <= 12){
+            return  "High School";
+        }
+        else {
+            return "Any";
+        }
     }
 
     public void setParentReceivedRequestToDecline(int requestId){
@@ -1548,23 +1607,24 @@ public class Database {
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherCoursesDatesAndTime,resp->{
             try {
                 if(resp.equalsIgnoreCase("Error")){
-                    onTeacherCoursesFetched.onTeacherCoursesFetched(-1,null,null);
+                    onTeacherCoursesFetched.onTeacherCoursesFetched(-1,null);
                 }
                 else if(resp.equalsIgnoreCase("Connection Error")){
-                    onTeacherCoursesFetched.onTeacherCoursesFetched(-2,null,null);
+                    onTeacherCoursesFetched.onTeacherCoursesFetched(-2,null);
                 }
                 else {
                     JSONObject jsonResponse = new JSONObject(resp);
                     JSONArray teacherTableCourses = jsonResponse.getJSONArray("teacherCourses");
-                    JSONArray parentTableCourses = jsonResponse.getJSONArray("parentChildrenCourses");
-                    onTeacherCoursesFetched.onTeacherCoursesFetched(1,teacherTableCourses,parentTableCourses);
+                   // JSONArray parentTableCourses = jsonResponse.getJSONArray("parentChildrenCourses");
+                    onTeacherCoursesFetched.onTeacherCoursesFetched(1,teacherTableCourses);
                 }
             }
             catch(Exception e){
-                onTeacherCoursesFetched.onTeacherCoursesFetched(-2,null,null);
+              //  onTeacherCoursesFetched.onTeacherCoursesFetched(-2,null,null);
+                throw new RuntimeException(e);
             }
         },err->{
-            onTeacherCoursesFetched.onTeacherCoursesFetched(-1,null,null);
+            onTeacherCoursesFetched.onTeacherCoursesFetched(-1,null);
         }){
             @Override
             protected Map<String, String> getParams() {
@@ -1579,25 +1639,26 @@ public class Database {
     public void getAllParentCoursesDatesBeforeSendRequest(String parentEmail,final OnParentCoursesFetchedForConflictListener onParentCOursesFetchedForConflictListener){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllParentCoursesDatesAndTime,resp->{
+            Log.d("RRRESSSPPP ----> "+resp,"RRRESSSPPP ----> "+resp);
             try {
                 if(resp.equalsIgnoreCase("Error")){
-                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-1,null,null);
+                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-1,null);
                 }
                 else if(resp.equalsIgnoreCase("Connection Error")){
-                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-2,null,null);
+                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-2,null);
                 }
                 else {
                     JSONObject jsonResponse = new JSONObject(resp);
-                    JSONArray teacherTableCourses = jsonResponse.getJSONArray("teacherCourses");
                     JSONArray parentTableCourses = jsonResponse.getJSONArray("parentCourses");
-                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(1,teacherTableCourses,parentTableCourses);
+                    onParentCOursesFetchedForConflictListener.onParentCoursesFetched(1,parentTableCourses);
                 }
             }
             catch(Exception e){
                // onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-2,null,null);
+                throw new RuntimeException(e);
             }
         },err->{
-            onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-1,null,null);
+            onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-1,null);
         }){
             @Override
             protected Map<String, String> getParams() {

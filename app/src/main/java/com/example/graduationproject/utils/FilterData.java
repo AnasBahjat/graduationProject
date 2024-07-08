@@ -536,12 +536,6 @@ public class FilterData {
         if(locationList.contains("Any"))
             return listOfData;
 
-        for(String tpr : locationList)
-            Log.d("Loaction is ------------> "+tpr.length(),"Loaction is ------------> "+tpr.length());
-
-        Log.d("----------------","-------------------------");
-        for(TeacherPostRequest tpr : listOfData)
-            Log.d("Loaction is ------------> "+tpr.getLocation().length(),"Loaction is ------------> "+tpr.getLocation().length());
 
 
         List<TeacherPostRequest> filteredList = new ArrayList<>();

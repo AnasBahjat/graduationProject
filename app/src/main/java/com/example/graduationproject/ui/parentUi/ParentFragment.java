@@ -1563,7 +1563,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     }
 
     private void sendRequestToTeacherBtnClicked(TeacherPostRequest teacherPostRequest){
-        Toast.makeText(getContext(), "0100100010001000--->", Toast.LENGTH_SHORT).show();
         if(getContext() != null){
             tempTeacherPostRequestForSendingRequest = teacherPostRequest ;
             sendRequestToTeacherDialog = new Dialog(getContext());
@@ -1680,7 +1679,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             deleteImageView.setOnClickListener(xs->{
                 dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.removeView(customView);
             });
-            Toast.makeText(getContext(), childName.getText().toString(), Toast.LENGTH_SHORT).show();
             dialogSendRequestToTeacherLayoutBinding.childrenFlexBoxLayout.addView(customView);
         }
     }
@@ -2340,6 +2338,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             if(parentReceivedRequestDialog.getWindow() != null)
                 parentReceivedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             parentReceivedRequestDialog.show();
+
             parentReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(v->{
                 parentReceivedRequestDialog.dismiss();
             });
@@ -2384,7 +2383,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 parentReceivedRequest.getTeacherMatchModel().setChoseDays(availability);
             }
             database.getAllParentChildrenCoursesDates(email,this);
-
             // accept the request and
         }
         else {
@@ -2412,14 +2410,22 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @Override
     public void onParentCoursesReceived(int flag, JSONArray parentCourses) {
-        Toast.makeText(getContext(), ""+flag, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Flag dd -> "+flag, Toast.LENGTH_SHORT).show();
         if (flag == 0) {
             double price = (currentParentReceivedRequest.getTeacherMatchModel().getPriceMaximum() + currentParentReceivedRequest.getTeacherMatchModel().getPriceMinimum()) / 2 ;
-            database.insertParentCourse(currentParentReceivedRequest.getRequestId(),price,currentParentReceivedRequest.getTeacherMatchModel(),this);
+           /* database.insertParentCourse(currentParentReceivedRequest.getRequestId(),
+                    price,
+                    currentParentReceivedRequest.getTeacherMatchModel(),
+                    currentParentReceivedRequest.getTeacher().getEmail(),
+                    this);*/
+            database.insertParentCourse(price,currentParentReceivedRequest,this);
+
+
             int position = parentReceivedRequestsList.indexOf(currentParentReceivedRequest);
             parentReceivedRequestsList.remove(currentParentReceivedRequest);
             parentReceivedRequestAdapter.notifyItemRemoved(position);
             parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
             if(parentReceivedRequestsList.isEmpty()){
                 parentReceivedRequestsDialogLayoutBinding.noReceivedRequestsForParent.setVisibility(View.VISIBLE);
                 parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setVisibility(View.GONE);
@@ -2470,7 +2476,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     if(conflictFlag != 1){
                         //showPriceDialog();
                         double price = (currentParentReceivedRequest.getTeacherMatchModel().getPriceMaximum() + currentParentReceivedRequest.getTeacherMatchModel().getPriceMinimum()) / 2 ;
-                        database.insertParentCourse(currentParentReceivedRequest.getRequestId(),price,currentParentReceivedRequest.getTeacherMatchModel(),this);
+                       /* database.insertParentCourse(currentParentReceivedRequest.getRequestId(),
+                                price,
+                                currentParentReceivedRequest.getTeacherMatchModel(),
+                                currentParentReceivedRequest.getTeacher().getEmail(),
+                                this);*/
+                        database.insertParentCourse(price,currentParentReceivedRequest,this);
+
                         int position = parentReceivedRequestsList.indexOf(currentParentReceivedRequest);
                         parentReceivedRequestsList.remove(currentParentReceivedRequest);
                         parentReceivedRequestAdapter.notifyItemRemoved(position);
@@ -2547,13 +2559,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Network Error","Network Error Occurred , Please try again Later ..");
-            //sendRequestToTeacherDialog.dismiss();
-            //teacherPostedCardDialog.dismiss();
         }
     }
 
     @Override
-    public void onParentCoursesFetched(int flag, JSONArray coursesDatesTeacherTable, JSONArray coursesDatesParentTable) {
+    public void onParentCoursesFetched(int flag, JSONArray coursesDatesParentTable) {
 
         if(flag == -1){
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
@@ -2564,17 +2574,18 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.loadingProgressBar2.setVisibility(View.GONE);
         }
         else if(flag == 1){
-            if(coursesDatesParentTable != null && coursesDatesTeacherTable != null){
+            if(coursesDatesParentTable != null/* && coursesDatesTeacherTable != null*/){
                 try {
-                    if(coursesDatesTeacherTable.length() > 0 && coursesDatesParentTable.length() > 0){
+                    if(/*coursesDatesTeacherTable.length() > 0 &&*/ coursesDatesParentTable.length() > 0){
                         int conflictFlag = 0;
-                        for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
-                            JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
+                        for(int i=0;i<coursesDatesParentTable.length() ; i++){
+                            JSONObject jsonObject = coursesDatesParentTable.getJSONObject(i);
+                            int childId = jsonObject.getInt("childId");
                             String startDate = jsonObject.getString("startDate");
                             String endDate = jsonObject.getString("endDate");
                             String startTime = jsonObject.getString("startTime");
                             String endTime = jsonObject.getString("endTime");
-                            String availability = jsonObject.getString("availabilityForJob");
+                            String availability = jsonObject.getString("choseDays");
                             String days = availability;
                             if (availability.equalsIgnoreCase("Weekend")) {
                                 days = "Thur , Fri";
@@ -2590,8 +2601,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                                 break;
                             }
                         }
-                        if(conflictFlag == 0){
-
+                        /*if(conflictFlag == 0){
                             for(int i = 0 ; i < coursesDatesParentTable.length() ; i++){
                                 JSONObject jsonObject = coursesDatesParentTable.getJSONObject(i);
                                 String startDate = jsonObject.getString("startDate");
@@ -2614,7 +2624,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                                     break;
                                 }
                             }
-                        }
+                        }*/
                         if(conflictFlag == 1){
                             MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
                             binding.loadingProgressBar2.setVisibility(View.GONE);
@@ -2623,7 +2633,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                             sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
                         }
                     }
-                    else if(coursesDatesTeacherTable.length() > 0 && coursesDatesParentTable.length() == 0){
+                    /*else if(coursesDatesTeacherTable.length() > 0 && coursesDatesParentTable.length() == 0){
                         int conflictFlag = 0;
                         for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
                             JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
@@ -2690,7 +2700,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         else {
                             sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
                         }
-                    }
+                    }*/
                     else {
                         sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
                     }

@@ -414,7 +414,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private void updatePostedAdapterData() {
         if (teacherPostedRequestsList.isEmpty()) {
-            Toast.makeText(getContext(), "EMPTY ...", Toast.LENGTH_SHORT).show();
             binding.addedCoursesRecyclerView.setVisibility(View.GONE);
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
             binding.noDataAddedText.setVisibility(View.GONE);
@@ -1541,7 +1540,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     teacherReceivedRequest.getTeacherPostRequest().getStartTime(),
                     teacherReceivedRequest.getTeacherPostRequest().getEndTime(),
                     teacherReceivedRequest.getTeacherPostRequest().getAvailability());
-            database.getAllTeacherCoursesDates(email, this);
+            database.getAllTeacherCoursesDates(email,this);
+          //  database.getAllTeacherCoursesDates(email, this);
         } else {
             database.setTeacherReceivedRequestToDecline(teacherReceivedRequest.getParentRequestId());
             int position = tempTeacherReceivedRequestsList.indexOf(teacherReceivedRequest);
@@ -1571,7 +1571,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     for (int i = 0; i < coursesInformation.length(); i++) {
                         JSONObject jsonObject = coursesInformation.getJSONObject(i);
                         int teacherCourseId = jsonObject.getInt("courseId");
-                        int teacherRequestId = jsonObject.getInt("requestId");
+                        int teacherRequestId = jsonObject.getInt("parentSentRequestId");
                         String startDate = jsonObject.getString("startDate");
                         String endDate = jsonObject.getString("endDate");
                         String startTime = jsonObject.getString("startTime");
@@ -1608,7 +1608,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                                 tempTeacherReceivedRequestObject.getTeacherPostRequest().getEndDate(),
                                 tempTeacherReceivedRequestObject.getTeacherPostRequest().getStartTime(),
                                 tempTeacherReceivedRequestObject.getTeacherPostRequest().getEndTime(),
-                                tempTeacherReceivedRequestObject.getTeacherPostRequest().getPrice()), this);
+                                tempTeacherReceivedRequestObject.getTeacherPostRequest().getPrice()),tempTeacherReceivedRequestObject.getParent().getEmail(),tempTeacherReceivedRequestObject.getChildren().get(0).getChildId(),this);
                         int position = tempTeacherReceivedRequestsList.indexOf(tempTeacherReceivedRequestObject);
                         tempTeacherReceivedRequestsList.remove(tempTeacherReceivedRequestObject);
                         teacherReceivedRequestAdapter.notifyItemRemoved(position);
@@ -1620,13 +1620,14 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                             teacherReceivedRequestsDialogLayoutBinding.noReceivedRequestsForTeacher.setVisibility(View.GONE);
                             teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setVisibility(View.VISIBLE);
                         }
+                        teacherReceivedRequestDialog.dismiss();
                     }
-                    teacherReceivedRequestDialog.dismiss();
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        } else if (flag == 0) {
+        }
+        else if (flag == 0) {
             database.insertTeacherCourse(new TeacherPostRequest(email, tempRequestId,
                     tempTeacherReceivedRequestObject.getTeacherPostRequest().getCourses(),
                     tempTeacherReceivedRequestObject.getTeacherPostRequest().getEducationLevel(),
@@ -1638,7 +1639,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     tempTeacherReceivedRequestObject.getTeacherPostRequest().getEndDate(),
                     tempTeacherReceivedRequestObject.getTeacherPostRequest().getStartTime(),
                     tempTeacherReceivedRequestObject.getTeacherPostRequest().getEndTime(),
-                    tempTeacherReceivedRequestObject.getTeacherPostRequest().getPrice()), this);
+                    tempTeacherReceivedRequestObject.getTeacherPostRequest().getPrice()),
+                    tempTeacherReceivedRequestObject.getParent().getEmail(),
+                    tempTeacherReceivedRequestObject.getChildren().get(0).getChildId(),
+                    this);
+
             int position = tempTeacherReceivedRequestsList.indexOf(tempTeacherReceivedRequestObject);
             tempTeacherReceivedRequestsList.remove(tempTeacherReceivedRequestObject);
             teacherReceivedRequestAdapter.notifyItemRemoved(position);
@@ -2202,7 +2207,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
     @Override
-    public void onTeacherCoursesFetched(int flag, JSONArray coursesDatesTeacherTable, JSONArray coursesDateParentTable) {
+    public void onTeacherCoursesFetched(int flag, JSONArray coursesDatesTeacherTable) {
         if(flag == -1){
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
             binding.loadingProgressBar2.setVisibility(View.GONE);
@@ -2212,10 +2217,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             binding.loadingProgressBar2.setVisibility(View.GONE);
         }
         else if(flag == 1){
-            if(coursesDateParentTable != null && coursesDatesTeacherTable != null){
+            if(/*coursesDateParentTable != null && */coursesDatesTeacherTable != null){
                 try {
-                    if(coursesDatesTeacherTable.length() > 0 && coursesDateParentTable.length() > 0){
-                        Log.d("1111111111111111","111111111111111111");
+                    if(coursesDatesTeacherTable.length() > 0/* && coursesDateParentTable.length() > 0*/){
                         int conflictFlag = 0;
                         for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
                             JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
@@ -2235,13 +2239,12 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                             }
 
                             if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
-                                Log.d("2222222222222222222222","2222222222222222222222");
                                // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
                                 conflictFlag = 1;
                                 break;
                             }
                         }
-                        if(conflictFlag == 0){
+                        /*if(conflictFlag == 0){
                             Log.d("33333333333333333333333333","33333333333333333333333333");
                             for(int i = 0 ; i < coursesDateParentTable.length() ; i++){
                                 JSONObject jsonObject = coursesDateParentTable.getJSONObject(i);
@@ -2267,7 +2270,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                                     break;
                                 }
                             }
-                        }
+                        }*/
                         if(conflictFlag == 1){
                             Log.d("555555555555555555555555","555555555555555555555555");
                             MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
@@ -2280,7 +2283,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         }
 
                     }
-                    else if(coursesDatesTeacherTable.length() > 0 && coursesDateParentTable.length() == 0){
+                    /*else if(coursesDatesTeacherTable.length() > 0/* && coursesDateParentTable.length() == 0){
                         int conflictFlag = 0;
                         for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
                             JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
@@ -2313,8 +2316,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                           //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
                             database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
                         }
-                    }
-                    else if(coursesDateParentTable.length() > 0 && coursesDatesTeacherTable.length() == 0){
+                    }*/
+                   /* else if(coursesDateParentTable.length() > 0 && coursesDatesTeacherTable.length() == 0){
                         int conflictFlag = 0;
                         for(int i = 0 ; i < coursesDateParentTable.length() ; i++){
                             JSONObject jsonObject = coursesDateParentTable.getJSONObject(i);
@@ -2346,7 +2349,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         //    database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
                             database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
                         }
-                    }
+                    }*/
                     else {
                       //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
                         database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);

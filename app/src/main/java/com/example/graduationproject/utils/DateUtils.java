@@ -7,6 +7,7 @@ import com.example.graduationproject.models.DateTimeModel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
 
@@ -81,5 +82,24 @@ public class DateUtils {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static long calculateDurationInDays(String startDateStr, String endDateStr) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+        try {
+            Date startDate = dateFormat.parse(startDateStr);
+            Date endDate = dateFormat.parse(endDateStr);
+
+            long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
+            long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+
+            return diffInDays;
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return -1; // Return -1 or handle the error as needed
     }
 }
