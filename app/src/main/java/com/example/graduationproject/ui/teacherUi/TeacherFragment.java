@@ -637,9 +637,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     double priceMax = jsonObject.getDouble("priceMax");
                     String startDate = jsonObject.getString("startDate");
                     String endDate = jsonObject.getString("endDate");
+                    String postedDate = jsonObject.getString("posted");
                     TeacherMatchModel teacherMatchModel = new TeacherMatchModel(matchingId, parentEmail, new CustomChildData(childId, childName, childGrade, childGender, Integer.parseInt(childAge)),
                             choseDays, choseCourses, location, teachingMethod,
-                            new Children(childName, childAge, childGender, childGrade), startTime, endTime, priceMin, priceMax, startDate, endDate);
+                            new Children(childName, childAge, childGender, childGrade), startTime, endTime, priceMin, priceMax, startDate, endDate,postedDate);
                     parentPostedRequestsForTeacherList.add(teacherMatchModel);
                 }
                 // matchingTeacherAdapter.filteredList(parentPostedRequestsForTeacherList);

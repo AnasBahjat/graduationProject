@@ -20,6 +20,7 @@ public class TeacherPostRequest implements Parcelable {
     private double price ;
     private String startDate ;
     private String endDate ;
+    private String postDate;
 
     public TeacherPostRequest(int teacherPostRequestId, String teacherEmail, String courses,String educationLevel,
                               String duration, String availability, String location, String startTime,
@@ -160,6 +161,27 @@ public class TeacherPostRequest implements Parcelable {
         this.endDate=endDate;
     }
 
+    public TeacherPostRequest(int teacherPostRequestId, String teacherEmail,
+                              String courses, String educationLevel,
+                              String duration,String availability, String location,
+                              String teachingMethod, Teacher teacherData,String startTime,String endTime,double price,String startDate,String endDate,String postDate) {
+        this.teacherPostRequestId = teacherPostRequestId;
+        this.teacherEmail = teacherEmail;
+        this.courses = courses;
+        this.educationLevel = educationLevel;
+        this.duration = duration;
+        this.availability=availability;
+        this.location = location;
+        this.teachingMethod = teachingMethod;
+        this.teacherData = teacherData;
+        this.startTime=startTime;
+        this.endTime=endTime;
+        this.price = price;
+        this.startDate=startDate;
+        this.endDate=endDate;
+        this.postDate = postDate;
+    }
+
     protected TeacherPostRequest(Parcel in) {
         teacherPostRequestId = in.readInt();
         teacherEmail = in.readString();
@@ -175,6 +197,7 @@ public class TeacherPostRequest implements Parcelable {
         price=in.readDouble();
         startDate = in.readString();
         endDate = in.readString();
+        postDate=in.readString();
     }
 
     public boolean isGradeValid(int grade) {
@@ -319,6 +342,14 @@ public class TeacherPostRequest implements Parcelable {
         return 0;
     }
 
+    public String getPostDate() {
+        return postDate;
+    }
+
+    public void setPostDate(String postDate) {
+        this.postDate = postDate;
+    }
+
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(teacherPostRequestId);
@@ -335,5 +366,6 @@ public class TeacherPostRequest implements Parcelable {
         dest.writeDouble(price);
         dest.writeString(startDate);
         dest.writeString(endDate);
+        dest.writeString(postDate);
     }
 }

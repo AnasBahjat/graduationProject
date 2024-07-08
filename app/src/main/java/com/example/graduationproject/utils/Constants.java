@@ -49,4 +49,11 @@ public class Constants {
     public static String  getAllTeacherCourses ="http://"+ip+"/graduationProject/getAllTeacherCourses.php";
     public static String  getAllTeacherCoursesDatesAndTime ="http://"+ip+"/graduationProject/getAllTeacherCoursesDatesAndTime.php";
     public static String  getAllParentCoursesDatesAndTime ="http://"+ip+"/graduationProject/getAllParentCoursesDatesAndTime.php";
+    public static String  removeNotification ="http://"+ip+"/graduationProject/removeNotification.php";
+
+
+
+
+    public static final String PREF_NAME = "GRADUATION_PROJECT_SHARED_PREFERENCE";
+
 }

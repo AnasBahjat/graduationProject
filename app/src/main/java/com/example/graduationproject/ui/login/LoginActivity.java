@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 //import com.google.android.material.textfield.TextInputEditText;
 import com.example.graduationproject.database.Database;
+import com.example.graduationproject.database.SharedPreferencesManager;
 import com.example.graduationproject.databinding.ActivityLoginBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
@@ -28,15 +30,15 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity implements RequestResult {
     private Database database;
     private ActivityLoginBinding binding ;
-
+    private SharedPreferencesManager sharedPreferencesManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
-        binding.emailEditText.setText("anas31@gmail.com");
-        binding.passwordEditText.setText("Anas123123123");
+        //binding.emailEditText.setText("anas31@gmail.com");
+        //binding.passwordEditText.setText("Anas123123123");
         setContentView(binding.getRoot());
         initialize();
     }
@@ -52,10 +54,40 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         binding.passwordEditText.setText(null);
     }
     private void initialize(){
+        binding.rememberMeBtn.setChecked(false);
         database=new Database(this);
+        sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
+        checkIfDataSaved();
+
+    }
+
+    private void checkIfDataSaved(){
+        if(sharedPreferencesManager.getSavedEmail() != null && sharedPreferencesManager.getSavedPassword() != null){
+            binding.rememberMeBtn.setChecked(true);
+            binding.emailEditText.setText(sharedPreferencesManager.getSavedEmail());
+            binding.passwordEditText.setText(sharedPreferencesManager.getSavedPassword());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkIfDataSaved();
     }
 
     public void loginClicked(View view) {
+
+        if(binding.rememberMeBtn.isChecked() &&
+                !binding.emailEditText.getText().toString().isEmpty() &&
+                !binding.passwordEditText.getText().toString().isEmpty()){
+            sharedPreferencesManager.saveLoginDate(binding.emailEditText.getText().toString().trim(),
+                    binding.passwordEditText.getText().toString());
+        }
+
+        else {
+            sharedPreferencesManager.removeLoginData();
+        }
+
         if(binding.emailText.getEditText().getText().toString().isEmpty()){
             binding.emailText.setError("* Fill in this field");
         }
@@ -71,7 +103,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                binding.emailText.setError("");
+                binding.emailText.setError(null);
             }
 
             @Override
@@ -88,7 +120,11 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                binding.passwordText.setError("");
+                //binding.passwordText.setError(null);
+                if (s.length() > 0) {
+                    binding.passwordText.setError(null);
+                    binding.passwordText.setErrorEnabled(false);
+                }
             }
 
             @Override

@@ -277,5 +277,28 @@
                 android:src="@drawable/right_arrow_icon"
                 />
         </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/postedTempTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Posted  : "
+            android:layout_below="@id/priceTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            />
+
+        <TextView
+            android:id="@+id/postedAtTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/moreDetails"
+            android:layout_below="@id/priceTextView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/postedTempTextView"
+            />
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

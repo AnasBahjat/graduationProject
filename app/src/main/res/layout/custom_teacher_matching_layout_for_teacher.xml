@@ -277,6 +277,7 @@
 
 
         <LinearLayout
+            android:id="@+id/moreDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/priceTextView"
@@ -299,6 +300,5 @@
                 android:src="@drawable/right_arrow_icon"
                 />
         </LinearLayout>
-
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

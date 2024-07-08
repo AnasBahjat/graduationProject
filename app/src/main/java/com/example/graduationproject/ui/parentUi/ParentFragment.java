@@ -1351,6 +1351,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 double price = jsonObject.getDouble("price");
                 String startDate = jsonObject.getString("startDate");
                 String endDate = jsonObject.getString("endDate");
+                String postDate = jsonObject.getString("posted");
                 if(i==teacherPostsData.length() - 1){
                     String teacherPhoneNumbers = jsonObject.getString("phoneNumbers");
                     if(teacherPhoneNumbers.contains(",")){
@@ -1378,7 +1379,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                         new Teacher(teacherEmail,idNumber,studentOrGraduate+"",expectedGraduationYear,teacherCollege,
                                 teacherField,teacherGender,teacherBirthDate,teacherStaticAvailability,educationLevel,teacherAddressesList,
                                 teacherPhoneNumbersList,teacherFirstName+" "+teacherLastName
-                                ),teacherPostStartTime,teacherPostEndTime,price,startDate,endDate));
+                                ),teacherPostStartTime,teacherPostEndTime,price,startDate,endDate,postDate));
             }
             setTeacherPostsForParent();
         }

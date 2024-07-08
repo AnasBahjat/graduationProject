@@ -1,5 +1,7 @@
 package com.example.graduationproject.ui.teacherUi;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -39,7 +41,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.work.Data;
 import androidx.work.PeriodicWorkRequest;
@@ -295,7 +299,24 @@ public class TeacherActivity extends AppCompatActivity implements
                 binding.numOfNotifications.setText("");
                 notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             }
-            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this,this));
+            NotificationsAdapter notAdapter = new NotificationsAdapter(notList,this,this);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(notAdapter);
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    final int position = viewHolder.getAdapterPosition();
+                    notList.remove(position);
+                    notAdapter.notifyItemRemoved(position);
+                    updateNumberOfNotifications();
+                    database.removeNotification(notList.get(position).getNotificationId());
+                }
+            });
+           // itemTouchHelper.attachToRecyclerView(notificationsPopupWindowBinding.notificationsRecyclerView);
         }
         //notificationsPopupWindowBinding.notificationsRecyclerView.notify();
     }
@@ -1158,7 +1179,26 @@ public class TeacherActivity extends AppCompatActivity implements
     private void updateNotificationsPopUpWindow(){
         if(!notList.isEmpty()){
             notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList, this,this));
+            NotificationsAdapter notAdapter =new NotificationsAdapter(notList, this,this);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(notAdapter);
+
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    final int position = viewHolder.getAdapterPosition();
+                    notList.remove(position);
+                    notAdapter.notifyItemRemoved(position);
+                    updateNumberOfNotifications();
+                    database.removeNotification(notList.get(position).getNotificationId());
+                }
+            });
+            //itemTouchHelper.attachToRecyclerView(notificationsPopupWindowBinding.notificationsRecyclerView);
+
             notificationsPopupWindowBinding.notificationsRecyclerView.addItemDecoration(new SpacesItemDecoration(5));
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
@@ -1167,6 +1207,26 @@ public class TeacherActivity extends AppCompatActivity implements
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
             notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.GONE);
         }
+    }
+
+    private void updateNumberOfNotifications(){
+        if(notList.isEmpty()){
+            binding.numOfNotifications.setText(null);
+        }
+        else {
+            int count = 0;
+            for(Notifications not : notList){
+                if(not.getIsNotificationRead() == 0){
+                    count++ ;
+                }
+            }
+            if(count == 0){
+                binding.numOfNotifications.setText(null);
+            }
+            else
+                binding.numOfNotifications.setText(notList.size()+"");
+        }
+
     }
 
     @Override

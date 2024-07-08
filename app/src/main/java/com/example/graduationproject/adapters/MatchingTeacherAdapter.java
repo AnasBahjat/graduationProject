@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.graduationproject.databinding.CustomTeacherMatchingLayoutForParentBinding;
+import com.example.graduationproject.databinding.CustomTeacherMatchingLayoutToShowToParentBinding;
 import com.example.graduationproject.listeners.TeacherMatchCardClickListener;
 import com.example.graduationproject.models.TeacherMatchModel;
 
@@ -26,7 +27,7 @@ public class MatchingTeacherAdapter extends RecyclerView.Adapter<MatchingTeacher
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater=LayoutInflater.from(parent.getContext());
-        CustomTeacherMatchingLayoutForParentBinding binding = CustomTeacherMatchingLayoutForParentBinding.inflate(inflater,parent,false);
+        CustomTeacherMatchingLayoutToShowToParentBinding binding = CustomTeacherMatchingLayoutToShowToParentBinding.inflate(inflater,parent,false);
         return new MyViewHolder(binding,context,teacherMatchCardClickListener);
     }
 
@@ -48,10 +49,10 @@ public class MatchingTeacherAdapter extends RecyclerView.Adapter<MatchingTeacher
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
-        CustomTeacherMatchingLayoutForParentBinding binding;
+        CustomTeacherMatchingLayoutToShowToParentBinding binding;
         Context context;
         TeacherMatchCardClickListener teacherMatchCardClickListener;
-        public MyViewHolder(CustomTeacherMatchingLayoutForParentBinding binding,Context context,TeacherMatchCardClickListener teacherMatchCardClickListener) {
+        public MyViewHolder(CustomTeacherMatchingLayoutToShowToParentBinding binding,Context context,TeacherMatchCardClickListener teacherMatchCardClickListener) {
             super(binding.getRoot());
             this.binding=binding;
             this.context=context;
@@ -62,9 +63,10 @@ public class MatchingTeacherAdapter extends RecyclerView.Adapter<MatchingTeacher
             binding.coursesTextView.setText(teacherMatchModel.getCourses());
             binding.locationTextView.setText(teacherMatchModel.getLocation());
             binding.teachingMethodTextView.setText(teacherMatchModel.getTeachingMethod());
-            binding.timeTextView.setText(teacherMatchModel.getStartTime()+" - "+teacherMatchModel.getEndTime());
-            binding.priceTextView.setText(teacherMatchModel.getPriceMinimum()+"$"+" - "+teacherMatchModel.getPriceMaximum()+"$");
-            binding.dateTextView.setText(teacherMatchModel.getStartDate()+"  -  "+teacherMatchModel.getEndDate());
+            binding.timeTextView.setText(String.format("%s - %s", teacherMatchModel.getStartTime(), teacherMatchModel.getEndTime()));
+            binding.priceTextView.setText(String.format("%s$ - %s$", teacherMatchModel.getPriceMinimum(), teacherMatchModel.getPriceMaximum()));
+            binding.dateTextView.setText(String.format("%s  -  %s", teacherMatchModel.getStartDate(), teacherMatchModel.getEndDate()));
+            binding.postedAtTextView.setText(teacherMatchModel.getPostDate());
             binding.matchTeacherCardView.setOnClickListener(cl->{
                 cardClicked(teacherMatchModel);
             });

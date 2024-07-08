@@ -1669,4 +1669,17 @@ public class Database {
         };
         requestQueue.add(stringRequest);
     }
+
+    public void removeNotification(int notificationId){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest=new StringRequest(Request.Method.POST,Constants.removeNotification,resp->{},err->{}){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("notId",notificationId+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
 }

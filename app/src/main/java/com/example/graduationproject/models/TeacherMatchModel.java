@@ -25,6 +25,7 @@ public class TeacherMatchModel implements Parcelable, Serializable {
     private double priceMaximum ;
     private String startDate ;
     private String endDate;
+    private String postDate ;
 
 
     public TeacherMatchModel(int matchingId, String parentEmail,
@@ -48,6 +49,28 @@ public class TeacherMatchModel implements Parcelable, Serializable {
                              CustomChildData customChildData, String choseDays,
                              String courses, String location,
                              String teachingMethod, Children children,
+                             String startTime,String endTime,double priceMinimum,double priceMaximum,String startDate,String endDate,String postDate) {
+        this.matchingId = matchingId;
+        this.parentEmail = parentEmail;
+        this.customChildData = customChildData;
+        this.choseDays = choseDays;
+        this.courses = courses;
+        this.location = location;
+        this.teachingMethod = teachingMethod;
+        this.children = children;
+        this.startTime=startTime;
+        this.endTime=endTime;
+        this.priceMinimum=priceMinimum;
+        this.priceMaximum=priceMaximum;
+        this.startDate=startDate;
+        this.endDate=endDate;
+        this.postDate = postDate;
+    }
+
+    public TeacherMatchModel(int matchingId, String parentEmail,
+                             CustomChildData customChildData, String choseDays,
+                             String courses, String location,
+                             String teachingMethod, Children children,
                              String startTime,String endTime,double priceMinimum,double priceMaximum,String startDate,String endDate) {
         this.matchingId = matchingId;
         this.parentEmail = parentEmail;
@@ -65,7 +88,15 @@ public class TeacherMatchModel implements Parcelable, Serializable {
         this.endDate=endDate;
     }
 
-    public TeacherMatchModel(CustomChildData customChildData, String choseDays, String courses, String location, String teachingMethod,String startTime,String endTime) {
+    public String getPostDate() {
+        return postDate;
+    }
+
+    public void setPostDate(String postDate) {
+        this.postDate = postDate;
+    }
+
+    public TeacherMatchModel(CustomChildData customChildData, String choseDays, String courses, String location, String teachingMethod, String startTime, String endTime) {
         this.customChildData = customChildData;
         this.choseDays = choseDays;
         this.courses = courses;
@@ -169,6 +200,7 @@ public class TeacherMatchModel implements Parcelable, Serializable {
         priceMaximum=in.readDouble();
         startDate = in.readString();
         endDate = in.readString();
+        postDate=in.readString();
     }
 
     public static final Creator<TeacherMatchModel> CREATOR = new Creator<TeacherMatchModel>() {
@@ -332,5 +364,6 @@ public class TeacherMatchModel implements Parcelable, Serializable {
         dest.writeDouble(priceMinimum);
         dest.writeString(startDate);
         dest.writeString(endDate);
+        dest.writeString(postDate);
     }
 }
