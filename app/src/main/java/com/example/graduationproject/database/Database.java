@@ -1600,7 +1600,6 @@ public class Database {
     public void getAllTeacherCourses(String teacherEmail,final FetchCoursesListener onCoursesFetched){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherCourses,resp->{
-            Log.d("Fetching teacher courses ----> "+resp,"Fetching teacher courses ----> "+resp);
             if(resp.equalsIgnoreCase("Connection Error")){
                 onCoursesFetched.onCoursesFetched(-2,null);
             }
@@ -1705,6 +1704,38 @@ public class Database {
             protected Map<String, String> getParams(){
                 Map<String,String> data = new HashMap<>();
                 data.put("notId",notificationId+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getAllParentCourses(String email,final FetchCoursesListener onCoursesFetched){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllParentCourses,resp->{
+            Log.d("RRRESSSPPP ----> "+resp,"RRRESSSPPP ----> "+resp);
+            try {
+                if(resp.equalsIgnoreCase("Error")){
+                    onCoursesFetched.onCoursesFetched(-1,null);
+                }
+                else if(resp.equalsIgnoreCase("Connection Error")){
+                    onCoursesFetched.onCoursesFetched(-2,null);
+                }
+                else {
+                    onCoursesFetched.onCoursesFetched(1,new JSONArray(resp));
+                }
+            }
+            catch(Exception e){
+                // onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-2,null,null);
+                throw new RuntimeException(e);
+            }
+        },err->{
+            onCoursesFetched.onCoursesFetched(-1,null);
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",email);
                 return data;
             }
         };

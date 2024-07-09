@@ -28,6 +28,7 @@ public class Course {
                   String parentEmail, int parentSentRequestId,
                   int teacherSentRequestId, int childId, String courses,
                   int duration, String days, String location,
+                  String educationLevel,
                   String teachingMethod, String startTime, String endTime,
                   String startDate, String endDate, double price,
                   Children child, Parent parent, Teacher teacher) {
@@ -39,6 +40,34 @@ public class Course {
         this.childId = childId;
         this.courses = courses;
         this.duration = duration;
+        this.days = days;
+        this.location = location;
+        this.educationLevel=educationLevel;
+        this.teachingMethod = teachingMethod;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.price = price;
+        this.child = child;
+        this.parent = parent;
+        this.teacher = teacher;
+    }
+
+    public Course(int courseId, String teacherEmail,
+                  String parentEmail, int parentSentRequestId,
+                  int teacherSentRequestId, int childId, String courses,
+                  String days, String location, String teachingMethod,
+                  String startTime, String endTime, String startDate,
+                  String endDate, double price,
+                  Children child, Parent parent, Teacher teacher) {
+        this.courseId = courseId;
+        this.teacherEmail = teacherEmail;
+        this.parentEmail = parentEmail;
+        this.parentSentRequestId = parentSentRequestId;
+        this.teacherSentRequestId = teacherSentRequestId;
+        this.childId = childId;
+        this.courses = courses;
         this.days = days;
         this.location = location;
         this.teachingMethod = teachingMethod;

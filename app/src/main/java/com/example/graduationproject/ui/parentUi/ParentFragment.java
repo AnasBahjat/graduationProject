@@ -42,6 +42,7 @@ import android.widget.Toast;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
+import com.example.graduationproject.adapters.ParentCoursesAdapter;
 import com.example.graduationproject.adapters.ParentPostedRequestsAdapter;
 import com.example.graduationproject.adapters.ParentReceivedRequestAdapter;
 import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
@@ -51,16 +52,20 @@ import com.example.graduationproject.databinding.DialogParentPostedRequestCardBi
 import com.example.graduationproject.databinding.DialogSendRequestToTeacherLayoutBinding;
 import com.example.graduationproject.databinding.FragmentParentBinding;
 import com.example.graduationproject.databinding.FilterLayoutBinding;
+import com.example.graduationproject.databinding.ParentCourseCardClickedLayoutBinding;
 import com.example.graduationproject.databinding.ParentReceivedRequestsDialogLayoutBinding;
+import com.example.graduationproject.databinding.TeacherCourseCardClickedLayoutBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestsCardToShowToParentBinding;
 import com.example.graduationproject.databinding.UpdateParentPostedRequestBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
+import com.example.graduationproject.listeners.FetchCoursesListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.GetParentChildrenForRequest;
 import com.example.graduationproject.listeners.OnAcceptDeclineParentRequestsListener;
 import com.example.graduationproject.listeners.OnAllTeacherPostedRequestsForParentListener;
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnCourseAddedListener;
+import com.example.graduationproject.listeners.OnParentCourseClickedListener;
 import com.example.graduationproject.listeners.OnParentCoursesFetchedForConflictListener;
 import com.example.graduationproject.listeners.OnParentCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnParentToTeacherRequestSentListener;
@@ -75,8 +80,10 @@ import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
+import com.example.graduationproject.models.Course;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.DateTimeModel;
+import com.example.graduationproject.models.ExpiredCourse;
 import com.example.graduationproject.models.FilterCriteria;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.ParentReceivedRequest;
@@ -124,7 +131,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         OnCheckIfRequestSentBeforeListener,
         OnParentToTeacherRequestSentListener,
         OnSentRequestDeletedListener,
-        OnParentCoursesFetchedForConflictListener {
+        OnParentCoursesFetchedForConflictListener, FetchCoursesListener, OnParentCourseClickedListener {
 
     private String email;
     private String firstName;
@@ -193,6 +200,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private int tempRequestId ;
     private TeacherPostRequest tempTeacherPostRequest ;
     private DateTimeModel tempReceivedParentRequestDateTimeModel ;
+    private List<Course> parentCoursesList = new ArrayList<>();
+    private List<ExpiredCourse> expiredCoursesList = new ArrayList<>();
+    private ParentCoursesAdapter parentCoursesAdapter;
 
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -346,7 +356,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         myPostedRequestsBtnForParent = false;
         browseTeacherPostedRequestsForParent = false ;
         myReceivedRequestsForParent = false;
-        setMyCoursesRequestsAdapter();
+        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
+        binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        database.getAllParentCourses(email,this);
+        //setMyCoursesRequestsAdapter();
     }
 
     private void myPostedRequestsBtnClicked(){
@@ -360,9 +373,19 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         setMyPostedRequestsAdapter();
     }
 
-    private void setMyCoursesRequestsAdapter(){
-        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
-        binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+    private void setParentCourses(){
+        if(!parentCoursesList.isEmpty()){
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+            binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+            parentCoursesAdapter = new ParentCoursesAdapter(parentCoursesList,getContext(),this);
+            binding.postedRequestsRecyclerView.setAdapter(parentCoursesAdapter);
+        }
+        else {
+            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+        }
 
         binding.parentFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -372,12 +395,122 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchInParentPostedRequestsForParent(newText);
+                searchInParentCourses(newText);
                 return true;
             }
         });
-        //ToDo(Here to get the parent courses for children ..)
-        // data.getMyCourses(email,this)
+        if(getView() != null)
+            Snackbar.make(getView(), "Your Children Courses List Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+    }
+
+    private void searchInParentCourses(String textToSearch){
+        if(!parentCoursesList.isEmpty()){
+            List<Course> filteredCourses = new ArrayList<>();
+            for (Course course : parentCoursesList) {
+                if (myCoursesMatchesQuery(course, textToSearch)) {
+                    filteredCourses.add(course);
+                }
+            }
+            if(filteredCourses.isEmpty()){
+                binding.noChildrenCourses.setVisibility(View.VISIBLE);
+                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+            }
+            else {
+                binding.noChildrenCourses.setVisibility(View.GONE);
+                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                parentCoursesAdapter.filter(filteredCourses);
+            }
+        }
+        else {
+            binding.noChildrenCourses.setVisibility(View.VISIBLE);
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean myCoursesMatchesQuery(Course course,String query){
+        query = query.toLowerCase();
+
+        if (course.getTeacherEmail().toLowerCase().contains(query) ||
+                course.getParentEmail().toLowerCase().contains(query) ||
+                String.valueOf(course.getParentSentRequestId()).contains(query) ||
+                String.valueOf(course.getTeacherSentRequestId()).contains(query) ||
+                String.valueOf(course.getChildId()).contains(query) ||
+                course.getCourses().toLowerCase().contains(query) ||
+                course.getDays().toLowerCase().contains(query) ||
+                course.getLocation().toLowerCase().contains(query) ||
+                course.getTeachingMethod().toLowerCase().contains(query) ||
+                course.getStartTime().toLowerCase().contains(query) ||
+                course.getEndTime().toLowerCase().contains(query) ||
+                course.getStartDate().toLowerCase().contains(query) ||
+                course.getEndDate().toLowerCase().contains(query) ||
+                String.valueOf(course.getPrice()).contains(query)) {
+            return true;
+        }
+
+        Children child = course.getChild();
+        if (child != null && (child.getChildName().toLowerCase().contains(query) ||
+                String.valueOf(child.getChildAge()).contains(query) ||
+                (child.getChildGender() == 0 ? "female" : "male").contains(query) ||
+                convertGradeFormat(child.getGrade()).toLowerCase().contains(query))) {
+            return true;
+        }
+
+        Parent parent = course.getParent();
+        if (parent != null && (parent.getFirstName().toLowerCase().contains(query) ||
+                parent.getLastName().toLowerCase().contains(query) ||
+                parent.getEmail().toLowerCase().contains(query))) {
+            return true;
+        }
+
+
+        if (parent != null) {
+            for (String phoneNumber : parent.getPhoneNumbersList()) {
+                if (phoneNumber.contains(query)) {
+                    return true;
+                }
+            }
+            for (Address address : parent.getAddressList()) {
+                if (address.getCity().toLowerCase().contains(query) || address.getCountry().toLowerCase().contains(query)) {
+                    return true;
+                }
+            }
+        }
+
+        Teacher teacher = course.getTeacher();
+        if (teacher != null && (teacher.getTeacherName().toLowerCase().contains(query) ||
+                teacher.getEmail().toLowerCase().contains(query))) {
+            return true;
+        }
+
+        if (teacher != null) {
+            for (String phoneNumber : teacher.getPhoneNumbersList()) {
+                if (phoneNumber.contains(query)) {
+                    return true;
+                }
+            }
+            for (Address address : teacher.getAddressesList()) {
+                if (address.getCity().toLowerCase().contains(query) || address.getCountry().toLowerCase().contains(query)) {
+                    return true;
+                }
+            }
+        }
+        return false ;
+    }
+
+    private String convertGradeFormat(int grade) {
+        if (grade >= 11 && grade <= 13) {
+            return grade + "th grade";
+        }
+        switch (grade % 10) {
+            case 1:
+                return grade + "st grade";
+            case 2:
+                return grade + "nd grade";
+            case 3:
+                return grade + "rd grade";
+            default:
+                return grade + "th grade";
+        }
     }
 
     private void setMyPostedRequestsAdapter(){
@@ -403,37 +536,83 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private void searchInParentPostedRequestsForParent(String str){
-        String text = str.toLowerCase().trim();
-        List<TeacherMatchModel> teacherMatchModelList = new ArrayList<>();
-        for(TeacherMatchModel model : parentPostedRequestsList){
-            if((""+model.getCustomChildData().getChildGrade()).toLowerCase().trim().contains(text)
-                    || model.getCustomChildData().getChildName().toLowerCase().trim().contains(text)
-                    || model.getChoseDays().toLowerCase().trim().contains(text) || model.getCourses().toLowerCase().trim().contains(text)
-                    || model.getLocation().toLowerCase().trim().contains(text) || model.getTeachingMethod().toLowerCase().trim().contains(text)
-                    || model.getStartTime().toLowerCase().trim().contains(text) || model.getEndTime().toLowerCase().trim().contains(text)
-                    || (model.getCustomChildData().getChildAge()+"").toLowerCase().trim().contains(text) || (""+model.getCustomChildData().getGender()).toLowerCase().trim().contains(text)){
-                teacherMatchModelList.add(model);
+        if(!parentPostedRequestsList.isEmpty()){
+            List<TeacherMatchModel> filteredRequests = new ArrayList<>();
+            for (TeacherMatchModel matchModel : parentPostedRequestsList) {
+                if (myPostedRequestsMatchesQuery(matchModel,str)) {
+                    filteredRequests.add(matchModel);
+                }
+            }
+            if(filteredRequests.isEmpty()){
+                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+            }
+            else {
+                binding.noPostedRequestTextView.setVisibility(View.GONE);
+                binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                parentPostedRequests.filteredList(filteredRequests);
             }
         }
-        if(teacherMatchModelList.isEmpty()){
-            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-            binding.noChildrenCourses.setVisibility(View.GONE);
-            binding.noTeacherPostedRequests.setVisibility(View.GONE);
-            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
-        }
         else {
-            //postedTeacherRequestsAdapter.filteredList(teacherMatchModelList);
-            binding.noPostedRequestTextView.setVisibility(View.GONE);
-            binding.noChildrenCourses.setVisibility(View.GONE);
-            binding.noTeacherPostedRequests.setVisibility(View.GONE);
-            binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-            parentPostedRequests.filteredList(teacherMatchModelList);
+            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
         }
     }
 
+    private boolean myPostedRequestsMatchesQuery(TeacherMatchModel model, String query){
+        query = query.toLowerCase();
+        if (model.getChoseDays().toLowerCase().contains(query) ||
+                model.getCourses().toLowerCase().contains(query) ||
+                model.getLocation().toLowerCase().contains(query) ||
+                model.getTeachingMethod().toLowerCase().contains(query) ||
+                model.getStartTime().toLowerCase().contains(query) ||
+                model.getEndTime().toLowerCase().contains(query) ||
+                String.valueOf(model.getPriceMinimum()).contains(query) ||
+                String.valueOf(model.getPriceMaximum()).contains(query) ||
+                model.getStartDate().toLowerCase().contains(query) ||
+                model.getEndDate().toLowerCase().contains(query)) {
+            return true;
+        }
+
+        CustomChildData child = model.getCustomChildData();
+        if (child != null && (child.getChildName().toLowerCase().contains(query) ||
+                String.valueOf(child.getChildAge()).contains(query) ||
+                (child.getGender() == 0 ? "female" : "male").contains(query) ||
+                convertGradeFormat(child.getChildGrade()).toLowerCase().contains(query))) {
+            return true;
+        }
+
+        // Check Parent attributes
+        Parent parent = model.getParent();
+        if (parent != null && (parent.getEmail().toLowerCase().contains(query) ||
+                parent.getIdNumber().toLowerCase().contains(query) ||
+                parent.getFirstName().toLowerCase().contains(query) ||
+                parent.getLastName().toLowerCase().contains(query) ||
+                parent.getBirthDate().toLowerCase().contains(query))) {
+            return true;
+        }
+
+        // Check parent's phone numbers and addresses
+        if (parent != null) {
+            for (String phoneNumber : parent.getPhoneNumbersList()) {
+                if (phoneNumber.contains(query)) {
+                    return true;
+                }
+            }
+            for (Address address : parent.getAddressList()) {
+                if (address.getCity().toLowerCase().contains(query) || address.getCountry().toLowerCase().contains(query)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
     private void refreshAction(int flag){
         if(flag == 1){
-            // get my posted requests
+            database.getAllParentCourses(email,this);
         }
         else if(flag == 2) {
             database.getParentPostedMatchingInformation(email,this);
@@ -519,9 +698,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                             }
                         }
 
-                        tempTeacherMatchModelList.add(new TeacherMatchModel(matchingId,new CustomChildData(childId,childName,childGrade,childGender,childAge),
+                        tempTeacherMatchModelList.add
+                                (new TeacherMatchModel(matchingId,new CustomChildData(childId,childName,childGrade,childGender,childAge),
                                 matchingChoseDays,courses,location,
-                                teachingMethod,startTime,endTime,priceMin,priceMax,startDate,endDate,new Parent(email,idNumber,firstName,lastName,parentBirthDate,parentId,parentAddress,phoneNumbersList)));
+                                teachingMethod,startTime,endTime,
+                                priceMin,priceMax,startDate,endDate,
+                                new Parent(email,idNumber,firstName,lastName,parentBirthDate,parentId,parentAddress,phoneNumbersList)));
                 }
                 parentPostedRequestsList = tempTeacherMatchModelList;
                 updateParentPostedRequests();
@@ -538,20 +720,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
         }
         else{
-            assert getView() != null;
+           // assert getView() != null;
             parentPostedRequests = new ParentPostedRequestsAdapter(parentPostedRequestsList, getContext(), this);
-            /*binding.postedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator(){
-                @Override
-                public void onAddFinished(RecyclerView.ViewHolder item) {
-                    super.onAddFinished(item);
-                    item.itemView.setAlpha(0);
-                    item.itemView.animate().alpha(1).setDuration(2000).start();
-                }
-            });*/
             binding.postedRequestsRecyclerView.setAdapter(parentPostedRequests);
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
-            Snackbar.make(getView(), "Your Posted Data Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+            if(getView()!=null)
+                Snackbar.make(getView(), "Your Posted Data Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
             ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
                 @Override
                 public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -579,8 +754,21 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                             }).start();
                 }
             });
+
             itemTouchHelper.attachToRecyclerView(binding.postedRequestsRecyclerView);
         }
+        binding.parentFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchInParentPostedRequestsForParent(newText);
+                return true;
+            }
+        });
         binding.refreshRecyclerView.setRefreshing(false);
     }
 
@@ -1393,7 +1581,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.noChildrenCourses.setVisibility(View.GONE);
         }
         else {
-            assert getView() != null;
             teacherPostedRequestsAdapter =
                     new TeacherPostedRequestsAdapter(teacherPostedRequestsForParentList,getContext(),this);
             binding.postedRequestsRecyclerView.setAdapter(teacherPostedRequestsAdapter);
@@ -1416,7 +1603,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 }
             });
 
-            Snackbar.make(getView(), "Teacher Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+            if(getView() != null)
+                Snackbar.make(getView(), "Teacher Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
         }
     }
 
@@ -2392,8 +2580,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             parentReceivedRequestsList.remove(currentParentReceivedRequest);
             parentReceivedRequestAdapter.notifyItemRemoved(position);
             parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-            assert getView() != null ;
-            Snackbar.make(getView(), "Request Declined ..", Snackbar.LENGTH_SHORT).setDuration(1500).show();
+            if(getView() != null)
+                Snackbar.make(getView(), "Request Declined ..", Snackbar.LENGTH_SHORT).setDuration(1500).show();
             if(parentReceivedRequestsList.isEmpty()){
                 parentReceivedRequestsDialogLayoutBinding.noReceivedRequestsForParent.setVisibility(View.VISIBLE);
                 parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setVisibility(View.GONE);
@@ -2514,8 +2702,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     @Override
     public void onCourseAdded(int flag) {
         if(flag == 1){
-            assert getView() != null;
-            Snackbar.make(getView(), "Course Added !! ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
+            if(getView() != null)
+                Snackbar.make(getView(), "Course Added !! ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
@@ -2715,6 +2903,194 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             else {
                 MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Error fetching data , please try again after 5 minutes ...");
             }
+        }
+    }
+
+    @Override
+    public void onCoursesFetched(int flag, JSONArray courses) {
+        if(flag == 0){
+            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+            binding.postedRequestsRecyclerView.setVisibility(View.GONE);
+            binding.noChildrenCourses.setVisibility(View.GONE);
+        }
+        else if(flag == 1){
+            if(!parentCoursesList.isEmpty()){
+                parentCoursesList.clear();
+            }
+            if(!expiredCoursesList.isEmpty()){
+                expiredCoursesList.clear();
+            }
+            try {
+                List<Address> addressList1 = new ArrayList<>();
+                List<String> phoneNumberList1 = new ArrayList<>();
+                if(courses.length() > 0){
+                    for(int i = courses.length() - 1 ; i >= 0 ; i--){
+                        JSONObject jsonObject = courses.getJSONObject(i);
+                        int courseId = jsonObject.getInt("courseId");
+                        String teacherEmail = jsonObject.getString("teacherEmail");
+                        String parentEmail = jsonObject.getString("parentEmail");
+                        int teacherSentRequestId = jsonObject.getInt("teacherSentRequestId");
+                        int parentSentRequestId = jsonObject.getInt("parentSentRequestId");
+                        String coursesStr = jsonObject.getString("courses");
+                        String availabilityForJob = jsonObject.getString("choseDays");
+                        String location = jsonObject.getString("location");
+                        String teachingMethod = jsonObject.getString("teachingMethod");
+                        String startTime = jsonObject.getString("startTime");
+                        String endTime = jsonObject.getString("endTime");
+                        String startDate = jsonObject.getString("startDate");
+                        String endDate = jsonObject.getString("endDate");
+                        double price = jsonObject.getDouble("price");
+                        int childId = jsonObject.getInt("childId");
+                        String childName = jsonObject.getString("childName");
+                        String childAge = jsonObject.getString("childAge");
+                        String childGender = jsonObject.getString("childGender");
+                        String childGrade = jsonObject.getString("childGrade");
+                        String firstNameStr = jsonObject.getString("firstName");
+                        String tempTeacherFirstName = firstNameStr.substring(0,1).toUpperCase()+firstNameStr.substring(1).toLowerCase();
+                        String teacherLastNameStr = jsonObject.getString("lastName");
+                        String tempTeacherLastNameStr = teacherLastNameStr.substring(0,1).toUpperCase()+teacherLastNameStr.substring(1).toLowerCase();
+                        String teacherGender = jsonObject.getString("gender");
+                        if(i == courses.length() -1){
+                            String addressTemp = jsonObject.getString("addresses");
+                            if(addressTemp.contains("|")){
+                                String[] splitAddress = addressTemp.split("\\|");
+                                for(String str : splitAddress){
+                                    String[] sp = str.split(",");
+                                    addressList1.add(new Address(sp[0],sp[1]));
+                                }
+                            }
+                            else {
+                                String[] sp = addressTemp.split(",");
+                                addressList1.add(new Address(sp[0],sp[1]));
+                            }
+
+                            String phoneTemp = jsonObject.getString("phoneNumbers");
+                            if(phoneTemp.contains(",")){
+                                String[] sp = phoneTemp.split(",");
+                                phoneNumberList1.addAll(Arrays.asList(sp));
+                            }
+                            else {
+                                phoneNumberList1.add(phoneTemp);
+                            }
+                        }
+
+                        if(!DateUtils.isDateTimeExpired(startDate,endDate,startTime,endTime)){
+                            parentCoursesList.add(new Course(courseId,teacherEmail,parentEmail,
+                                    parentSentRequestId,teacherSentRequestId,
+                                    childId,coursesStr,availabilityForJob,
+                                    location,teachingMethod,startTime,endTime,
+                                    startDate,endDate,price,
+                                    new Children(childId,childName,childAge,Integer.parseInt(childGender),Integer.parseInt(childGrade)),
+                                   null,
+                                    new Teacher(tempTeacherFirstName+" "+tempTeacherLastNameStr,teacherEmail,addressList1,phoneNumberList1)));
+                        }
+                        else {
+                            expiredCoursesList.add(new ExpiredCourse(courseId,teacherSentRequestId,parentSentRequestId));
+                        }
+
+                    }
+                    setParentCourses();
+                    binding.refreshRecyclerView.setRefreshing(false);
+                }
+                else {
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Connection Error , Unable to fetch the data at the moment , please try again later");
+                }
+            }
+            catch (Exception e){
+                // MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred, Unable to fetch the data at the moment , please try again later");
+                throw new RuntimeException(e);
+            }
+
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred, Unable to fetch the data at the moment , please try again later");
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Connection Error , Unable to fetch the data at the moment , please try again later");
+        }
+    }
+
+    @Override
+    public void onParentCourseClicked(Course course) {
+        if(getContext() != null){
+            Dialog courseDialog = new Dialog(getContext());
+            ParentCourseCardClickedLayoutBinding parentCourseCardClickedLayoutBinding = ParentCourseCardClickedLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            courseDialog.setContentView(parentCourseCardClickedLayoutBinding.getRoot());
+            courseDialog.setCancelable(false);
+
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(courseDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = 2300;
+            courseDialog.getWindow().setAttributes(layoutParams);
+
+            if(courseDialog.getWindow() != null)
+                courseDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            courseDialog.show();
+
+
+            parentCourseCardClickedLayoutBinding.closeImageView.setOnClickListener(c0->{
+                courseDialog.dismiss();
+            });
+
+            parentCourseCardClickedLayoutBinding.coursesTextView.setText(course.getCourses());
+            parentCourseCardClickedLayoutBinding.dateTextView.setText(course.getStartDate()+"  -  "+course.getEndDate());
+            parentCourseCardClickedLayoutBinding.timeTextView.setText(course.getStartTime()+"  -  "+course.getEndTime());
+            parentCourseCardClickedLayoutBinding.choseDaysTextView.setText(course.getDays());
+            parentCourseCardClickedLayoutBinding.teachingMethodTextView.setText(course.getTeachingMethod());
+            parentCourseCardClickedLayoutBinding.childNameTextView.setText(course.getChild().getChildName());
+            parentCourseCardClickedLayoutBinding.coursesTextView.setText(course.getCourses());
+
+            if(course.getChild().getChildAge().equalsIgnoreCase("1")){
+                parentCourseCardClickedLayoutBinding.childAgeTextView.setText(String.format("%s Year", course.getChild().getChildAge()));
+            }
+            else {
+                parentCourseCardClickedLayoutBinding.childAgeTextView.setText(String.format("%s Years", course.getChild().getChildAge()));
+            }
+            String gender = "Male";
+            if(course.getChild().getChildGender() == 0){
+                gender = "Female";
+            }
+            parentCourseCardClickedLayoutBinding.childGenderTextView.setText(gender);
+            if(course.getChild().getGrade() == 1){
+                parentCourseCardClickedLayoutBinding.childGradeTextView.setText(String.format("%dst Grade", course.getChild().getGrade()));
+            }
+            else if(course.getChild().getGrade() == 2){
+                parentCourseCardClickedLayoutBinding.childGradeTextView.setText(String.format("%dnd Grade", course.getChild().getGrade()));
+            }
+            else {
+                parentCourseCardClickedLayoutBinding.childGradeTextView.setText(String.format("%dth Grade", course.getChild().getGrade()));
+            }
+
+            parentCourseCardClickedLayoutBinding.teacherNameTextView.setText(course.getTeacher().getTeacherName());
+            parentCourseCardClickedLayoutBinding.teacherEmailTextView.setText(course.getTeacher().getEmail());
+
+            StringBuilder str = new StringBuilder();
+            List<String> phone = course.getTeacher().getPhoneNumbersList();
+            for(int i = 0 ; i< phone.size() ; i++){
+                if(i + 1 == phone.size()){
+                    str.append(phone.get(i));
+                }
+                else {
+                    str.append(phone.get(i)).append(" — ");
+                }
+            }
+            parentCourseCardClickedLayoutBinding.teacherPhoneTextView.setText(str);
+
+
+            StringBuilder str2 = new StringBuilder();
+            List<Address> address = course.getTeacher().getAddressesList();
+            for(int i = 0 ; i < address.size();i++){
+                if(i+1 == address.size()){
+                    str2.append(" — ").append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry());
+                }
+                else {
+                    str2.append(" — ").append(i + 1).append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry()).append("\n");
+                }
+            }
+            parentCourseCardClickedLayoutBinding.teacherAddressTextView.setText(str2);
+
+
         }
     }
 }
