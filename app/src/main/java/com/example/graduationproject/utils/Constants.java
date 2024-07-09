@@ -2,7 +2,7 @@ package com.example.graduationproject.utils;
 
 
 public class Constants {
-    public static String ip = "192.168.1.5";
+    public static String ip = "192.168.1.136";
     public static String registrationURL = "http://"+ip+"/graduationProject/registration.php/";
     public static String loginURL = "http://"+ip+"/graduationProject/login.php";
     public static String checkAccountDoneURL = "http://"+ip+"/graduationProject/checkAccountDone.php";
@@ -50,6 +50,7 @@ public class Constants {
     public static String  getAllTeacherCoursesDatesAndTime ="http://"+ip+"/graduationProject/getAllTeacherCoursesDatesAndTime.php";
     public static String  getAllParentCoursesDatesAndTime ="http://"+ip+"/graduationProject/getAllParentCoursesDatesAndTime.php";
     public static String  removeNotification ="http://"+ip+"/graduationProject/removeNotification.php";
+    public static String  getAllParentCourses ="http://"+ip+"/graduationProject/getAllParentCourses.php";
 
 
 

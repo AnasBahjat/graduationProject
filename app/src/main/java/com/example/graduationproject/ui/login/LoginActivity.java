@@ -1,5 +1,6 @@
 package com.example.graduationproject.ui.login;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import android.view.View;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 //import com.google.android.material.textfield.TextInputEditText;
@@ -22,6 +24,16 @@ import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.register.RegisterActivity;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.ui.teacherUi.TeacherActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +43,9 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     private Database database;
     private ActivityLoginBinding binding ;
     private SharedPreferencesManager sharedPreferencesManager;
+    FirebaseAuth auth;
+    DatabaseReference databaseReference;
+    ProgressDialog progressDialog;//to use in the parent activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +55,11 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         //binding.emailEditText.setText("anas31@gmail.com");
         //binding.passwordEditText.setText("Anas123123123");
         setContentView(binding.getRoot());
+        progressDialog = new ProgressDialog(this);//to use in the parent activity
+        progressDialog.setMessage("Please Wait...");//to use in the parent activity
+        progressDialog.setCancelable(false);//to use in the parent activity
+
+        auth = FirebaseAuth.getInstance();//to use in the parent activity
         initialize();
     }
 
@@ -190,6 +210,42 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         intent.putExtra("birthDate",birthDate);
                         intent.putExtra("profileType",profileType);
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
+                        //progressDialog.show();
+                        auth.signInWithEmailAndPassword(email, "Naseem123123123").addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressDialog.dismiss();
+                                if (task.isSuccessful()) {
+                                    FirebaseUser user = auth.getCurrentUser();
+                                    if (user != null) {
+                                        String userId = user.getUid();
+                                        databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
+                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                if (snapshot.exists()) {
+                                                    String userName = snapshot.child("name").getValue(String.class);
+                                                    // Intent intent = new Intent(login.this, MainActivity.class);
+
+
+                                                    //  startActivity(intent);
+                                                    finish();
+                                                } else {
+                                                    //     Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                //Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    // Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                         binding.loginProgressBar.setVisibility(View.VISIBLE);
 
                         new Handler().postDelayed(new Runnable() {
@@ -215,6 +271,42 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         intent.putExtra("birthDate",birthDate);
                         intent.putExtra("profileType",profileType);
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
+                        //  progressDialog.show();
+                        auth.signInWithEmailAndPassword(email, "Naseem123123123").addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressDialog.dismiss();
+                                if (task.isSuccessful()) {
+                                    FirebaseUser user = auth.getCurrentUser();
+                                    if (user != null) {
+                                        String userId = user.getUid();
+                                        databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
+                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                if (snapshot.exists()) {
+                                                    String userName = snapshot.child("name").getValue(String.class);
+                                                    // Intent intent = new Intent(login.this, MainActivity.class);
+
+
+                                                    //  startActivity(intent);
+                                                    finish();
+                                                } else {
+                                                    //   Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                //  Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                         binding.loginProgressBar.setVisibility(View.VISIBLE);
                         new Handler().postDelayed(new Runnable() {
                             @Override

@@ -77,8 +77,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 public class Database {
-    String updateLoginURL = "http://192.168.1.4/graduationProject/updateLoginState.php/";
-    String updateLogoutURL="http://192.168.1.4/graduationProject/updateLogoutState.php/";
+    String updateLoginURL = "http://192.168.1.136/graduationProject/updateLoginState.php/";
+    String updateLogoutURL="http://192.168.1.136/graduationProject/updateLogoutState.php/";
 
    // private String URL = "http://192.168.1.4/graduationProject/";
     private Context context;
@@ -1600,7 +1600,6 @@ public class Database {
     public void getAllTeacherCourses(String teacherEmail,final FetchCoursesListener onCoursesFetched){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherCourses,resp->{
-            Log.d("Fetching teacher courses ----> "+resp,"Fetching teacher courses ----> "+resp);
             if(resp.equalsIgnoreCase("Connection Error")){
                 onCoursesFetched.onCoursesFetched(-2,null);
             }
@@ -1705,6 +1704,38 @@ public class Database {
             protected Map<String, String> getParams(){
                 Map<String,String> data = new HashMap<>();
                 data.put("notId",notificationId+"");
+                return data;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void getAllParentCourses(String email,final FetchCoursesListener onCoursesFetched){
+        requestQueue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllParentCourses,resp->{
+            Log.d("RRRESSSPPP ----> "+resp,"RRRESSSPPP ----> "+resp);
+            try {
+                if(resp.equalsIgnoreCase("Error")){
+                    onCoursesFetched.onCoursesFetched(-1,null);
+                }
+                else if(resp.equalsIgnoreCase("Connection Error")){
+                    onCoursesFetched.onCoursesFetched(-2,null);
+                }
+                else {
+                    onCoursesFetched.onCoursesFetched(1,new JSONArray(resp));
+                }
+            }
+            catch(Exception e){
+                // onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-2,null,null);
+                throw new RuntimeException(e);
+            }
+        },err->{
+            onCoursesFetched.onCoursesFetched(-1,null);
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String,String> data = new HashMap<>();
+                data.put("parentEmail",email);
                 return data;
             }
         };

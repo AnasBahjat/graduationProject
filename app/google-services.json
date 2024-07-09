@@ -1,26 +1,45 @@
 {
   "project_info": {
-    "project_number": "449470220445",
-    "project_id": "graduationproject-b3414",
-    "storage_bucket": "graduationproject-b3414.appspot.com"
+    "project_number": "291942698082",
+    "firebase_url": "https://chat-app-86c83-default-rtdb.firebaseio.com",
+    "project_id": "chat-app-86c83",
+    "storage_bucket": "chat-app-86c83.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:449470220445:android:800f1199b4b93ed2c66c74",
+        "mobilesdk_app_id": "1:291942698082:android:2d31745326ef3915bc953b",
         "android_client_info": {
           "package_name": "com.example.graduationproject"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "291942698082-0nj7i1uvav0d4u7g13hrarf25jn7lhgf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.graduationproject",
+            "certificate_hash": "addb7cd96ee2d699dcbe3aec5f84f5539976aee5"
+          }
+        },
+        {
+          "client_id": "291942698082-k8hsokgqsqjp0vn2fheokemofqhg2k10.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAE798h0e3YRWYuq6t37K_xAGEDWe32d7c"
+          "current_key": "AIzaSyBUOQR3roCy9ScF1vCN4eZgef7ecU7HfzU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291942698082-k8hsokgqsqjp0vn2fheokemofqhg2k10.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

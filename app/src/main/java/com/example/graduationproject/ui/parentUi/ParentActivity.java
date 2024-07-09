@@ -37,6 +37,7 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.work.Data;
 import androidx.work.PeriodicWorkRequest;
@@ -60,6 +61,8 @@ import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.messeging.ChatViewModel;
+import com.example.graduationproject.messeging.MainActivity;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
@@ -71,6 +74,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -145,7 +149,11 @@ public class ParentActivity extends AppCompatActivity implements
 
     private int lastMatchingId = 0 ;
 
-
+    int countbadge;
+    // FirebaseAuth auth;
+    // FirebaseDatabase databaseM;
+    ChatViewModel chatViewModel;
+    TextView numOfMsgReceivedToParent;
 
 
     @Override
@@ -154,6 +162,29 @@ public class ParentActivity extends AppCompatActivity implements
         EdgeToEdge.enable(this);
         parentBinding = ActivityParentBinding.inflate(getLayoutInflater());
         setContentView(parentBinding.getRoot());
+        ImageView messageIcon = findViewById(R.id.messegeicon);
+        numOfMsgReceivedToParent = findViewById(R.id.numOfMessagesReceivedToParent);
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        chatViewModel.fetchUnreadMessages(currentUserId);
+
+        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+            if (unreadCount > 0) {
+                numOfMsgReceivedToParent.setText(String.valueOf(unreadCount));
+                numOfMsgReceivedToParent.setVisibility(View.VISIBLE);
+            } else {
+                numOfMsgReceivedToParent.setVisibility(View.GONE);
+            }
+        });
+        messageIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create an Intent to start MainActivity
+                Intent intent = new Intent(ParentActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
         getIntentDate();
         Data inputData = new Data.Builder().putString("email",email).build();
         periodicWorkRequest = new PeriodicWorkRequest.Builder(

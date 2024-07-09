@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/custom_dialog_rounded_corners">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/closeImageView"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/close_icon_2"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="13dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"/>
+
+        <ImageView
+            android:id="@+id/cardSettings"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/more_icon"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="13dp"
+            android:layout_marginEnd="13dp" />
+
+
+        <LinearLayout
+            android:id="@+id/tempView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="Course Information"
+                android:textSize="18sp" />
+
+
+            <View
+                android:layout_width="190dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/coursesImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/courses_icon"
+            android:layout_below="@id/tempView1"
+            android:layout_marginTop="20dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"/>
+
+        <TextView
+            android:id="@+id/coursesTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Objects : "
+            android:textSize="16sp"
+            android:layout_below="@id/tempView1"
+            android:layout_toEndOf="@id/coursesImageView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/coursesTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_below="@id/tempView1"
+            android:layout_toEndOf="@id/coursesTextViewTemp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"
+            android:textColor="#1A8E9E"/>
+
+        <ImageView
+            android:id="@+id/dateImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/calendar_icon"
+            android:layout_below="@id/coursesTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            />
+        <TextView
+            android:id="@+id/dateViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date : "
+            android:textSize="16sp"
+            android:layout_below="@id/coursesTextView"
+            android:layout_toEndOf="@id/dateImageView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_below="@id/coursesTextView"
+            android:layout_toEndOf="@id/dateViewTemp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"
+            android:textColor="#1A8E9E"
+            />
+
+        <ImageView
+            android:id="@+id/timeImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/clock_icon"
+            android:layout_below="@id/dateTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            />
+        <TextView
+            android:id="@+id/timeTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time : "
+            android:textSize="16sp"
+            android:layout_below="@id/dateTextView"
+            android:layout_toEndOf="@id/timeImageView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/timeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_below="@id/dateTextView"
+            android:layout_toEndOf="@id/timeTextViewTemp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"
+            android:textColor="#1A8E9E"
+            />
+
+        <ImageView
+            android:id="@+id/choseDaysImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/days_icon"
+            android:layout_below="@id/timeTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            />
+        <TextView
+            android:id="@+id/choseDaysTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Days : "
+            android:textSize="16sp"
+            android:layout_below="@id/timeTextView"
+            android:layout_toEndOf="@id/choseDaysImageView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/choseDaysTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_below="@id/timeTextView"
+            android:layout_toEndOf="@id/choseDaysTextViewTemp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"
+            android:textColor="#1A8E9E"/>
+
+        <ImageView
+            android:id="@+id/teachingMethodImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/teaching_method_icon_2"
+            android:layout_below="@id/choseDaysTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            />
+        <TextView
+            android:id="@+id/teachingMethodTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Teaching Method : "
+            android:textSize="16sp"
+            android:layout_below="@id/choseDaysTextView"
+            android:layout_toEndOf="@id/teachingMethodImageView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/teachingMethodTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_below="@id/choseDaysTextView"
+            android:layout_toEndOf="@id/teachingMethodTextViewTemp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"
+            android:textColor="#1A8E9E"/>
+
+        <LinearLayout
+            android:id="@+id/tempView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/teachingMethodTextView"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="Child Information"
+                android:textSize="18sp" />
+
+
+            <View
+                android:layout_width="210dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/childNameImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/child_icon_2"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_below="@id/tempView2"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/childNameTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/childNameImageView"
+            android:text="Child Name :"
+            android:layout_below="@id/tempView2"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/childNameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/childNameTextViewTemp"
+            android:layout_below="@id/tempView2"
+            android:layout_marginTop="20dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            />
+        <ImageView
+            android:id="@+id/childAgeImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/age_icon_2"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_below="@id/childNameTextView"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/childAgeTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/childAgeImageView"
+            android:text="Child Age :"
+            android:layout_below="@id/childNameTextView"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/childAgeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/childAgeTextViewTemp"
+            android:layout_below="@id/childNameTextView"
+            android:textColor="#1A8E9E"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            />
+        <ImageView
+            android:id="@+id/childGradeImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/grades_icon"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_below="@id/childAgeTextView"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/childGradeTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/childGradeImageView"
+            android:text="Child Grade :"
+            android:layout_below="@id/childAgeTextView"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/childGradeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/childGradeTextViewTemp"
+            android:layout_below="@id/childAgeTextView"
+            android:layout_marginTop="20dp"
+            android:textColor="#1A8E9E"
+
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            />
+
+        <ImageView
+            android:id="@+id/childGenderImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/gender_icon"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_below="@id/childGradeTextView"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/childGenderTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/childGenderImageView"
+            android:text="Child Gender :"
+            android:layout_below="@id/childGradeTextView"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/childGenderTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/childGenderTextViewTemp"
+            android:layout_below="@id/childGradeTextView"
+            android:layout_marginTop="20dp"
+            android:textColor="#1A8E9E"
+
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            />
+
+        <LinearLayout
+            android:id="@+id/tempView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/childGenderTextView"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="Teacher Information"
+                android:textSize="18sp" />
+
+
+            <View
+                android:layout_width="200dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/teacherNameImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/parent_icon"
+            android:layout_below="@id/tempView3"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/teacherTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/teacherNameImageView"
+            android:text="Teacher Name :"
+            android:layout_below="@id/tempView3"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/teacherNameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/teacherTextViewTemp"
+            android:layout_below="@id/tempView3"
+            android:layout_marginTop="20dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            />
+
+        <ImageView
+            android:id="@+id/teacherEmailImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/email_icon_3"
+            android:layout_below="@id/teacherNameTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/teacherEmailTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/teacherEmailImageView"
+            android:text="Teacher Email :"
+            android:layout_below="@id/teacherNameTextView"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/teacherEmailTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/teacherEmailTextViewTemp"
+            android:layout_below="@id/teacherNameTextView"
+            android:layout_marginTop="20dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            />
+
+        <ImageView
+            android:id="@+id/teacherPhoneImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/phone_icon2"
+            android:layout_below="@id/teacherEmailTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/teacherPhoneTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/teacherPhoneImageView"
+            android:text="Phone Number :"
+            android:layout_below="@id/teacherEmailTextView"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/teacherPhoneTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/teacherPhoneTextViewTemp"
+            android:layout_below="@id/teacherEmailTextView"
+            android:layout_marginTop="20dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            />
+
+        <ImageView
+            android:id="@+id/teacherAddressImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/location_icon"
+            android:layout_below="@id/teacherPhoneTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/teacherAddressTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/teacherAddressImageView"
+            android:text="Address :"
+            android:layout_below="@id/teacherPhoneTextView"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/teacherAddressTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_toEndOf="@id/teacherAddressTextViewTemp"
+            android:layout_below="@id/teacherPhoneTextView"
+            android:layout_marginTop="20dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginStart="7dp"
+            android:textSize="16sp"
+            android:layout_marginBottom="40dp"
+            />
+
+    </RelativeLayout>
+</ScrollView>

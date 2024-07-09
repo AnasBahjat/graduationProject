@@ -50,7 +50,7 @@
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/myPostedRequestsBtn"
+            android:id="@+id/myCoursesBtn"
             android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
@@ -60,7 +60,7 @@
             android:textAllCaps="false"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/availableTeacherRequests"
+            android:id="@+id/myPostedRequestsBtn"
             android:layout_width="170dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
@@ -126,7 +126,7 @@
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_centerInParent="true"
         android:layout_marginTop="330dp"
-        android:text="You did not post any Request"
+        android:text="You Posted Requests"
         android:textColor="#7E7A7A"
         android:textSize="20sp"
         android:visibility="gone"/>

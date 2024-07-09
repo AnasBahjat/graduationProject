@@ -183,6 +183,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private TeacherMatchModel currentCourseToSendRequestMatchModel ;
     private List<Course> teacherCoursesList = new ArrayList<>();
     private List<ExpiredCourse> expiredCoursesList = new ArrayList<>();
+    private TeacherCoursesAdapter teacherCoursesAdapter;
 
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -288,12 +289,13 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private void init() {
         initDatabase();
         initCoursesRecyclerView();
-        btnMyPostedRequestsClicked();
-        binding.myPostedRequestsBtn.setOnClickListener(x -> {
+        //btnMyPostedRequestsClicked();
+        btnMyCoursesClicked();
+        binding.myCoursesBtn.setOnClickListener(x -> {
             btnMyCoursesClicked();
             binding.filterLayout.setVisibility(View.GONE);
         });
-        binding.availableTeacherRequests.setOnClickListener(c -> {
+        binding.myPostedRequestsBtn.setOnClickListener(c -> {
             btnMyPostedRequestsClicked();
             binding.filterLayout.setVisibility(View.GONE);
         });
@@ -320,8 +322,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         myPostedRequestsBtnForTeacher = false;
         browseParentPostedRequestsBtnForTeacher = false;
         binding.filterLayout.setVisibility(View.GONE);
-        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
-        binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_active);
+        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         database.getAllTeacherCourses(email,this);
     }
 
@@ -332,81 +334,90 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         myPostedRequestsBtnForTeacher = true;
         browseParentPostedRequestsBtnForTeacher = false;
         binding.filterLayout.setVisibility(View.GONE);
-        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
-        binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_active);
+        binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
 
-        binding.teacherFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                searchInTeacherPostedRequestsForTeacher(newText);
-                return true;
-            }
-        });
 
         database.getTeacherPostedRequests(email, this);
     }
 
     private void searchInTeacherPostedRequestsForTeacher(String textToSearch) {
-        textToSearch = textToSearch.toLowerCase();
-        List<TeacherPostRequest> tempTeacherPostedRequestsList = new ArrayList<>();
-        for (TeacherPostRequest model : teacherPostedRequestsList) {
-            if (model.getTeacherEmail().toLowerCase().trim().contains(textToSearch) || model.getTeacherData().getTeacherName().toLowerCase().trim().contains(textToSearch) ||
-                    model.getCourses().toLowerCase().trim().contains(textToSearch) || model.getTeachingMethod().toLowerCase().trim().contains(textToSearch) ||
-                    model.getDuration().toLowerCase().trim().contains(textToSearch) || model.getAvailability().toLowerCase().contains(textToSearch) ||
-                    model.getLocation().toLowerCase().contains(textToSearch) || model.getEducationLevel().toLowerCase().contains(textToSearch) ||
-                    model.getTeacherData().getEducationalLevel().toLowerCase().equalsIgnoreCase(textToSearch) || model.getTeacherData().getCollege().toLowerCase().contains(textToSearch) ||
-                    model.getTeacherData().getField().toLowerCase().contains(textToSearch)) {
-                tempTeacherPostedRequestsList.add(model);
-                continue;
-            }
-            if (model.getTeacherData().getGender() == 1 && textToSearch.equalsIgnoreCase("Male")) {
-                tempTeacherPostedRequestsList.add(model);
-                continue;
-            }
-            if (model.getTeacherData().getGender() == 0 && textToSearch.equalsIgnoreCase("Female")) {
-                tempTeacherPostedRequestsList.add(model);
-                continue;
-            }
-            int flag = 0;
-            for (Address address : model.getTeacherData().getAddressesList()) {
-                if (address.getCity().toLowerCase().contains(textToSearch) || address.getCountry().toLowerCase().contains(textToSearch)) {
-                    tempTeacherPostedRequestsList.add(model);
-                    flag = 1;
-                    break;
+        if(!teacherPostedRequestsList.isEmpty()){
+            List<TeacherPostRequest> filteredRequests = new ArrayList<>();
+            for (TeacherPostRequest postRequest : teacherPostedRequestsList) {
+                if (myPostedRequestsMatchesQuery(postRequest,textToSearch)) {
+                    filteredRequests.add(postRequest);
                 }
             }
-
-            if (flag == 0) {
-                for (String phone : model.getTeacherData().getPhoneNumbersList()) {
-                    if (phone.contains(textToSearch)) {
-                        tempTeacherPostedRequestsList.add(model);
-                        break;
-                    }
-                }
+            if(filteredRequests.isEmpty()){
+                binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+                binding.noDataAddedText.setVisibility(View.GONE);
+            }
+            else {
+                binding.noPostedRequestTextView.setVisibility(View.GONE);
+                binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
+                binding.noDataAddedText.setVisibility(View.GONE);
+                teacherPostedRequestsAdapter.filteredList(filteredRequests);
             }
         }
-        if (tempTeacherPostedRequestsList.isEmpty()) {
+
+        else {
             binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-            binding.noMatchedData.setVisibility(View.GONE);
-            binding.noDataAddedText.setVisibility(View.GONE);
             binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-        } else {
-            binding.noPostedRequestTextView.setVisibility(View.GONE);
-            binding.noMatchedData.setVisibility(View.GONE);
             binding.noDataAddedText.setVisibility(View.GONE);
-            binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-            teacherPostedRequestsAdapter.filteredList(tempTeacherPostedRequestsList);
         }
     }
 
+    private boolean myPostedRequestsMatchesQuery(TeacherPostRequest request, String query){
+        query = query.toLowerCase();
+        if (request.getAvailability().toLowerCase().contains(query) ||
+                request.getCourses().toLowerCase().contains(query) ||
+                request.getLocation().toLowerCase().contains(query) ||
+                request.getDuration().toLowerCase().contains(query) ||
+                request.getTeachingMethod().toLowerCase().contains(query) ||
+                request.getStartTime().toLowerCase().contains(query) ||
+                request.getEndTime().toLowerCase().contains(query) ||
+                String.valueOf(request.getPrice()).contains(query) ||
+                request.getStartDate().toLowerCase().contains(query) ||
+                request.getEndDate().toLowerCase().contains(query)) {
+            return true;
+        }
+
+        Teacher teacher = request.getTeacherData();
+        if(teacher != null &&(teacher.getEmail().trim().equalsIgnoreCase(query) ||
+                teacher.getCollege().toLowerCase().contains(query) ||
+                teacher.getField().toLowerCase().contains(query) ||
+                (teacher.getGender() == 0 ? "female" : "male").contains(query) ||
+                teacher.getAvailability().toLowerCase().contains(query) ||
+                teacher.getEducationalLevel().toLowerCase().contains(query) ||
+                teacher.getTeacherName().toLowerCase().contains(query))){
+            return true;
+        }
+
+        if (teacher != null) {
+            for (String phoneNumber : teacher.getPhoneNumbersList()) {
+                if (phoneNumber.contains(query)) {
+                    return true;
+                }
+            }
+            for (Address address : teacher.getAddressesList()) {
+                if (address.getCity().toLowerCase().contains(query) || address.getCountry().toLowerCase().contains(query)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+
+
     private void setTeacherPostedData() {
-        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
-        binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_active);
+        binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.teacherFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -440,8 +451,23 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             binding.refreshRecyclerView.setRefreshing(false);
             binding.addedCoursesRecyclerView.setAdapter(teacherPostedRequestsAdapter);
         }
-        assert getView() != null;
-        Snackbar.make(getView(), "Your Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+
+        binding.teacherFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchInTeacherPostedRequestsForTeacher(newText);
+                return true;
+            }
+        });
+
+
+        if(getView() != null)
+            Snackbar.make(getView(), "Your Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
     }
 
     private void getTeacherDataFromActivity() {
@@ -466,7 +492,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         if(!teacherCoursesList.isEmpty()){
             binding.noDataAddedText.setVisibility(View.GONE);
             binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-            TeacherCoursesAdapter teacherCoursesAdapter = new TeacherCoursesAdapter(teacherCoursesList,getContext(),this);
+            teacherCoursesAdapter = new TeacherCoursesAdapter(teacherCoursesList,getContext(),this);
             binding.addedCoursesRecyclerView.setAdapter(teacherCoursesAdapter);
         }
         else {
@@ -482,13 +508,133 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // matchingTeacherAdapter.getFilter().filter(newText);
+                searchInTeacherCourses(newText);
                 return true;
             }
         });
-        assert getView() != null;
-        Snackbar.make(getView(), "Your Courses Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+        if(getView() != null)
+            Snackbar.make(getView(), "Your Courses List Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
 
+    }
+
+    private void searchInTeacherCourses(String textToSearch){
+        if(!teacherCoursesList.isEmpty()){
+            List<Course> filteredCourses = new ArrayList<>();
+            for (Course course : teacherCoursesList) {
+                if (myCoursesMatchesQuery(course, textToSearch)) {
+                    filteredCourses.add(course);
+                }
+            }
+            if(filteredCourses.isEmpty()){
+                binding.noDataAddedText.setVisibility(View.VISIBLE);
+                binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+            }
+            else {
+                binding.noDataAddedText.setVisibility(View.GONE);
+                binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
+                teacherCoursesAdapter.filter(filteredCourses);
+            }
+        }
+        else {
+            binding.noDataAddedText.setVisibility(View.VISIBLE);
+            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean myCoursesMatchesQuery(Course course,String query){
+        query = query.toLowerCase();
+
+        if (course.getTeacherEmail().toLowerCase().contains(query) ||
+                course.getParentEmail().toLowerCase().contains(query) ||
+                String.valueOf(course.getParentSentRequestId()).contains(query) ||
+                String.valueOf(course.getTeacherSentRequestId()).contains(query) ||
+                String.valueOf(course.getChildId()).contains(query) ||
+                String.valueOf(course.getDuration()).contains(query) ||
+                course.getEducationLevel().toLowerCase().contains(query) ||
+                course.getCourses().toLowerCase().contains(query) ||
+                course.getDays().toLowerCase().contains(query) ||
+                course.getLocation().toLowerCase().contains(query) ||
+                course.getTeachingMethod().toLowerCase().contains(query) ||
+                course.getStartTime().toLowerCase().contains(query) ||
+                course.getEndTime().toLowerCase().contains(query) ||
+                course.getStartDate().toLowerCase().contains(query) ||
+                course.getEndDate().toLowerCase().contains(query) ||
+                String.valueOf(course.getPrice()).contains(query)) {
+            return true;
+        }
+
+        Children child = course.getChild();
+      /*  if (child != null && (child.getChildName().toLowerCase().contains(query) ||
+                String.valueOf(child.getChildAge()).contains(query) ||
+                (child.getChildGender() == 0 ? "female" : "male").contains(query) ||
+                (child.getGrade()+"").toLowerCase().contains(query))) {
+            return true;
+        }*/
+        if (child != null && (child.getChildName().toLowerCase().contains(query) ||
+                String.valueOf(child.getChildAge()).contains(query) ||
+                (child.getChildGender() == 0 ? "female" : "male").contains(query) ||
+                convertGradeFormat(child.getGrade()).toLowerCase().contains(query))) {
+            return true;
+        }
+
+
+        Parent parent = course.getParent();
+        if (parent != null && (parent.getFirstName().toLowerCase().contains(query) ||
+                parent.getLastName().toLowerCase().contains(query) ||
+                parent.getEmail().toLowerCase().contains(query))) {
+            return true;
+        }
+
+
+        if (parent != null) {
+            for (String phoneNumber : parent.getPhoneNumbersList()) {
+                if (phoneNumber.contains(query)) {
+                    return true;
+                }
+            }
+            for (Address address : parent.getAddressList()) {
+                if (address.getCity().toLowerCase().contains(query) || address.getCountry().toLowerCase().contains(query)) {
+                    return true;
+                }
+            }
+        }
+
+        Teacher teacher = course.getTeacher();
+        if (teacher != null && (teacher.getTeacherName().toLowerCase().contains(query) ||
+                teacher.getEmail().toLowerCase().contains(query))) {
+            return true;
+        }
+
+        if (teacher != null) {
+            for (String phoneNumber : teacher.getPhoneNumbersList()) {
+                if (phoneNumber.contains(query)) {
+                    return true;
+                }
+            }
+            for (Address address : teacher.getAddressesList()) {
+                if (address.getCity().toLowerCase().contains(query) || address.getCountry().toLowerCase().contains(query)) {
+                    return true;
+                }
+            }
+        }
+
+        return false ;
+    }
+
+    private String convertGradeFormat(int grade) {
+        if (grade >= 11 && grade <= 13) {
+            return grade + "th grade";
+        }
+        switch (grade % 10) {
+            case 1:
+                return grade + "st grade";
+            case 2:
+                return grade + "nd grade";
+            case 3:
+                return grade + "rd grade";
+            default:
+                return grade + "th grade";
+        }
     }
 
     private void setAvailableTeacherMatchingAdapter() {
@@ -506,8 +652,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             matchingTeacherAdapter = new MatchingTeacherAdapter(parentPostedRequestsForTeacherList, getContext(), this);
             binding.addedCoursesRecyclerView.setAdapter(matchingTeacherAdapter);
         }
-        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
-        binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_active);
+        binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
 
 
         binding.teacherFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -522,16 +668,16 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 return true;
             }
         });
-        assert getView() != null;
-        Snackbar.make(getView(), "Parent Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+        if(getView() != null)
+            Snackbar.make(getView(), "Parent Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
         myCoursesBtnForParent = false;
         myPostedRequestsBtnForTeacher = false;
         updateBtnStatus();
     }
 
     private void updateBtnStatus() {
+        binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
-        binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_inactive);
     }
 
     private void searchInParentPostedRequestsForTeacher(String str) {
@@ -1562,8 +1708,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             tempTeacherReceivedRequestsList.remove(tempTeacherReceivedRequestObject);
             teacherReceivedRequestAdapter.notifyItemRemoved(position);
             teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-            assert getView() != null;
-            Snackbar.make(getView(), "Request Declined ..", Snackbar.LENGTH_SHORT).setDuration(1500).show();
+            if(getView() != null)
+                Snackbar.make(getView(), "Request Declined ..", Snackbar.LENGTH_SHORT).setDuration(1500).show();
             if (tempTeacherReceivedRequestsList.isEmpty()) {
                 teacherReceivedRequestsDialogLayoutBinding.noReceivedRequestsForTeacher.setVisibility(View.VISIBLE);
                 teacherReceivedRequestsDialogLayoutBinding.teacherReceivedRequestsRecyclerView.setVisibility(View.GONE);
@@ -1677,8 +1823,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     @Override
     public void onCourseAdded(int flag) {
         if (flag == 1) {
-            assert getView() != null;
-            Snackbar.make(getView(), "Course Added To Your Courses ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
+            //Snackbar.make(getView(), "Course Added To Your Courses ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
+            MyAlertDialog.showDialogForDone(getContext(),"Course Added","Courses Added to your current courses , check the main page ..");
+            database.getAllTeacherCourses(email,this);
             // teacherReceivedRequestAdapter.deleteItem(tempTeacherReceivedRequestOeeebject);
         } else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"ERRRRROR","ERRRRRROR FLAG -->"+flag);
@@ -2451,10 +2598,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                             teacherCoursesList.add(new Course(courseId,teacherEmail,parentEmail,
                                     parentSentRequestId,teacherSentRequestId,
                                     childId,coursesStr,duration,availabilityForJob,
-                                    location,teachingMethod,startTime,endTime,
+                                    location,educationLevel,teachingMethod,startTime,endTime,
                                     startDate,endDate,price,
                                     new Children(childId,childName,childAge,Integer.parseInt(childGender),Integer.parseInt(childGrade)),
-                                    new Parent(tempParentFirstName,tempParentLastNameStr,parentEmail,addressList1,phoneNumberList1),
+                                    new Parent(parentEmail,tempParentFirstName,tempParentLastNameStr,addressList1,phoneNumberList1),
                                     null));
                         }
                         else {
@@ -2542,7 +2689,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     str.append(phone.get(i));
                 }
                 else {
-                    str.append(phone.get(i)).append("\n");
+                    str.append(phone.get(i)).append(" — ");
                 }
             }
             teacherCourseCardClickedLayoutBinding.parentPhoneTextView.setText(str);
@@ -2551,10 +2698,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             List<Address> address = course.getParent().getAddressList();
             for(int i = 0 ; i < address.size();i++){
                 if(i+1 == address.size()){
-                    str2.append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry());
+                    str2.append(" — ").append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry());
                 }
                 else {
-                    str2.append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry()).append("\n");
+                    str2.append(" — ").append(i + 1).append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry()).append("\n");
                 }
             }
             teacherCourseCardClickedLayoutBinding.parentAddressTextView.setText(str2);

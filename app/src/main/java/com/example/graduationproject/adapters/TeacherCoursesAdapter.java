@@ -46,6 +46,12 @@ public class TeacherCoursesAdapter extends RecyclerView.Adapter<TeacherCoursesAd
     public int getItemCount() {
         return coursesList.size();
     }
+
+    public void filter(List<Course> filteredList){
+        coursesList = filteredList;
+        notifyDataSetChanged();
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         TeacherCoursesCardLayoutBinding teacherCoursesCardLayoutBinding;
         Context context ;
@@ -82,6 +88,9 @@ public class TeacherCoursesAdapter extends RecyclerView.Adapter<TeacherCoursesAd
             }
             else if(course.getChild().getGrade() == 2){
                 teacherCoursesCardLayoutBinding.childGradeTextView.setText(String.format("%dnd Grade", course.getChild().getGrade()));
+            }
+            else if(course.getChild().getGrade() == 3){
+                teacherCoursesCardLayoutBinding.childGradeTextView.setText(String.format("%drd Grade", course.getChild().getGrade()));
             }
             else {
                 teacherCoursesCardLayoutBinding.childGradeTextView.setText(String.format("%dth Grade", course.getChild().getGrade()));
