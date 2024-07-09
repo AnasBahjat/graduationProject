@@ -11,6 +11,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -36,26 +38,31 @@ import android.widget.Toast;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.MatchingTeacherAdapter;
+import com.example.graduationproject.adapters.TeacherCoursesAdapter;
 import com.example.graduationproject.adapters.TeacherReceivedRequestAdapter;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
 import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
 import com.example.graduationproject.databinding.FilterLayoutBinding;
+import com.example.graduationproject.databinding.TeacherCourseCardClickedLayoutBinding;
 import com.example.graduationproject.databinding.TeacherPostedRequestCardLayoutBinding;
 import com.example.graduationproject.databinding.TeacherReceivedRequestCardLayoutBinding;
 import com.example.graduationproject.databinding.TeacherReceivedRequestsDialogLayoutBinding;
 import com.example.graduationproject.databinding.UpdatePostedTeacherLookForAJobLayoutBinding;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
+import com.example.graduationproject.listeners.FetchCoursesListener;
 import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnCourseAddedListener;
 import com.example.graduationproject.listeners.OnParentSentRequestFetchListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesFetchedForConflictListener;
+import com.example.graduationproject.listeners.OnTeacherCoursesFetchedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
 import com.example.graduationproject.listeners.OnTeacherPostRequestUpdateListener;
 import com.example.graduationproject.listeners.OnReceivedRequestsListener;
 import com.example.graduationproject.listeners.OnSentRequestDeletedListener;
 import com.example.graduationproject.listeners.OnTeacherToParentRequestSentListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
+import com.example.graduationproject.listeners.TeacherCourseClickListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.FragmentTeacherBinding;
@@ -66,8 +73,10 @@ import com.example.graduationproject.listeners.TeacherMatchCardClickListener;
 import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
+import com.example.graduationproject.models.Course;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.DateTimeModel;
+import com.example.graduationproject.models.ExpiredCourse;
 import com.example.graduationproject.models.FilterCriteria;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Parent;
@@ -109,7 +118,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         OnReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener,
         OnTeacherCoursesReceivedListener, OnCourseAddedListener, OnTeacherToParentRequestSentListener,
         OnCheckIfRequestSentBeforeListener,
-        OnSentRequestDeletedListener, OnTeacherCoursesFetchedForConflictListener {
+        OnSentRequestDeletedListener, OnTeacherCoursesFetchedForConflictListener, OnTeacherCoursesFetchedListener, FetchCoursesListener, TeacherCourseClickListener {
 
     private FragmentTeacherBinding binding;
 
@@ -172,6 +181,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private boolean isFilterDialogShowing = false ;
     private DateTimeModel tempRequestToSendDateTimeModel;
     private TeacherMatchModel currentCourseToSendRequestMatchModel ;
+    private List<Course> teacherCoursesList = new ArrayList<>();
+    private List<ExpiredCourse> expiredCoursesList = new ArrayList<>();
 
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -311,7 +322,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         binding.filterLayout.setVisibility(View.GONE);
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.availableTeacherRequests.setBackgroundResource(R.drawable.rounded_button_inactive);
-        setMyCoursesAdapter();
+        database.getAllTeacherCourses(email,this);
     }
 
     private void btnMyPostedRequestsClicked() {
@@ -452,15 +463,15 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
     public void setMyCoursesAdapter() {
-        List<TeacherMatchModel> teacherMatchModelList = new ArrayList<>();
-        matchingTeacherAdapter = new MatchingTeacherAdapter(teacherMatchModelList, getContext(), this);
-        if (teacherMatchModelList.isEmpty()) {
-            binding.noDataAddedText.setVisibility(View.VISIBLE);
-            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-        } else {
-            binding.addedCoursesRecyclerView.setAdapter(matchingTeacherAdapter);
+        if(!teacherCoursesList.isEmpty()){
             binding.noDataAddedText.setVisibility(View.GONE);
             binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
+            TeacherCoursesAdapter teacherCoursesAdapter = new TeacherCoursesAdapter(teacherCoursesList,getContext(),this);
+            binding.addedCoursesRecyclerView.setAdapter(teacherCoursesAdapter);
+        }
+        else {
+            binding.noDataAddedText.setVisibility(View.VISIBLE);
+            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
         }
 
         binding.teacherFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -475,7 +486,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 return true;
             }
         });
-       // database.getAllTeacherCourses(email,this);
+        assert getView() != null;
+        Snackbar.make(getView(), "Your Courses Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
+
     }
 
     private void setAvailableTeacherMatchingAdapter() {
@@ -589,7 +602,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private void sendRefreshBroadcast(int flag) {
         if (flag == 1) {
-            // set teacher Courses ...
+            database.getAllTeacherCourses(email,this);
         } else if (flag == 2) {
             database.getTeacherPostedRequests(email, this);
         } else if (flag == 3) {
@@ -2363,6 +2376,191 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             else {
                 MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Error fetching data , please try again after 5 minutes ...");
             }
+        }
+    }
+
+    @Override
+    public void onCoursesFetched(int flag, JSONArray courses) {
+        if(flag == 0){
+            binding.noDataAddedText.setVisibility(View.VISIBLE);
+            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+        }
+        else if(flag == 1){
+            if(!teacherCoursesList.isEmpty()){
+                teacherCoursesList.clear();
+            }
+            if(!expiredCoursesList.isEmpty()){
+                expiredCoursesList.clear();
+            }
+            try {
+                List<Address> addressList1 = new ArrayList<>();
+                List<String> phoneNumberList1 = new ArrayList<>();
+                if(courses.length() > 0){
+                    for(int i = courses.length() - 1 ; i >= 0 ; i--){
+                        JSONObject jsonObject = courses.getJSONObject(i);
+                        int courseId = jsonObject.getInt("courseId");
+                        String teacherEmail = jsonObject.getString("teacherEmail");
+                        String parentEmail = jsonObject.getString("parentEmail");
+                        int teacherSentRequestId = jsonObject.getInt("teacherSentRequestId");
+                        int parentSentRequestId = jsonObject.getInt("parentSentRequestId");
+                        String coursesStr = jsonObject.getString("courses");
+                        String educationLevel = jsonObject.getString("educationLevel");
+                        int duration = jsonObject.getInt("duration");
+                        String availabilityForJob = jsonObject.getString("availabilityForJob");
+                        String location = jsonObject.getString("location");
+                        String teachingMethod = jsonObject.getString("teachingMethod");
+                        String startTime = jsonObject.getString("startTime");
+                        String endTime = jsonObject.getString("endTime");
+                        String startDate = jsonObject.getString("startDate");
+                        String endDate = jsonObject.getString("endDate");
+                        double price = jsonObject.getDouble("price");
+                        int childId = jsonObject.getInt("childId");
+                        String childName = jsonObject.getString("childName");
+                        String childAge = jsonObject.getString("childAge");
+                        String childGender = jsonObject.getString("childGender");
+                        String childGrade = jsonObject.getString("childGrade");
+                        String firstNameStr = jsonObject.getString("firstName");
+                        String tempParentFirstName = firstNameStr.substring(0,1).toUpperCase()+firstNameStr.substring(1).toLowerCase();
+                        String parentLastNameStr = jsonObject.getString("lastName");
+                        String tempParentLastNameStr = parentLastNameStr.substring(0,1).toUpperCase()+parentLastNameStr.substring(1).toLowerCase();
+                        if(i == courses.length() -1){
+                            String addressTemp = jsonObject.getString("addresses");
+                            if(addressTemp.contains("|")){
+                                String[] splitAddress = addressTemp.split("\\|");
+                                for(String str : splitAddress){
+                                    String[] sp = str.split(",");
+                                    addressList1.add(new Address(sp[0],sp[1]));
+                                }
+                            }
+                            else {
+                                String[] sp = addressTemp.split(",");
+                                addressList1.add(new Address(sp[0],sp[1]));
+                            }
+
+                            String phoneTemp = jsonObject.getString("phoneNumbers");
+                            if(phoneTemp.contains(",")){
+                                String[] sp = phoneTemp.split(",");
+                                phoneNumberList1.addAll(Arrays.asList(sp));
+                            }
+                            else {
+                                phoneNumberList1.add(phoneTemp);
+                            }
+                        }
+
+                        if(!DateUtils.isDateTimeExpired(startDate,endDate,startTime,endTime)){
+                            teacherCoursesList.add(new Course(courseId,teacherEmail,parentEmail,
+                                    parentSentRequestId,teacherSentRequestId,
+                                    childId,coursesStr,duration,availabilityForJob,
+                                    location,teachingMethod,startTime,endTime,
+                                    startDate,endDate,price,
+                                    new Children(childId,childName,childAge,Integer.parseInt(childGender),Integer.parseInt(childGrade)),
+                                    new Parent(tempParentFirstName,tempParentLastNameStr,parentEmail,addressList1,phoneNumberList1),
+                                    null));
+                        }
+                        else {
+                            expiredCoursesList.add(new ExpiredCourse(courseId,teacherSentRequestId,parentSentRequestId));
+                        }
+
+                    }
+                    setMyCoursesAdapter();
+                    binding.refreshRecyclerView.setRefreshing(false);
+                }
+                else {
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Connection Error , Unable to fetch the data at the moment , please try again later");
+                }
+            }
+            catch (Exception e){
+               // MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred, Unable to fetch the data at the moment , please try again later");
+                throw new RuntimeException(e);
+            }
+
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred, Unable to fetch the data at the moment , please try again later");
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Connection Error , Unable to fetch the data at the moment , please try again later");
+        }
+    }
+
+    @Override
+    public void onTeacherCourseClicked(Course course) {
+        if(getContext() != null){
+            Dialog courseDialog = new Dialog(getContext());
+            TeacherCourseCardClickedLayoutBinding teacherCourseCardClickedLayoutBinding = TeacherCourseCardClickedLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            courseDialog.setContentView(teacherCourseCardClickedLayoutBinding.getRoot());
+            courseDialog.setCancelable(false);
+
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(courseDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = 2300;
+            courseDialog.getWindow().setAttributes(layoutParams);
+
+            if(courseDialog.getWindow() != null)
+                courseDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            courseDialog.show();
+
+            teacherCourseCardClickedLayoutBinding.closeImageView.setOnClickListener(c0->{
+                courseDialog.dismiss();
+            });
+
+            teacherCourseCardClickedLayoutBinding.coursesTextView.setText(course.getCourses());
+            teacherCourseCardClickedLayoutBinding.dateTextView.setText(course.getStartDate()+"  -  "+course.getEndDate());
+            teacherCourseCardClickedLayoutBinding.timeTextView.setText(course.getStartTime()+"  -  "+course.getEndTime());
+            teacherCourseCardClickedLayoutBinding.choseDaysTextView.setText(course.getDays());
+            teacherCourseCardClickedLayoutBinding.teachingMethodTextView.setText(course.getTeachingMethod());
+            teacherCourseCardClickedLayoutBinding.childNameTextView.setText(course.getChild().getChildName());
+            teacherCourseCardClickedLayoutBinding.coursesTextView.setText(course.getCourses());
+            if(course.getChild().getChildAge().equalsIgnoreCase("1")){
+                teacherCourseCardClickedLayoutBinding.childAgeTextView.setText(String.format("%s Year", course.getChild().getChildAge()));
+            }
+            else {
+                teacherCourseCardClickedLayoutBinding.childAgeTextView.setText(String.format("%s Years", course.getChild().getChildAge()));
+            }
+            String gender = "Male";
+            if(course.getChild().getChildGender() == 0){
+                gender = "Female";
+            }
+            teacherCourseCardClickedLayoutBinding.childGenderTextView.setText(gender);
+            if(course.getChild().getGrade() == 1){
+                teacherCourseCardClickedLayoutBinding.childGradeTextView.setText(String.format("%dst Grade", course.getChild().getGrade()));
+            }
+            else if(course.getChild().getGrade() == 2){
+                teacherCourseCardClickedLayoutBinding.childGradeTextView.setText(String.format("%dnd Grade", course.getChild().getGrade()));
+            }
+            else {
+                teacherCourseCardClickedLayoutBinding.childGradeTextView.setText(String.format("%dth Grade", course.getChild().getGrade()));
+            }
+
+            teacherCourseCardClickedLayoutBinding.parentNameTextView.setText(course.getParent().getFirstName()+" "+course.getParent().getLastName());
+            teacherCourseCardClickedLayoutBinding.parentEmailTextView.setText(course.getParentEmail());
+            StringBuilder str = new StringBuilder();
+            List<String> phone = course.getParent().getPhoneNumbersList();
+            for(int i = 0 ; i< phone.size() ; i++){
+                if(i + 1 == phone.size()){
+                    str.append(phone.get(i));
+                }
+                else {
+                    str.append(phone.get(i)).append("\n");
+                }
+            }
+            teacherCourseCardClickedLayoutBinding.parentPhoneTextView.setText(str);
+
+            StringBuilder str2 = new StringBuilder();
+            List<Address> address = course.getParent().getAddressList();
+            for(int i = 0 ; i < address.size();i++){
+                if(i+1 == address.size()){
+                    str2.append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry());
+                }
+                else {
+                    str2.append(address.get(i).getCity()).append(" , ").append(address.get(i).getCountry()).append("\n");
+                }
+            }
+            teacherCourseCardClickedLayoutBinding.parentAddressTextView.setText(str2);
+            teacherCourseCardClickedLayoutBinding.cardSettings.setOnClickListener(c->{
+                //showCardSettings();
+            });
         }
     }
 }

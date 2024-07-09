@@ -41,13 +41,6 @@ public class DateUtils {
         Log.d("end 2 "+days2,"days 2 -------> "+days2.length());
 
 
-
-
-
-
-
-
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
 
@@ -100,6 +93,32 @@ public class DateUtils {
             e.printStackTrace();
         }
 
-        return -1; // Return -1 or handle the error as needed
+        return -1;
+    }
+
+    public static boolean isDateTimeExpired(String startDate, String startTime, String endDate, String endTime) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+
+        try {
+            Date startDateParsed = dateFormat.parse(startDate);
+            Date endDateParsed = dateFormat.parse(endDate);
+            Date startTimeParsed = timeFormat.parse(startTime);
+            Date endTimeParsed = timeFormat.parse(endTime);
+
+            String startDateTimeString = dateFormat.format(startDateParsed) + " " + timeFormat.format(startTimeParsed);
+            String endDateTimeString = dateFormat.format(endDateParsed) + " " + timeFormat.format(endTimeParsed);
+
+            Date startDateTime = dateTimeFormat.parse(startDateTimeString);
+            Date endDateTime = dateTimeFormat.parse(endDateTimeString);
+
+            Date currentDateTime = new Date();
+
+            return currentDateTime.after(endDateTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

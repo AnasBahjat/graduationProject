@@ -33,6 +33,15 @@ public class Children implements Parcelable {
         this.childRequestId = childRequestId;
     }
 
+    public Children(int childId, String childName, String childAge,
+                    int childGender, int grade) {
+        this.childId = childId;
+        this.childName = childName;
+        this.childAge = childAge;
+        this.childGender = childGender;
+        this.grade = grade;
+    }
+
     public int getChildId() {
         return childId;
     }

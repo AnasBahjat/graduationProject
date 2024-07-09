@@ -19,6 +19,7 @@ import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.DeletePostedRequestListener;
+import com.example.graduationproject.listeners.FetchCoursesListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.GetParentChildrenForRequest;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
@@ -1596,10 +1597,37 @@ public class Database {
         requestQueue.add(stringRequest);
     }
 
-    public void getAllTeacherCourses(String teacherEmail,final OnTeacherCoursesFetchedListener onTeacherCoursesFetchedListener){
+    public void getAllTeacherCourses(String teacherEmail,final FetchCoursesListener onCoursesFetched){
         requestQueue = Volley.newRequestQueue(context);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherCourses,resp->{},err->{}){};
-
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherCourses,resp->{
+            Log.d("Fetching teacher courses ----> "+resp,"Fetching teacher courses ----> "+resp);
+            if(resp.equalsIgnoreCase("Connection Error")){
+                onCoursesFetched.onCoursesFetched(-2,null);
+            }
+            else if(resp.equalsIgnoreCase("Error")){
+                onCoursesFetched.onCoursesFetched(-1,null);
+            }
+            else if(resp.equalsIgnoreCase("No Courses")){
+                onCoursesFetched.onCoursesFetched(0,null);
+            }
+            else {
+                try {
+                    onCoursesFetched.onCoursesFetched(1,new JSONArray(resp));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        },err->{
+            onCoursesFetched.onCoursesFetched(-1,null);
+        }){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String,String> data = new HashMap<>();
+                data.put("teacherEmail",teacherEmail);
+                return data ;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 
     public void getAllTeacherCoursesDatesBeforeSendRequest(String teacherEmail,final OnTeacherCoursesFetchedForConflictListener onTeacherCoursesFetched){

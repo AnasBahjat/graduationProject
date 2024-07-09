@@ -35,6 +35,15 @@ public class Parent implements Parcelable {
     }
 
 
+    public Parent(String email,String firstName,String lastName,List<Address> addressList,List<String> phoneNumbersList){
+        this.email=email;
+        this.lastName=lastName;
+        this.firstName=firstName;
+        this.addressList = addressList;
+        this.phoneNumbersList=phoneNumbersList;
+    }
+
+
 
     public Parent(String firstName,String lastName,String birthDate,List<String> phoneNumbersList){
         this.firstName=firstName;
