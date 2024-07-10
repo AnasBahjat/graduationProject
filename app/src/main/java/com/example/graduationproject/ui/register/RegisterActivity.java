@@ -442,7 +442,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                 @Override
                 public void run() {
                     binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    MyAlertDialog.showDialogForDone(RegisterActivity.this,"Account created","Account created you can sign in know ..");
+                    MyAlertDialog.showDialogForDone(RegisterActivity.this,"Account created","Account created you can sign in now ..");
                     finish();
                 }
             },1500);

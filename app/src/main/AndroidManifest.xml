@@ -59,6 +59,11 @@
             android:name=".messeging.chatwindo"
             android:exported="true" />
 
+        <!-- Add the missing setting activity -->
+        <activity
+            android:name=".messeging.setting"
+            android:exported="true" />
+
         <!-- Receiver -->
         <receiver
             android:name=".broadcastReceiver.BroadcastHandler"

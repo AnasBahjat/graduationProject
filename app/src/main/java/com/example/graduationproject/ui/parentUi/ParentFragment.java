@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -78,6 +79,8 @@ import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
 import com.example.graduationproject.listeners.ParentRequestToSendListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
+import com.example.graduationproject.messeging.MainActivity;
+import com.example.graduationproject.messeging.chatwindo;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Course;
@@ -96,6 +99,12 @@ import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.Firebase;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -116,6 +125,9 @@ import java.util.Objects;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.firebase.database.DatabaseError;
+
 
 public class ParentFragment extends Fragment implements ParentListenerForParentPostedRequests,
         ParentPostRequestClickListener,
@@ -203,6 +215,15 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private List<Course> parentCoursesList = new ArrayList<>();
     private List<ExpiredCourse> expiredCoursesList = new ArrayList<>();
     private ParentCoursesAdapter parentCoursesAdapter;
+   // private Button sendButton;
+
+    private DatabaseReference mDatabase;
+   // private FragmentParentBinding binding;
+    private Button sendMessageToTeacherBtn;
+    private String receiverName;
+    private String receiverImg;
+    private String receiverUid;
+
 
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -233,13 +254,77 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     };
 
 
+    //////////////////get user id by email not used in the code the used is detuserdatqbyemailprivate void getUserDataByEmail(String email)
+//    private void getUserIdByEmail(String email) {
+//
+//        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                    String userEmail = snapshot.child("mail").getValue(String.class);
+//                    if (userEmail != null && userEmail.equals(email)) {
+//                        String userId = snapshot.getKey();
+//                        Log.d("User ID", "User ID: " + userId);
+//
+//                        return;
+//                    }
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                Log.e("FirebaseError", "Database error getting id by email: " + databaseError.getMessage());
+//            }
+//        });
+//    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentParentBinding.inflate(getLayoutInflater(),container,false);
+        View view = binding.getRoot();
         getTeacherDataFromActivity();
+
+        sendMessageToTeacherBtn = view.findViewById(R.id.sendMessageToTeacherBtn);
+        sendMessageToTeacherBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getUserDataByEmail(email);
+            }
+        });
         initialize();
         return binding.getRoot();
+
+    }
+    //used to put extras to the chatwindo activity
+    private void getUserDataByEmail(String email) {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("user");
+
+        usersRef.orderByChild("mail").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    receiverName = snapshot.child("nameeee").getValue(String.class);
+                    receiverImg = snapshot.child("reciverImg").getValue(String.class);
+                    receiverUid = snapshot.child("uid").getValue(String.class);
+
+                    startChatWindowActivity();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle possible errors.
+            }
+        });
+    }
+    private void startChatWindowActivity() {
+        Intent intent = new Intent(getActivity(), chatwindo.class);
+        intent.putExtra("nameeee", receiverName);
+        intent.putExtra("reciverImg", receiverImg);
+        intent.putExtra("uid", receiverUid);
+        startActivity(intent);
     }
 
     @Override
