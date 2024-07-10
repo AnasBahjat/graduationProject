@@ -1259,6 +1259,12 @@ public class ParentActivity extends AppCompatActivity implements
             intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
             sendBroadcast(intent);
         }
+        else if(notification.getNotificationType() == 20){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_PARENT");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
+        }
     }
 
     private void decrementNotificationsNumber(){

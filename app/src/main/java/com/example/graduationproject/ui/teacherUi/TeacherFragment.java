@@ -1,9 +1,11 @@
 package com.example.graduationproject.ui.teacherUi;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
@@ -41,6 +43,8 @@ import com.example.graduationproject.adapters.MatchingTeacherAdapter;
 import com.example.graduationproject.adapters.TeacherCoursesAdapter;
 import com.example.graduationproject.adapters.TeacherReceivedRequestAdapter;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
+import com.example.graduationproject.databinding.DeleteParentCourseCardForParentBinding;
+import com.example.graduationproject.databinding.DeleteTeacherCourseCardForTeacherBinding;
 import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
 import com.example.graduationproject.databinding.FilterLayoutBinding;
 import com.example.graduationproject.databinding.TeacherCourseCardClickedLayoutBinding;
@@ -53,7 +57,10 @@ import com.example.graduationproject.listeners.FetchCoursesListener;
 import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnCourseAddedListener;
+import com.example.graduationproject.listeners.OnCourseFetchedForParentListener;
 import com.example.graduationproject.listeners.OnParentSentRequestFetchListener;
+import com.example.graduationproject.listeners.OnRemoveRequestSentListener;
+import com.example.graduationproject.listeners.OnSetCourseDoneListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesFetchedForConflictListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesFetchedListener;
 import com.example.graduationproject.listeners.OnTeacherCoursesReceivedListener;
@@ -84,6 +91,7 @@ import com.example.graduationproject.models.Teacher;
 import com.example.graduationproject.models.TeacherMatchModel;
 import com.example.graduationproject.models.TeacherPostRequest;
 import com.example.graduationproject.models.TeacherReceivedRequest;
+import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.utils.DateUtils;
 import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
@@ -118,7 +126,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         OnReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener,
         OnTeacherCoursesReceivedListener, OnCourseAddedListener, OnTeacherToParentRequestSentListener,
         OnCheckIfRequestSentBeforeListener,
-        OnSentRequestDeletedListener, OnTeacherCoursesFetchedForConflictListener, OnTeacherCoursesFetchedListener, FetchCoursesListener, TeacherCourseClickListener {
+        OnSentRequestDeletedListener, OnTeacherCoursesFetchedForConflictListener, OnTeacherCoursesFetchedListener, FetchCoursesListener, TeacherCourseClickListener, OnSetCourseDoneListener, OnRemoveRequestSentListener, OnCourseFetchedForParentListener {
 
     private FragmentTeacherBinding binding;
 
@@ -184,6 +192,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private List<Course> teacherCoursesList = new ArrayList<>();
     private List<ExpiredCourse> expiredCoursesList = new ArrayList<>();
     private TeacherCoursesAdapter teacherCoursesAdapter;
+    private Dialog courseDialog;
 
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -207,6 +216,25 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             else if ("SHOW_TEACHER_RECEIVED_REQUESTS".equalsIgnoreCase(intent.getAction())) {
                 showTeacherReceivedRequestBtn = true;
                 database.getTeacherReceivedRequests(email, TeacherFragment.this);
+            }
+
+
+            else if("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER".equalsIgnoreCase(intent.getAction())){
+                Notifications notification ;
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                    notification = intent.getParcelableExtra("notification",Notifications.class);
+                }
+                else {
+                    notification = intent.getParcelableExtra("notification");
+                }
+                if(notification != null){
+                    Toast.makeText(getContext(), "22222222222", Toast.LENGTH_SHORT).show();
+                    // Log.d("The received notification course id ----> "+notification.getTeacherSentRequestId(),"The received notification course id ----> "+notification.getTeacherSentRequestId());
+                    database.getSpecificParentCourse(notification.getParentSentRequestId(), TeacherFragment.this);
+                }
+                else{
+                    MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(),"Unable to show","Unable to show the request data , please communicate with the teacher..");
+                }
             }
             /*else if("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
                 Toast.makeText(getContext(), "Show Teacher Received Request ..", Toast.LENGTH_SHORT).show();
@@ -252,6 +280,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             parentFragmentIntentFilter.addAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
             parentFragmentIntentFilter.addAction("SHOW_TEACHER_RECEIVED_REQUESTS");
             parentFragmentIntentFilter.addAction("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
+            parentFragmentIntentFilter.addAction("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER");
             int flags = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 flags = Context.RECEIVER_NOT_EXPORTED;
@@ -372,7 +401,43 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private boolean myPostedRequestsMatchesQuery(TeacherPostRequest request, String query){
         query = query.toLowerCase();
-        if (request.getAvailability().toLowerCase().contains(query) ||
+
+        String requestDays = request.getAvailability().toLowerCase().trim();
+        String fullAvail = "";
+
+        if (!requestDays.isEmpty() && requestDays.charAt(requestDays.length() - 1) == ',') {
+            requestDays = requestDays.substring(0, requestDays.length() - 1);
+        }
+
+        String [] splitAvail = requestDays.split(",");
+        for(String str : splitAvail){
+            if(str.toLowerCase().contains("sun")){
+                fullAvail += "Sunday , ";
+            }
+
+            if(str.toLowerCase().contains("mon")){
+                fullAvail += "Monday , ";
+            }
+            if(str.toLowerCase().contains("tues")){
+                fullAvail += "Tuesday , ";
+            }
+            if(str.toLowerCase().contains("wed")){
+                fullAvail += "Wednesday , ";
+            }
+            if(str.toLowerCase().contains("thur")){
+                fullAvail += "Thursday , ";
+            }
+            if(str.toLowerCase().contains("fri")){
+                fullAvail += "Friday";
+            }
+            if(str.toLowerCase().contains("sat")){
+                fullAvail += "Saturday , ";
+            }
+        }
+
+
+
+        if (fullAvail.toLowerCase().contains(query) ||
                 request.getCourses().toLowerCase().contains(query) ||
                 request.getLocation().toLowerCase().contains(query) ||
                 request.getDuration().toLowerCase().contains(query) ||
@@ -384,6 +449,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 request.getEndDate().toLowerCase().contains(query)) {
             return true;
         }
+
+
 
         Teacher teacher = request.getTeacherData();
         if(teacher != null &&(teacher.getEmail().trim().equalsIgnoreCase(query) ||
@@ -415,7 +482,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
 
 
-    private void setTeacherPostedData() {
+ /*   private void setTeacherPostedData() {
         binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.teacherFragmentSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -431,7 +498,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             }
         });
         database.getTeacherPostedRequests(email, this);
-    }
+    }*/
 
 
     private void updatePostedAdapterData() {
@@ -544,6 +611,40 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private boolean myCoursesMatchesQuery(Course course,String query){
         query = query.toLowerCase();
 
+
+        String requestDays = course.getDays().toLowerCase().trim();
+        String fullAvail = "";
+
+        if (!requestDays.isEmpty() && requestDays.charAt(requestDays.length() - 1) == ',') {
+            requestDays = requestDays.substring(0, requestDays.length() - 1);
+        }
+
+        String [] splitAvail = requestDays.split(",");
+        for(String str : splitAvail){
+            if(str.toLowerCase().contains("sun")){
+                fullAvail += "Sunday , ";
+            }
+
+            if(str.toLowerCase().contains("mon")){
+                fullAvail += "Monday , ";
+            }
+            if(str.toLowerCase().contains("tues")){
+                fullAvail += "Tuesday , ";
+            }
+            if(str.toLowerCase().contains("wed")){
+                fullAvail += "Wednesday , ";
+            }
+            if(str.toLowerCase().contains("thur")){
+                fullAvail += "Thursday , ";
+            }
+            if(str.toLowerCase().contains("fri")){
+                fullAvail += "Friday";
+            }
+            if(str.toLowerCase().contains("sat")){
+                fullAvail += "Saturday , ";
+            }
+        }
+
         if (course.getTeacherEmail().toLowerCase().contains(query) ||
                 course.getParentEmail().toLowerCase().contains(query) ||
                 String.valueOf(course.getParentSentRequestId()).contains(query) ||
@@ -552,7 +653,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 String.valueOf(course.getDuration()).contains(query) ||
                 course.getEducationLevel().toLowerCase().contains(query) ||
                 course.getCourses().toLowerCase().contains(query) ||
-                course.getDays().toLowerCase().contains(query) ||
+                fullAvail.toLowerCase().contains(query) ||
                 course.getLocation().toLowerCase().contains(query) ||
                 course.getTeachingMethod().toLowerCase().contains(query) ||
                 course.getStartTime().toLowerCase().contains(query) ||
@@ -564,12 +665,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         }
 
         Children child = course.getChild();
-      /*  if (child != null && (child.getChildName().toLowerCase().contains(query) ||
-                String.valueOf(child.getChildAge()).contains(query) ||
-                (child.getChildGender() == 0 ? "female" : "male").contains(query) ||
-                (child.getGrade()+"").toLowerCase().contains(query))) {
-            return true;
-        }*/
         if (child != null && (child.getChildName().toLowerCase().contains(query) ||
                 String.valueOf(child.getChildAge()).contains(query) ||
                 (child.getChildGender() == 0 ? "female" : "male").contains(query) ||
@@ -680,56 +775,97 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
     }
 
+
     private void searchInParentPostedRequestsForTeacher(String str) {
-        String text = str.toLowerCase();
-        List<TeacherPostRequest> teacherMatchModelList = new ArrayList<>();
-        Log.d(text, text);
-        for (TeacherPostRequest model : teacherPostedRequestsList) {
-            if (model.getTeacherData().getTeacherName().toLowerCase().contains(text.trim()) || model.getTeacherEmail().toLowerCase().contains(text.trim()) ||
-                    model.getCourses().toLowerCase().contains(text) || model.getTeachingMethod().toLowerCase().contains(text.trim()) ||
-                    model.getDuration().equalsIgnoreCase(text) || model.getLocation().toLowerCase().contains(text.trim()) ||
-                    model.getTeacherData().getField().toLowerCase().contains(text) || model.getTeacherData().getCollege().toLowerCase().contains(text.trim()) ||
-                    model.getTeacherData().getAvailability().toLowerCase().contains(text) || model.getTeacherData().getEducationalLevel().toLowerCase().contains(text)) {
-                teacherMatchModelList.add(model);
-                continue;
-            }
-            if (model.getTeacherData().getGender() == 1 && text.equalsIgnoreCase("Male")) {
-                teacherMatchModelList.add(model);
-                continue;
-            } else if (model.getTeacherData().getGender() == 0 && text.equalsIgnoreCase("Female")) {
-                teacherMatchModelList.add(model);
-                continue;
-            }
-            int flag = 0;
-            for (Address address : model.getTeacherData().getAddressesList()) {
-                if (address.getCity().toLowerCase().contains(text) || address.getCountry().toLowerCase().contains(text)) {
-                    flag = 1;
-                    teacherMatchModelList.add(model);
-                    break;
+        if(!parentPostedRequestsForTeacherList.isEmpty()){
+            List<TeacherMatchModel> filteredRequests = new ArrayList<>();
+            for (TeacherMatchModel matchModel : parentPostedRequestsForTeacherList) {
+                if (parentPostedRequestsMatchesQuery(matchModel,str)) {
+                    filteredRequests.add(matchModel);
                 }
+            }
+            if(filteredRequests.isEmpty()){
+                binding.noMatchedData.setVisibility(View.VISIBLE);
+                binding.noPostedRequestTextView.setVisibility(View.GONE);
+                binding.noDataAddedText.setVisibility(View.GONE);
+                binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+            }
+            else {
+                binding.noMatchedData.setVisibility(View.GONE);
+                binding.noPostedRequestTextView.setVisibility(View.GONE);
+                binding.noDataAddedText.setVisibility(View.GONE);
+                binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
+                matchingTeacherAdapter.filteredList(filteredRequests);
+            }
+        }
+        else {
+            binding.noMatchedData.setVisibility(View.VISIBLE);
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.noDataAddedText.setVisibility(View.GONE);
+            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean parentPostedRequestsMatchesQuery(TeacherMatchModel model ,String query){
+        query = query.toLowerCase();
+
+
+        String requestDays = model.getChoseDays().toLowerCase().trim();
+        String fullAvail = "";
+
+        if (!requestDays.isEmpty() && requestDays.charAt(requestDays.length() - 1) == ',') {
+            requestDays = requestDays.substring(0, requestDays.length() - 1);
+        }
+
+        String [] splitAvail = requestDays.split(",");
+        for(String str : splitAvail){
+            if(str.toLowerCase().contains("sun")){
+                fullAvail += "Sunday , ";
             }
 
-            if (flag == 0) {
-                for (String phone : model.getTeacherData().getPhoneNumbersList()) {
-                    if (phone.equals(text)) {
-                        teacherMatchModelList.add(model);
-                        break;
-                    }
-                }
+            if(str.toLowerCase().contains("mon")){
+                fullAvail += "Monday , ";
+            }
+            if(str.toLowerCase().contains("tues")){
+                fullAvail += "Tuesday , ";
+            }
+            if(str.toLowerCase().contains("wed")){
+                fullAvail += "Wednesday , ";
+            }
+            if(str.toLowerCase().contains("thur")){
+                fullAvail += "Thursday , ";
+            }
+            if(str.toLowerCase().contains("fri")){
+                fullAvail += "Friday";
+            }
+            if(str.toLowerCase().contains("sat")){
+                fullAvail += "Saturday , ";
             }
         }
-        if (teacherMatchModelList.isEmpty() && getView() != null) {
-            binding.noDataAddedText.setVisibility(View.GONE);
-            binding.noPostedRequestTextView.setVisibility(View.GONE);
-            binding.addedCoursesRecyclerView.setVisibility(View.GONE);
-            binding.noMatchedData.setVisibility(View.VISIBLE);
-        } else {
-            binding.noDataAddedText.setVisibility(View.GONE);
-            binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
-            binding.noPostedRequestTextView.setVisibility(View.GONE);
-            binding.noMatchedData.setVisibility(View.GONE);
-            teacherPostedRequestsAdapter.filteredList(teacherMatchModelList);
+
+
+        if(model != null && (model.getParentEmail().toLowerCase().contains(query) ||
+                fullAvail.toLowerCase().contains(query) ||
+                model.getCourses().toLowerCase().contains(query) ||
+                model.getLocation().toLowerCase().contains(query) ||
+                model.getTeachingMethod().toLowerCase().contains(query)||
+                model.getStartTime().contains(query) ||
+                model.getStartDate().contains(query) ||
+                model.getEndDate().contains(query) ||
+                model.getPostDate().contains(query) ||
+                String.valueOf(model.getPriceMinimum()).contains(query)||
+                String.valueOf(model.getPriceMaximum()).contains(query))){
+            return true;
         }
+
+        CustomChildData customChildData = model.getCustomChildData();
+        if(customChildData != null && (customChildData.getChildName().toLowerCase().contains(query) ||
+                convertGradeFormat(customChildData.getChildGrade()).toLowerCase().contains(query) ||
+                (customChildData.getGender() == 0 ? "Female" : "Male").contains(query) ||
+                String.valueOf(customChildData.getChildAge()).contains(query))){
+            return true;
+        }
+        return false;
     }
 
     private void initDatabase() {
@@ -1823,12 +1959,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     @Override
     public void onCourseAdded(int flag) {
         if (flag == 1) {
-            //Snackbar.make(getView(), "Course Added To Your Courses ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
             MyAlertDialog.showDialogForDone(getContext(),"Course Added","Courses Added to your current courses , check the main page ..");
             database.getAllTeacherCourses(email,this);
-            // teacherReceivedRequestAdapter.deleteItem(tempTeacherReceivedRequestOeeebject);
         } else {
-            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"ERRRRROR","ERRRRRROR FLAG -->"+flag);
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error Adding Course","Something went wrong , the new course is not added , please try again later ..");
         }
     }
 
@@ -1845,7 +1979,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
             dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x -> {
                 database.getAllTeacherCoursesDatesBeforeSendRequest(email,this);
-                //database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
             });
         } else if (flag == 0) {
             new Handler().postDelayed(() -> {
@@ -2529,7 +2662,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     @Override
     public void onCoursesFetched(int flag, JSONArray courses) {
         if(flag == 0){
-            binding.noDataAddedText.setVisibility(View.VISIBLE);
+            binding.noDataAddedText.setVisibility(View.GONE);
             binding.addedCoursesRecyclerView.setVisibility(View.GONE);
         }
         else if(flag == 1){
@@ -2633,7 +2766,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     @Override
     public void onTeacherCourseClicked(Course course) {
         if(getContext() != null){
-            Dialog courseDialog = new Dialog(getContext());
+            courseDialog = new Dialog(getContext());
             TeacherCourseCardClickedLayoutBinding teacherCourseCardClickedLayoutBinding = TeacherCourseCardClickedLayoutBinding.inflate(LayoutInflater.from(getContext()));
             courseDialog.setContentView(teacherCourseCardClickedLayoutBinding.getRoot());
             courseDialog.setCancelable(false);
@@ -2706,8 +2839,326 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             }
             teacherCourseCardClickedLayoutBinding.parentAddressTextView.setText(str2);
             teacherCourseCardClickedLayoutBinding.cardSettings.setOnClickListener(c->{
-                //showCardSettings();
+                showCardSettings(teacherCourseCardClickedLayoutBinding,course);
             });
         }
     }
+
+    private void showCardSettings(TeacherCourseCardClickedLayoutBinding teacherCourseCardClickedLayoutBinding,Course course){
+        PopupMenu popupMenu = new PopupMenu(getContext(),teacherCourseCardClickedLayoutBinding.cardSettings);
+        popupMenu.getMenuInflater().inflate(R.menu.menu_teacher_course,popupMenu.getMenu());
+        popupMenu.show();
+        popupMenu.setOnMenuItemClickListener(item ->{
+            if(item.getItemId() == R.id.markAsCompleted){
+                completeTeacherCourse(course);
+            }
+            else if(item.getItemId() == R.id.deleteCourse){
+              // sendRemoveRequestToParent(course);
+                customRemoveConfirmAlterDialog(course);
+                // To Do ()
+            }
+
+            return true;
+        });
+    }
+
+    private void sendRemoveRequestToParent(Course course){
+       // database.sendRemoveRequestToParent(course,this);
+    }
+
+    private void completeTeacherCourse(Course course){
+        if(DateUtils.isDateTimeExpired(course.getStartDate(),course.getStartTime(),course.getEndDate(),course.getEndTime())){
+            customConfirmAlterDialog(course);
+            // delete from database ..
+           // database.setCourseIsDone(course,this);
+        }
+        else {
+            MyAlertDialog.warning(getContext(),"Not completed","Course Is Not completed yet , if you want to remove it choose Remove from Enrolled");
+        }
+    }
+
+    private void customRemoveConfirmAlterDialog(Course course){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.warning_icon);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView errorTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText("Confirm ");
+        errorTextView.setText("Are you sure you want to send a delete request to the parent ?");
+        errorTextView.setTextColor(getResources().getColor(R.color.black));
+        builder.setView(view);
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                database.sendRemoveRequestToParent(course,TeacherFragment.this);
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void customConfirmAlterDialog(Course course){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.warning_icon);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView errorTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText("Confirm ");
+        errorTextView.setText("Are You Sure of setting this course to done ?");
+        errorTextView.setTextColor(getResources().getColor(R.color.black));
+        builder.setView(view);
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                database.setCourseIsDone(course,TeacherFragment.this);
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @Override
+    public void onCourseDoneSet(int flag) {
+        if(flag == 0){
+            MyAlertDialog.showDialogForDone(getContext(),"No Course","Course Is No Longer exists or an error occurred..");
+            courseDialog.dismiss();
+            database.getAllTeacherCourses(email,this);
+        }
+        else if(flag == 1){
+            MyAlertDialog.showDialogForDone(getContext(),"Done Course","Course Is set to done ..");
+            courseDialog.dismiss();
+            database.getAllTeacherCourses(email,this);
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred , please try again later ..");
+        }
+        else{
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Connection Error , please check your internet and try again ..");
+        }
+    }
+
+    @Override
+    public void onRemoveRequestSent(int flag) {
+        if(flag == 0){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Course Error","Unable to find the course , please update the list and try again ..");
+            courseDialog.dismiss();
+            database.getAllTeacherCourses(email,this);
+        }
+        else if(flag == 1){
+            MyAlertDialog.showDialogForDone(getContext(),"Request Sent","Request Sent To The Parent, when he/she accepts the request , the course will be deleted ..");
+            courseDialog.dismiss();
+        }
+        else if(flag == 2){
+            MyAlertDialog.warningDialog(getContext(),"Sent Before","Delete Request Sent before , wait for parent response ..");
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(),"Error","An Error occurred sending request to the parent , please try again later");
+        }
+        else{
+            MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(),"Connection Error","Connection Error unable to access database, please try again later or check your network");
+        }
+    }
+
+    @Override
+    public void onCourseFetched(int flag, JSONArray courseInformation) {
+        if(flag == 0){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Date","Unable to show the data , request may be deleted ..");
+        }
+        else if(flag == 1 && courseInformation != null &&courseInformation.length() == 1) {
+            Course tempCourse = new Course();
+            List<String> parentPhoneNumbersList = new ArrayList<>();
+            try{
+                JSONObject jsonObject = courseInformation.getJSONObject(0);
+                int courseId = jsonObject.getInt("courseId");
+                String teacherEmail = jsonObject.getString("teacherEmail");
+                String parentEmail = jsonObject.getString("parentEmail");
+                int teacherSentRequestId = jsonObject.getInt("teacherSentRequestId");
+                int parentSentRequestId = jsonObject.getInt("parentSentRequestId");
+                String courses = jsonObject.getString("courses");
+                String availabilityForJob = jsonObject.getString("choseDays");
+                String location = jsonObject.getString("location");
+                String teachingMethod = jsonObject.getString("teachingMethod");
+                String startTime = jsonObject.getString("startTime");
+                String endTime = jsonObject.getString("endTime");
+                String startDate = jsonObject.getString("startDate");
+                String endDate = jsonObject.getString("endDate");
+                double price = jsonObject.getDouble("price");
+                int childId = jsonObject.getInt("childId");
+                String childName = jsonObject.getString("childName");
+                String childAge = jsonObject.getString("childAge");
+                String childGender = jsonObject.getString("childGender");
+                String childGrade = jsonObject.getString("childGrade");
+                String parentFirstName = jsonObject.getString("firstName");
+                parentFirstName = parentFirstName.substring(0,1).toUpperCase()+parentFirstName.substring(1).toLowerCase();
+                String parentLastName = jsonObject.getString("lastName");
+                parentLastName = parentLastName.substring(0,1).toUpperCase()+parentLastName.substring(1).toLowerCase();
+
+                String phoneNumbers = jsonObject.getString("phoneNumbers");
+                if (phoneNumbers.contains(",")) {
+                    String[] splitPhoneNumbers = phoneNumbers.split(",");
+                    parentPhoneNumbersList.addAll(Arrays.asList(splitPhoneNumbers));
+                }
+                else
+                    parentPhoneNumbersList.add(phoneNumbers.trim());
+
+
+                tempCourse.setCourseId(courseId);
+                tempCourse.setTeacherEmail(teacherEmail);
+                tempCourse.setParentEmail(parentEmail);
+                tempCourse.setTeacherSentRequestId(teacherSentRequestId);
+                tempCourse.setParentSentRequestId(parentSentRequestId);
+                tempCourse.setCourses(courses);
+                tempCourse.setDays(availabilityForJob);
+                tempCourse.setLocation(location);
+                tempCourse.setTeachingMethod(teachingMethod);
+                tempCourse.setStartTime(startTime);
+                tempCourse.setEndTime(endTime);
+                tempCourse.setStartDate(startDate);
+                tempCourse.setEndDate(endDate);
+                tempCourse.setPrice(price);
+                tempCourse.setChildId(childId);
+                tempCourse.setChild(new Children(childId,childName,childAge,Integer.parseInt(childGender),Integer.parseInt(childGrade)));
+                tempCourse.setParent(new Parent(parentEmail,parentFirstName,parentLastName,parentPhoneNumbersList,0));
+                showTeacherRemoveReceivedCourseRequest(tempCourse);
+            }
+            catch(JSONException e){
+                throw new RuntimeException(e);
+            }
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Error fetching data , try again later.");
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Error connecting to database , please check your network ..");
+        }
+    }
+
+    private void showTeacherRemoveReceivedCourseRequest(Course tempCourse){
+        if(getContext() != null){
+            Dialog removeRequestForTeacherDialog = new Dialog(getContext());
+            DeleteTeacherCourseCardForTeacherBinding deleteTeacherCourseCardForTeacherBinding = DeleteTeacherCourseCardForTeacherBinding.inflate(LayoutInflater.from(getContext()));
+            removeRequestForTeacherDialog.setContentView(deleteTeacherCourseCardForTeacherBinding.getRoot());
+            removeRequestForTeacherDialog.setCancelable(false);
+
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(removeRequestForTeacherDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = 2300;
+            removeRequestForTeacherDialog.getWindow().setAttributes(layoutParams);
+            if(removeRequestForTeacherDialog.getWindow() != null)
+                removeRequestForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            removeRequestForTeacherDialog.show();
+
+            deleteTeacherCourseCardForTeacherBinding.closeImageView.setOnClickListener(c->{
+                removeRequestForTeacherDialog.dismiss();
+            });
+
+            deleteTeacherCourseCardForTeacherBinding.coursesTextView.setText(tempCourse.getCourses());
+            deleteTeacherCourseCardForTeacherBinding.dateTextView.setText(tempCourse.getStartDate()+"  -  "+tempCourse.getEndDate());
+            deleteTeacherCourseCardForTeacherBinding.timeTextView.setText(tempCourse.getStartTime()+"  -  "+tempCourse.getEndTime());
+            deleteTeacherCourseCardForTeacherBinding.choseDaysTextView.setText(tempCourse.getDays());
+            deleteTeacherCourseCardForTeacherBinding.teachingMethodTextView.setText(tempCourse.getTeachingMethod());
+            deleteTeacherCourseCardForTeacherBinding.childNameTextView.setText(tempCourse.getChild().getChildName());
+
+            if(tempCourse.getChild().getChildAge().equalsIgnoreCase("1")){
+                deleteTeacherCourseCardForTeacherBinding.childAgeTextView.setText(String.format("%s Year", tempCourse.getChild().getChildAge()));
+            }
+            else {
+                deleteTeacherCourseCardForTeacherBinding.childAgeTextView.setText(String.format("%s Years", tempCourse.getChild().getChildAge()));
+            }
+            String gender = "Male";
+            if(tempCourse.getChild().getChildGender() == 0){
+                gender = "Female";
+            }
+            deleteTeacherCourseCardForTeacherBinding.childGenderTextView.setText(gender);
+            if(tempCourse.getChild().getGrade() == 1){
+                deleteTeacherCourseCardForTeacherBinding.childGradeTextView.setText(String.format("%dst Grade", tempCourse.getChild().getGrade()));
+            }
+            else if(tempCourse.getChild().getGrade() == 2){
+                deleteTeacherCourseCardForTeacherBinding.childGradeTextView.setText(String.format("%dnd Grade", tempCourse.getChild().getGrade()));
+            }
+            else {
+                deleteTeacherCourseCardForTeacherBinding.childGradeTextView.setText(String.format("%dth Grade", tempCourse.getChild().getGrade()));
+            }
+
+            deleteTeacherCourseCardForTeacherBinding.parentNameTextView.setText(String.format("%s %s", tempCourse.getParent().getFirstName(), tempCourse.getParent().getLastName()));
+            deleteTeacherCourseCardForTeacherBinding.parentEmailTextView.setText(tempCourse.getParent().getEmail());
+
+            StringBuilder str = new StringBuilder();
+            List<String> phone = tempCourse.getParent().getPhoneNumbersList();
+            for(int i = 0 ; i< phone.size() ; i++){
+                if(i + 1 == phone.size()){
+                    str.append(phone.get(i));
+                }
+                else {
+                    str.append(phone.get(i)).append(" — ");
+                }
+            }
+            deleteTeacherCourseCardForTeacherBinding.parentPhoneTextView.setText(str);
+            deleteTeacherCourseCardForTeacherBinding.declineCourseDelete.setOnClickListener(v->{
+                database.sendDeclineRemovingRequestNotificationToTeacher(tempCourse);
+            });
+
+            deleteTeacherCourseCardForTeacherBinding.acceptCourseDelete.setOnClickListener(w->{
+                customConfirmAlterDialog(tempCourse,removeRequestForTeacherDialog);
+            });
+        }
+    }
+
+    private void customConfirmAlterDialog(Course course,Dialog removeRequestForTeacherDialog){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.warning_icon);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView errorTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText("Confirm ");
+        errorTextView.setText("Are You Sure of deleting this course ?");
+        errorTextView.setTextColor(getResources().getColor(R.color.black));
+        builder.setView(view);
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                database.removeCourseForParentAndTeacher2(course);
+                MyAlertDialog.showDialogForDone(getContext(),"Course Deleted","The course deleted, its no longer available ..");
+                database.getAllParentCourses(email,TeacherFragment.this);
+                dialog.dismiss();
+                removeRequestForTeacherDialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 }

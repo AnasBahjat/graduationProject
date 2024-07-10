@@ -24,6 +24,10 @@ public class Course {
     private Parent parent;
     private Teacher teacher;
 
+    public Course(){
+
+    }
+
     public Course(int courseId, String teacherEmail,
                   String parentEmail, int parentSentRequestId,
                   int teacherSentRequestId, int childId, String courses,

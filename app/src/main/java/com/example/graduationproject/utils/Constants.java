@@ -51,9 +51,14 @@ public class Constants {
     public static String  getAllParentCoursesDatesAndTime ="http://"+ip+"/graduationProject/getAllParentCoursesDatesAndTime.php";
     public static String  removeNotification ="http://"+ip+"/graduationProject/removeNotification.php";
     public static String  getAllParentCourses ="http://"+ip+"/graduationProject/getAllParentCourses.php";
-
-
-
+    public static String  setCourseToDone ="http://"+ip+"/graduationProject/setCourseToDone.php";
+    public static String  sendRemoveRequestToParent ="http://"+ip+"/graduationProject/sendRemoveRequestToParent.php";
+    public static String  sendRemoveRequestToTeacher ="http://"+ip+"/graduationProject/sendRemoveRequestToTeacher.php";
+    public static String  getSpecificTeacherCourse ="http://"+ip+"/graduationProject/getSpecificTeacherCourse.php";
+    public static String  getSpecificParentCourse ="http://"+ip+"/graduationProject/getSpecificParentCourse.php";
+    public static String  removeTeacherRequestCourseForParentAndTeacher  ="http://"+ip+"/graduationProject/removeTeacherRequestCourseForParentAndTeacher.php";
+    public static String  sendDeclineRemovingRequestNotificationToTeacher  ="http://"+ip+"/graduationProject/sendDeclineRemovingRequestNotificationToTeacher.php";
+    public static String  removeTeacherRequestCourseForParentAndTeacher2  ="http://"+ip+"/graduationProject/removeTeacherRequestCourseForParentAndTeacher2.php";
 
     public static final String PREF_NAME = "GRADUATION_PROJECT_SHARED_PREFERENCE";
 

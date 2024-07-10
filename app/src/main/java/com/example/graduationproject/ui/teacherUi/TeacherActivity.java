@@ -1543,5 +1543,11 @@ public class TeacherActivity extends AppCompatActivity implements
             intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
             sendBroadcast(intent);
         }
+        else if(notification.getNotificationType() == 30){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
+        }
     }
 }

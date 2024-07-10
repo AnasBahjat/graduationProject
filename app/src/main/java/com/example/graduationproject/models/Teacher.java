@@ -30,6 +30,11 @@ public class Teacher implements Parcelable {
         this.phoneNumbersList = phoneNumbersList;
         this.birthDate = birthDate;
     }
+    public Teacher(String teacherName, String email, List<String> phoneNumbersList) {
+        this.teacherName = teacherName;
+        this.email = email;
+        this.phoneNumbersList = phoneNumbersList;
+    }
 
     public Teacher(String teacherName, String email, List<String> phoneNumbersList,String educationalLevel, String birthDate) {
         this.teacherName = teacherName;
