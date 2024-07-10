@@ -7,10 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -41,7 +39,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.work.Data;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
@@ -82,9 +79,6 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -163,7 +157,7 @@ public class ParentActivity extends AppCompatActivity implements
         parentBinding = ActivityParentBinding.inflate(getLayoutInflater());
         setContentView(parentBinding.getRoot());
         ImageView messageIcon = findViewById(R.id.messegeicon);
-        numOfMsgReceivedToParent = findViewById(R.id.numOfMessagesReceivedToParent);
+        numOfMsgReceivedToParent = findViewById(R.id.numOfMessagesReceivedToTeacher);
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
 
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();

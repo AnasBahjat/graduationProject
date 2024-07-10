@@ -40,6 +40,7 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,6 +72,8 @@ import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TeacherAvailabilityListener;
 import com.example.graduationproject.listeners.TeacherPostListener;
+import com.example.graduationproject.messeging.ChatViewModel;
+import com.example.graduationproject.messeging.MainActivity;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
@@ -174,6 +177,11 @@ public class TeacherActivity extends AppCompatActivity implements
             }
         }
     };
+    int countbadge;
+    // FirebaseAuth auth;
+    // FirebaseDatabase databaseM;
+    ChatViewModel chatViewModel;
+    TextView numOfMsgReceivedToParent;
 
 
     @Override
@@ -182,6 +190,30 @@ public class TeacherActivity extends AppCompatActivity implements
         EdgeToEdge.enable(this);
         binding = ActivityTeacherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        ImageView messageIcon = findViewById(R.id.messegeicon1);
+        numOfMsgReceivedToParent = findViewById(R.id.numOfMessagesReceivedToTeacher);
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        chatViewModel.fetchUnreadMessages(currentUserId);
+
+        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+            if (unreadCount > 0) {
+                numOfMsgReceivedToParent.setText(String.valueOf(unreadCount));
+                numOfMsgReceivedToParent.setVisibility(View.VISIBLE);
+            } else {
+                numOfMsgReceivedToParent.setVisibility(View.GONE);
+            }
+        });
+        messageIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create an Intent to start MainActivity
+                Intent intent = new Intent(TeacherActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
         getIntentDate();
         Data inputData = new Data.Builder().putString("email",email).build();
         periodicWorkRequest = new PeriodicWorkRequest.Builder(
@@ -451,7 +483,12 @@ public class TeacherActivity extends AppCompatActivity implements
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
+            String email=getIntent().getStringExtra("email");
+            Intent intent=new Intent(TeacherActivity.this, LoginActivity.class);
+            startActivity(intent);
             finish();
+
+          //  finish();
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;

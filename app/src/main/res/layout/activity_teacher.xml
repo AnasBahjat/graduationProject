@@ -84,15 +84,15 @@
                         android:layout_marginTop="12dp">
 
                         <ImageView
+                            android:id="@+id/messegeicon1"
                             android:layout_width="35dp"
                             android:layout_height="35dp"
-                            android:layout_marginTop="2dp"
                             android:layout_marginStart="20dp"
-                            android:src="@drawable/parent_received_requests"
-                            />
+                            android:layout_marginTop="2dp"
+                            android:src="@drawable/parent_received_requests" />
 
                         <TextView
-                            android:id="@+id/numOfMessagesReceivedToParent"
+                            android:id="@+id/numOfMessagesReceivedToTeacher"
                             android:layout_width="16dp"
                             android:layout_height="19dp"
                             android:layout_alignParentTop="true"
