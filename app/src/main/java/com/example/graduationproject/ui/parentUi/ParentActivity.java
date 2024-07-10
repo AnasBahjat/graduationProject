@@ -65,6 +65,8 @@ import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.ui.login.LoginActivity;
+import com.example.graduationproject.ui.teacherUi.TeacherActivity;
 import com.example.graduationproject.utils.FetchNotificationsPeriodically;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -579,6 +581,9 @@ public class ParentActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         if(menuItem.getItemId() == R.id.logoutId){
+            String email=getIntent().getStringExtra("email");
+            Intent intent=new Intent(ParentActivity.this, LoginActivity.class);
+            startActivity(intent);
             finish();
         }
         else if(menuItem.getItemId() == R.id.lookForTeacher){
