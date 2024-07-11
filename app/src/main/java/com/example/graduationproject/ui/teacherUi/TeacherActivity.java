@@ -368,7 +368,6 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     public void notificationImageClicked(View view) {
-
         LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
 
         if(popupView == null){
@@ -667,15 +666,24 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     private void decrementNotificationsNumber(){
-        if(binding.numOfNotifications.getVisibility() == View.VISIBLE && !binding.numOfNotifications.getText().toString().isEmpty()){
-            int numOfNotifications = Integer.parseInt(binding.numOfNotifications.getText().toString());
-            if(numOfNotifications - 1 > 0){
-                binding.numOfNotifications.setText(""+(Integer.parseInt(binding.numOfNotifications.getText().toString()) - 1));
+        if(!notList.isEmpty()){
+            int count = 0 ;
+            for(Notifications not : notList){
+                if(not.getIsNotificationRead() == 0)
+                    count++;
             }
-            else {
+            if(count != 0){
+                binding.numOfNotifications.setText(count+"");
+                binding.numOfNotifications.setVisibility(View.VISIBLE);
+            }
+            else{
                 binding.numOfNotifications.setText("");
                 binding.numOfNotifications.setVisibility(View.GONE);
             }
+        }
+        else {
+            binding.numOfNotifications.setText("");
+            binding.numOfNotifications.setVisibility(View.GONE);
         }
     }
 
@@ -1143,7 +1151,8 @@ public class TeacherActivity extends AppCompatActivity implements
                             jsonObject.getString("notificationBody"),
                             jsonObject.getInt("isRead"),
                             jsonObject.getInt("parentRequestId"),
-                            jsonObject.getInt("teacherRequestId"));
+                            jsonObject.getInt("teacherRequestId"),
+                            jsonObject.getInt("tempCourseId"));
                     notificationsList.add(notification);
                 }
                 if(!notList.isEmpty()){
@@ -1495,7 +1504,6 @@ public class TeacherActivity extends AppCompatActivity implements
         else if(flag == -2){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Connection Error","Something went wrong with your connection please try again later ..");
         }
-
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong please try again later ..");
         }
@@ -1533,12 +1541,17 @@ public class TeacherActivity extends AppCompatActivity implements
 
     @Override
     public void onNotificationClicked(Notifications notification) {
+        for(Notifications not : notList){
+            if (not.getNotificationId() == notification.getNotificationId())
+                not.setIsNotificationRead(1);
+        }
+        decrementNotificationsNumber();
+        database.setNotificationIsRead(notification.getNotificationId());
         if(notification.getNotificationType() == 1){
             showTeacherInformationPopupWindow();
         }
         else if(notification.getNotificationType() == 2){
             database.setNotificationIsRead(notification.getNotificationId());
-            decrementNotificationsNumber();
             Intent intent = new Intent();
             intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
             sendBroadcast(intent);
@@ -1546,6 +1559,13 @@ public class TeacherActivity extends AppCompatActivity implements
         else if(notification.getNotificationType() == 30){
             Intent intent = new Intent();
             intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
+        }
+
+        else if(notification.getNotificationType() == 32){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DELETE_DECLINED_COURSE_REQUEST_FOR_TEACHER");
             intent.putExtra("notification",notification);
             sendBroadcast(intent);
         }

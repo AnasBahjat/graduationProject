@@ -7,6 +7,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -37,8 +38,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
-        //binding.emailEditText.setText("anas31@gmail.com");
-        //binding.passwordEditText.setText("Anas123123123");
         setContentView(binding.getRoot());
         initialize();
     }
@@ -76,6 +75,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     }
 
     public void loginClicked(View view) {
+        binding.loginProgressBar.setVisibility(View.VISIBLE);
 
         if(binding.rememberMeBtn.isChecked() &&
                 !binding.emailEditText.getText().toString().isEmpty() &&
@@ -143,6 +143,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     public void createAccountClicked(View view) {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
+        binding.loginProgressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -165,7 +166,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
             binding.loginProgressBar.setVisibility(View.GONE);
         }
         else if(message.equals("volleyError")){
-            MyAlertDialog.showCustomAlertDialogLoginError(this,"Login Error","Something went wrong , please try again later");
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Login Error","Network Error , please check your internet connection ..");
             binding.loginProgressBar.setVisibility(View.GONE);
         }
         else {

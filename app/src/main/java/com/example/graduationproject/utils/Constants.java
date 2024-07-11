@@ -2,7 +2,7 @@ package com.example.graduationproject.utils;
 
 
 public class Constants {
-    public static String ip = "192.168.1.5";
+    public static String ip = "192.168.1.755";
     public static String registrationURL = "http://"+ip+"/graduationProject/registration.php/";
     public static String loginURL = "http://"+ip+"/graduationProject/login.php";
     public static String checkAccountDoneURL = "http://"+ip+"/graduationProject/checkAccountDone.php";
@@ -58,7 +58,10 @@ public class Constants {
     public static String  getSpecificParentCourse ="http://"+ip+"/graduationProject/getSpecificParentCourse.php";
     public static String  removeTeacherRequestCourseForParentAndTeacher  ="http://"+ip+"/graduationProject/removeTeacherRequestCourseForParentAndTeacher.php";
     public static String  sendDeclineRemovingRequestNotificationToTeacher  ="http://"+ip+"/graduationProject/sendDeclineRemovingRequestNotificationToTeacher.php";
+    public static String  sendDeclineRemovingRequestNotificationToParent  ="http://"+ip+"/graduationProject/sendDeclineRemovingRequestNotificationToParent.php";
     public static String  removeTeacherRequestCourseForParentAndTeacher2  ="http://"+ip+"/graduationProject/removeTeacherRequestCourseForParentAndTeacher2.php";
+    public static String  getSpecificDeclinedCourseForTeacher  ="http://"+ip+"/graduationProject/getSpecificDeclinedCourseForTeacher.php";
+    public static String  getSpecificDeclinedCourseForParent  ="http://"+ip+"/graduationProject/getSpecificDeclinedCourseForParent.php";
 
     public static final String PREF_NAME = "GRADUATION_PROJECT_SHARED_PREFERENCE";
 

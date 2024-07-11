@@ -12,6 +12,7 @@ public class Notifications implements Parcelable {
     private int isNotificationRead;
     private int parentSentRequestId ;
     private int teacherSentRequestId ;
+    private int tempCourseId ;
     public Notifications(int notificationType , String notificationTitle,String notificationBody,int isNotificationRead){
         this.notificationType = notificationType;
         this.notificationBody=notificationBody;
@@ -45,7 +46,10 @@ public class Notifications implements Parcelable {
         this.teacherSentRequestId = teacherSentRequestId;
     }
 
-    public Notifications(int notificationId, int notificationType, String notificationTitle, String notificationBody, int isNotificationRead, int parentSentRequestId, int teacherSentRequestId) {
+    public Notifications(int notificationId, int notificationType, String notificationTitle, String notificationBody,
+                         int isNotificationRead, int parentSentRequestId,
+                         int teacherSentRequestId,
+                         int tempCourseId) {
         this.notificationId = notificationId;
         this.notificationType = notificationType;
         this.notificationTitle = notificationTitle;
@@ -53,9 +57,16 @@ public class Notifications implements Parcelable {
         this.isNotificationRead = isNotificationRead;
         this.parentSentRequestId = parentSentRequestId;
         this.teacherSentRequestId = teacherSentRequestId;
+        this.tempCourseId = tempCourseId;
     }
 
+    public int getTempCourseId() {
+        return tempCourseId;
+    }
 
+    public void setTempCourseId(int tempCourseId) {
+        this.tempCourseId = tempCourseId;
+    }
 
     public int getNotificationId() {
         return notificationId;
@@ -138,6 +149,7 @@ public class Notifications implements Parcelable {
         isNotificationRead = in.readInt();
         parentSentRequestId = in.readInt();
         teacherSentRequestId= in.readInt();
+        tempCourseId = in.readInt();
     }
 
 
@@ -150,6 +162,7 @@ public class Notifications implements Parcelable {
         dest.writeInt(isNotificationRead);
         dest.writeInt(parentSentRequestId);
         dest.writeInt(teacherSentRequestId);
+        dest.writeInt(tempCourseId);
     }
 
     /*@NonNull

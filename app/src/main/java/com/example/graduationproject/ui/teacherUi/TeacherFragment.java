@@ -43,6 +43,7 @@ import com.example.graduationproject.adapters.MatchingTeacherAdapter;
 import com.example.graduationproject.adapters.TeacherCoursesAdapter;
 import com.example.graduationproject.adapters.TeacherReceivedRequestAdapter;
 import com.example.graduationproject.databinding.ConfirmDeleteDialogLayoutBinding;
+import com.example.graduationproject.databinding.CourseDeclinedNotificationForTeacherLayoutBinding;
 import com.example.graduationproject.databinding.DeleteParentCourseCardForParentBinding;
 import com.example.graduationproject.databinding.DeleteTeacherCourseCardForTeacherBinding;
 import com.example.graduationproject.databinding.DialogTeacherMatchingOnCardClickedBinding;
@@ -57,6 +58,7 @@ import com.example.graduationproject.listeners.FetchCoursesListener;
 import com.example.graduationproject.listeners.OnAcceptDeclineTeacherRequestsListener;
 import com.example.graduationproject.listeners.OnCheckIfRequestSentBeforeListener;
 import com.example.graduationproject.listeners.OnCourseAddedListener;
+import com.example.graduationproject.listeners.OnCourseDeclinedFetchedListener;
 import com.example.graduationproject.listeners.OnCourseFetchedForParentListener;
 import com.example.graduationproject.listeners.OnParentSentRequestFetchListener;
 import com.example.graduationproject.listeners.OnRemoveRequestSentListener;
@@ -126,7 +128,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         OnReceivedRequestsListener, OnAcceptDeclineTeacherRequestsListener,
         OnTeacherCoursesReceivedListener, OnCourseAddedListener, OnTeacherToParentRequestSentListener,
         OnCheckIfRequestSentBeforeListener,
-        OnSentRequestDeletedListener, OnTeacherCoursesFetchedForConflictListener, OnTeacherCoursesFetchedListener, FetchCoursesListener, TeacherCourseClickListener, OnSetCourseDoneListener, OnRemoveRequestSentListener, OnCourseFetchedForParentListener {
+        OnSentRequestDeletedListener, OnTeacherCoursesFetchedForConflictListener, OnTeacherCoursesFetchedListener, FetchCoursesListener, TeacherCourseClickListener, OnSetCourseDoneListener, OnRemoveRequestSentListener, OnCourseFetchedForParentListener, OnCourseDeclinedFetchedListener {
 
     private FragmentTeacherBinding binding;
 
@@ -199,19 +201,15 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         @Override
         public void onReceive(Context context, Intent intent) {
             if ("UPDATE_TEACHER_POSTED_REQUESTS".equals(intent.getAction())) {
-                btnMyPostedRequestsClicked();
+                if(myPostedRequestsBtnForTeacher && !myCoursesBtnForParent && !browseParentPostedRequestsBtnForTeacher)
+                    btnMyPostedRequestsClicked();
             }
-            /*else if("SHOW_AVAILABLE_JOBS_FOR_TEACHER".equals(intent.getAction())){
-                browseParentPostedRequestsBtnForTeacher = true;
-                setAvailableTeacherMatchingAdapter();
-            }*/
+
             else if ("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER".equals(intent.getAction())) {
                 browseParentPostedRequestsBtnForTeacher = true;
                 database.getTeacherMatchingData(email, TeacherFragment.this);
                 binding.filterLayout.setVisibility(View.VISIBLE);
             }
-
-
 
             else if ("SHOW_TEACHER_RECEIVED_REQUESTS".equalsIgnoreCase(intent.getAction())) {
                 showTeacherReceivedRequestBtn = true;
@@ -228,35 +226,57 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     notification = intent.getParcelableExtra("notification");
                 }
                 if(notification != null){
-                    Toast.makeText(getContext(), "22222222222", Toast.LENGTH_SHORT).show();
-                    // Log.d("The received notification course id ----> "+notification.getTeacherSentRequestId(),"The received notification course id ----> "+notification.getTeacherSentRequestId());
                     database.getSpecificParentCourse(notification.getParentSentRequestId(), TeacherFragment.this);
                 }
                 else{
                     MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(),"Unable to show","Unable to show the request data , please communicate with the teacher..");
                 }
             }
-            /*else if("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
-                Toast.makeText(getContext(), "Show Teacher Received Request ..", Toast.LENGTH_SHORT).show();
-                Notifications notification;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                     notification = intent.getParcelableExtra("notification",Notifications.class);
+
+            else if("SHOW_DELETE_DECLINED_COURSE_REQUEST_FOR_TEACHER".equalsIgnoreCase(intent.getAction())){
+                Notifications notification ;
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                    notification = intent.getParcelableExtra("notification",Notifications.class);
                 }
                 else {
                     notification = intent.getParcelableExtra("notification");
                 }
                 if(notification != null){
-                    showTeacherReceivedRequestBtn = true;
-                    flagX=1 ;
-                    //database.getTeacherReceivedRequests(email,TeacherFragment.this);
-                    database.getTeacherSpecificReceivedRequest(notification);
-                    currentNotificationId = notification.getParentSentRequestId();
+                    database.getSpecificParentDeclinedCourse(notification.getParentSentRequestId(),
+                            notification.getTeacherSentRequestId(),
+                            notification.getTempCourseId(), TeacherFragment.this);
                 }
-                else {
-                    flagX = 0;
-                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Something Went Wrong , try again later or check the received request from the navigation ..");
+                else{
+                    MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(),"Unable to show","Unable to show the course data , try again later..");
                 }
-            }*/
+            }
+
+
+
+
+
+
+//            /*else if("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
+//                Toast.makeText(getContext(), "Show Teacher Received Request ..", Toast.LENGTH_SHORT).show();
+//                Notifications notification;
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+//                     notification = intent.getParcelableExtra("notification",Notifications.class);
+//                }
+//                else {
+//                    notification = intent.getParcelableExtra("notification");
+//                }
+//                if(notification != null){
+//                    showTeacherReceivedRequestBtn = true;
+//                    flagX=1 ;
+//                    //database.getTeacherReceivedRequests(email,TeacherFragment.this);
+//                    database.getTeacherSpecificReceivedRequest(notification);
+//                    currentNotificationId = notification.getParentSentRequestId();
+//                }
+//                else {
+//                    flagX = 0;
+//                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Something Went Wrong , try again later or check the received request from the navigation ..");
+//                }
+//            }*/
         }
     };
 
@@ -281,6 +301,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             parentFragmentIntentFilter.addAction("SHOW_TEACHER_RECEIVED_REQUESTS");
             parentFragmentIntentFilter.addAction("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED");
             parentFragmentIntentFilter.addAction("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER");
+            parentFragmentIntentFilter.addAction("SHOW_DELETE_DECLINED_COURSE_REQUEST_FOR_TEACHER");
             int flags = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 flags = Context.RECEIVER_NOT_EXPORTED;
@@ -318,7 +339,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private void init() {
         initDatabase();
         initCoursesRecyclerView();
-        //btnMyPostedRequestsClicked();
         btnMyCoursesClicked();
         binding.myCoursesBtn.setOnClickListener(x -> {
             btnMyCoursesClicked();
@@ -337,7 +357,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 sendRefreshBroadcast(2);
             }
         });
-        database.getTeacherPostedRequests(email, this);
         binding.filterLayout.setOnClickListener(z -> {
             if(!isFilterDialogShowing)
                 showFilterDialogForTeacher();
@@ -365,7 +384,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         binding.filterLayout.setVisibility(View.GONE);
         binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
-
 
 
         database.getTeacherPostedRequests(email, this);
@@ -509,7 +527,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             binding.refreshRecyclerView.setRefreshing(false);
             binding.refreshRecyclerView.setEnabled(false);
         } else {
-            // teacherPostedRequestsAdapter = new TeacherPostedRequestsAdapter(teacherPostedRequestsList,getContext(),this);
             teacherPostedRequestsAdapter = new TeacherPostedRequestsAdapter(teacherPostedRequestsList, getContext(), this);
             binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
             binding.noDataAddedText.setVisibility(View.GONE);
@@ -581,8 +598,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         });
         if(getView() != null)
             Snackbar.make(getView(), "Your Courses List Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
-
+        binding.refreshRecyclerView.setRefreshing(false);
     }
+
+
 
     private void searchInTeacherCourses(String textToSearch){
         if(!teacherCoursesList.isEmpty()){
@@ -997,6 +1016,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         String startDate = jsonObject.getString("startDate");
                         String endDate = jsonObject.getString("endDate");
                         double price = jsonObject.getDouble("price");
+                        String postDate = jsonObject.getString("posted");
                         if (i == data.length() - 1) {
                             String phoneNumbers = jsonObject.getString("phoneNumbers");
                             if (phoneNumbers.contains(",")) {
@@ -1020,7 +1040,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                         teacherPostedRequestsList.add(new TeacherPostRequest(postId, email, courses, educationLevel, duration, availability, location,
                                 teachingMethod, new Teacher(email, idNumber, studentOrGraduate + "",
                                 expectedGraduationYear, college, field, gender, availability, educationLevel,
-                                teacherAddressesList, teacherPhoneNumbersList, firstName + " " + lastname), startTime, endTime, price, startDate, endDate));
+                                teacherAddressesList, teacherPhoneNumbersList, firstName + " " + lastname), startTime, endTime, price, startDate, endDate,postDate));
                     }
                     updatePostedAdapterData();
                     binding.refreshRecyclerView.setRefreshing(false);
@@ -2662,7 +2682,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     @Override
     public void onCoursesFetched(int flag, JSONArray courses) {
         if(flag == 0){
-            binding.noDataAddedText.setVisibility(View.GONE);
+            binding.noDataAddedText.setVisibility(View.VISIBLE);
             binding.addedCoursesRecyclerView.setVisibility(View.GONE);
         }
         else if(flag == 1){
@@ -3056,6 +3076,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
     private void showTeacherRemoveReceivedCourseRequest(Course tempCourse){
+
         if(getContext() != null){
             Dialog removeRequestForTeacherDialog = new Dialog(getContext());
             DeleteTeacherCourseCardForTeacherBinding deleteTeacherCourseCardForTeacherBinding = DeleteTeacherCourseCardForTeacherBinding.inflate(LayoutInflater.from(getContext()));
@@ -3118,7 +3139,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             }
             deleteTeacherCourseCardForTeacherBinding.parentPhoneTextView.setText(str);
             deleteTeacherCourseCardForTeacherBinding.declineCourseDelete.setOnClickListener(v->{
-                database.sendDeclineRemovingRequestNotificationToTeacher(tempCourse);
+                database.sendDeclineRemovingRequestNotificationToParent(tempCourse);
+                MyAlertDialog.showDialogForDone(getContext(),"Request Declined","Request Declined, the parent will be notified that the course is not deleted ..");
+                removeRequestForTeacherDialog.dismiss();
             });
 
             deleteTeacherCourseCardForTeacherBinding.acceptCourseDelete.setOnClickListener(w->{
@@ -3161,4 +3184,204 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         dialog.show();
     }
 
+    @Override
+    public void onCourseDeclined(int flag, JSONArray courseDeclined) {
+        if(flag == 0){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Date","Unable to show the data , request may be deleted ..");
+        }
+        else if(flag == 1 && courseDeclined != null) {
+            Course tempCourse = new Course();
+            List<String> parentPhoneNumbersList = new ArrayList<>();
+            try{
+                JSONObject jsonObject=courseDeclined.getJSONObject(0);
+                String source = jsonObject.getString("source");
+
+                if(source.equalsIgnoreCase("teacherCourse")){
+                    int courseId = jsonObject.getInt("courseId");
+                    String teacherEmail = jsonObject.getString("teacherEmail");
+                    String parentEmail = jsonObject.getString("parentEmail");
+                    int teacherSentRequestId = jsonObject.getInt("teacherSentRequestId");
+                    int parentSentRequestId = jsonObject.getInt("parentSentRequestId");
+                    String courses = jsonObject.getString("courses");
+                    String availabilityForJob = jsonObject.getString("availabilityForJob");
+                    String location = jsonObject.getString("location");
+                    String teachingMethod = jsonObject.getString("teachingMethod");
+                    String startTime = jsonObject.getString("startTime");
+                    String endTime = jsonObject.getString("endTime");
+                    String startDate = jsonObject.getString("startDate");
+                    String endDate = jsonObject.getString("endDate");
+                    double price = jsonObject.getDouble("price");
+                    int childId = jsonObject.getInt("childId");
+                    String childName = jsonObject.getString("childName");
+                    String childAge = jsonObject.getString("childAge");
+                    String childGender = jsonObject.getString("childGender");
+                    String childGrade = jsonObject.getString("childGrade");
+                    String parentFirstName = jsonObject.getString("firstName");
+                    parentFirstName = parentFirstName.substring(0,1).toUpperCase()+parentFirstName.substring(1).toLowerCase();
+                    String parentLastName = jsonObject.getString("lastName");
+                    parentLastName = parentLastName.substring(0,1).toUpperCase()+parentLastName.substring(1).toLowerCase();
+
+                    String phoneNumbers = jsonObject.getString("phoneNumbers");
+                    if (phoneNumbers.contains(",")) {
+                        String[] splitPhoneNumbers = phoneNumbers.split(",");
+                        parentPhoneNumbersList.addAll(Arrays.asList(splitPhoneNumbers));
+                    }
+                    else
+                        parentPhoneNumbersList.add(phoneNumbers.trim());
+
+
+                    tempCourse.setCourseId(courseId);
+                    tempCourse.setTeacherEmail(teacherEmail);
+                    tempCourse.setParentEmail(parentEmail);
+                    tempCourse.setTeacherSentRequestId(teacherSentRequestId);
+                    tempCourse.setParentSentRequestId(parentSentRequestId);
+                    tempCourse.setCourses(courses);
+                    tempCourse.setDays(availabilityForJob);
+                    tempCourse.setLocation(location);
+                    tempCourse.setTeachingMethod(teachingMethod);
+                    tempCourse.setStartTime(startTime);
+                    tempCourse.setEndTime(endTime);
+                    tempCourse.setStartDate(startDate);
+                    tempCourse.setEndDate(endDate);
+                    tempCourse.setPrice(price);
+                    tempCourse.setChildId(childId);
+                    tempCourse.setChild(new Children(childId,childName,childAge,Integer.parseInt(childGender),Integer.parseInt(childGrade)));
+                    tempCourse.setParent(new Parent(parentEmail,parentFirstName,parentLastName,parentPhoneNumbersList,0));
+                    showDeclinedCourseForTeacher(tempCourse);
+                }
+
+
+                else if(source.equalsIgnoreCase("parentChildrenCourse")){
+                    int courseId = jsonObject.getInt("courseId");
+                    String teacherEmail = jsonObject.getString("teacherEmail");
+                    String parentEmail = jsonObject.getString("parentEmail");
+                    int teacherSentRequestId = jsonObject.getInt("teacherSentRequestId");
+                    int parentSentRequestId = jsonObject.getInt("parentSentRequestId");
+                    String courses = jsonObject.getString("courses");
+                    String availabilityForJob = jsonObject.getString("choseDays");
+                    String location = jsonObject.getString("location");
+                    String teachingMethod = jsonObject.getString("teachingMethod");
+                    String startTime = jsonObject.getString("startTime");
+                    String endTime = jsonObject.getString("endTime");
+                    String startDate = jsonObject.getString("startDate");
+                    String endDate = jsonObject.getString("endDate");
+                    double price = jsonObject.getDouble("price");
+                    int childId = jsonObject.getInt("childId");
+                    String childName = jsonObject.getString("childName");
+                    String childAge = jsonObject.getString("childAge");
+                    String childGender = jsonObject.getString("childGender");
+                    String childGrade = jsonObject.getString("childGrade");
+                    String parentFirstName = jsonObject.getString("firstName");
+                    parentFirstName = parentFirstName.substring(0,1).toUpperCase()+parentFirstName.substring(1).toLowerCase();
+                    String parentLastName = jsonObject.getString("lastName");
+                    parentLastName = parentLastName.substring(0,1).toUpperCase()+parentLastName.substring(1).toLowerCase();
+
+                    String phoneNumbers = jsonObject.getString("phoneNumbers");
+                    if (phoneNumbers.contains(",")) {
+                        String[] splitPhoneNumbers = phoneNumbers.split(",");
+                        parentPhoneNumbersList.addAll(Arrays.asList(splitPhoneNumbers));
+                    }
+                    else
+                        parentPhoneNumbersList.add(phoneNumbers.trim());
+
+
+                    tempCourse.setCourseId(courseId);
+                    tempCourse.setTeacherEmail(teacherEmail);
+                    tempCourse.setParentEmail(parentEmail);
+                    tempCourse.setTeacherSentRequestId(teacherSentRequestId);
+                    tempCourse.setParentSentRequestId(parentSentRequestId);
+                    tempCourse.setCourses(courses);
+                    tempCourse.setDays(availabilityForJob);
+                    tempCourse.setLocation(location);
+                    tempCourse.setTeachingMethod(teachingMethod);
+                    tempCourse.setStartTime(startTime);
+                    tempCourse.setEndTime(endTime);
+                    tempCourse.setStartDate(startDate);
+                    tempCourse.setEndDate(endDate);
+                    tempCourse.setPrice(price);
+                    tempCourse.setChildId(childId);
+                    tempCourse.setChild(new Children(childId,childName,childAge,Integer.parseInt(childGender),Integer.parseInt(childGrade)));
+                    tempCourse.setParent(new Parent(parentEmail,parentFirstName,parentLastName,parentPhoneNumbersList,0));
+                    showDeclinedCourseForTeacher(tempCourse);
+                }
+            }
+            catch(JSONException e){
+                throw new RuntimeException(e);
+            }
+        }
+        else if(flag == -1){
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Error fetching data , try again later.");
+        }
+        else {
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Error connecting to database , please check your network ..");
+        }
+    }
+
+    private void showDeclinedCourseForTeacher(Course tempCourse){
+        if(getContext() != null && tempCourse != null){
+            Dialog declinedCourseDialog = new Dialog(getContext());
+            CourseDeclinedNotificationForTeacherLayoutBinding courseDeclinedNotificationForTeacherLayoutBinding = CourseDeclinedNotificationForTeacherLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            declinedCourseDialog.setContentView(courseDeclinedNotificationForTeacherLayoutBinding.getRoot());
+            declinedCourseDialog.setCancelable(false);
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(Objects.requireNonNull(declinedCourseDialog.getWindow()).getAttributes());
+            layoutParams.width = 1300;
+            layoutParams.height = 2300;
+            declinedCourseDialog.getWindow().setAttributes(layoutParams);
+            declinedCourseDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            if(declinedCourseDialog.getWindow() != null)
+                declinedCourseDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+            declinedCourseDialog.show();
+
+            courseDeclinedNotificationForTeacherLayoutBinding.closeImageView.setOnClickListener(c->{
+                declinedCourseDialog.dismiss();
+            });
+
+            courseDeclinedNotificationForTeacherLayoutBinding.coursesTextView.setText(tempCourse.getCourses());
+            courseDeclinedNotificationForTeacherLayoutBinding.dateTextView.setText(tempCourse.getStartDate()+" - "+tempCourse.getEndDate());
+            courseDeclinedNotificationForTeacherLayoutBinding.timeTextView.setText(tempCourse.getStartTime() + " - "+tempCourse.getEndTime());
+            courseDeclinedNotificationForTeacherLayoutBinding.choseDaysTextView.setText(tempCourse.getDays());
+            courseDeclinedNotificationForTeacherLayoutBinding.teachingMethodTextView.setText(tempCourse.getTeachingMethod());
+            courseDeclinedNotificationForTeacherLayoutBinding.childNameTextView.setText(tempCourse.getChild().getChildName());
+
+            if(tempCourse.getChild().getChildAge().equalsIgnoreCase("1")){
+                courseDeclinedNotificationForTeacherLayoutBinding.childAgeTextView.setText(String.format("%s Year", tempCourse.getChild().getChildAge()));
+            }
+            else {
+                courseDeclinedNotificationForTeacherLayoutBinding.childAgeTextView.setText(String.format("%s Years", tempCourse.getChild().getChildAge()));
+            }
+            String gender = "Male";
+            if(tempCourse.getChild().getChildGender() == 0){
+                gender = "Female";
+            }
+            courseDeclinedNotificationForTeacherLayoutBinding.childGenderTextView.setText(gender);
+            if(tempCourse.getChild().getGrade() == 1){
+                courseDeclinedNotificationForTeacherLayoutBinding.childGradeTextView.setText(String.format("%dst Grade", tempCourse.getChild().getGrade()));
+            }
+            else if(tempCourse.getChild().getGrade() == 2){
+                courseDeclinedNotificationForTeacherLayoutBinding.childGradeTextView.setText(String.format("%dnd Grade", tempCourse.getChild().getGrade()));
+            }
+            else if(tempCourse.getChild().getGrade() == 3){
+                courseDeclinedNotificationForTeacherLayoutBinding.childGradeTextView.setText(String.format("%dd Grade", tempCourse.getChild().getGrade()));
+            }
+            else {
+                courseDeclinedNotificationForTeacherLayoutBinding.childGradeTextView.setText(String.format("%dth Grade", tempCourse.getChild().getGrade()));
+            }
+
+            courseDeclinedNotificationForTeacherLayoutBinding.parentNameTextView.setText(tempCourse.getParent().getFirstName()+" "+tempCourse.getParent().getLastName());
+            courseDeclinedNotificationForTeacherLayoutBinding.parentEmailTextView.setText(tempCourse.getParent().getEmail());
+            StringBuilder str = new StringBuilder();
+            List<String> phone = tempCourse.getParent().getPhoneNumbersList();
+            for(int i = 0 ; i< phone.size() ; i++){
+                if(i + 1 == phone.size()){
+                    str.append(phone.get(i));
+                }
+                else {
+                    str.append(phone.get(i)).append(" — ");
+                }
+            }
+            courseDeclinedNotificationForTeacherLayoutBinding.parentPhoneTextView.setText(str);
+        }
+    }
 }

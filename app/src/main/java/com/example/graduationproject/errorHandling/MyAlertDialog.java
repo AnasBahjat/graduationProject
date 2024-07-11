@@ -253,6 +253,4 @@ public class MyAlertDialog {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-
 }

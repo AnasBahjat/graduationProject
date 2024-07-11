@@ -498,7 +498,8 @@ public class ParentActivity extends AppCompatActivity implements
                             jsonObject.getString("notificationBody"),
                             jsonObject.getInt("isRead"),
                             jsonObject.getInt("parentRequestId"),
-                            jsonObject.getInt("teacherRequestId"));
+                            jsonObject.getInt("teacherRequestId"),
+                            jsonObject.getInt("tempCourseId"));
                     notList.add(notification);
                 }
                 if(!notificationsList.isEmpty()){
@@ -687,7 +688,7 @@ public class ParentActivity extends AppCompatActivity implements
         searchingForTeacherDialog.getWindow().setAttributes(layoutParams);
         searchingForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         if(searchingForTeacherDialog.getWindow() != null)
-            searchingForTeacherDialog.getWindow().setLayout(1300,2000);
+            searchingForTeacherDialog.getWindow().setLayout(1300,2500);
 
 
         CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this,childrenSpinnerList);
@@ -1176,7 +1177,7 @@ public class ParentActivity extends AppCompatActivity implements
         else if(resultFlag == 0){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Request Error","Something went wrong ,Please try again later ..");
         }
-        else {
+        else if(resultFlag == 1) {
             try {
                 ArrayList<TeacherMatchModel> tempTeacherMatchModelList = new ArrayList<>();
                 if(parentInformation.length() == 0){
@@ -1191,6 +1192,7 @@ public class ParentActivity extends AppCompatActivity implements
                         String courses = jsonObject.getString("courses");
                         String location = jsonObject.getString("location");
                         String teachingMethod = jsonObject.getString("teachingMethod");
+                        String postDate = jsonObject.getString("posted");
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
                         String childName = jsonObject.getString("childName");
@@ -1249,12 +1251,19 @@ public class ParentActivity extends AppCompatActivity implements
 
     @Override
     public void onNotificationClicked(Notifications notification) {
+
+        for(Notifications not : notificationsList){
+            if (not.getNotificationId() == notification.getNotificationId())
+                not.setIsNotificationRead(1);
+        }
+
+        decrementNotificationsNumber();
+
         if(notification.getNotificationType() == 0){
             showParentInformationPopupWindow();
         }
         else if(notification.getNotificationType()==3){
             database.setNotificationIsRead(notification.getNotificationId());
-            decrementNotificationsNumber();
             Intent intent = new Intent();
             intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
             sendBroadcast(intent);
@@ -1265,18 +1274,33 @@ public class ParentActivity extends AppCompatActivity implements
             intent.putExtra("notification",notification);
             sendBroadcast(intent);
         }
+        else if(notification.getNotificationType() == 22){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DECLINED_DELETE_COURSE_FOR_PARENT");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
+        }
     }
 
     private void decrementNotificationsNumber(){
-        if(parentBinding.numOfNotifications.getVisibility() == View.VISIBLE && !parentBinding.numOfNotifications.getText().toString().isEmpty()){
-            int numOfNotifications = Integer.parseInt(parentBinding.numOfNotifications.getText().toString());
-            if(numOfNotifications - 1 > 0){
-                parentBinding.numOfNotifications.setText(""+(Integer.parseInt(parentBinding.numOfNotifications.getText().toString()) - 1));
+        if(!notificationsList.isEmpty()){
+            int count = 0 ;
+            for(Notifications not : notificationsList){
+                if(not.getIsNotificationRead() == 0)
+                    count++;
             }
-            else {
+            if(count != 0){
+                parentBinding.numOfNotifications.setText(count+"");
+                parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+            }
+            else{
                 parentBinding.numOfNotifications.setText("");
                 parentBinding.numOfNotifications.setVisibility(View.GONE);
             }
+        }
+        else {
+            parentBinding.numOfNotifications.setText("");
+            parentBinding.numOfNotifications.setVisibility(View.GONE);
         }
     }
 }
