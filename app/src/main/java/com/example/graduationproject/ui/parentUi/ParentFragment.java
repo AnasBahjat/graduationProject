@@ -1606,6 +1606,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             for(int i = teacherPostsData.length() - 1 ; i >= 0 ; i--){
                 JSONObject jsonObject = teacherPostsData.getJSONObject(i);
                 String teacherEmail = jsonObject.getString("teacherEmail");
+                //receiverEmail = teacherEmail ;
+                //naseembar
                 String teacherFirstName = jsonObject.getString("firstname");
                 teacherFirstName = teacherFirstName.substring(0,1).toUpperCase()+teacherFirstName.substring(1).toLowerCase();
                 String teacherLastName = jsonObject.getString("lastname");
@@ -1786,6 +1788,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             teacherPostedRequestsCardToShowToParentBinding.teacherNameTextView.setText(teacherPostRequest.getTeacherData().getTeacherName());
             teacherPostedRequestsCardToShowToParentBinding.teacherEmailTextView.setText(teacherPostRequest.getTeacherEmail());
+
+
+            teacherPostedRequestsCardToShowToParentBinding.sendMessageToTeacherBtn.setOnClickListener(s->{
+              //  send message to teacher naseembar
+            });
 
             StringBuilder teacherPhones = new StringBuilder();
             List<String> tempList = teacherPostRequest.getTeacherData().getPhoneNumbersList();

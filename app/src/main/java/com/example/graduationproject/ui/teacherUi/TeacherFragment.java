@@ -781,6 +781,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     JSONObject jsonObject = teacherMatchingData.getJSONObject(i);
                     int matchingId = jsonObject.getInt("matchingId");
                     String parentEmail = jsonObject.getString("parentEmail");
+                    //receiverEmail =parentEmail;
+                    //naseembar
                     int childId = jsonObject.getInt("childId");
                     String choseDays = jsonObject.getString("choseDays");
                     String choseCourses = jsonObject.getString("courses");
@@ -1509,6 +1511,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             dialogTeacherMatchingOnCardClickedBinding.requestSentImageView.setOnClickListener(v -> {
                 database.deleteTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
             });
+
+            dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(a->{
+               //naseembar ssssssssssssssssssssssssssssssss
+            });
+
             dialogTeacherMatchingOnCardClickedBinding.requestSentTextView.setOnClickListener(v -> {
                 database.deleteTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
             });

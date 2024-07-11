@@ -60,67 +60,49 @@ public class MainActivity extends AppCompatActivity {
         mainUserRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new UserAdpter(MainActivity.this, usersArrayList);
         mainUserRecyclerView.setAdapter(adapter);
-       // FirebaseUser currentUser1 = auth.getCurrentUser();
+        DatabaseReference database1 = FirebaseDatabase.getInstance().getReference();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference reference = database1.child("user");
 
-
-
-        DatabaseReference reference = database.getReference().child("user");
-        reference.addValueEventListener(new ValueEventListener() {
+        reference.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("user").child(currentUserId);
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String currentUserProfileType = dataSnapshot.child("profileType").getValue(String.class);
 
-                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            profileType = (String) dataSnapshot.child("profileType").getValue();
-                            if (profileType != null) {
-                                Log.d("ProfileType", "Profile Type: " + profileType);
-                                // Use profileType as needed
-                            } else {
-                                Log.d("ProfileType", "Profile Type not found for user: " + currentUserId);
+                    if (currentUserProfileType != null) {
+                        // Now retrieve all users and compare profile types
+                        reference.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                usersArrayList.clear();
+                                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                                    Users user = userSnapshot.getValue(Users.class);
+                                    String userProfileType = userSnapshot.child("profileType").getValue(String.class);
+
+                                    if (userProfileType != null && !userProfileType.equals(currentUserProfileType)) {
+                                        usersArrayList.add(user);
+                                    }
+                                }
+                                adapter.notifyDataSetChanged();
                             }
-                        } else {
-                            Log.d("ProfileType", "User not found in database: " + currentUserId);
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.d("ProfileType", "Error retrieving profile type: " + databaseError.getMessage());
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                // Handle error
+                            }
+                        });
+                    } else {
+                        Log.e("ProfileType", "Current user profile type is null");
                     }
-                });
-                usersArrayList.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Users users = dataSnapshot.getValue(Users.class);
-                //    if(profileType!=null){
-                    if (currentUserId.equals(users.userId) ){
-                    }
-                    else if ((users.profileType.equals(profileType))) {
-
-                    } else if (currentUserId.equals(users.userId) || (users.profileType.equals(profileType))) {
-
-                    } else if(!currentUserId.equals(users.userId)){
-                        usersArrayList.add(users);
-                        // String reciverName = getIntent().getStringExtra("nameeee");
-                        //  String reciverimg = getIntent().getStringExtra("reciverImg");
-                        // String reciverUid = getIntent().getStringExtra("uid");
-                        //  Log.d("BadgeCount", "Current Badge Count: " + reciverUid);
-                        //  fetchUnreadMessages(reciverUid);
-                    }
-                    else {
-
-                    }
-                //}
+                } else {
+                    Log.e("ProfileType", "Current user not found in database");
                 }
-                adapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Handle error
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("ProfileType", "Error retrieving current user profile type: " + databaseError.getMessage());
             }
         });
 
