@@ -220,9 +220,13 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private DatabaseReference mDatabase;
    // private FragmentParentBinding binding;
     private Button sendMessageToTeacherBtn;
+    /////////////////to pass to chatwindo activity
     private String receiverName;
     private String receiverImg;
     private String receiverUid;
+    /////////////////////////
+
+    private String reciver_email;//to get reciver teacher info by getUserDataByEmail(String reciver_email)
 
 
 
@@ -285,17 +289,19 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         binding = FragmentParentBinding.inflate(getLayoutInflater(),container,false);
         View view = binding.getRoot();
         getTeacherDataFromActivity();
-
-        sendMessageToTeacherBtn = view.findViewById(R.id.sendMessageToTeacherBtn);
-        sendMessageToTeacherBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getUserDataByEmail(email);
-            }
-        });
+       // String reciver_email = String.valueOf(view.findViewById(R.id.teacherEmailTextView));
+ //       reciver_email= String.valueOf(view.findViewById(R.id.teacherEmailTextView));
+//        sendMessageToTeacherBtn = view.findViewById(R.id.sendbtnn);
+//        sendMessageToTeacherBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//              //  if (reciver_email!=null)
+//                //    getUserDataByEmail(reciver_email);
+//            }
+//        });
         initialize();
         return binding.getRoot();
-
     }
     //used to put extras to the chatwindo activity
     private void getUserDataByEmail(String email) {
