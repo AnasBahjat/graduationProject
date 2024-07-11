@@ -40,6 +40,7 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,6 +72,8 @@ import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TeacherAvailabilityListener;
 import com.example.graduationproject.listeners.TeacherPostListener;
+import com.example.graduationproject.messaging.ChatMainActivity;
+import com.example.graduationproject.messaging.ChatViewModel;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
@@ -151,6 +154,9 @@ public class TeacherActivity extends AppCompatActivity implements
     private String startTime ="12:00 PM", endTime="12:00 PM";
 
     private PeriodicWorkRequest periodicWorkRequest ;
+    ChatViewModel chatViewModel;
+    TextView numOfMsgReceivedToParent;
+    private FirebaseAuth mAuth;
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -183,6 +189,7 @@ public class TeacherActivity extends AppCompatActivity implements
         binding = ActivityTeacherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getIntentDate();
+
         Data inputData = new Data.Builder().putString("email",email).build();
         periodicWorkRequest = new PeriodicWorkRequest.Builder(
                 FetchNotificationsPeriodically.class,15,
@@ -211,6 +218,7 @@ public class TeacherActivity extends AppCompatActivity implements
         database=new Database(this);
         if(Integer.parseInt(doneInformation)==1)
             database.getNotifications(email,this);
+        initFirebase();
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
         notList=new ArrayList<>();
         buildNavigationView();
@@ -226,6 +234,30 @@ public class TeacherActivity extends AppCompatActivity implements
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return true;
+            }
+        });
+    }
+
+    private void initFirebase(){
+        mAuth = FirebaseAuth.getInstance();
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        chatViewModel.fetchUnreadMessages(currentUserId);
+
+        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+            if (unreadCount > 0) {
+                binding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                binding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
+            } else {
+                binding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
+            }
+        });
+        binding.messageIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create an Intent to start MainActivity
+                Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -450,6 +482,7 @@ public class TeacherActivity extends AppCompatActivity implements
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
+            mAuth.signOut();
             finish();
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);

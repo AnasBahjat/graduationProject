@@ -1,4 +1,4 @@
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -39,12 +39,13 @@ public class ChatMainActivity extends AppCompatActivity {
     TextView title;
     String profileType;
 
+
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-     //   getSupportActionBar().hide();
 
         database = FirebaseDatabase.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -122,6 +123,8 @@ public class ChatMainActivity extends AppCompatActivity {
             }
         });
 
+
+
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             DatabaseReference userReference = database.getReference().child("user").child(currentUser.getUid());
@@ -196,7 +199,7 @@ public class ChatMainActivity extends AppCompatActivity {
         setbut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ChatMainActivity.this, setting.class);
+                Intent intent = new Intent(ChatMainActivity.this, SettingMessagingActivity.class);
                 startActivity(intent);
             }
         });

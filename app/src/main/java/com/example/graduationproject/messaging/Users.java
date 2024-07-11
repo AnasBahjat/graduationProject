@@ -1,4 +1,4 @@
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
 public class Users {
     String profilepic,mail,userName,password,userId,lastMessage,status,profileType;;

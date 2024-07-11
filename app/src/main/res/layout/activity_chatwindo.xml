@@ -4,12 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/chatback"
-    tools:context=".chatwindo">
-    <LinearLayout
+    android:background="@color/usedColor"
+    tools:context=".messaging.ChatWindowActivity">
+    <RelativeLayout
+        android:id="@+id/toolbarChatWindow"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/white">
+        <ImageView
+            android:id="@+id/back_arrow"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/back_2"
+            />
+    </RelativeLayout>
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_below="@id/toolbarChatWindow"
+        android:layout_marginTop="10dp"
         android:id="@+id/ll1"
         android:gravity="center">
 
@@ -17,18 +33,15 @@
             android:id="@+id/profileimgg"
             android:layout_width="@dimen/_80sdp"
             android:layout_height="@dimen/_80sdp"
+            android:layout_centerHorizontal="true"
             android:src="@drawable/photocamera"
             app:civ_border_color="@color/white"
-            android:layout_marginTop="@dimen/_7sdp"
             app:civ_border_width="@dimen/_2sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.226" />
+            />
 
         <TextView
             android:id="@+id/recivername"
+            android:layout_below="@id/profileimgg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/_10sdp"
@@ -36,7 +49,7 @@
             android:gravity="center"
             android:textColor="@color/white"
             android:textSize="@dimen/_15sdp" />
-    </LinearLayout>
+    </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/msgadpter"

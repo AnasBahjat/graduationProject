@@ -80,6 +80,8 @@ import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.PostedTeacherRequestsListener;
 import com.example.graduationproject.listeners.TeacherMatchCardClickListener;
 import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
+import com.example.graduationproject.messaging.ChatWindowActivity;
+import com.example.graduationproject.messaging.Users;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Course;
@@ -99,6 +101,11 @@ import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -195,35 +202,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private List<ExpiredCourse> expiredCoursesList = new ArrayList<>();
     private TeacherCoursesAdapter teacherCoursesAdapter;
     private Dialog courseDialog;
-
-
-
-
-
-
-
-
-
-
-
-
-
     String receiverEmail;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -966,7 +945,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     JSONObject jsonObject = teacherMatchingData.getJSONObject(i);
                     int matchingId = jsonObject.getInt("matchingId");
                     String parentEmail = jsonObject.getString("parentEmail");
-                    receiverEmail = parentEmail;
                     int childId = jsonObject.getInt("childId");
                     String choseDays = jsonObject.getString("choseDays");
                     String choseCourses = jsonObject.getString("courses");
@@ -1622,6 +1600,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
                 for (int i = 0; i < parentInformation.length(); i++) {
                     JSONObject jsonObject = parentInformation.getJSONObject(i);
+                    receiverEmail = jsonObject.getString("email");
                     parentFirstName = jsonObject.getString("firstname");
                     parentFirstName = parentFirstName.substring(0, 1).toUpperCase() + parentFirstName.substring(1).toLowerCase();
                     parentLastName = jsonObject.getString("lastname");
@@ -1697,8 +1676,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 database.deleteTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
             });
 
-            dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(g->{
-                ////////////
+            dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(a->{
+                getUserInfoByEmail(receiverEmail);
             });
 
 
@@ -1708,6 +1687,49 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
             setDataToMatchDialog(teacherMatchModel, parentName, parentPhoneNumbers);
         }
+    }
+
+
+    private void getUserInfoByEmail(String tempMail) {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("user");
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Iterate through all the users
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userEmail = userSnapshot.child("mail").getValue(String.class);
+                    Log.d("--------> "+userEmail,"--------> "+userEmail);
+                    Log.d("--------> "+tempMail,"--------> "+tempMail);
+                    if (userEmail != null && userEmail.equalsIgnoreCase(tempMail)) {
+                        // Get user info
+                        Users user = userSnapshot.getValue(Users.class);
+                        Log.d("User ---------> "+user.getUserId(),"User ---------> "+user.getUserId());
+                        Log.d("User ---------> "+user.getUserName(),"User ---------> "+user.getUserName());
+
+                        // Pass the user object to another activity
+
+
+                        // Break the loop as we found the user
+                        startChatWindowActivit(user);
+                        break;
+                    }
+
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+    }
+
+
+    private void startChatWindowActivit(Users user) {
+        Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
+        intent.putExtra("nameeee",user.getUserName());
+        intent.putExtra("reciverImg",user.getProfilepic());
+        intent.putExtra("uid",user.getUserId());
+        startActivity(intent);
     }
 
     private void setDataToMatchDialog(TeacherMatchModel teacherMatchModel, String parentName, List<String> parentPhoneNumbers) {

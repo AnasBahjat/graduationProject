@@ -1929,6 +1929,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 database.deleteParentSentRequestToTeacher(email,teacherPostRequest,this);
             });
 
+           // teacherPostRequest.getTeacherEmail();
+            teacherPostedRequestsCardToShowToParentBinding.sendMessageToTeacherBtn.setOnClickListener(v->{
+                // teacher email = teacherPostRequest.getTeacherEmail();
+                //naseembar
+            });
+
            /* teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
                 sendRequestToTeacherBtnClicked(teacherPostRequest);
             });*/

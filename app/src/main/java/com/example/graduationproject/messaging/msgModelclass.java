@@ -40,7 +40,7 @@
 //}
 
 
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
 public class msgModelclass {
     String message;

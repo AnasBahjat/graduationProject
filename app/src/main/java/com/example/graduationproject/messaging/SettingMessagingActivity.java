@@ -1,4 +1,4 @@
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -31,7 +31,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-public class setting extends AppCompatActivity {
+public class SettingMessagingActivity extends AppCompatActivity {
     ImageView setprofile;
     EditText setname, setstatus;
     Button donebut;
@@ -53,7 +53,6 @@ public class setting extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         setprofile = findViewById(R.id.settingprofile);
         setname = findViewById(R.id.settingname);
-        setstatus = findViewById(R.id.settingstatus);
         donebut = findViewById(R.id.donebutt);
 
         progressDialog = new ProgressDialog(this);
@@ -92,7 +91,7 @@ public class setting extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 // Handle possible errors
-                Toast.makeText(setting.this, "Failed to load data.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingMessagingActivity.this, "Failed to load data.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -114,7 +113,7 @@ public class setting extends AppCompatActivity {
 
                 // Check if any changes are made
                 if (name.equals(currentName) && status.equals(currentStatus) && setImageUri == null) {
-                    Toast.makeText(setting.this, "No changes were made", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SettingMessagingActivity.this, "No changes were made", Toast.LENGTH_SHORT).show();
                 } else {
                     progressDialog.show();
 
@@ -137,7 +136,7 @@ public class setting extends AppCompatActivity {
                                     });
                                 } else {
                                     progressDialog.dismiss();
-                                    Toast.makeText(setting.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SettingMessagingActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -156,12 +155,12 @@ public class setting extends AppCompatActivity {
             public void onComplete(@NonNull Task<Void> task) {
                 progressDialog.dismiss();
                 if (task.isSuccessful()) {
-                    Toast.makeText(setting.this, "Data is saved", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(setting.this, ChatMainActivity.class);
+                    Toast.makeText(SettingMessagingActivity.this, "Data is saved", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(SettingMessagingActivity.this, ChatMainActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(setting.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SettingMessagingActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -172,12 +171,12 @@ public class setting extends AppCompatActivity {
         if (e instanceof StorageException) {
             StorageException se = (StorageException) e;
             if (se.getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                Toast.makeText(setting.this, "File not found at the specified location.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingMessagingActivity.this, "File not found at the specified location.", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(setting.this, "An error occurred: " + se.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingMessagingActivity.this, "An error occurred: " + se.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(setting.this, "An unknown error occurred.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SettingMessagingActivity.this, "An unknown error occurred.", Toast.LENGTH_SHORT).show();
         }
     }
 

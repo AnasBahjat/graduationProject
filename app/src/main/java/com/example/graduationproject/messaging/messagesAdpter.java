@@ -1,9 +1,9 @@
 
 
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
-import static com.example.graduationproject.messeging.chatwindo.reciverIImg;
-import static com.example.graduationproject.messeging.chatwindo.senderImg;
+import static com.example.graduationproject.messaging.ChatWindowActivity.reciverIImg;
+import static com.example.graduationproject.messaging.ChatWindowActivity.senderImg;
 
 
 import android.app.AlertDialog;
@@ -22,8 +22,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 

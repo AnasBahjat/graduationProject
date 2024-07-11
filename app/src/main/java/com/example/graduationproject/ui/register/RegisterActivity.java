@@ -23,7 +23,7 @@ import com.example.graduationproject.databinding.ActivityRegisterBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.R;
 import com.example.graduationproject.interfaces.RequestResult;
-import com.example.graduationproject.messeging.Users;
+import com.example.graduationproject.messaging.Users;
 import com.example.graduationproject.models.Profile;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -80,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
         auth = FirebaseAuth.getInstance();
-        String imageuri="https://firebasestorage.googleapis.com/v0/b/chat-app-86c83.appspot.com/o/profile.avif?alt=media&token=1cf0b94a-17a7-4536-8957-79e4d98d2415";
+        String imageuri="https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
     }
 
 
@@ -425,9 +425,10 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                                     }
                                 }
                             });
+
                         }else {
                             String status = "Hey I'm Using This Application";
-                            imageuri = "https://firebasestorage.googleapis.com/v0/b/chat-app-86c83.appspot.com/o/profile.avif?alt=media&token=1cf0b94a-17a7-4536-8957-79e4d98d2415";
+                            imageuri = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
                             Users users = new Users(id,firstnameStr.toLowerCase() + " " + lastnameStr.trim() ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
                             reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override

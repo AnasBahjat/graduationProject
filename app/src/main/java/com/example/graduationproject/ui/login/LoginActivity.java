@@ -267,6 +267,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                             public void run() {
                                 binding.loginProgressBar.setVisibility(View.GONE);
                                 startActivity(intent);
+                                Log.d("login ----> "+auth.getCurrentUser().getUid(),"login ----> "+auth.getCurrentUser().getUid());
                             }
                         },1500);
                     }

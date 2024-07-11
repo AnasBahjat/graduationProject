@@ -59,8 +59,8 @@ import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
-import com.example.graduationproject.messeging.ChatViewModel;
-import com.example.graduationproject.messeging.ChatMainActivity;
+import com.example.graduationproject.messaging.ChatViewModel;
+import com.example.graduationproject.messaging.ChatMainActivity;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
@@ -168,6 +168,7 @@ public class ParentActivity extends AppCompatActivity implements
     }
 
     private void initFirebase(){
+        Toast.makeText(this, "111111111111", Toast.LENGTH_SHORT).show();
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         chatViewModel.fetchUnreadMessages(currentUserId);
@@ -176,10 +177,10 @@ public class ParentActivity extends AppCompatActivity implements
 
         chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
             if (unreadCount > 0) {
-                numOfMsgReceivedToParent.setText(String.valueOf(unreadCount));
-                numOfMsgReceivedToParent.setVisibility(View.VISIBLE);
+                parentBinding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
             } else {
-                numOfMsgReceivedToParent.setVisibility(View.GONE);
+                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
             }
         });
 

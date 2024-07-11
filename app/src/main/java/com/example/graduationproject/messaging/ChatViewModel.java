@@ -1,4 +1,4 @@
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
 import android.util.Log;
 
@@ -13,7 +13,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-// ViewModel class to handle database operations
 public class ChatViewModel extends ViewModel {
     private final MutableLiveData<Integer> unreadMessageCount = new MutableLiveData<>();
 

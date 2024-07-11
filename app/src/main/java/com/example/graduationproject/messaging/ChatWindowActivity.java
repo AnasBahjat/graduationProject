@@ -269,12 +269,13 @@
 //    }
 //
 //}
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -302,8 +303,8 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class chatwindo extends AppCompatActivity {
-    String reciverimg, reciverUid, reciverName, SenderUID;
+public class ChatWindowActivity extends AppCompatActivity {
+    String reciverimg, reciverUid, reciverName, senderUID;
     CircleImageView profile;
     TextView reciverNName;
     FirebaseDatabase database;
@@ -317,6 +318,7 @@ public class chatwindo extends AppCompatActivity {
     RecyclerView messageAdpter;
     ArrayList<msgModelclass> messagesArrayList;
     messagesAdpter mmessagesAdpter;
+    ImageView backImage ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -337,10 +339,12 @@ public class chatwindo extends AppCompatActivity {
         reciverNName = findViewById(R.id.recivername);
         profile = findViewById(R.id.profileimgg);
         messageAdpter = findViewById(R.id.msgadpter);
+        backImage = findViewById(R.id.back_arrow);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         messageAdpter.setLayoutManager(linearLayoutManager);
-        mmessagesAdpter = new messagesAdpter(chatwindo.this, messagesArrayList);
+        mmessagesAdpter = new messagesAdpter(ChatWindowActivity.this, messagesArrayList);
         messageAdpter.setAdapter(mmessagesAdpter);
 
         Picasso.get().load(reciverimg).into(profile);
@@ -348,13 +352,18 @@ public class chatwindo extends AppCompatActivity {
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
-            SenderUID = auth.getCurrentUser().getUid();
+            senderUID = auth.getCurrentUser().getUid();
+            Log.d("current user ---> "+auth.getCurrentUser().getUid(),"current user ---> "+auth.getCurrentUser().getUid());
         } else {
             return;
         }
 
-        senderRoom = SenderUID + reciverUid;
-        reciverRoom = reciverUid + SenderUID;
+        backImage.setOnClickListener(v->{
+            finish();
+        });
+
+        senderRoom = senderUID + reciverUid;
+        reciverRoom = reciverUid + senderUID;
 
         DatabaseReference reference = database.getReference().child("user").child(firebaseAuth.getUid());
 
@@ -400,12 +409,12 @@ public class chatwindo extends AppCompatActivity {
             public void onClick(View view) {
                 String message = textmsg.getText().toString();
                 if (message.isEmpty()) {
-                    Toast.makeText(chatwindo.this, "Enter The Message First", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChatWindowActivity.this, "Enter The Message First", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 textmsg.setText("");
                 Date date = new Date();
-                msgModelclass messagess = new msgModelclass(message, SenderUID, reciverUid, date.getTime(), true);
+                msgModelclass messagess = new msgModelclass(message, senderUID, reciverUid, date.getTime(), true);
 
                 database.getReference().child("chats")
                         .child(senderRoom)
@@ -417,7 +426,7 @@ public class chatwindo extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     // Create a new message instance for the receiver with isRead set to false
-                                    msgModelclass messagess1 = new msgModelclass(message, SenderUID, reciverUid, date.getTime(), false);
+                                    msgModelclass messagess1 = new msgModelclass(message, senderUID, reciverUid, date.getTime(), false);
                                     database.getReference().child("chats")
                                             .child(reciverRoom)
                                             .child("messages")
@@ -427,13 +436,13 @@ public class chatwindo extends AppCompatActivity {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (!task.isSuccessful()) {
-                                                        Toast.makeText(chatwindo.this, "Failed to send message to receiver", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(ChatWindowActivity.this, "Failed to send message to receiver", Toast.LENGTH_SHORT).show();
                                                         Log.e("Firebase", "Failed to send message to receiver", task.getException());
                                                     }
                                                 }
                                             });
                                 } else {
-                                    Toast.makeText(chatwindo.this, "Failed to send message", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ChatWindowActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
                                     Log.e("Firebase", "Failed to send message", task.getException());
                                 }
                             }
@@ -448,6 +457,7 @@ public class chatwindo extends AppCompatActivity {
         super.onBackPressed();
     }
 
+
     private void updateReadStatus() {
         DatabaseReference chatReference = FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages");
 
@@ -456,7 +466,7 @@ public class chatwindo extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     msgModelclass messages = dataSnapshot.getValue(msgModelclass.class);
-                    if (messages != null && !messages.isRead() && messages.getReceiverId().equals(SenderUID)) {
+                    if (messages != null && !messages.isRead() && messages.getReceiverId().equals(senderUID)) {
                         String messageId = dataSnapshot.getKey();
                         DatabaseReference messageReference = dataSnapshot.getRef();
 

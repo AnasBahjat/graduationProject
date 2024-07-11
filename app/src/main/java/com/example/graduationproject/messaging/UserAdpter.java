@@ -1,4 +1,4 @@
-package com.example.graduationproject.messeging;
+package com.example.graduationproject.messaging;
 
 import android.content.Context;
 import android.content.Intent;
@@ -43,7 +43,7 @@ public class UserAdpter extends RecyclerView.Adapter<UserAdpter.viewholder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mainActivity, chatwindo.class);
+                Intent intent = new Intent(mainActivity, ChatWindowActivity.class);
                 intent.putExtra("nameeee",users.getUserName());
                 intent.putExtra("reciverImg",users.getProfilepic());
                 intent.putExtra("uid",users.getUserId());

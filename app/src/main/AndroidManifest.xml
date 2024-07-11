@@ -24,6 +24,19 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="false" />
 
+        <activity
+            android:name=".messaging.ChatMainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.ChatWindowActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.SettingMessagingActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
+
         <receiver
             android:name=".broadcastReceiver.BroadcastHandler"
             android:exported="true"
