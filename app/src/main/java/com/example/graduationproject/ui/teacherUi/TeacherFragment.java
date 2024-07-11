@@ -71,6 +71,8 @@ import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.PostedTeacherRequestsListener;
 import com.example.graduationproject.listeners.TeacherMatchCardClickListener;
 import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
+import com.example.graduationproject.messeging.Users;
+import com.example.graduationproject.messeging.chatwindo;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Course;
@@ -89,6 +91,12 @@ import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.auth.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -184,6 +192,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private List<Course> teacherCoursesList = new ArrayList<>();
     private List<ExpiredCourse> expiredCoursesList = new ArrayList<>();
     private TeacherCoursesAdapter teacherCoursesAdapter;
+    String receiverEmail;
+    private String receiverName;
+    private String receiverImg;
+    private String receiverUid;
+    private DatabaseReference mDatabase;
 
 
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
@@ -781,7 +794,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     JSONObject jsonObject = teacherMatchingData.getJSONObject(i);
                     int matchingId = jsonObject.getInt("matchingId");
                     String parentEmail = jsonObject.getString("parentEmail");
-                    //receiverEmail =parentEmail;
+                    receiverEmail =parentEmail;
                     //naseembar
                     int childId = jsonObject.getInt("childId");
                     String choseDays = jsonObject.getString("choseDays");
@@ -1514,6 +1527,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
             dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(a->{
                //naseembar ssssssssssssssssssssssssssssssss
+                getUserInfoByEmail(receiverEmail);
             });
 
             dialogTeacherMatchingOnCardClickedBinding.requestSentTextView.setOnClickListener(v -> {
@@ -1522,6 +1536,44 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
             setDataToMatchDialog(teacherMatchModel, parentName, parentPhoneNumbers);
         }
+    }
+
+    //used to put extras to the chatwindo activity
+    private void getUserInfoByEmail( String email) {
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Iterate through all the users
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userEmail = userSnapshot.child("mail").getValue(String.class);
+                    if (userEmail != null && userEmail.equals(email)) {
+                        // Get user info
+                        Users user = userSnapshot.getValue(Users.class);
+
+                        // Pass the user object to another activity
+
+
+                        // Break the loop as we found the user
+                        startChatWindowActivit(user);
+                        break;
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle possible errors
+                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+}
+    private void startChatWindowActivit(Users user) {
+        Intent intent = new Intent(getActivity(), chatwindo.class);
+        intent.putExtra("nameeee",user.getUserName());
+        intent.putExtra("reciverImg",user.getProfilepic());
+        intent.putExtra("uid",user.getUserId());
+        startActivity(intent);
     }
 
     private void setDataToMatchDialog(TeacherMatchModel teacherMatchModel, String parentName, List<String> parentPhoneNumbers) {

@@ -80,6 +80,7 @@ import com.example.graduationproject.listeners.ParentRequestToSendListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.messeging.MainActivity;
+import com.example.graduationproject.messeging.Users;
 import com.example.graduationproject.messeging.chatwindo;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
@@ -304,32 +305,42 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         return binding.getRoot();
     }
     //used to put extras to the chatwindo activity
-    private void getUserDataByEmail(String email) {
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("user");
 
-        usersRef.orderByChild("mail").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+    //used to put extras to the chatwindo activity
+    private void getUserInfoByEmail( String email) {
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    receiverName = snapshot.child("nameeee").getValue(String.class);
-                    receiverImg = snapshot.child("reciverImg").getValue(String.class);
-                    receiverUid = snapshot.child("uid").getValue(String.class);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Iterate through all the users
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userEmail = userSnapshot.child("mail").getValue(String.class);
+                    if (userEmail != null && userEmail.equals(email)) {
+                        // Get user info
+                        Users user = userSnapshot.getValue(Users.class);
 
-                    startChatWindowActivity();
+                        // Pass the user object to another activity
+
+
+                        // Break the loop as we found the user
+                        startChatWindowActivit(user);
+                        break;
+                    }
+
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle possible errors.
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle possible errors
+                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
             }
         });
     }
-    private void startChatWindowActivity() {
+    private void startChatWindowActivit(Users user) {
         Intent intent = new Intent(getActivity(), chatwindo.class);
-        intent.putExtra("nameeee", receiverName);
-        intent.putExtra("reciverImg", receiverImg);
-        intent.putExtra("uid", receiverUid);
+        intent.putExtra("nameeee",user.getUserName());
+        intent.putExtra("reciverImg",user.getProfilepic());
+        intent.putExtra("uid",user.getUserId());
         startActivity(intent);
     }
 
@@ -1792,6 +1803,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             teacherPostedRequestsCardToShowToParentBinding.sendMessageToTeacherBtn.setOnClickListener(s->{
               //  send message to teacher naseembar
+                getUserInfoByEmail(reciver_email);
             });
 
             StringBuilder teacherPhones = new StringBuilder();
