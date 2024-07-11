@@ -7,10 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,6 +25,7 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -37,10 +36,10 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.work.Data;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
@@ -60,6 +59,8 @@ import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.messeging.ChatViewModel;
+import com.example.graduationproject.messeging.ChatMainActivity;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
@@ -71,6 +72,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,9 +80,6 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -147,6 +146,11 @@ public class ParentActivity extends AppCompatActivity implements
 
 
 
+    ChatViewModel chatViewModel;
+    TextView numOfMsgReceivedToParent;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +165,38 @@ public class ParentActivity extends AppCompatActivity implements
                 TimeUnit.MINUTES).setInputData(inputData).build();
        // WorkManager.getInstance(this).enqueue(periodicWorkRequest);
         init();
+    }
+
+    private void initFirebase(){
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        chatViewModel.fetchUnreadMessages(currentUserId);
+
+
+
+        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+            if (unreadCount > 0) {
+                numOfMsgReceivedToParent.setText(String.valueOf(unreadCount));
+                numOfMsgReceivedToParent.setVisibility(View.VISIBLE);
+            } else {
+                numOfMsgReceivedToParent.setVisibility(View.GONE);
+            }
+        });
+
+
+        if(doneInformation.equalsIgnoreCase("1")){
+            Toast.makeText(this, "01221312321312", Toast.LENGTH_SHORT).show();
+            parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(ParentActivity.this, ChatMainActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+        else {
+            MyAlertDialog.warningDialog(this,"Confirm Account","Please Confirm Your Account to be able to use the messenger .");
+        }
     }
 
     private void getIntentDate(){
@@ -179,6 +215,7 @@ public class ParentActivity extends AppCompatActivity implements
     private void init(){
         database=new Database(this);
         notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        initFirebase();
         if(Integer.parseInt(doneInformation) == 1){
             database.getNotifications(email,this);
         }

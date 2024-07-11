@@ -197,6 +197,34 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private Dialog courseDialog;
 
 
+
+
+
+
+
+
+
+
+
+
+
+    String receiverEmail;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -572,6 +600,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         }
     }
 
+
+
     public void setMyCoursesAdapter() {
         if(!teacherCoursesList.isEmpty()){
             binding.noDataAddedText.setVisibility(View.GONE);
@@ -936,6 +966,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     JSONObject jsonObject = teacherMatchingData.getJSONObject(i);
                     int matchingId = jsonObject.getInt("matchingId");
                     String parentEmail = jsonObject.getString("parentEmail");
+                    receiverEmail = parentEmail;
                     int childId = jsonObject.getInt("childId");
                     String choseDays = jsonObject.getString("choseDays");
                     String choseCourses = jsonObject.getString("courses");
@@ -1665,6 +1696,12 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             dialogTeacherMatchingOnCardClickedBinding.requestSentImageView.setOnClickListener(v -> {
                 database.deleteTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
             });
+
+            dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(g->{
+                ////////////
+            });
+
+
             dialogTeacherMatchingOnCardClickedBinding.requestSentTextView.setOnClickListener(v -> {
                 database.deleteTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
             });
