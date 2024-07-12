@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -17,6 +16,7 @@ import android.widget.DatePicker;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.graduationproject.database.Database;
 import com.example.graduationproject.databinding.ActivityRegisterBinding;
@@ -25,6 +25,7 @@ import com.example.graduationproject.R;
 import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.messaging.Users;
 import com.example.graduationproject.models.Profile;
+import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -52,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
 
 
     FirebaseAuth auth;
-    FirebaseDatabase database;
+    FirebaseDatabase firebaseDatabase;
     FirebaseStorage storage;
     ProgressDialog progressDialog;
     String imageuri;
@@ -77,7 +78,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         progressDialog.setMessage("Establishing The Account");
         progressDialog.setCancelable(false);
         // getSupportActionBar().hide();
-        database = FirebaseDatabase.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
         auth = FirebaseAuth.getInstance();
         String imageuri="https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
@@ -386,37 +387,31 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
     @Override
     public void onSuccess(int result) {
         if(result == 1){
-
-
-
-            auth.createUserWithEmailAndPassword(emailStr.trim(),passwordStr).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            auth.createUserWithEmailAndPassword(emailStr.toLowerCase().trim(),passwordStr).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()){
-                        String id = task.getResult().getUser().getUid();
-                        DatabaseReference reference = database.getReference().child("user").child(id);
-                        StorageReference storageReference = storage.getReference().child("Upload").child(id);
-
-                        if (imageURI!=null){
+                    if(task.isSuccessful()){
+                        String userId = task.getResult().getUser().getUid();
+                        DatabaseReference reference = firebaseDatabase.getReference().child("user").child(userId);
+                        StorageReference storageReference = storage.getReference().child("Upload").child(userId);
+                        if(imageURI != null){
                             storageReference.putFile(imageURI).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                    if (task.isSuccessful()){
+                                    if(task.isSuccessful()){
                                         storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                             @Override
                                             public void onSuccess(Uri uri) {
                                                 imageuri = uri.toString();
-                                                Users users = new Users(id,firstnameStr.toLowerCase().concat(lastnameStr.trim()) ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
+                                                Users users = new Users(userId,firstnameStr+" "+lastnameStr,emailStr.toLowerCase().trim(),passwordStr,imageuri,"1",profileSelected+"");
                                                 reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()){
-                                                            //   progressDialog.show();
-                                                            //    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                                            //    startActivity(intent);
-                                                            //      finish();
-                                                        }else {
-                                                            //  Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
+                                                        if(task.isSuccessful()){
+
+                                                        }
+                                                        else {
+                                                            MyAlertDialog.warningDialog(RegisterActivity.this,"Warning","Error Taking some of your data , you are not registered to use chat app");
                                                         }
                                                     }
                                                 });
@@ -425,31 +420,26 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                                     }
                                 }
                             });
-
-                        }else {
-                            String status = "Hey I'm Using This Application";
-                            imageuri = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
-                            Users users = new Users(id,firstnameStr.toLowerCase() + " " + lastnameStr.trim() ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
+                        }
+                        else {
+                            String status = "Hey I'm Using this application";
+                            imageuri="https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
+                            Users users = new Users(userId,firstnameStr+" "+lastnameStr,emailStr.toLowerCase().trim(),passwordStr,imageuri,status,profileSelected+"");
                             reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-                                        //  progressDialog.show();
-                                        //   Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
-                                        //    startActivity(intent);
-                                        //     finish();
-                                    }else {
-                                        // Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
+                                    if(task.isSuccessful()){
+
+                                    }
+                                    else {
+                                        MyAlertDialog.warningDialog(RegisterActivity.this,"Warning","Error Taking some of your data , you are not registered to use chat app");
                                     }
                                 }
                             });
                         }
-                    }else {
-                        // Toast.makeText(RegisterActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-
 
             binding.progressBar.setVisibility(ProgressBar.VISIBLE);
             new Handler().postDelayed(new Runnable() {

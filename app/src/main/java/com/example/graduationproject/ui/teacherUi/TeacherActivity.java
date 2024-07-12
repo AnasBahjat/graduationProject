@@ -188,6 +188,7 @@ public class TeacherActivity extends AppCompatActivity implements
         EdgeToEdge.enable(this);
         binding = ActivityTeacherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         getIntentDate();
 
         Data inputData = new Data.Builder().putString("email",email).build();
@@ -220,6 +221,17 @@ public class TeacherActivity extends AppCompatActivity implements
             database.getNotifications(email,this);
        // initFirebase();
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+
+        binding.messageIcon.setOnClickListener(v->{
+            if(Integer.parseInt(doneInformation)==1){
+                Intent messageAppIntent = new Intent(TeacherActivity.this,ChatMainActivity.class);
+                startActivity(messageAppIntent);
+            }
+            else {
+                MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this,"Confrim Account","Please confirm your account first ..");
+            }
+        });
+
         notList=new ArrayList<>();
         buildNavigationView();
         initBroadcastReceiver();
@@ -482,7 +494,7 @@ public class TeacherActivity extends AppCompatActivity implements
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
-           // mAuth.signOut();
+            FirebaseAuth.getInstance().signOut();
             Toast.makeText(this, "Logging out ", Toast.LENGTH_SHORT).show();
 
             finish();

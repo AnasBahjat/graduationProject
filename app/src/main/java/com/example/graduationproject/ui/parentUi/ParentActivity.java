@@ -592,7 +592,7 @@ public class ParentActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         if(menuItem.getItemId() == R.id.logoutId){
-            Toast.makeText(this, "Logging out ", Toast.LENGTH_SHORT).show();
+            FirebaseAuth.getInstance().signOut();
             finish();
         }
         else if(menuItem.getItemId() == R.id.lookForTeacher){

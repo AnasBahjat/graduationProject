@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -94,25 +95,9 @@ public class ChatMainActivity extends AppCompatActivity {
                 usersArrayList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
-                //    if(profileType!=null){
-                    if (currentUserId.equals(users.userId) ){
-                    }
-                    else if ((users.profileType.equals(profileType))) {
-
-                    } else if (currentUserId.equals(users.userId) || (users.profileType.equals(profileType))) {
-
-                    } else if(!currentUserId.equals(users.userId)){
+                    if(!currentUserId.equals(users.userId) && !users.profileType.equalsIgnoreCase(profileType)){
                         usersArrayList.add(users);
-                        // String reciverName = getIntent().getStringExtra("nameeee");
-                        //  String reciverimg = getIntent().getStringExtra("reciverImg");
-                        // String reciverUid = getIntent().getStringExtra("uid");
-                        //  Log.d("BadgeCount", "Current Badge Count: " + reciverUid);
-                        //  fetchUnreadMessages(reciverUid);
                     }
-                    else {
-
-                    }
-                //}
                 }
                 adapter.notifyDataSetChanged();
             }
@@ -144,10 +129,7 @@ public class ChatMainActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // Handle case where currentUser is null
-            Intent intent = new Intent(ChatMainActivity.this, ParentActivity.class);
-            startActivity(intent);
-            finish();
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Unable to fetch messages , please try again later ...");
         }
 
         reference.addChildEventListener(new ChildEventListener() {
@@ -191,7 +173,7 @@ public class ChatMainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                super.getClass();
+                //super.getClass();
                 finish(); // This closes the current activity and returns to the previous one
             }
         });

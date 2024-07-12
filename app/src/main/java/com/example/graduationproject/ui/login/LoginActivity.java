@@ -48,10 +48,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     private SharedPreferencesManager sharedPreferencesManager;
 
     FirebaseAuth auth ;
-    DatabaseReference databaseReference ;
-    ProgressDialog progressDialog;
-    String currentUserPassword = "";
- ;
+    String currentUserPassword="";
 
 
     @Override
@@ -60,12 +57,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         EdgeToEdge.enable(this);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-      //  progressDialog = new ProgressDialog(this);
-      //  progressDialog.setMessage("Please Wait");
-      //  progressDialog.setCancelable(false);
-
-       // auth = FirebaseAuth.getInstance();
         initialize();
     }
 
@@ -83,6 +74,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         binding.rememberMeBtn.setChecked(false);
         database=new Database(this);
         sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
+        auth = FirebaseAuth.getInstance();
         checkIfDataSaved();
 
     }
@@ -201,7 +193,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         else {
             binding.loginProgressBar.setVisibility(View.GONE);
                 try {
-
                     JSONObject jsonObject=loginSuccessData.getJSONObject(0);
 
                     if(jsonObject.getString("profileType").equals("1")){
@@ -223,55 +214,30 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         binding.loginProgressBar.setVisibility(View.VISIBLE);
 
 
-                   /*     auth.signInWithEmailAndPassword(email, currentUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+
+                        auth.signInWithEmailAndPassword(email.toLowerCase().trim(),currentUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressDialog.dismiss();
-                                if (task.isSuccessful()) {
-                                    FirebaseUser user = auth.getCurrentUser();
-                                    if (user != null) {
-                                        String userId = user.getUid();
-                                        databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
-                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                if (snapshot.exists()) {
-                                                    String userName = snapshot.child("name").getValue(String.class);
-                                                    // Intent intent = new Intent(login.this, MainActivity.class);
-
-
-                                                    //  startActivity(intent);
-                                                    finish();
-                                                } else {
-                                                    //   Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                                //  Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                if(task.isSuccessful()){
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            binding.loginProgressBar.setVisibility(View.GONE);
+                                            startActivity(intent);
+                                        }
+                                    },1500);
+                                }
+                                else {
+                                    MyAlertDialog.showCustomAlertDialogSpinnerError(LoginActivity.this,"Error signing in","Please try again");
                                 }
                             }
-                        });*/
+                        });
 
 
 
 
 
-
-
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                binding.loginProgressBar.setVisibility(View.GONE);
-                                startActivity(intent);
-                            }
-                        },1500);
                     }
                     else {
                         Intent intent = new Intent(LoginActivity.this, ParentActivity.class);
@@ -289,59 +255,23 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         intent.putExtra("profileType",profileType);
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
                         binding.loginProgressBar.setVisibility(View.VISIBLE);
-
-
-
-
-                      /*  auth.signInWithEmailAndPassword(email, currentUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        auth.signInWithEmailAndPassword(email.toLowerCase().trim(),currentUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressDialog.dismiss();
-                                if (task.isSuccessful()) {
-                                    FirebaseUser user = auth.getCurrentUser();
-                                    if (user != null) {
-                                        String userId = user.getUid();
-                                        databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
-                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                if (snapshot.exists()) {
-                                                    String userName = snapshot.child("name").getValue(String.class);
-                                                    // Intent intent = new Intent(login.this, MainActivity.class);
-
-
-                                                    //  startActivity(intent);
-                                                    finish();
-                                                } else {
-                                                    //   Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                                //  Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                if(task.isSuccessful()){
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            binding.loginProgressBar.setVisibility(View.GONE);
+                                            startActivity(intent);
+                                        }
+                                    },1500);
+                                }
+                                else {
+                                    MyAlertDialog.showCustomAlertDialogSpinnerError(LoginActivity.this,"Error signing in","Please try again");
                                 }
                             }
-                        });*/
-
-
-
-
-
-
-
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                binding.loginProgressBar.setVisibility(View.GONE);
-                                startActivity(intent);
-                            }
-                        },1500);
+                        });
                     }
                 }
                 catch (JSONException e){
