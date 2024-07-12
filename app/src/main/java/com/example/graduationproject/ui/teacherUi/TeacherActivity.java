@@ -219,7 +219,7 @@ public class TeacherActivity extends AppCompatActivity implements
         database=new Database(this);
         if(Integer.parseInt(doneInformation)==1)
             database.getNotifications(email,this);
-       // initFirebase();
+        initFirebase();
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
 
         binding.messageIcon.setOnClickListener(v->{
@@ -255,7 +255,6 @@ public class TeacherActivity extends AppCompatActivity implements
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         chatViewModel.fetchUnreadMessages(currentUserId);
-
         chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
             if (unreadCount > 0) {
                 binding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));

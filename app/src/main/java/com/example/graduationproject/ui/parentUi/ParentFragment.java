@@ -111,6 +111,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
@@ -447,8 +448,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.postedRequestsRecyclerView.setAdapter(parentCoursesAdapter);
         }
         else {
-            binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
-            binding.noChildrenCourses.setVisibility(View.GONE);
+            binding.noPostedRequestTextView.setVisibility(View.GONE);
+            binding.noChildrenCourses.setVisibility(View.VISIBLE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
         }
 
@@ -1938,7 +1939,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
            // teacherPostRequest.getTeacherEmail();
             teacherPostedRequestsCardToShowToParentBinding.sendMessageToTeacherBtn.setOnClickListener(v->{
-             //   getUserInfoByEmail(teacherPostRequest.getTeacherEmail());
+               getTeacherDataToCommunicate(teacherPostRequest.getTeacherEmail());
             });
 
            /* teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
@@ -1947,41 +1948,44 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
     }
 
-    /*private void getUserInfoByEmail(String tempMail) {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("user");
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Iterate through all the users
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                    String userEmail = userSnapshot.child("mail").getValue(String.class);
-                    Log.d("--------> "+userEmail,"--------> "+userEmail);
-                    Log.d("--------> "+tempMail,"--------> "+tempMail);
-                    if (userEmail != null && userEmail.equalsIgnoreCase(tempMail)) {
-                        // Get user info
-                        Users user = userSnapshot.getValue(Users.class);
-                        Log.d("User ---------> "+user.getUserId(),"User ---------> "+user.getUserId());
-                        Log.d("User ---------> "+user.getUserName(),"User ---------> "+user.getUserName());
-                        startChatWindowActivit(user);
-                        break;
-                    }
 
+    private void getTeacherDataToCommunicate(String receiverTeacherEmail){
+        receiverTeacherEmail = receiverTeacherEmail.toLowerCase().trim();
+        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference("user");
+
+        Query query = userReference.orderByChild("mail").equalTo(receiverTeacherEmail);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d("FirebaseDebug", "Snapshot exists: " + snapshot.exists());
+                if(snapshot.exists()){
+                    Toast.makeText(getContext(), "snap shot", Toast.LENGTH_SHORT).show();
+                    for(DataSnapshot userSnapShot : snapshot.getChildren()){
+                        String receiverUid = userSnapShot.child("userId").getValue(String.class);
+                        String receiverName = userSnapShot.child("userName").getValue(String.class);
+                        String receiverImage = userSnapShot.child("profilepic").getValue(String.class);
+
+                        Intent intent = new Intent(getContext(), ChatWindowActivity.class);
+                        intent.putExtra("uid", receiverUid);
+                        intent.putExtra("nameeee", receiverName);
+                        intent.putExtra("reciverImg", receiverImage);
+                        startActivity(intent);
+
+                    }
+                }
+                else{
+                    Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Teacher","Unable to access teacher right now , please try again later ..");
                 }
             }
+
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Unable to access teacher right now , please try again later ..");
             }
         });
     }
-
-    private void startChatWindowActivit(Users user) {
-        Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
-        intent.putExtra("nameeee",user.getUserName());
-        intent.putExtra("reciverImg",user.getProfilepic());
-        intent.putExtra("uid",user.getUserId());
-        startActivity(intent);
-    }*/
 
     private void sendRequestToTeacherBtnClicked(TeacherPostRequest teacherPostRequest){
         if(getContext() != null){

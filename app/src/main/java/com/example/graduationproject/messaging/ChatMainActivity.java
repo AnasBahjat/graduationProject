@@ -75,8 +75,9 @@ public class ChatMainActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
-                            profileType = (String) dataSnapshot.child("profileType").getValue();
+                            profileType = dataSnapshot.child("profileType").getValue(String.class);
                             if (profileType != null) {
+                                fetchOppositeUsers(profileType);
                                 Log.d("ProfileType", "Profile Type: " + profileType);
                                 // Use profileType as needed
                             } else {
@@ -92,14 +93,14 @@ public class ChatMainActivity extends AppCompatActivity {
                         Log.d("ProfileType", "Error retrieving profile type: " + databaseError.getMessage());
                     }
                 });
-                usersArrayList.clear();
+                /*usersArrayList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
                     if(!currentUserId.equals(users.userId) && !users.profileType.equalsIgnoreCase(profileType)){
                         usersArrayList.add(users);
                     }
                 }
-                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();*/
             }
 
             @Override
@@ -197,5 +198,27 @@ public class ChatMainActivity extends AppCompatActivity {
         if (auth.getCurrentUser() == null) {
             super.getClass();
         }
+    }
+    private void fetchOppositeUsers(String currentUserProfileType) {
+        DatabaseReference reference = database.getReference().child("user");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                usersArrayList.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Users users = dataSnapshot.getValue(Users.class);
+                    if (users != null && !currentUserId.equals(users.getUserId()) && !users.getProfileType().equals(currentUserProfileType)) {
+                        usersArrayList.add(users);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle error
+            }
+        });
     }
 }

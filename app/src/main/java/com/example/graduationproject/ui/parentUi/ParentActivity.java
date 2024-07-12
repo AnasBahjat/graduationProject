@@ -170,10 +170,8 @@ public class ParentActivity extends AppCompatActivity implements
     private void initFirebase(){
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Toast.makeText(this, "Parent UID--> "+currentUserId, Toast.LENGTH_SHORT).show();
         chatViewModel.fetchUnreadMessages(currentUserId);
-
-
-
         chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
             if (unreadCount > 0) {
                 parentBinding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
@@ -184,19 +182,21 @@ public class ParentActivity extends AppCompatActivity implements
         });
 
 
-        if(doneInformation.equalsIgnoreCase("1")){
-            Toast.makeText(this, "01221312321312", Toast.LENGTH_SHORT).show();
-            parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+        parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(doneInformation.equalsIgnoreCase("1")){
                     Intent intent = new Intent(ParentActivity.this, ChatMainActivity.class);
                     startActivity(intent);
                 }
-            });
-        }
-        else {
-            MyAlertDialog.warningDialog(this,"Confirm Account","Please Confirm Your Account to be able to use the messenger .");
-        }
+                else {
+                    MyAlertDialog.warningDialog(ParentActivity.this,"Confirm Account","Please Confirm Your Account to be able to use the messenger .");
+                }
+            }
+        });
+
+
+
     }
 
     private void getIntentDate(){
@@ -215,7 +215,7 @@ public class ParentActivity extends AppCompatActivity implements
     private void init(){
         database=new Database(this);
         notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
-        //initFirebase();
+        initFirebase();
         if(Integer.parseInt(doneInformation) == 1){
             database.getNotifications(email,this);
         }

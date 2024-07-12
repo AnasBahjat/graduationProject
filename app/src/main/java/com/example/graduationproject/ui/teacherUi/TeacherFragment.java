@@ -105,6 +105,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
@@ -1677,7 +1678,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             });
 
             dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(a->{
-             //   getUserInfoByEmail(receiverEmail);
+                getParentDataToCommunicate(receiverEmail);
             });
 
 
@@ -1690,47 +1691,44 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
 
-   /* private void getUserInfoByEmail(String tempMail) {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("user");
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void getParentDataToCommunicate(String receiverParentEmail){
+        receiverParentEmail = receiverParentEmail.toLowerCase().trim();
+        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference("user");
+
+        Query query = userReference.orderByChild("mail").equalTo(receiverParentEmail);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Iterate through all the users
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                    String userEmail = userSnapshot.child("mail").getValue(String.class);
-                    Log.d("--------> "+userEmail,"--------> "+userEmail);
-                    Log.d("--------> "+tempMail,"--------> "+tempMail);
-                    if (userEmail != null && userEmail.equalsIgnoreCase(tempMail)) {
-                        // Get user info
-                        Users user = userSnapshot.getValue(Users.class);
-                        Log.d("User ---------> "+user.getUserId(),"User ---------> "+user.getUserId());
-                        Log.d("User ---------> "+user.getUserName(),"User ---------> "+user.getUserName());
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d("FirebaseDebug", "Snapshot exists: " + snapshot.exists());
+                if(snapshot.exists()){
+                    Toast.makeText(getContext(), "snap shot", Toast.LENGTH_SHORT).show();
+                    for(DataSnapshot userSnapShot : snapshot.getChildren()){
+                        String receiverUid = userSnapShot.child("userId").getValue(String.class);
+                        String receiverName = userSnapShot.child("userName").getValue(String.class);
+                        String receiverImage = userSnapShot.child("profilepic").getValue(String.class);
 
-                        // Pass the user object to another activity
+                        Intent intent = new Intent(getContext(), ChatWindowActivity.class);
+                        intent.putExtra("uid", receiverUid);
+                        intent.putExtra("nameeee", receiverName);
+                        intent.putExtra("reciverImg", receiverImage);
+                        startActivity(intent);
 
-
-                        // Break the loop as we found the user
-                        startChatWindowActivit(user);
-                        break;
                     }
+                }
+                else{
+                    Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
 
+                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Teacher","Unable to access teacher right now , please try again later ..");
                 }
             }
+
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Unable to access teacher right now , please try again later ..");
             }
         });
     }
 
-
-    private void startChatWindowActivit(Users user) {
-        Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
-        intent.putExtra("nameeee",user.getUserName());
-        intent.putExtra("reciverImg",user.getProfilepic());
-        intent.putExtra("uid",user.getUserId());
-        startActivity(intent);
-    }*/
 
     private void setDataToMatchDialog(TeacherMatchModel teacherMatchModel, String parentName, List<String> parentPhoneNumbers) {
         dialogTeacherMatchingOnCardClickedBinding.childNameTextView.setText(teacherMatchModel.getChildren().getChildName());

@@ -20,8 +20,75 @@ public class ChatViewModel extends ViewModel {
         return unreadMessageCount;
     }
 
+    /*public void fetchUnreadMessages(String userId) {
+        DatabaseReference chatsReference = FirebaseDatabase.getInstance().getReference().child("chats");
+        chatsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int count = 0;
+                for (DataSnapshot chatSnapshot : snapshot.getChildren()) {
+                    DataSnapshot messagesSnapshot = chatSnapshot.child("messages");
+                    for (DataSnapshot messageSnapshot : messagesSnapshot.getChildren()) {
+                        msgModelclass message = messageSnapshot.getValue(msgModelclass.class);
+                        if (message != null && !message.isRead() && message.getReceiverId().equals(userId)) {
+                            count++;
+                        }
+                    }
+                }
+                unreadMessageCount.setValue(count); // Update LiveData
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("ChatViewModel", "Database error: " + error.getMessage());
+            }
+        });
+    }*/
+
+
+   /* public void fetchUnreadMessages(String userId) {
+        DatabaseReference userChatsReference = FirebaseDatabase.getInstance().getReference().child("users").child(userId).child("chats");
+
+        userChatsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int count = 0;
+                for (DataSnapshot chatSnapshot : snapshot.getChildren()) {
+                    String chatId = chatSnapshot.getKey();
+                    if (chatId != null) {
+                        DatabaseReference messagesReference = FirebaseDatabase.getInstance().getReference().child("chats").child(chatId).child("messages");
+                        messagesReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot messagesSnapshot) {
+                                int messageCount = 0;
+                                for (DataSnapshot messageSnapshot : messagesSnapshot.getChildren()) {
+                                    msgModelclass message = messageSnapshot.getValue(msgModelclass.class);
+                                    if (message != null && !message.isRead() && message.getReceiverId().equals(userId)) {
+                                        messageCount++;
+                                    }
+                                }
+                                unreadMessageCount.setValue(messageCount);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Log.e("ChatViewModel", "Database error: " + error.getMessage());
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("ChatViewModel", "Database error: " + error.getMessage());
+            }
+        });
+    }*/
+
     public void fetchUnreadMessages(String userId) {
         DatabaseReference chatsReference = FirebaseDatabase.getInstance().getReference().child("chats");
+
         chatsReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
