@@ -93,8 +93,6 @@ public class SettingMessagingActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle possible errors
-                Toast.makeText(SettingMessagingActivity.this, "Failed to load data.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -139,7 +137,6 @@ public class SettingMessagingActivity extends AppCompatActivity {
                                     });
                                 } else {
                                     progressDialog.dismiss();
-                                    Toast.makeText(SettingMessagingActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -163,7 +160,6 @@ public class SettingMessagingActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(SettingMessagingActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
                 }
             }
         });

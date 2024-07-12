@@ -1,19 +1,25 @@
 package com.example.graduationproject.ui.register;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -302,7 +308,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             dataValidFlag=true ;
         }
         else if(!checkAll()){
-            Toast.makeText(RegisterActivity.this,"ERROR ..",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -446,8 +451,8 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                 @Override
                 public void run() {
                     binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    MyAlertDialog.showDialogForDone(RegisterActivity.this,"Account created","Account created you can sign in know ..");
-                    finish();
+                    showDialogForDone(RegisterActivity.this,"Account created","Account created you can sign in know ..");
+
                 }
             },1500);
 
@@ -459,6 +464,29 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         else if (result==0){
             Toast.makeText(this,"Error registration",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void showDialogForDone(Context context, String title, String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.icon_done);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView messageTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText(title);
+        messageTextView.setText(message);
+        messageTextView.setTextColor(context.getColor(R.color.black));
+        builder.setView(view);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override

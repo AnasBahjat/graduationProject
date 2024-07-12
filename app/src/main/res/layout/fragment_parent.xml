@@ -137,6 +137,16 @@
         android:textColor="#716F6F"
         android:visibility="gone"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Matching Data"
+        android:layout_centerInParent="true"
+        android:textSize="25sp"
+        android:textColor="#716F6F"
+        android:visibility="gone"
+        />
+
     <RelativeLayout
         android:id="@+id/progressBarLayout"
         android:background="@drawable/rounded_corners"

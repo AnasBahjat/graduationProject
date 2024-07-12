@@ -90,7 +90,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     @Override
     protected void onResume() {
         super.onResume();
-        Toast.makeText(this, "logged out ...", Toast.LENGTH_SHORT).show();
         checkIfDataSaved();
     }
 
@@ -232,6 +231,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                                 }
                                 else {
                                     MyAlertDialog.showCustomAlertDialogSpinnerError(LoginActivity.this,"Error signing in","Please try again");
+                                    binding.loginProgressBar.setVisibility(View.GONE);
                                 }
                             }
                         });
@@ -271,6 +271,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                                 }
                                 else {
                                     MyAlertDialog.showCustomAlertDialogSpinnerError(LoginActivity.this,"Error signing in","Please try again");
+                                    binding.loginProgressBar.setVisibility(View.GONE);
                                 }
                             }
                         });

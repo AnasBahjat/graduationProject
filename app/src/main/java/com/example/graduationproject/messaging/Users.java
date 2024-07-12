@@ -3,7 +3,7 @@ package com.example.graduationproject.messaging;
 public class Users {
     String profilepic,mail,userName,password,userId,lastMessage,status,profileType;;
 
-
+    private int unreadMessageCount;
 
 
     public String getProfileType() {
@@ -26,6 +26,14 @@ public class Users {
         this.profileType = profileType;
     }
 
+
+    public int getUnreadMessageCount() {
+        return unreadMessageCount;
+    }
+
+    public void setUnreadMessageCount(int unreadMessageCount) {
+        this.unreadMessageCount = unreadMessageCount;
+    }
 
     public String getProfilepic() {
         return profilepic;

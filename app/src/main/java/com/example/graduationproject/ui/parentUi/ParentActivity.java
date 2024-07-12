@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -170,7 +171,6 @@ public class ParentActivity extends AppCompatActivity implements
     private void initFirebase(){
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Toast.makeText(this, "Parent UID--> "+currentUserId, Toast.LENGTH_SHORT).show();
         chatViewModel.fetchUnreadMessages(currentUserId);
         chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
             if (unreadCount > 0) {
@@ -611,17 +611,25 @@ public class ParentActivity extends AppCompatActivity implements
            /* Intent intentFilter = new Intent();
             intentFilter.setAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
             sendBroadcast(intentFilter);*/
-            Intent intent = new Intent();
-            intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
-            sendBroadcast(intent);
+            if(doneInformation.equalsIgnoreCase("1")){
+                Intent intent = new Intent();
+                intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
+                sendBroadcast(intent);
+            }
+            else
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
         }
         else if(menuItem.getItemId() == R.id.teacherPostedRequests){
-            Intent intentFilter = new Intent();
-            intentFilter.setAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
-            sendBroadcast(intentFilter);
+            if(doneInformation.equalsIgnoreCase("1")){
+                Intent intentFilter = new Intent();
+                intentFilter.setAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
+                sendBroadcast(intentFilter);
+            }
+            else
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
         }
         else if(menuItem.getItemId() == R.id.profile){
-            loadFragment(new ParentProfileFragment());
+            //loadFragment(new ParentProfileFragment());
         }
             parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;

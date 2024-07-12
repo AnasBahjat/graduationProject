@@ -48,20 +48,17 @@
         android:layout_width="376dp"
         android:layout_height="match_parent"
         android:layout_below="@id/myChatsText"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="19dp"
-        android:layout_marginRight="19dp"
-        android:layout_marginBottom="104dp" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="90dp" />
 
     <ImageView
         android:id="@+id/camBut"
+        android:visibility="gone"
         android:layout_width="47dp"
         android:layout_height="38dp"
         android:layout_alignParentEnd="true"
@@ -73,6 +70,7 @@
         android:src="@drawable/camera" />
 
     <ImageView
+        android:visibility="gone"
         android:id="@+id/settingBut"
         android:layout_width="47dp"
         android:layout_height="38dp"
@@ -83,5 +81,14 @@
         android:layout_marginRight="104dp"
         android:layout_marginBottom="36dp"
         android:src="@drawable/sett" />
+
+    <TextView
+        android:id="@+id/noChatsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Chats"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:textSize="33sp"/>
 
 </RelativeLayout>

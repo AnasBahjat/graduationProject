@@ -230,7 +230,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         @Override
         public void onReceive(Context context, Intent intent) {
             if("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED".equals(intent.getAction())){
-                database.getParentPostedMatchingInformation(email,ParentFragment.this);
+                binding.noTeacherPostedRequests.setVisibility(View.GONE);
+                myPostedRequestsBtnClicked();
             }
             else if("SHOW_RECEIVED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
                 database.getParentReceivedRequest(email,ParentFragment.this);
@@ -248,7 +249,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 setPostedTeacherRequestsForParent();
             }
             else if("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
-                Toast.makeText(getContext(), "Show Parent Received Request ..", Toast.LENGTH_SHORT).show();
             }
             else if("SHOW_DELETE_COURSE_REQUEST_FOR_PARENT".equalsIgnoreCase(intent.getAction())){
                 Notifications notification ;
@@ -421,6 +421,9 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         myReceivedRequestsForParent = false;
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.myReceivedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.noChildrenCourses.setVisibility(View.GONE);
+        binding.noTeacherPostedRequests.setVisibility(View.GONE);
+        binding.noPostedRequestTextView.setVisibility(View.GONE);
         database.getAllParentCourses(email,this);
         //setMyCoursesRequestsAdapter();
     }
@@ -951,7 +954,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             String parentLastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
             dialogParentPostedRequestCardBinding.parentNameTextView.setText(parentFirstName+" "+parentLastName);
             StringBuilder phoneNumbersStr = new StringBuilder();
-            Log.d("isPhoneNumersList empty ? --> "+phoneNumbersList.isEmpty(),"isPhoneNumersList empty ? --> "+phoneNumbersList.isEmpty());
             if(phoneNumbersList.size() > 1){
                 for(int i=0;i<phoneNumbersList.size();i++){
                     if( i + 1 != phoneNumbersList.size())
@@ -1646,7 +1648,12 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Connection Error","Network Error ,Please Try Again Later");
         }
         else if(flag == 0){
-
+            binding.refreshRecyclerView.setRefreshing(false);
+            if(!teacherPostedRequestsForParentList.isEmpty())
+                teacherPostedRequestsForParentList.clear();
+            setTeacherPostsForParent();
+            if(getView() != null)
+                Snackbar.make(getView(), "Teacher Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
         }
         else if(flag == 1){
             if(!teacherPostedRequestsForParentList.isEmpty()){
@@ -1744,6 +1751,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     return true;
                 }
             });
+            binding.refreshRecyclerView.setRefreshing(false);
 
             if(getView() != null)
                 Snackbar.make(getView(), "Teacher Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
@@ -1963,7 +1971,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d("FirebaseDebug", "Snapshot exists: " + snapshot.exists());
                 if(snapshot.exists()){
-                    Toast.makeText(getContext(), "snap shot", Toast.LENGTH_SHORT).show();
                     for(DataSnapshot userSnapShot : snapshot.getChildren()){
                         String receiverUid = userSnapShot.child("userId").getValue(String.class);
                         String receiverName = userSnapShot.child("userName").getValue(String.class);
@@ -1978,8 +1985,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     }
                 }
                 else{
-                    Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
-
                     MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Teacher","Unable to access teacher right now , please try again later ..");
                 }
             }
@@ -2226,16 +2231,18 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 criteria.setMinPrice(filterLayoutBinding.priceToEditText.getText().toString().isEmpty() ? null : Double.parseDouble(filterLayoutBinding.priceToEditText.getText().toString()));
                 List<TeacherPostRequest> filteredList = filter(teacherPostedRequestsForParentList,criteria);
                 if(filteredList.isEmpty()){
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                    binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.noChildrenCourses.setVisibility(View.GONE);
+                    binding.noTeacherPostedRequests.setVisibility(View.VISIBLE);
                     binding.postedRequestsRecyclerView.setVisibility(View.GONE);
                     if(getView() != null)
                         Snackbar.make(getView(),"No Filter Matching Data",Snackbar.LENGTH_SHORT).setDuration(800).show();
                 }
                 else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                     binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.noChildrenCourses.setVisibility(View.GONE);
                     binding.postedRequestsRecyclerView.setVisibility(View.VISIBLE);
+                    binding.noTeacherPostedRequests.setVisibility(View.GONE);
                     teacherPostedRequestsAdapter.filteredList(filteredList);
                     if(getView() != null)
                         Snackbar.make(getView(),"Data Filtered ..",Snackbar.LENGTH_SHORT).setDuration(800).show();
@@ -2844,7 +2851,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @Override
     public void onParentCoursesReceived(int flag, JSONArray parentCourses) {
-        Toast.makeText(getContext(), "Flag dd -> "+flag, Toast.LENGTH_SHORT).show();
         if (flag == 0) {
             double price = (currentParentReceivedRequest.getTeacherMatchModel().getPriceMaximum() + currentParentReceivedRequest.getTeacherMatchModel().getPriceMinimum()) / 2 ;
             database.insertParentCourse(price,currentParentReceivedRequest,this);
@@ -2944,7 +2950,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         if(flag == 1){
             if(getView() != null)
                 Snackbar.make(getView(), "Course Added !! ", Snackbar.LENGTH_SHORT).setDuration(2000).show();
-            database.getAllParentCourses(email,this);
+           // database.getAllParentCourses(email,this);
+            myCoursesBtnClicked();
         }
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
@@ -3063,81 +3070,11 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                             sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
                         }
                     }
-                    /*else if(coursesDatesTeacherTable.length() > 0 && coursesDatesParentTable.length() == 0){
-                        int conflictFlag = 0;
-                        for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
-                            JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
-                            String startDate = jsonObject.getString("startDate");
-                            String endDate = jsonObject.getString("endDate");
-                            String startTime = jsonObject.getString("startTime");
-                            String endTime = jsonObject.getString("endTime");
-                            String availability = jsonObject.getString("availabilityForJob");
-                            String days = availability;
-                            if (availability.equalsIgnoreCase("Weekend")) {
-                                days = "Thur , Fri";
-                            } else if (availability.equalsIgnoreCase("Any")) {
-                                days = "Sat , Sun , Mon , Tues , Thur , Fri";
-                            }
-                            if (availability.charAt(availability.length() - 1) == ',') {
-                                days = availability.substring(0, availability.length() - 1).trim();
-                            }
-
-                            if (DateUtils.isConflict(tempReceivedParentRequestDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
-                                conflictFlag = 1;
-                                break;
-                            }
-                        }
-                        if(conflictFlag == 1){
-                            MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
-                            binding.loadingProgressBar2.setVisibility(View.GONE);
-
-                        }
-                        else {
-                            sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
-                        }
-                    }
-                    else if(coursesDatesParentTable.length() > 0 && coursesDatesTeacherTable.length() == 0){
-                        Log.d("8888888888888888888888888888888","8888888888888888888888888888");
-
-                        int conflictFlag = 0;
-                        for(int i = 0 ; i < coursesDatesParentTable.length() ; i++){
-                            JSONObject jsonObject = coursesDatesParentTable.getJSONObject(i);
-                            String startDate = jsonObject.getString("startDate");
-                            String endDate = jsonObject.getString("endDate");
-                            String startTime = jsonObject.getString("startTime");
-                            String endTime = jsonObject.getString("endTime");
-                            String availability = jsonObject.getString("choseDays");
-                            String days = availability;
-                            if (availability.equalsIgnoreCase("Weekend")) {
-                                days = "Thur , Fri";
-                            } else if (availability.equalsIgnoreCase("Any")) {
-                                days = "Sat , Sun , Mon , Tues , Thur , Fri";
-                            }
-                            if (availability.charAt(availability.length() - 1) == ',') {
-                                days = availability.substring(0, availability.length() - 1).trim();
-                            }
-                            if (DateUtils.isConflict(tempReceivedParentRequestDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
-                                conflictFlag = 1;
-                                break;
-                            }
-                            Log.d("9999999999999999999999999999","9999999999999999999");
-
-                        }
-                        if(conflictFlag == 1){
-                            MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
-                            binding.loadingProgressBar2.setVisibility(View.GONE);
-                        }
-                        else {
-                            sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
-                        }
-                    }*/
                     else {
                         sendRequestToTeacherBtnClicked(tempTeacherPostRequest);
                     }
                 }
                 catch (Exception e){
-                   // Log.d("123123123123123123123123Anas","123123123123123123123123Anas");
-                    //MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","An Error Occurred Please Try Again Later ..");
                     throw new RuntimeException(e);
                 }
             }
@@ -3153,6 +3090,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             binding.noPostedRequestTextView.setVisibility(View.GONE);
             binding.postedRequestsRecyclerView.setVisibility(View.GONE);
             binding.noChildrenCourses.setVisibility(View.VISIBLE);
+            binding.refreshRecyclerView.setRefreshing(false);
             if(getView() != null)
                 Snackbar.make(getView(),"Your Courses List Updated",Snackbar.LENGTH_SHORT).setDuration(400).show();
         }
@@ -3556,7 +3494,8 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             public void onClick(DialogInterface dialog, int which) {
                 database.removeCourseForParentAndTeacher(course);
                 MyAlertDialog.showDialogForDone(getContext(),"Course Deleted","The course deleted, its no longer available ..");
-                database.getAllParentCourses(email,ParentFragment.this);
+               // database.getAllParentCourses(email,ParentFragment.this);
+                myCoursesBtnClicked();
                 dialog.dismiss();
                 removeRequestForParentDialog.dismiss();
             }

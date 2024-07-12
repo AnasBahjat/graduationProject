@@ -32,7 +32,6 @@ public class PopUpWindows {
     public static boolean showConfirmPhoneNumberPopupWindow(Context context,Activity activity, LayoutInflater layoutInflater,String phoneNumber){
         PopUpWindows.activity=activity;
         PopUpWindows.context=context;
-        Log.d("phone ----------> "+phoneNumber,"phone ----------> "+phoneNumber);
         ConfirmPhoneNumberBinding confirmPhoneNumberBinding = ConfirmPhoneNumberBinding.inflate(layoutInflater);
         int width = 1150;
         int height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -44,7 +43,6 @@ public class PopUpWindows {
         return flag ;
     }
     private static boolean authPhoneNumber(ConfirmPhoneNumberBinding confirmPhoneNumberBinding,String phoneNumber ){
-        Log.d("phone ----------> "+phoneNumber,"phone ----------> "+phoneNumber);
         flag = false ;
             PhoneAuthOptions.Builder builder = PhoneAuthOptions.newBuilder(mAuth)
                     .setPhoneNumber(phoneNumber)

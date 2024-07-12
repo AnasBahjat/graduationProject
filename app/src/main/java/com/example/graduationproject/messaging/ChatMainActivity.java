@@ -37,7 +37,7 @@ public class ChatMainActivity extends AppCompatActivity {
     ArrayList<Users> usersArrayList;
     ImageView imglogout;
     ImageView cumbut, setbut;
-    TextView title;
+    TextView title,noChatsText;
     String profileType;
 
 
@@ -55,8 +55,10 @@ public class ChatMainActivity extends AppCompatActivity {
         cumbut = findViewById(R.id.camBut);
         setbut = findViewById(R.id.settingBut);
         title = findViewById(R.id.title1);
+        noChatsText = findViewById(R.id.noChatsText);
 
         usersArrayList = new ArrayList<>();
+
 
         mainUserRecyclerView = findViewById(R.id.mainUserRecyclerView);
         mainUserRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -214,7 +216,16 @@ public class ChatMainActivity extends AppCompatActivity {
                         usersArrayList.add(users);
                     }
                 }
+                fetchUnreadMessagesCount(currentUserId);
                 adapter.notifyDataSetChanged();
+                if(usersArrayList.isEmpty()){
+                    noChatsText.setVisibility(View.VISIBLE);
+                    mainUserRecyclerView.setVisibility(View.GONE);
+                }
+                else {
+                    noChatsText.setVisibility(View.GONE);
+                    mainUserRecyclerView.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -222,5 +233,43 @@ public class ChatMainActivity extends AppCompatActivity {
                 // Handle error
             }
         });
+    }
+
+    private void fetchUnreadMessagesCount(String currentUserId) {
+        DatabaseReference messagesRef = database.getReference().child("chats");
+        for (Users user : usersArrayList) {
+            String userId = user.getUserId();
+            messagesRef.orderByChild("messages").equalTo(currentUserId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            int unreadCount = 0;
+                            for (DataSnapshot chatSnapshot : snapshot.getChildren()) {
+                                for (DataSnapshot messageSnapshot : chatSnapshot.child("messages").getChildren()) {
+                                    String senderId = messageSnapshot.child("senderId").getValue(String.class);
+                                    boolean isRead = messageSnapshot.child("read").getValue(Boolean.class);
+                                    if (senderId.equals(userId) && !isRead) {
+                                        unreadCount++;
+                                    }
+                                }
+                            }
+                            user.setUnreadMessageCount(unreadCount);
+                            adapter.notifyDataSetChanged();
+                            if(usersArrayList.isEmpty()){
+                                noChatsText.setVisibility(View.VISIBLE);
+                                mainUserRecyclerView.setVisibility(View.GONE);
+                            }
+                            else {
+                                noChatsText.setVisibility(View.GONE);
+                                mainUserRecyclerView.setVisibility(View.VISIBLE);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            // Handle error
+                        }
+                    });
+        }
     }
 }

@@ -30,7 +30,6 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -225,7 +224,11 @@ public class TeacherActivity extends AppCompatActivity implements
         binding.messageIcon.setOnClickListener(v->{
             if(Integer.parseInt(doneInformation)==1){
                 Intent messageAppIntent = new Intent(TeacherActivity.this,ChatMainActivity.class);
-                startActivity(messageAppIntent);
+                binding.progressBarLayout.setVisibility(View.VISIBLE);
+                new Handler().postDelayed(()->{
+                    binding.progressBarLayout.setVisibility(View.GONE);
+                    startActivity(messageAppIntent);
+                },1000);
             }
             else {
                 MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this,"Confrim Account","Please confirm your account first ..");
@@ -263,14 +266,14 @@ public class TeacherActivity extends AppCompatActivity implements
                 binding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
             }
         });
-        binding.messageIcon.setOnClickListener(new View.OnClickListener() {
+       /* binding.messageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Create an Intent to start MainActivity
                 Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
                 startActivity(intent);
             }
-        });
+        });*/
     }
 
     void checkAccountDone(){
@@ -290,7 +293,6 @@ public class TeacherActivity extends AppCompatActivity implements
                     }
                 }
             }
-            Log.d("Not list --->"+notList,"Not list --->"+notList);
             updateNotificationsAdapter();
             binding.accountIsNotConfirmText.setVisibility(View.GONE);
             binding.fragmentsContainer.setVisibility(View.VISIBLE);
@@ -480,22 +482,33 @@ public class TeacherActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         if(menuItem.getItemId() == R.id.LookForJob){
-            showTeacherLookForJobDialog();
+            if(doneInformation.equalsIgnoreCase("1"))
+                showTeacherLookForJobDialog();
+            else
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account ","Please Confirm your account first ..");
         }
         else if(menuItem.getItemId() == R.id.viewTeacherReceivedRequests){
-            Intent intent = new Intent();
-            intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
-            sendBroadcast(intent);
+            if(doneInformation.equalsIgnoreCase("1")){
+                Intent intent = new Intent();
+                intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+                sendBroadcast(intent);
+            }
+            else
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account ","Please Confirm your account first ..");
+
         }
         else if(menuItem.getItemId() == R.id.availablePosts){
-            Intent intent = new Intent();
-            intent.setAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
-            sendBroadcast(intent);
+            if(doneInformation.equalsIgnoreCase("1")){
+                Intent intent = new Intent();
+                intent.setAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
+                sendBroadcast(intent);
+            }
+            else {
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account ","Please Confirm your account first ..");
+            }
         }
         if(menuItem.getItemId() == R.id.logoutId){
             FirebaseAuth.getInstance().signOut();
-            Toast.makeText(this, "Logging out ", Toast.LENGTH_SHORT).show();
-
             finish();
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -1296,8 +1309,6 @@ public class TeacherActivity extends AppCompatActivity implements
     }
 
     public void updateNotificationsList(ArrayList<Notifications> newNotifications){
-        Toast.makeText(this,"Notificatons updated ..",Toast.LENGTH_SHORT).show();
-        Log.d("----------->service -->"+newNotifications,"----------->service -->"+newNotifications);
     }
 
     private void startNotificationsService(){
@@ -1342,7 +1353,6 @@ public class TeacherActivity extends AppCompatActivity implements
                     int childGrade = jsonObject.getInt("childGrade");
                     String startTime = jsonObject.getString("startTime");
                     String endTime = jsonObject.getString("endTime");
-                    Log.d("Child name --------> "+childName,"Child name --------> "+childName);
                     TeacherMatchModel teacherMatchModel=new TeacherMatchModel(matchingId,parentEmail,new CustomChildData(childId,childName,childGrade),
                             choseDays,choseCourses,location,teachingMethod,
                             new Children(childName,childAge,childGender,childGrade),startTime,endTime);

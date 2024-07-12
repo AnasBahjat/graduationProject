@@ -258,33 +258,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(),"Unable to show","Unable to show the course data , try again later..");
                 }
             }
-
-
-
-
-
-
-//            /*else if("TEACHER_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
-//                Toast.makeText(getContext(), "Show Teacher Received Request ..", Toast.LENGTH_SHORT).show();
-//                Notifications notification;
-//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-//                     notification = intent.getParcelableExtra("notification",Notifications.class);
-//                }
-//                else {
-//                    notification = intent.getParcelableExtra("notification");
-//                }
-//                if(notification != null){
-//                    showTeacherReceivedRequestBtn = true;
-//                    flagX=1 ;
-//                    //database.getTeacherReceivedRequests(email,TeacherFragment.this);
-//                    database.getTeacherSpecificReceivedRequest(notification);
-//                    currentNotificationId = notification.getParentSentRequestId();
-//                }
-//                else {
-//                    flagX = 0;
-//                    MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"Error","Something Went Wrong , try again later or check the received request from the navigation ..");
-//                }
-//            }*/
         }
     };
 
@@ -380,6 +353,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         binding.filterLayout.setVisibility(View.GONE);
         binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_active);
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
+        binding.noMatchedData.setVisibility(View.GONE);
+        binding.noDataAddedText.setVisibility(View.GONE);
+        binding.noPostedRequestTextView.setVisibility(View.GONE);
         database.getAllTeacherCourses(email,this);
     }
 
@@ -392,7 +368,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         binding.filterLayout.setVisibility(View.GONE);
         binding.myCoursesBtn.setBackgroundResource(R.drawable.rounded_button_inactive);
         binding.myPostedRequestsBtn.setBackgroundResource(R.drawable.rounded_button_active);
-
+        binding.noMatchedData.setVisibility(View.GONE);
+        binding.noDataAddedText.setVisibility(View.GONE);
+        binding.noPostedRequestTextView.setVisibility(View.GONE);
 
         database.getTeacherPostedRequests(email, this);
     }
@@ -556,8 +534,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 return true;
             }
         });
-
-
         if(getView() != null)
             Snackbar.make(getView(), "Your Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
     }
@@ -1059,7 +1035,8 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 }
             }
         } else {
-
+            if(getView() != null)
+                Snackbar.make(getView(), "Your Posted Requests Updated", Snackbar.LENGTH_SHORT).setDuration(500).show();
         }
     }
 
@@ -1553,13 +1530,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
         } else if (flag == 1) {
             database.getTeacherPostedRequests(email, this);
-            Log.d("Showing the progress bar ..", "Showing the progress bar ..");
             updatePostedRequestDialog.dismiss();
             isTeacherPostedRequestCardDialogShowing=false;
             teacherPostedRequestCardDialog.dismiss();
             new Handler().postDelayed(() -> {
                 binding.progressBarLayout.setVisibility(View.GONE);
-                Log.d("hiding the progress bar ..", "hiding the progress bar ..");
             }, 1500);
         } else {
 
@@ -1701,7 +1676,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d("FirebaseDebug", "Snapshot exists: " + snapshot.exists());
                 if(snapshot.exists()){
-                    Toast.makeText(getContext(), "snap shot", Toast.LENGTH_SHORT).show();
                     for(DataSnapshot userSnapShot : snapshot.getChildren()){
                         String receiverUid = userSnapShot.child("userId").getValue(String.class);
                         String receiverName = userSnapShot.child("userName").getValue(String.class);
@@ -1716,8 +1690,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                     }
                 }
                 else{
-                    Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
-
                     MyAlertDialog.showCustomAlertDialogLoginError(getContext(),"No Teacher","Unable to access teacher right now , please try again later ..");
                 }
             }
@@ -2215,14 +2187,16 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 List<TeacherMatchModel> filteredList = filter(parentPostedRequestsForTeacherList,criteria);
                 assert getView() != null ;
                 if (filteredList.isEmpty()) {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noMatchedDataString));
-                    binding.noPostedRequestTextView.setVisibility(View.VISIBLE);
+                    binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.noDataAddedText.setVisibility(View.GONE);
+                    binding.noMatchedData.setVisibility(View.VISIBLE);
                     binding.addedCoursesRecyclerView.setVisibility(View.GONE);
                     Snackbar.make(getView(), "No Filter Matching Data", Snackbar.LENGTH_SHORT).setDuration(500).show();
 
                 } else {
-                    binding.noPostedRequestTextView.setText(getString(R.string.noPostedRequestsString));
                     binding.noPostedRequestTextView.setVisibility(View.GONE);
+                    binding.noDataAddedText.setVisibility(View.GONE);
+                    binding.noMatchedData.setVisibility(View.GONE);
                     binding.addedCoursesRecyclerView.setVisibility(View.VISIBLE);
                     matchingTeacherAdapter.filteredList(filteredList);
                     Snackbar.make(getView(), "Data Filtered", Snackbar.LENGTH_SHORT).setDuration(500).show();
@@ -2613,119 +2587,22 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                             }
 
                             if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
-                               // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
                                 conflictFlag = 1;
                                 break;
                             }
                         }
-                        /*if(conflictFlag == 0){
-                            Log.d("33333333333333333333333333","33333333333333333333333333");
-                            for(int i = 0 ; i < coursesDateParentTable.length() ; i++){
-                                JSONObject jsonObject = coursesDateParentTable.getJSONObject(i);
-                                String startDate = jsonObject.getString("startDate");
-                                String endDate = jsonObject.getString("endDate");
-                                String startTime = jsonObject.getString("startTime");
-                                String endTime = jsonObject.getString("endTime");
-                                String availability = jsonObject.getString("choseDays");
-                                String days = availability;
-                                if (availability.equalsIgnoreCase("Weekend")) {
-                                    days = "Thur , Fri";
-                                } else if (availability.equalsIgnoreCase("Any")) {
-                                    days = "Sat , Sun , Mon , Tues , Thur , Fri";
-                                }
-                                if (availability.charAt(availability.length() - 1) == ',') {
-                                    days = availability.substring(0, availability.length() - 1).trim();
-                                }
-
-                                if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
-                                   // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
-                                    Log.d("44444444444444444444444444444","44444444444444444444444444444");
-                                    conflictFlag = 1;
-                                    break;
-                                }
-                            }
-                        }*/
                         if(conflictFlag == 1){
-                            Log.d("555555555555555555555555","555555555555555555555555");
                             MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
                             binding.loadingProgressBar2.setVisibility(View.GONE);
                         }
                         else {
-                            Log.d("6666666666666666666666666","6666666666666666666666666");
                             //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
                             database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
                         }
 
                     }
-                    /*else if(coursesDatesTeacherTable.length() > 0/* && coursesDateParentTable.length() == 0){
-                        int conflictFlag = 0;
-                        for(int i=0;i<coursesDatesTeacherTable.length() ; i++){
-                            JSONObject jsonObject = coursesDatesTeacherTable.getJSONObject(i);
-                            String startDate = jsonObject.getString("startDate");
-                            String endDate = jsonObject.getString("endDate");
-                            String startTime = jsonObject.getString("startTime");
-                            String endTime = jsonObject.getString("endTime");
-                            String availability = jsonObject.getString("availabilityForJob");
-                            String days = availability;
-                            if (availability.equalsIgnoreCase("Weekend")) {
-                                days = "Thur , Fri";
-                            } else if (availability.equalsIgnoreCase("Any")) {
-                                days = "Sat , Sun , Mon , Tues , Thur , Fri";
-                            }
-                            if (availability.charAt(availability.length() - 1) == ',') {
-                                days = availability.substring(0, availability.length() - 1).trim();
-                            }
 
-                            if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
-                               // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
-                                conflictFlag = 1;
-                                break;
-                            }
-                        }
-                        if(conflictFlag == 1){
-                            MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
-                            binding.loadingProgressBar2.setVisibility(View.GONE);
-                        }
-                        else {
-                          //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
-                            database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
-                        }
-                    }*/
-                   /* else if(coursesDateParentTable.length() > 0 && coursesDatesTeacherTable.length() == 0){
-                        int conflictFlag = 0;
-                        for(int i = 0 ; i < coursesDateParentTable.length() ; i++){
-                            JSONObject jsonObject = coursesDateParentTable.getJSONObject(i);
-                            String startDate = jsonObject.getString("startDate");
-                            String endDate = jsonObject.getString("endDate");
-                            String startTime = jsonObject.getString("startTime");
-                            String endTime = jsonObject.getString("endTime");
-                            String availability = jsonObject.getString("choseDays");
-                            String days = availability;
-                            if (availability.equalsIgnoreCase("Weekend")) {
-                                days = "Thur , Fri";
-                            } else if (availability.equalsIgnoreCase("Any")) {
-                                days = "Sat , Sun , Mon , Tues , Thur , Fri";
-                            }
-                            if (availability.charAt(availability.length() - 1) == ',') {
-                                days = availability.substring(0, availability.length() - 1).trim();
-                            }
-                            if (DateUtils.isConflict(tempRequestToSendDateTimeModel, new DateTimeModel(startDate, endDate, startTime, endTime, days))) {
-                                // MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Course Conflict", "This Request Make A conflict with one of your existing courses");
-                                conflictFlag = 1;
-                                break;
-                            }
-                        }
-                        if(conflictFlag == 1){
-                            MyAlertDialog.warningDialog(getContext(),"Conflict Courses","This Course Make A Confliction With One Of Your existing Courses ..");
-                            binding.loadingProgressBar2.setVisibility(View.GONE);
-                        }
-                        else {
-                        //    database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
-                            database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
-                        }
-                    }*/
                     else {
-                      //  database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
                         database.addTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
                     }
                 }
@@ -2744,6 +2621,9 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         if(flag == 0){
             binding.noDataAddedText.setVisibility(View.VISIBLE);
             binding.addedCoursesRecyclerView.setVisibility(View.GONE);
+            binding.refreshRecyclerView.setRefreshing(false);
+            if(getView() != null)
+                Snackbar.make(getView(),"Your Courses List Updated ..",Snackbar.LENGTH_SHORT).setDuration(500).show();
         }
         else if(flag == 1){
             if(!teacherCoursesList.isEmpty()){
