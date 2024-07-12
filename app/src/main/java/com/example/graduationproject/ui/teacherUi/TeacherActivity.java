@@ -218,7 +218,7 @@ public class TeacherActivity extends AppCompatActivity implements
         database=new Database(this);
         if(Integer.parseInt(doneInformation)==1)
             database.getNotifications(email,this);
-        initFirebase();
+       // initFirebase();
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
         notList=new ArrayList<>();
         buildNavigationView();
@@ -482,7 +482,9 @@ public class TeacherActivity extends AppCompatActivity implements
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
-            mAuth.signOut();
+           // mAuth.signOut();
+            Toast.makeText(this, "Logging out ", Toast.LENGTH_SHORT).show();
+
             finish();
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);

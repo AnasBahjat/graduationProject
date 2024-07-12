@@ -1677,7 +1677,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             });
 
             dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(a->{
-                getUserInfoByEmail(receiverEmail);
+             //   getUserInfoByEmail(receiverEmail);
             });
 
 
@@ -1690,7 +1690,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     }
 
 
-    private void getUserInfoByEmail(String tempMail) {
+   /* private void getUserInfoByEmail(String tempMail) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("user");
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -1730,7 +1730,7 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
         intent.putExtra("reciverImg",user.getProfilepic());
         intent.putExtra("uid",user.getUserId());
         startActivity(intent);
-    }
+    }*/
 
     private void setDataToMatchDialog(TeacherMatchModel teacherMatchModel, String parentName, List<String> parentPhoneNumbers) {
         dialogTeacherMatchingOnCardClickedBinding.childNameTextView.setText(teacherMatchModel.getChildren().getChildName());

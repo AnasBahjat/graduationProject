@@ -50,6 +50,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     FirebaseAuth auth ;
     DatabaseReference databaseReference ;
     ProgressDialog progressDialog;
+    String currentUserPassword = "";
  ;
 
 
@@ -60,11 +61,11 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Please Wait");
-        progressDialog.setCancelable(false);
+      //  progressDialog = new ProgressDialog(this);
+      //  progressDialog.setMessage("Please Wait");
+      //  progressDialog.setCancelable(false);
 
-        auth = FirebaseAuth.getInstance();
+       // auth = FirebaseAuth.getInstance();
         initialize();
     }
 
@@ -97,6 +98,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
     @Override
     protected void onResume() {
         super.onResume();
+        Toast.makeText(this, "logged out ...", Toast.LENGTH_SHORT).show();
         checkIfDataSaved();
     }
 
@@ -161,6 +163,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
         if(!binding.emailText.getEditText().getText().toString().isEmpty() && !binding.passwordText.getEditText().getText().toString().isEmpty()){
             // binding.loginProgressBar.setVisibility(View.VISIBLE);
+            currentUserPassword = binding.passwordText.getEditText().getText().toString();
             database.loginCheck(binding.emailText.getEditText().getText().toString(),binding.passwordText.getEditText().getText().toString(),this);
 
         }
@@ -206,7 +209,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         String email=jsonObject.getString("email");
                         String firstName=jsonObject.getString("firstname");
                         String lastName=jsonObject.getString("lastname");
-                        String password=jsonObject.getString("password");
+                        String password = jsonObject.getString("password");
                         String birthDate=jsonObject.getString("birthDate");
                         String profileType = jsonObject.getString("profileType");
 
@@ -220,7 +223,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         binding.loginProgressBar.setVisibility(View.VISIBLE);
 
 
-                        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                   /*     auth.signInWithEmailAndPassword(email, currentUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressDialog.dismiss();
@@ -254,7 +257,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                                     //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             }
-                        });
+                        });*/
 
 
 
@@ -267,7 +270,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                             public void run() {
                                 binding.loginProgressBar.setVisibility(View.GONE);
                                 startActivity(intent);
-                                Log.d("login ----> "+auth.getCurrentUser().getUid(),"login ----> "+auth.getCurrentUser().getUid());
                             }
                         },1500);
                     }
@@ -291,7 +293,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
 
 
-                        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                      /*  auth.signInWithEmailAndPassword(email, currentUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressDialog.dismiss();
@@ -325,7 +327,7 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                                     //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             }
-                        });
+                        });*/
 
 
 

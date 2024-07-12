@@ -85,6 +85,8 @@ import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
 import com.example.graduationproject.listeners.ParentRequestToSendListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
+import com.example.graduationproject.messaging.ChatWindowActivity;
+import com.example.graduationproject.messaging.Users;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Course;
@@ -105,6 +107,11 @@ import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1931,8 +1938,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
            // teacherPostRequest.getTeacherEmail();
             teacherPostedRequestsCardToShowToParentBinding.sendMessageToTeacherBtn.setOnClickListener(v->{
-                // teacher email = teacherPostRequest.getTeacherEmail();
-                //naseembar
+             //   getUserInfoByEmail(teacherPostRequest.getTeacherEmail());
             });
 
            /* teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
@@ -1940,6 +1946,42 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             });*/
         }
     }
+
+    /*private void getUserInfoByEmail(String tempMail) {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("user");
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Iterate through all the users
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userEmail = userSnapshot.child("mail").getValue(String.class);
+                    Log.d("--------> "+userEmail,"--------> "+userEmail);
+                    Log.d("--------> "+tempMail,"--------> "+tempMail);
+                    if (userEmail != null && userEmail.equalsIgnoreCase(tempMail)) {
+                        // Get user info
+                        Users user = userSnapshot.getValue(Users.class);
+                        Log.d("User ---------> "+user.getUserId(),"User ---------> "+user.getUserId());
+                        Log.d("User ---------> "+user.getUserName(),"User ---------> "+user.getUserName());
+                        startChatWindowActivit(user);
+                        break;
+                    }
+
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+    }
+
+    private void startChatWindowActivit(Users user) {
+        Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
+        intent.putExtra("nameeee",user.getUserName());
+        intent.putExtra("reciverImg",user.getProfilepic());
+        intent.putExtra("uid",user.getUserId());
+        startActivity(intent);
+    }*/
 
     private void sendRequestToTeacherBtnClicked(TeacherPostRequest teacherPostRequest){
         if(getContext() != null){

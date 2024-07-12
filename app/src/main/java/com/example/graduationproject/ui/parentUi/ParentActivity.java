@@ -168,7 +168,6 @@ public class ParentActivity extends AppCompatActivity implements
     }
 
     private void initFirebase(){
-        Toast.makeText(this, "111111111111", Toast.LENGTH_SHORT).show();
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         chatViewModel.fetchUnreadMessages(currentUserId);
@@ -216,7 +215,7 @@ public class ParentActivity extends AppCompatActivity implements
     private void init(){
         database=new Database(this);
         notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
-        initFirebase();
+        //initFirebase();
         if(Integer.parseInt(doneInformation) == 1){
             database.getNotifications(email,this);
         }
@@ -593,6 +592,7 @@ public class ParentActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         if(menuItem.getItemId() == R.id.logoutId){
+            Toast.makeText(this, "Logging out ", Toast.LENGTH_SHORT).show();
             finish();
         }
         else if(menuItem.getItemId() == R.id.lookForTeacher){
