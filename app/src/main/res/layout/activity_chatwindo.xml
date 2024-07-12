@@ -43,6 +43,9 @@
         android:textColor="@color/white"
         android:textSize="@dimen/_15sdp" />
 
+
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/msgadpter"
         android:layout_width="match_parent"

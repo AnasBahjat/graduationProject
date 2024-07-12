@@ -43,6 +43,9 @@ public class SettingMessagingActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     String profiletype;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

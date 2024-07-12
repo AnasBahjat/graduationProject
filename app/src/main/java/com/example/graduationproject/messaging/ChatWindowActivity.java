@@ -43,6 +43,12 @@ public class ChatWindowActivity extends AppCompatActivity {
     CardView sendbtn;
     EditText textmsg;
 
+
+
+
+
+
+
     String senderRoom, reciverRoom;
     RecyclerView messageAdpter;
     ArrayList<msgModelclass> messagesArrayList;

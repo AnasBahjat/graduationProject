@@ -86,6 +86,9 @@ public class ChatViewModel extends ViewModel {
         });
     }*/
 
+
+
+
     public void fetchUnreadMessages(String userId) {
         DatabaseReference chatsReference = FirebaseDatabase.getInstance().getReference().child("chats");
 

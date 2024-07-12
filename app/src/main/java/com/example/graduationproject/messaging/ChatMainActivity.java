@@ -42,6 +42,8 @@ public class ChatMainActivity extends AppCompatActivity {
 
 
 
+
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {

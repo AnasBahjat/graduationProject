@@ -42,6 +42,9 @@
 
 package com.example.graduationproject.messaging;
 
+
+
+
 public class msgModelclass {
     String message;
     String senderId;

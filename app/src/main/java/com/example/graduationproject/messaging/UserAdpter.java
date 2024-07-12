@@ -52,6 +52,12 @@ public class UserAdpter extends RecyclerView.Adapter<UserAdpter.viewholder> {
         });
     }
 
+
+
+
+
+
+
     @Override
     public int getItemCount() {
         return usersArrayList.size();
