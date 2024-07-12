@@ -20,43 +20,35 @@
             android:src="@drawable/back_2"
             />
     </RelativeLayout>
-    <RelativeLayout
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profileimgg"
+        android:layout_width="@dimen/_80sdp"
+        android:layout_height="@dimen/_80sdp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/photocamera"
+        android:layout_marginTop="20dp"
+        app:civ_border_color="@color/white"
+        app:civ_border_width="@dimen/_2sdp"
+        />
+
+    <TextView
+        android:id="@+id/recivername"
+        android:layout_below="@id/profileimgg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@id/toolbarChatWindow"
-        android:layout_marginTop="10dp"
-        android:id="@+id/ll1"
-        android:gravity="center">
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profileimgg"
-            android:layout_width="@dimen/_80sdp"
-            android:layout_height="@dimen/_80sdp"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/photocamera"
-            app:civ_border_color="@color/white"
-            app:civ_border_width="@dimen/_2sdp"
-            />
-
-        <TextView
-            android:id="@+id/recivername"
-            android:layout_below="@id/profileimgg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_10sdp"
-            android:fontFamily="@font/poppins_regular"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_15sdp" />
-    </RelativeLayout>
+        android:layout_margin="@dimen/_10sdp"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_15sdp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/msgadpter"
         android:layout_width="match_parent"
         android:layout_height="502dp"
         android:layout_above="@id/ll2"
-        android:layout_below="@+id/ll1"
+        android:layout_below="@id/recivername"
         android:layout_marginTop="7dp"
         android:layout_marginBottom="-7dp"
         android:padding="@dimen/_10sdp" />
@@ -76,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_35sdp"
             android:layout_marginStart="@dimen/_4sdp"
-            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="@dimen/_7sdp"
             android:layout_weight="1"
             app:cardBackgroundColor="@color/white"
