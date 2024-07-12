@@ -216,6 +216,8 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
 
 
+
+
                         auth.signInWithEmailAndPassword(email.toLowerCase().trim(),currentUserPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
