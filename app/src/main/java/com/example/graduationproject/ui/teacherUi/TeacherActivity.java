@@ -1557,9 +1557,13 @@ public class TeacherActivity extends AppCompatActivity implements
             //intent.putExtra("newAddedJobRequest",tpr);
            sendBroadcast(intent);
         }
+
+
         else if(flag == -2){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Connection Error","Something went wrong with your connection please try again later ..");
         }
+
+
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong please try again later ..");
         }
