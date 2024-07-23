@@ -2,7 +2,9 @@ package com.example.graduationproject.utils;
 
 
 public class Constants {
-    public static String ip = "192.168.1.7";
+    // The URL here contains the path of the script that make a request to the database , the file contains the requests called backend..
+
+    public static String ip = "172.19.12.83"; // the IP of the current device ..
     public static String registrationURL = "http://"+ip+"/graduationProject/registration.php/";
     public static String loginURL = "http://"+ip+"/graduationProject/login.php";
     public static String checkAccountDoneURL = "http://"+ip+"/graduationProject/checkAccountDone.php";

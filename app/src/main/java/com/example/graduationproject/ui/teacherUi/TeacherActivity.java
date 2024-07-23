@@ -883,11 +883,11 @@ public class TeacherActivity extends AppCompatActivity implements
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.copyFrom(Objects.requireNonNull(teacherLooksForJobDialog.getWindow()).getAttributes());
         layoutParams.width = 1300;
-        layoutParams.height = 2000;
+        layoutParams.height = 2550;
         teacherLooksForJobDialog.getWindow().setAttributes(layoutParams);
         teacherLooksForJobDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         if(teacherLooksForJobDialog.getWindow() != null)
-            teacherLooksForJobDialog.getWindow().setLayout(1300,2000);
+            teacherLooksForJobDialog.getWindow().setLayout(1300,2550);
         teacherLooksForJobDialog.show();
 
         teacherLookForJobLayoutBinding.closeTheDialog.setOnClickListener(z->{
