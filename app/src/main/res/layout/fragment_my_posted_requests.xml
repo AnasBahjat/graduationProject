@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.parentUi.MyPostedRequestsFragment">
+
+    <SearchView
+        android:id="@+id/teacherFragmentSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="45dp"
+        android:background="@drawable/search_view_bg"
+        android:queryHint="Search For Matching , location ..." />
+
+    <LinearLayout
+        android:id="@+id/parentPostedRequestsAndTeacherRequests"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/teacherFragmentSearch"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/myPostedRequestsBtn"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="My Posted"
+            android:layout_gravity="center_vertical"
+            android:focusable="true"
+            android:textSize="17sp"
+            android:layout_margin="2dp"
+            android:textAllCaps="false"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/myReceivedRequestsBtn"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="Received Requests"
+            android:layout_gravity="center_vertical"
+            android:focusable="true"
+            android:textSize="17sp"
+            android:layout_marginStart="10dp"
+            android:textAllCaps="false"/>
+    </LinearLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refreshRecyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/parentPostedRequestsAndTeacherRequests"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="5dp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/parentPostedRequestsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="634dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:background="@drawable/rounded_corners_recycler_view"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+
+</RelativeLayout>

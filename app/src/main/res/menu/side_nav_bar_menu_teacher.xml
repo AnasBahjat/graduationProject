@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:id="@+id/firstGroup" android:orderInCategory="1">
+
+        <item
+            android:id="@+id/LookForJob"
+            android:icon="@drawable/look_for_teacher"
+            android:title="Look For Job"/>
+
+        <item
+            android:id="@+id/availablePosts"
+            android:icon="@drawable/teacher_available_courses_icon"
+            android:title="Browse Avaliable Jobs"/>
+
+    </group>
+
+    <group android:id="@+id/bottomGroup" android:orderInCategory="2">
+        <item
+            android:id="@+id/profile"
+            android:icon="@drawable/user_icon"
+            android:title="@string/profile_text"/>
+
+        <item android:id="@+id/settings"
+            android:icon="@drawable/settings_icon"
+            android:title="@string/settings_text"/>
+        <item
+            android:id="@+id/logoutId"
+            android:icon="@drawable/logout_icon"
+            android:title="@string/log_out_text"
+            />
+    </group>
+
+</menu>

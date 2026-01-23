@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/teacherInformationLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="#F2ECF6"
+    android:background="@drawable/rounded_corners"
+    >
+    <RelativeLayout
+        android:id="@+id/teacherInformationLayoutParent"
+        android:layout_width="wrap_content"
+        android:layout_height="570dp">
+
+        <ImageView
+            android:id="@+id/closeTeacherInformationPopupWindow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/close_icon_2"
+            android:contentDescription="@string/close_popup_window_msg" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="55dp"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="@string/personal_information_text"
+                android:textSize="22sp" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/idTextLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="32dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="120dp"
+            android:layout_marginEnd="32dp"
+            android:hint="@string/university_id_text"
+            app:counterEnabled="true"
+            app:counterMaxLength="15"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:startIconDrawable="@drawable/university_id_icon"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:errorTextAppearance="@style/error_text"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <EditText
+                android:id="@+id/idText"
+                android:layout_width="match_parent"
+                android:inputType="number"
+                android:maxLength="15"
+                android:layout_height="50dp"
+                android:background="@drawable/edit_text_style" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:id="@+id/phoneLinearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/idTextLayout"
+            app:errorTextAppearance="@style/error_text">
+
+            <!--     <EditText
+                     android:layout_width="80dp"
+                     android:layout_height="66dp"
+                     android:background="@drawable/edit_text_style"
+                     android:inputType="number"
+                     android:maxLength="3"
+                     android:textSize="18sp" />-->
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/phoneNumberPrefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:ccp_showFullName="false"
+                app:ccp_showPhoneCode="true"
+                app:ccp_showNameCode="false"
+                app:ccp_showFlag="true"
+                app:ccp_showArrow="true"
+                app:ccp_autoFormatNumber="true"
+                android:layout_marginTop="20dp"
+                app:ccp_textSize="16sp"
+                app:ccpDialog_keyboardAutoPopup="false"
+                />
+
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phoneNumber"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="10dp"
+                android:hint="Phone Number"
+                tools:ignore="HardcodedText"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_24"
+                app:errorTextAppearance="@style/error_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/phone_number_icon">
+
+                <EditText
+                    android:id="@+id/edtTextPhoneNumber"
+                    android:layout_width="250dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout"
+            android:layout_width="350dp"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/phoneLinearLayout"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="15dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/i_am_text"
+                    android:textSize="20sp" />
+
+                <RadioGroup
+                    android:id="@+id/studentOrGraduateRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/studentRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="13dp"
+                        android:text="Undergraduate"
+                        tools:ignore="HardcodedText"
+                        android:checked="true"/>
+
+                    <RadioButton
+                        android:id="@+id/graduateRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="40dp"
+                        tools:ignore="HardcodedText"
+                        android:text="Graduate" />
+                </RadioGroup>
+            </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/graduationYearLayout"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textInputLayout"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="32dp"
+            android:layout_centerHorizontal="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/if_you_are_a_student_expected_graduation_year_text" />
+
+                <Spinner
+                    android:id="@+id/graduationYearSpinner"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="88dp"
+                    android:entries="@array/graduationYears"
+                    android:spinnerMode="dropdown" />
+
+            </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/collegeLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textInputLayout"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="95dp"
+            android:layout_marginEnd="32dp"
+            android:hint="@string/college_text"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:errorTextAppearance="@style/error_text"
+            app:errorEnabled="true"
+            android:layout_centerHorizontal="true"
+            app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/college_text"
+                    android:textSize="20sp" />
+
+                <Spinner
+                    android:id="@+id/collegeSpinner"
+                    android:layout_width="250dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="20dp"
+                    android:entries="@array/collegeSpinner"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/collegeErrorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:layout_marginTop="3dp"
+                android:layout_marginStart="10dp"
+                android:visibility="gone"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fieldInformationLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/collegeLayout"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="32dp"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:errorTextAppearance="@style/error_text"
+            android:layout_centerHorizontal="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/field_text"
+                    android:textSize="20sp" />
+
+                <Spinner
+                    android:id="@+id/fieldSpinner"
+                    android:layout_width="250dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="43dp"
+                    android:entries="@array/collegeSpinner"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/fieldErrorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:layout_marginTop="3dp"
+                android:layout_marginStart="10dp"
+                android:visibility="gone"
+                android:textSize="15sp"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:id="@+id/educationalLevelLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fieldInformationLayout"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="42dp"
+            android:orientation="vertical"
+            android:layout_marginTop="25dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Educational Level"
+                android:textSize="20sp"
+                android:layout_marginTop="5dp"/>
+            <Spinner
+                android:id="@+id/educationalLevelSpinner"
+                android:layout_width="250dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="90dp"
+                android:layout_marginTop="15dp"
+                android:spinnerMode="dropdown"
+                android:entries="@array/teacherEducationLevel"
+                />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/availabilityLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/educationalLevelLayout"
+            android:layout_marginTop="25dp"
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Availability"
+                tools:ignore="HardcodedText"
+                android:textSize="20sp"
+                />
+            <RadioGroup
+                android:id="@+id/availabilityRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+                <RadioButton
+                    android:id="@+id/availAnyTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Any time"
+                    tools:ignore="HardcodedText"
+                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
+                    android:checked="true"/>
+                <RadioButton
+                    android:id="@+id/availWeekend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText"
+                    android:text="Weekend only"
+                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
+                    />
+                <RadioButton
+                    android:id="@+id/availSpecificDays"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="specific days"
+                    tools:ignore="HardcodedText"
+                    android:textSize="16sp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"/>
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/daysLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/availabilityLayout"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone">
+            <CheckBox
+                android:id="@+id/saturday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sat"
+                android:textSize="13sp"
+
+                tools:ignore="HardcodedText" />
+            <CheckBox
+                android:id="@+id/sunday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+                android:text="Sun"/>
+            <CheckBox
+                android:id="@+id/monday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+                android:text="Mon"/>
+            <CheckBox
+                android:id="@+id/tuesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+
+                android:text="Tue"/>
+            <CheckBox
+                android:id="@+id/wednesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+
+                android:text="Wed"/>
+            <CheckBox
+                android:id="@+id/thursday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"
+                android:textSize="13sp"
+
+                android:text="Thur"/>
+            <CheckBox
+                android:id="@+id/friday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="Fri"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/addressInformation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/availabilityLayout"
+            android:layout_marginTop="50dp"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="@string/teacher_account_confirmation_text"
+                android:textSize="22sp" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cityLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/addressInformation"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:hintEnabled="true"
+            app:errorEnabled="true"
+            android:layout_marginTop="10dp"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            android:hint="City"
+            tools:ignore="HardcodedText"
+            app:startIconDrawable="@drawable/icon_city"
+            app:endIconMode="clear_text" >
+
+            <EditText
+                android:id="@+id/cityText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/edit_text_style"
+                android:maxLength="15" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/countryLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_below="@id/addressInformation"
+            android:layout_marginTop="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:hintEnabled="true"
+            android:hint="Country"
+            tools:ignore="HardcodedText"
+            app:startIconDrawable="@drawable/icon_country"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            >
+            <EditText
+                android:id="@+id/countryText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:maxLength="15"
+                android:background="@drawable/edit_text_style"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/confirmInformationBtn"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/addressInformation"
+            android:layout_marginTop="165dp"
+            android:text="@string/confirm_information_text"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/usedColor"
+            android:layout_marginBottom="25dp"
+            android:textColor="@color/white"/>
+    </RelativeLayout>
+</ScrollView>

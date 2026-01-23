@@ -5,4 +5,205 @@
         <item>Male</item>
         <item>Female</item>
     </array>
+
+    <array name="profileTypeSpinner">
+        <item>Choose Type</item>
+        <item>Teacher</item>
+        <item>Parent</item>
+    </array>
+
+    <array name="collegeSpinner">
+        <item>Choose</item>
+        <item>Faculty Of Engineering</item>
+        <item>IT</item>
+        <item>Science And Mathematics</item>
+        <item>Faculty Of Arts</item>
+        <item>Faculty Of Commerce</item>
+    </array>
+
+    <array name="engineeringCollegeFieldsSpinner">
+        <item>Choose</item>
+        <item>Electrical Engineering</item>
+        <item>Mechanical Engineering</item>
+        <item>Architecture</item>
+        <item>Civil Engineering</item>
+        <item>Mechatronics Engineering</item>
+        <item>Computer Engineering</item>
+    </array>
+
+    <array name="IT">
+        <item>Choose</item>
+        <item>Cyber Security</item>
+        <item>Computer Science</item>
+    </array>
+
+    <array name="scienceAndMathematicsSpinner">
+        <item>Choose</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Math</item>
+        <item>Biology</item>
+    </array>
+
+    <array name="facultyOfArtsSpinner">
+        <item>Choose</item>
+        <item>Arabic Literature</item>
+        <item>English Literature</item>
+        <item>Language Translator</item>
+        <item>Geography , History ,Islamic Religion</item>
+    </array>
+
+    <array name="facultyOfCommerceSpinner">
+        <item>Choose</item>
+        <item>Commercial</item>
+        <item>Economics</item>
+        <item>Business</item>
+        <item>Accounting</item>
+        <item>Business Administration</item>
+        <item>Marketing</item>
+    </array>
+
+    <string-array name="graduationYears">
+        <item>2024</item>
+        <item>2025</item>
+        <item>2026</item>
+        <item>2027</item>
+        <item>2028</item>
+    </string-array>
+
+    <string-array name="childGender">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
+    <string-array name="childGrade">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
+
+    <string-array name="teacherEducationLevel">
+        <item>Elementary School</item>
+        <item>Middle School</item>
+        <item>High School</item>
+        <item>Any</item>
+    </string-array>
+
+    <string-array name="forParentCoursesElementarySchool">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>IT</item>
+    </string-array>
+
+    <string-array name="forParentCoursesMiddleSchool">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>IT</item>
+    </string-array>
+
+    <string-array name="forParentCoursesHighSchool">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Biology</item>
+        <item>IT</item>
+    </string-array>
+
+
+    <string-array name="locationArray">
+        <item>Ramallah City</item>
+        <item>Surda</item>
+        <item>Al-Rayhan</item>
+        <item>Birzeit</item>
+        <item>Kouber</item>
+        <item>Abu Shkadem</item>
+        <item>Amlazraa</item>
+        <item>Abu Qash</item>
+        <item>Jifna</item>
+        <item>Jalazon camp</item>
+        <item>Any</item>
+    </string-array>
+
+
+
+
+    <string-array name="teachingMethods">
+        <item>Online</item>
+        <item>Face To Face</item>
+    </string-array>
+
+    <string-array name="allCoursesArray">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Biology</item>
+        <item>IT</item>
+    </string-array>
+
+    <string-array name="allCourses">
+        <item>Math</item>
+        <item>Science</item>
+        <item>English Language</item>
+        <item>Arabic Language</item>
+        <item>Islamic Religion</item>
+        <item>Geography</item>
+        <item>Palestine History</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Biology</item>
+        <item>IT</item>
+        <item>Any</item>
+    </string-array>
+
+    <string-array name="childGenderFilter">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Any</item>
+    </string-array>
+
+    <string-array name="childGradeFilter">
+        <item>1st Grade</item>
+        <item>2nd Grade</item>
+        <item>3rd Grade</item>
+        <item>4th Grade</item>
+        <item>5th Grade</item>
+        <item>6th Grade</item>
+        <item>7th Grade</item>
+        <item>8th Grade</item>
+        <item>9th Grade</item>
+        <item>10th Grade</item>
+        <item>11th Grade</item>
+        <item>11th Grade</item>
+        <item>Any</item>
+    </string-array>
+
 </resources>

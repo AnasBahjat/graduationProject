@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/employerFragment"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:backgroundTint="#2196F3"
+    android:fitsSystemWindows="true">
+
+
+    <SearchView
+        android:id="@+id/teacherFragmentSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="45dp"
+        android:background="@drawable/search_view_bg"
+        android:queryHint="Search For Matching , location ..." />
+
+
+   <!-- <SearchView
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="45dp"
+        android:background="@drawable/edit_text_style"
+        android:queryHint="search here"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"/>-->
+
+
+    <LinearLayout
+        android:id="@+id/teacherSuggestionLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/teacherFragmentSearch"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/myPostedRequestsBtn"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="My Courses"
+            android:focusable="true"
+            android:textSize="17sp"
+            android:textAllCaps="false"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/availableTeacherRequests"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:text="My Posted Requests"
+            android:focusable="true"
+            android:textSize="17sp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            android:textAllCaps="false"/>
+    </LinearLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refreshRecyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/teacherSuggestionLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="5dp"
+
+        android:layout_marginStart="5dp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/addedCoursesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="634dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:background="@drawable/rounded_corners_recycler_view"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+    <TextView
+        android:id="@+id/pleaseConfirmAccountText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"
+        android:text="@string/please_confirm_your_account_msg"
+        android:textColor="#7E7A7A"
+        android:textSize="20sp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/noDataAddedText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"
+        android:text="You Don't Have Any Courses"
+        android:textColor="#7E7A7A"
+        android:textSize="20sp"
+        android:visibility="gone"/>
+
+
+    <TextView
+        android:id="@+id/noPostedRequestTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"
+        android:text="You did not post any Request"
+        android:textColor="#7E7A7A"
+        android:textSize="20sp"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"
+        android:visibility="gone"
+        />
+    <LinearLayout
+        android:id="@+id/filterLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="15dp"
+        android:layout_toEndOf="@+id/teacherSuggestionLayout">
+
+        <ImageView
+            android:id="@+id/filterImage"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="5dp"
+            android:contentDescription="Filter"
+            android:src="@drawable/filter_icon"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:text="Filter"
+            android:textSize="15sp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/progressBarLayout"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/gray"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:indeterminateTint="#4EB2BF"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="15dp"
+            android:indeterminate="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Updating ..."
+            android:textSize="24sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/progressBar" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

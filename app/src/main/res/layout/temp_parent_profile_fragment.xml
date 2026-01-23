@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/user"/>
+
+        <LinearLayout
+            android:id="@+id/tempView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="75dp"
+            android:orientation="horizontal"
+            android:layout_toEndOf="@id/profileImageView">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="Personal Information"
+                android:textSize="22sp" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="15dp"
+                android:background="#7FE1EE" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/firstNameLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/profileImageView">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/firstname"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:hint="First Name"
+                app:endIconMode="clear_text"
+                android:layout_gravity="center"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_24"
+                app:errorTextAppearance="@style/error_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/firstname_icon">
+
+                <EditText
+                    android:layout_width="350dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/edit_text_style"
+                    android:textSize="18sp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/editFirstNameImage"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="15dp"
+                android:contentDescription="@string/account_image_text"
+                android:layout_toEndOf="@id/firstname"
+                android:layout_gravity="center"
+                android:src="@drawable/edit_icon"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lastnameLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/firstNameLayout"
+            android:layout_centerHorizontal="true">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/lastName"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:hint="Last Name"
+                app:endIconMode="clear_text"
+                android:layout_gravity="center"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_24"
+                app:errorTextAppearance="@style/error_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/firstname_icon">
+                <EditText
+                    android:id="@+id/lastNameEditText"
+                    android:layout_width="350dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/edit_text_style"
+                    android:textSize="18sp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/editLastNameImage"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="15dp"
+                android:contentDescription="@string/account_image_text"
+                android:layout_toEndOf="@id/firstname"
+                android:layout_gravity="center"
+                android:src="@drawable/edit_icon"/>
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/birthDateLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lastnameLayout"
+            android:layout_marginStart="30dp">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/birthDate"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Birth Date"
+                app:endIconMode="clear_text"
+                android:layout_gravity="center"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_24"
+                app:errorTextAppearance="@style/error_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/calendar_icon2">
+                <EditText
+                    android:id="@+id/birthDateEditText"
+                    android:layout_width="320dp"
+                    android:layout_height="56dp"
+                    android:text="1-1-2000"
+                    android:textAlignment="center"
+                    android:layout_marginStart="8dp"
+                    android:editable="false"
+                    android:background="@drawable/edit_text_style"
+                    android:textSize="19sp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/birthDateImageView"
+                android:layout_width="65dp"
+                android:layout_height="58dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginBottom="5dp"
+                android:contentDescription="@string/account_image_text"
+                android:layout_toEndOf="@id/firstname"
+                android:layout_gravity="center"
+                android:src="@drawable/calendar_icon"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/idNumberLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/birthDateLayout"
+            android:layout_centerHorizontal="true">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/idNumber"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                app:hintEnabled="true"
+                android:hint="ID"
+                app:endIconMode="clear_text"
+                android:layout_gravity="center"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@drawable/baseline_error_24"
+                app:errorTextAppearance="@style/error_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/id_icon">
+                <EditText
+                    android:id="@+id/idNumberEditText"
+                    android:layout_width="350dp"
+                    android:layout_height="56dp"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:inputType="number"
+                    android:text="00000000000"
+                    android:background="@drawable/edit_text_style"
+                    android:textSize="18sp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/editIdNumberImage"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="15dp"
+                android:contentDescription="@string/account_image_text"
+                android:layout_toEndOf="@id/firstname"
+                android:layout_gravity="center"
+                android:src="@drawable/edit_icon"/>
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/tempView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal"
+            android:layout_below="@id/idNumberLayout">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:text="Children Information"
+                android:textSize="22sp" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="15dp"
+                android:background="#7FE1EE" />
+
+        </LinearLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_below="@id/tempView2"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginTop="10dp"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/rounded_corners_recycler_view"
+                />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </RelativeLayout>
+</ScrollView>
