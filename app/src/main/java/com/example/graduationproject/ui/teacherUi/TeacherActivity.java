@@ -1,5 +1,7 @@
 package com.example.graduationproject.ui.teacherUi;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -38,9 +40,15 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.Data;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.graduationproject.adapters.NotificationsAdapter;
 import com.example.graduationproject.backgroundActions.NotificationsService;
@@ -58,11 +66,14 @@ import com.example.graduationproject.databinding.TeacherLookForJobLayoutBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
+import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentInformationListener;
 import com.example.graduationproject.listeners.TeacherAccountConfirmationListener;
 import com.example.graduationproject.listeners.TeacherAvailabilityListener;
 import com.example.graduationproject.listeners.TeacherPostListener;
+import com.example.graduationproject.messaging.ChatMainActivity;
+import com.example.graduationproject.messaging.ChatViewModel;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
@@ -74,6 +85,10 @@ import com.example.graduationproject.ui.commonFragment.ProfileFragment;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.example.graduationproject.ui.parentUi.ParentFragment;
 import com.example.graduationproject.ui.login.LoginActivity;
+import com.example.graduationproject.utils.FetchNotificationsPeriodically;
+import com.example.graduationproject.utils.SpacesItemDecoration;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
@@ -86,21 +101,26 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class TeacherActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         TeacherAccountConfirmationListener,
         NotificationsListListener,
         AddTeacherMatchingListener,
-        ParentInformationListener,TeacherPostListener,
-        LastMatchingIdListener, TeacherAvailabilityListener {
+        ParentInformationListener, TeacherPostListener,
+        LastMatchingIdListener, TeacherAvailabilityListener, NotificationClickListener {
     private Database database;
     private String firstName,lastName,email,password,birthDate,phoneNumber,city,country,doneInformation;
     private ActivityTeacherBinding binding ;
@@ -132,6 +152,12 @@ public class TeacherActivity extends AppCompatActivity implements
     private String staticAvailability ;
 
     private String startTime ="12:00 PM", endTime="12:00 PM";
+
+    private PeriodicWorkRequest periodicWorkRequest ;
+    ChatViewModel chatViewModel;
+    TextView numOfMsgReceivedToParent;
+    private FirebaseAuth mAuth;
+
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -163,6 +189,13 @@ public class TeacherActivity extends AppCompatActivity implements
         binding = ActivityTeacherBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getIntentDate();
+
+        Data inputData = new Data.Builder().putString("email",email).build();
+        periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                FetchNotificationsPeriodically.class,15,
+                TimeUnit.MINUTES).setInputData(inputData).build();
+        //WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+
         initialize();
     }
 
@@ -185,6 +218,7 @@ public class TeacherActivity extends AppCompatActivity implements
         database=new Database(this);
         if(Integer.parseInt(doneInformation)==1)
             database.getNotifications(email,this);
+        initFirebase();
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
         notList=new ArrayList<>();
         buildNavigationView();
@@ -200,6 +234,30 @@ public class TeacherActivity extends AppCompatActivity implements
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return true;
+            }
+        });
+    }
+
+    private void initFirebase(){
+        mAuth = FirebaseAuth.getInstance();
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        chatViewModel.fetchUnreadMessages(currentUserId);
+
+        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+            if (unreadCount > 0) {
+                binding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                binding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
+            } else {
+                binding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
+            }
+        });
+        binding.messageIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create an Intent to start MainActivity
+                Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -227,9 +285,24 @@ public class TeacherActivity extends AppCompatActivity implements
             binding.fragmentsContainer.setVisibility(View.VISIBLE);
             if(notList.isEmpty()){
                 binding.numOfNotifications.setText("");
+                binding.numOfNotifications.setVisibility(View.GONE);
             }
             else {
-                binding.numOfNotifications.setText(""+notList.size());
+                int count = 0;
+                for(Notifications not : notList){
+                    if(not.getIsNotificationRead() == 0){
+                        count++;
+                    }
+                }
+                if(count==0){
+                    binding.numOfNotifications.setVisibility(View.GONE);
+                    binding.numOfNotifications.setText("");
+                }
+                else {
+                    binding.numOfNotifications.setText(""+count);
+                    binding.numOfNotifications.setVisibility(View.VISIBLE);
+
+                }
             }
         }
     }
@@ -239,14 +312,43 @@ public class TeacherActivity extends AppCompatActivity implements
     private void updateNotificationsAdapter(){
         if(notList != null){
             if(!notList.isEmpty()){
-                binding.numOfNotifications.setText(""+notList.size());
-                notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+                int count = 0;
+                for(Notifications not : notList){
+                    if(not.getIsNotificationRead() == 0){
+                        count++;
+                    }
+                }
+                if(count == 0){
+                    binding.numOfNotifications.setText("");
+                    binding.numOfNotifications.setVisibility(View.GONE);
+                }
+                else {
+                    binding.numOfNotifications.setText(""+count);
+                    notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+                }
             }
             else{
                 binding.numOfNotifications.setText("");
                 notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             }
-            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList,this));
+            NotificationsAdapter notAdapter = new NotificationsAdapter(notList,this,this);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(notAdapter);
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    final int position = viewHolder.getAdapterPosition();
+                    notList.remove(position);
+                    notAdapter.notifyItemRemoved(position);
+                    updateNumberOfNotifications();
+                    database.removeNotification(notList.get(position).getNotificationId());
+                }
+            });
+           // itemTouchHelper.attachToRecyclerView(notificationsPopupWindowBinding.notificationsRecyclerView);
         }
         //notificationsPopupWindowBinding.notificationsRecyclerView.notify();
     }
@@ -262,7 +364,8 @@ public class TeacherActivity extends AppCompatActivity implements
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
                     teacherMatchingDataToPassToTeacherFragment.clear();
-                    database.getTeacherMatchingData(email,TeacherActivity.this);
+                    loadTeacherFragment();
+                   // database.getTeacherMatchingData(email,TeacherActivity.this);
                     //loadTeacherFragment();
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
@@ -281,6 +384,7 @@ public class TeacherActivity extends AppCompatActivity implements
         intentFilter.addAction("SHOW_TEACHER_INFORMATION_WINDOW");
         intentFilter.addAction("UPDATE_NOTIFICATIONS_RECYCLER_VIEW");
         intentFilter.addAction("UPDATE_TEACHER_UI");
+
         int flags = 0 ;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
             flags = Context.RECEIVER_NOT_EXPORTED;
@@ -296,7 +400,6 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     public void notificationImageClicked(View view) {
-
         LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
 
         if(popupView == null){
@@ -307,8 +410,22 @@ public class TeacherActivity extends AppCompatActivity implements
             ((ViewGroup) popupView.getParent()).removeView(popupView);
         }
 
-        notificationPopupWindow = new PopupWindow(popupView,910,1500,true);
-        notificationPopupWindow.showAsDropDown(binding.notificationImage,-770,0);
+        int[] location = new int[2];
+        notificationsPopupWindowBinding.getRoot().getLocationOnScreen(location);
+        int anchorX = location[0];
+        int anchorY = location[1];
+
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int popupWidth = notificationsPopupWindowBinding.getRoot().getMeasuredWidth();
+        int xOffset = 0;
+
+        if (anchorX + popupWidth > screenWidth) {
+            xOffset = screenWidth - (anchorX + popupWidth);
+        }
+
+        notificationPopupWindow = new PopupWindow(popupView,ViewGroup.LayoutParams.WRAP_CONTENT,1500,true);
+        notificationPopupWindow.showAsDropDown(binding.notificationImage,xOffset,0);
+
 
         notificationsPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
             if(doneInformation.equals("1"))
@@ -354,12 +471,18 @@ public class TeacherActivity extends AppCompatActivity implements
         if(menuItem.getItemId() == R.id.LookForJob){
             showTeacherLookForJobDialog();
         }
+        else if(menuItem.getItemId() == R.id.viewTeacherReceivedRequests){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            sendBroadcast(intent);
+        }
         else if(menuItem.getItemId() == R.id.availablePosts){
             Intent intent = new Intent();
-            intent.setAction("SHOW_AVAILABLE_JOBS_FOR_TEACHER");
+            intent.setAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
+            mAuth.signOut();
             finish();
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -576,15 +699,24 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     private void decrementNotificationsNumber(){
-        if(!binding.numOfNotifications.getText().toString().isEmpty()){
-            int numOfNotifications = Integer.parseInt(binding.numOfNotifications.getText().toString());
-            if(numOfNotifications - 1 > 0){
-                binding.numOfNotifications.setText(""+(Integer.parseInt(binding.numOfNotifications.getText().toString()) - 1));
+        if(!notList.isEmpty()){
+            int count = 0 ;
+            for(Notifications not : notList){
+                if(not.getIsNotificationRead() == 0)
+                    count++;
             }
-            else {
+            if(count != 0){
+                binding.numOfNotifications.setText(count+"");
+                binding.numOfNotifications.setVisibility(View.VISIBLE);
+            }
+            else{
                 binding.numOfNotifications.setText("");
                 binding.numOfNotifications.setVisibility(View.GONE);
             }
+        }
+        else {
+            binding.numOfNotifications.setText("");
+            binding.numOfNotifications.setVisibility(View.GONE);
         }
     }
 
@@ -758,6 +890,13 @@ public class TeacherActivity extends AppCompatActivity implements
             setEndTime();
         });
 
+        teacherLookForJobLayoutBinding.startDateEdtText.setOnClickListener(z->{
+            setStartDate();
+        });
+        teacherLookForJobLayoutBinding.endDateEdtText.setOnClickListener(c->{
+            setEndDate();
+        });
+
         teacherLookForJobLayoutBinding.postTeacherRequest.setOnClickListener(a->{
             try {
                 postTeacherRequestBtnClicked();
@@ -765,8 +904,33 @@ public class TeacherActivity extends AppCompatActivity implements
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void setEndDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select End Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            teacherLookForJobLayoutBinding.endDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
 
     }
+
+    private void setStartDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Start Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            teacherLookForJobLayoutBinding.startDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
+    }
+
 
 
     private void setStartTime(){
@@ -850,6 +1014,9 @@ public class TeacherActivity extends AppCompatActivity implements
         String duration = teacherLookForJobLayoutBinding.numberOfMonthsEdtText.getText().toString();
         String location = teacherLookForJobLayoutBinding.locationSpinner.getSelectedItem().toString();
         String teachingMethod = teacherLookForJobLayoutBinding.teachingMethodSpinner.getSelectedItem().toString();
+        String price = teacherLookForJobLayoutBinding.priceEditText.getText().toString();
+        String startDate = teacherLookForJobLayoutBinding.startDateEdtText.getText().toString();
+        String endDate = teacherLookForJobLayoutBinding.endDateEdtText.getText().toString();
         if(teacherLookForJobLayoutBinding.coursesFlexBoxLayout.getChildCount() == 0){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please add at least one course ..");
         }
@@ -858,26 +1025,64 @@ public class TeacherActivity extends AppCompatActivity implements
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong Duration","Please choose a valid number of months , 0 - 12 months ..");
             }
             else {
-                if(!checkStartAndEndTime()){
-                    MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
+                if(!checkStartAndEndDate(Integer.parseInt(duration))){
+                    MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong Date","Please choose a valid start and end dates in future with  "+duration+" months period");
                 }
                 else {
-                    StringBuilder coursesStr = new StringBuilder();
-                    for(int i=0;i<teacherAddedCoursesList.size();i++){
-                        if(i + 1 != teacherAddedCoursesList.size()){
-                            coursesStr.append(teacherAddedCoursesList.get(i)).append(" , ");
+                    if(!checkStartAndEndTime()){
+                        MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
+                    }
+                    else {
+                        if(teacherLookForJobLayoutBinding.priceEditText.getText().toString().isEmpty() || Double.parseDouble(price) < 1.0 || Double.parseDouble(price) > 100.0){
+                            MyAlertDialog.showCustomAlertDialogLoginError(this,"Invalid Price","Please Enter A valid Price Value in $ ..");
                         }
                         else {
-                            coursesStr.append(teacherAddedCoursesList.get(i));
+                            StringBuilder coursesStr = new StringBuilder();
+                            for(int i=0;i<teacherAddedCoursesList.size();i++){
+                                if(i + 1 != teacherAddedCoursesList.size()){
+                                    coursesStr.append(teacherAddedCoursesList.get(i)).append(" , ");
+                                }
+                                else {
+                                    coursesStr.append(teacherAddedCoursesList.get(i));
+                                }
+                            }
+                            tpr = new TeacherPostRequest(lastTeacherPostId+1,
+                                    email,coursesStr.toString(),educationalLevel,duration,staticAvailability,location,teachingMethod,startTime,endTime,Double.parseDouble(price),startDate,endDate);
+                            database.insertTeacherPostRequest(tpr,this);
                         }
                     }
-                    tpr = new TeacherPostRequest(lastTeacherPostId+1,
-                            email,coursesStr.toString(),educationalLevel,duration,staticAvailability,location,teachingMethod,startTime,endTime);
-                    database.insertTeacherPostRequest(tpr,this);
                 }
             }
         }
     }
+
+    private boolean checkStartAndEndDate(int duration){
+        try {
+            return areDatesValid(teacherLookForJobLayoutBinding.startDateEdtText.getText().toString(), teacherLookForJobLayoutBinding.endDateEdtText.getText().toString(),duration);
+        } catch (ParseException e) {
+           return false ;
+        }
+    }
+
+
+
+    public boolean areDatesValid(String startDateStr, String endDateStr,int duration) throws ParseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        LocalDate startDate = LocalDate.parse(startDateStr, formatter);
+        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
+
+        LocalDate currentDate = LocalDate.now();
+
+        if (startDate.isAfter(currentDate) && endDate.isAfter(currentDate)) {
+            if (startDate.isBefore(endDate)) {
+                int monthsDifference = Period.between(startDate, endDate).getMonths() + (Period.between(startDate, endDate).getYears() * 12);
+                return monthsDifference == duration;
+            }
+        }
+        return false;
+    }
+
 
     private boolean checkStartAndEndTime() throws ParseException {
         Date startDate = timeFormat.parse(startTime);
@@ -915,11 +1120,6 @@ public class TeacherActivity extends AppCompatActivity implements
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
-
-
-
-
-
 
 
     @Override
@@ -978,21 +1178,35 @@ public class TeacherActivity extends AppCompatActivity implements
             try {
                 for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
-                    Notifications notification = new Notifications(Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
+                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),
+                            Integer.parseInt(jsonObject.getString("notificationType")),
+                            jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
-                            Integer.parseInt(jsonObject.getString("isRead")));
+                            jsonObject.getInt("isRead"),
+                            jsonObject.getInt("parentRequestId"),
+                            jsonObject.getInt("teacherRequestId"),
+                            jsonObject.getInt("tempCourseId"));
                     notificationsList.add(notification);
                 }
                 if(!notList.isEmpty()){
                     notList.clear();
                 }
                 notList.addAll(notificationsList);
-                if(!notList.isEmpty()){
-                    binding.numOfNotifications.setText(""+notList.size());
+                    int count = 0;
+                    for(Notifications not : notList){
+                        if(not.getIsNotificationRead() == 0){
+                            count++;
+                        }
+                    }
+                    if(count == 0){
+                        binding.numOfNotifications.setText("");
+                        binding.numOfNotifications.setVisibility(View.GONE);
+                    }
+                    else {
+                        binding.numOfNotifications.setText(""+count);
+                        binding.numOfNotifications.setVisibility(View.VISIBLE);
+                    }
                 }
-                else
-                    binding.numOfNotifications.setText("");
-            }
             catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -1007,7 +1221,27 @@ public class TeacherActivity extends AppCompatActivity implements
     private void updateNotificationsPopUpWindow(){
         if(!notList.isEmpty()){
             notificationsPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notList, this));
+            NotificationsAdapter notAdapter =new NotificationsAdapter(notList, this,this);
+            notificationsPopupWindowBinding.notificationsRecyclerView.setAdapter(notAdapter);
+
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    final int position = viewHolder.getAdapterPosition();
+                    notList.remove(position);
+                    notAdapter.notifyItemRemoved(position);
+                    updateNumberOfNotifications();
+                    database.removeNotification(notList.get(position).getNotificationId());
+                }
+            });
+            //itemTouchHelper.attachToRecyclerView(notificationsPopupWindowBinding.notificationsRecyclerView);
+
+            notificationsPopupWindowBinding.notificationsRecyclerView.addItemDecoration(new SpacesItemDecoration(5));
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
         }
@@ -1015,6 +1249,26 @@ public class TeacherActivity extends AppCompatActivity implements
             notificationsPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
             notificationsPopupWindowBinding.notificationsRecyclerView.setVisibility(View.GONE);
         }
+    }
+
+    private void updateNumberOfNotifications(){
+        if(notList.isEmpty()){
+            binding.numOfNotifications.setText(null);
+        }
+        else {
+            int count = 0;
+            for(Notifications not : notList){
+                if(not.getIsNotificationRead() == 0){
+                    count++ ;
+                }
+            }
+            if(count == 0){
+                binding.numOfNotifications.setText(null);
+            }
+            else
+                binding.numOfNotifications.setText(notList.size()+"");
+        }
+
     }
 
     @Override
@@ -1119,9 +1373,6 @@ public class TeacherActivity extends AppCompatActivity implements
 
         dialog.show();
 
-        dialogTeacherMatchingOnCardClickedBinding.sendRequestBtn.setOnClickListener(x->{
-
-        });
 
         dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z->{
             dialog.dismiss();
@@ -1209,7 +1460,7 @@ public class TeacherActivity extends AppCompatActivity implements
                             binding.overlayView.setVisibility(View.GONE);
                             showTeacherMatchDialog(teacherMatchModelTemp,tempFirstName+" "+tempLastName,tempPhoneList);
                         }
-                    },1500);
+                    },1000);
                         //showTeacherMatchDialog(teacherMatchModelTemp,parentFirstName+" "+parentLastName,phoneList);
                 }
                 else {
@@ -1286,7 +1537,6 @@ public class TeacherActivity extends AppCompatActivity implements
         else if(flag == -2){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Connection Error","Something went wrong with your connection please try again later ..");
         }
-
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","Something went wrong please try again later ..");
         }
@@ -1319,6 +1569,38 @@ public class TeacherActivity extends AppCompatActivity implements
         }
         else {
 
+        }
+    }
+
+    @Override
+    public void onNotificationClicked(Notifications notification) {
+        for(Notifications not : notList){
+            if (not.getNotificationId() == notification.getNotificationId())
+                not.setIsNotificationRead(1);
+        }
+        decrementNotificationsNumber();
+        database.setNotificationIsRead(notification.getNotificationId());
+        if(notification.getNotificationType() == 1){
+            showTeacherInformationPopupWindow();
+        }
+        else if(notification.getNotificationType() == 2){
+            database.setNotificationIsRead(notification.getNotificationId());
+            Intent intent = new Intent();
+            intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            sendBroadcast(intent);
+        }
+        else if(notification.getNotificationType() == 30){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
+        }
+
+        else if(notification.getNotificationType() == 32){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DELETE_DECLINED_COURSE_REQUEST_FOR_TEACHER");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
         }
     }
 }

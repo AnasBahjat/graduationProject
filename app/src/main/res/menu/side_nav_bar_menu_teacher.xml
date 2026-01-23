@@ -10,14 +10,22 @@
             android:icon="@drawable/look_for_teacher"
             android:title="Look For Job"/>
 
+    </group>
+
+    <group android:id="@+id/nn" android:orderInCategory="2">
+
+        <item android:id="@+id/viewTeacherReceivedRequests"
+            android:title="Received Requests"
+            android:icon="@drawable/received_requests_icon"/>
+
         <item
             android:id="@+id/availablePosts"
             android:icon="@drawable/teacher_available_courses_icon"
             android:title="Browse Avaliable Jobs"/>
-
     </group>
 
-    <group android:id="@+id/bottomGroup" android:orderInCategory="2">
+    <group android:id="@+id/bottomGroup" android:orderInCategory="3">
+
         <item
             android:id="@+id/profile"
             android:icon="@drawable/user_icon"

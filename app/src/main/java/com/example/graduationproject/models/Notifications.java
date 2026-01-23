@@ -5,11 +5,14 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 public class Notifications implements Parcelable {
-
+    private int notificationId ;
     private int notificationType ; // 0 : Confirm account ..
     private String notificationTitle;
     private String notificationBody;
     private int isNotificationRead;
+    private int parentSentRequestId ;
+    private int teacherSentRequestId ;
+    private int tempCourseId ;
     public Notifications(int notificationType , String notificationTitle,String notificationBody,int isNotificationRead){
         this.notificationType = notificationType;
         this.notificationBody=notificationBody;
@@ -17,11 +20,60 @@ public class Notifications implements Parcelable {
         this.isNotificationRead=isNotificationRead;
     }
 
-    protected Notifications(Parcel in) {
-        notificationType = in.readInt();
-        notificationTitle = in.readString();
-        notificationBody = in.readString();
-        isNotificationRead = in.readInt();
+    public Notifications(int notificationId, int notificationType, String notificationTitle, String notificationBody, int isNotificationRead) {
+        this.notificationId = notificationId;
+        this.notificationType = notificationType;
+        this.notificationTitle = notificationTitle;
+        this.notificationBody = notificationBody;
+        this.isNotificationRead = isNotificationRead;
+    }
+
+    public Notifications(int notificationId, int notificationType, String notificationTitle, String notificationBody, int isNotificationRead, int parentSentRequestId) {
+        this.notificationId = notificationId;
+        this.notificationType = notificationType;
+        this.notificationTitle = notificationTitle;
+        this.notificationBody = notificationBody;
+        this.isNotificationRead = isNotificationRead;
+        this.parentSentRequestId = parentSentRequestId;
+    }
+
+    public Notifications(int notificationId, int notificationType, String notificationTitle, int isNotificationRead, String notificationBody, int teacherSentRequestId) {
+        this.notificationId = notificationId;
+        this.notificationType = notificationType;
+        this.notificationTitle = notificationTitle;
+        this.isNotificationRead = isNotificationRead;
+        this.notificationBody = notificationBody;
+        this.teacherSentRequestId = teacherSentRequestId;
+    }
+
+    public Notifications(int notificationId, int notificationType, String notificationTitle, String notificationBody,
+                         int isNotificationRead, int parentSentRequestId,
+                         int teacherSentRequestId,
+                         int tempCourseId) {
+        this.notificationId = notificationId;
+        this.notificationType = notificationType;
+        this.notificationTitle = notificationTitle;
+        this.notificationBody = notificationBody;
+        this.isNotificationRead = isNotificationRead;
+        this.parentSentRequestId = parentSentRequestId;
+        this.teacherSentRequestId = teacherSentRequestId;
+        this.tempCourseId = tempCourseId;
+    }
+
+    public int getTempCourseId() {
+        return tempCourseId;
+    }
+
+    public void setTempCourseId(int tempCourseId) {
+        this.tempCourseId = tempCourseId;
+    }
+
+    public int getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(int notificationId) {
+        this.notificationId = notificationId;
     }
 
     public static final Creator<Notifications> CREATOR = new Creator<Notifications>() {
@@ -68,22 +120,62 @@ public class Notifications implements Parcelable {
         this.notificationBody = notificationBody;
     }
 
+    public int getParentSentRequestId() {
+        return parentSentRequestId;
+    }
+
+    public void setParentSentRequestId(int parentSentRequestId) {
+        this.parentSentRequestId = parentSentRequestId;
+    }
+
+    public int getTeacherSentRequestId() {
+        return teacherSentRequestId;
+    }
+
+    public void setTeacherSentRequestId(int teacherSentRequestId) {
+        this.teacherSentRequestId = teacherSentRequestId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
     }
 
+    protected Notifications(Parcel in) {
+        notificationId = in.readInt();
+        notificationType = in.readInt();
+        notificationTitle = in.readString();
+        notificationBody = in.readString();
+        isNotificationRead = in.readInt();
+        parentSentRequestId = in.readInt();
+        teacherSentRequestId= in.readInt();
+        tempCourseId = in.readInt();
+    }
+
+
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeInt(notificationId);
         dest.writeInt(notificationType);
         dest.writeString(notificationTitle);
         dest.writeString(notificationBody);
         dest.writeInt(isNotificationRead);
+        dest.writeInt(parentSentRequestId);
+        dest.writeInt(teacherSentRequestId);
+        dest.writeInt(tempCourseId);
     }
 
-    @NonNull
+    /*@NonNull
     @Override
     public String toString() {
-        return "Notifications{notificationType='"+notificationType+"', notificationTitle="+notificationTitle+"', notificationBody="+notificationBody+"', isNotificationRead="+isNotificationRead+"}";
-    }
+        return "Notifications{" +
+                "notificationId=" + notificationId +
+                ", notificationType=" + notificationType +
+                ", notificationTitle='" + notificationTitle + '\'' +
+                ", notificationBody='" + notificationBody + '\'' +
+                ", isNotificationRead=" + isNotificationRead +
+                ", parentSentRequestId=" + parentSentRequestId +
+                ", teacherSentRequestId=" + teacherSentRequestId +
+                '}';
+    }*/
 }

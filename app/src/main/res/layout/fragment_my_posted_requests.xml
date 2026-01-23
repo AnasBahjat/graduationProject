@@ -29,7 +29,7 @@
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/myPostedRequestsBtn"
+            android:id="@+id/myCoursesBtnForTeacher"
             android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"

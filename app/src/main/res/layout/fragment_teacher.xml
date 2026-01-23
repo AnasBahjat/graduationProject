@@ -50,7 +50,7 @@
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/myPostedRequestsBtn"
+            android:id="@+id/myCoursesBtn"
             android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
@@ -60,7 +60,7 @@
             android:textAllCaps="false"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/availableTeacherRequests"
+            android:id="@+id/myPostedRequestsBtn"
             android:layout_width="170dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_button"
@@ -126,10 +126,23 @@
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_centerInParent="true"
         android:layout_marginTop="330dp"
-        android:text="You did not post any Request"
+        android:text="You Posted Requests"
         android:textColor="#7E7A7A"
         android:textSize="20sp"
         android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/noMatchedData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Matched Data .."
+        android:textColor="#7E7A7A"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:textSize="20sp"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="330dp"/>
+
 
     <ProgressBar
         android:id="@+id/loadingProgressBar"
@@ -140,6 +153,37 @@
         android:layout_marginTop="330dp"
         android:visibility="gone"
         />
+
+    <RelativeLayout
+        android:id="@+id/loadingProgressBar2"
+        android:layout_width="220dp"
+        android:layout_height="120dp"
+        android:background="@drawable/rounded_corners"
+        android:layout_centerInParent="true"
+        android:backgroundTint="@color/unreadColor"
+        android:visibility="gone">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+            <ProgressBar
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/usedColor"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fetching Data"
+                android:layout_marginTop="5dp"
+                android:textSize="17sp"
+                android:layout_gravity="center"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
     <LinearLayout
         android:id="@+id/filterLayout"
         android:layout_width="wrap_content"
@@ -149,7 +193,8 @@
         android:layout_marginStart="35dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="15dp"
-        android:layout_toEndOf="@+id/teacherSuggestionLayout">
+        android:layout_toEndOf="@+id/teacherSuggestionLayout"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/filterImage"

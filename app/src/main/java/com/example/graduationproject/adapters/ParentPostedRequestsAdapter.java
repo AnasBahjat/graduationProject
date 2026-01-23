@@ -60,12 +60,14 @@ public class ParentPostedRequestsAdapter extends RecyclerView.Adapter<ParentPost
             this.listener = listener;
         }
         public void bind(TeacherMatchModel requestModel){
-
             binding.childNameTextView.setText(requestModel.getCustomChildData().getChildName());
             binding.coursesTextView.setText(requestModel.getCourses());
             binding.locationTextView.setText(requestModel.getLocation());
             binding.teachingMethodTextView.setText(requestModel.getTeachingMethod());
-            binding.timeTextView.setText(requestModel.getStartTime()+" - "+requestModel.getEndTime());
+            binding.timeTextView.setText(String.format("%s - %s", requestModel.getStartTime(), requestModel.getEndTime()));
+            binding.priceTextView.setText(String.format("%s$ - %s$", requestModel.getPriceMinimum(), requestModel.getPriceMaximum()));
+            binding.dateTextView.setText(String.format("%s  -  %s", requestModel.getStartDate(), requestModel.getEndDate()));
+            binding.postedTextView.setText(requestModel.getPostDate());
 
            /* binding.childNameTextView.setText(requestModel.getChildren().getChildName());
             binding.coursesTextView.setText(requestModel.getCourses());

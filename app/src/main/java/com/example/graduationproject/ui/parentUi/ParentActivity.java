@@ -7,10 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,6 +25,7 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -37,7 +36,10 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.work.Data;
+import androidx.work.PeriodicWorkRequest;
 
 import com.example.graduationproject.R;
 import com.example.graduationproject.adapters.CustomSpinnerAdapter;
@@ -53,18 +55,24 @@ import com.example.graduationproject.listeners.AddNewChildListener;
 import com.example.graduationproject.listeners.AddTeacherMatchingListener;
 import com.example.graduationproject.listeners.GetParentChildren;
 import com.example.graduationproject.listeners.LastMatchingIdListener;
+import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.messaging.ChatViewModel;
+import com.example.graduationproject.messaging.ChatMainActivity;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.utils.FetchNotificationsPeriodically;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,7 +84,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 
 public class ParentActivity extends AppCompatActivity implements
@@ -87,7 +97,7 @@ public class ParentActivity extends AppCompatActivity implements
         AddNewChildListener,
         AddTeacherMatchingListener,
         ParentListenerForParentPostedRequests,
-        LastMatchingIdListener {
+        LastMatchingIdListener, NotificationClickListener {
 
     private Database database;
     private String email,firstName,lastName,password,birthDate,phoneNumber,city,country,doneInformation ;
@@ -111,7 +121,7 @@ public class ParentActivity extends AppCompatActivity implements
     private EditText childAgeEditText ;
     private Spinner childGenderSpinner,childGradeSpinner,locationSpinner,teachingMethodSpinner ;
     private Button addNewChildButton,addCourseButton;
-
+    private EditText priceFromEditText,priceToEditText,startDateEdtText,endDateEdtText ;
     private TextInputLayout childNameText;
     private TextInputLayout ageText;
     AlertDialog newChildDialog;
@@ -126,10 +136,18 @@ public class ParentActivity extends AppCompatActivity implements
     private String amPmStart ;
     private String amPmEnd;
 
+    private PeriodicWorkRequest periodicWorkRequest ;
+
+
     private View popupView;
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
 
     private int lastMatchingId = 0 ;
+
+
+
+    ChatViewModel chatViewModel;
+    TextView numOfMsgReceivedToParent;
 
 
 
@@ -141,7 +159,45 @@ public class ParentActivity extends AppCompatActivity implements
         parentBinding = ActivityParentBinding.inflate(getLayoutInflater());
         setContentView(parentBinding.getRoot());
         getIntentDate();
+        Data inputData = new Data.Builder().putString("email",email).build();
+        periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                FetchNotificationsPeriodically.class,15,
+                TimeUnit.MINUTES).setInputData(inputData).build();
+       // WorkManager.getInstance(this).enqueue(periodicWorkRequest);
         init();
+    }
+
+    private void initFirebase(){
+        Toast.makeText(this, "111111111111", Toast.LENGTH_SHORT).show();
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        chatViewModel.fetchUnreadMessages(currentUserId);
+
+
+
+        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+            if (unreadCount > 0) {
+                parentBinding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
+            } else {
+                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
+            }
+        });
+
+
+        if(doneInformation.equalsIgnoreCase("1")){
+            Toast.makeText(this, "01221312321312", Toast.LENGTH_SHORT).show();
+            parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(ParentActivity.this, ChatMainActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+        else {
+            MyAlertDialog.warningDialog(this,"Confirm Account","Please Confirm Your Account to be able to use the messenger .");
+        }
     }
 
     private void getIntentDate(){
@@ -160,6 +216,7 @@ public class ParentActivity extends AppCompatActivity implements
     private void init(){
         database=new Database(this);
         notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
+        initFirebase();
         if(Integer.parseInt(doneInformation) == 1){
             database.getNotifications(email,this);
         }
@@ -169,7 +226,6 @@ public class ParentActivity extends AppCompatActivity implements
         initBroadcastReceiver();
 
         if(doneInformation.equals("1")){
-           // database.getParentPostedMatchingInformation(email,ParentActivity.this);
             loadParentFragment(null);
         }
         database.getLastMatchingId(this);
@@ -220,8 +276,20 @@ public class ParentActivity extends AppCompatActivity implements
                 parentBinding.numOfNotifications.setVisibility(View.GONE);
             }
             else {
-                parentBinding.numOfNotifications.setText(""+notificationsList.size());
-                parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                int notCount = 0;
+                for(Notifications not : notificationsList){
+                    if(not.getIsNotificationRead() == 0){
+                        notCount++;
+                    }
+                }
+                if(notCount == 0){
+                    parentBinding.numOfNotifications.setText("");
+                    parentBinding.numOfNotifications.setVisibility(View.GONE);
+                }
+                else {
+                    parentBinding.numOfNotifications.setText(""+notCount);
+                    parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                }
             }
 
         }
@@ -230,14 +298,27 @@ public class ParentActivity extends AppCompatActivity implements
     private void updateNotificationsAdapter(){
         if(notificationsList != null){
             if(!notificationsList.isEmpty()){
-                parentBinding.numOfNotifications.setText(""+notificationsList.size());
-                notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+                int notCount = 0;
+                for(Notifications not : notificationsList){
+                    if(not.getIsNotificationRead() == 0){
+                        notCount++;
+                    }
+                }
+                if(notCount == 0){
+                    parentBinding.numOfNotifications.setText("");
+                    notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
+
+                }
+                else {
+                    parentBinding.numOfNotifications.setText(""+notCount);
+                    notificationPopupWindowBinding.noNotificationsText.setVisibility(View.VISIBLE);
+                }
             }
             else{
                 parentBinding.numOfNotifications.setText("");
                 notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             }
-            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this));
+            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList,this,this));
         }
     }
 
@@ -246,8 +327,6 @@ public class ParentActivity extends AppCompatActivity implements
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 if(menuItem.getItemId() == R.id.homeFragment){
-                  //  database.getParentPostedMatchingInformation(email,ParentActivity.this);
-                   // loadFragment(null);
                     loadParentFragment(null);
                 }
                 else if(menuItem.getItemId() == R.id.profileFragment){
@@ -347,7 +426,6 @@ public class ParentActivity extends AppCompatActivity implements
             Parent parent = new Parent(email,id,phone,childrenList,city,country);
             database.confirmParentInformation(parent,this);
             loadParentFragment(null);
-        //    database.getParentPostedMatchingInformation(email,ParentActivity.this);
         }
 
     }
@@ -452,18 +530,36 @@ public class ParentActivity extends AppCompatActivity implements
             try {
                 for(int i=notificationsJsonArray.length() - 1; i >= 0 ;i--){
                     JSONObject jsonObject = notificationsJsonArray.getJSONObject(i);
-                    Notifications notification = new Notifications(Integer.parseInt(jsonObject.getString("notificationType")),jsonObject.getString("notificationTitle"),
+                    Notifications notification = new Notifications(jsonObject.getInt("notificationId"),
+                            Integer.parseInt(jsonObject.getString("notificationType")),
+                            jsonObject.getString("notificationTitle"),
                             jsonObject.getString("notificationBody"),
-                            Integer.parseInt(jsonObject.getString("isRead")));
+                            jsonObject.getInt("isRead"),
+                            jsonObject.getInt("parentRequestId"),
+                            jsonObject.getInt("teacherRequestId"),
+                            jsonObject.getInt("tempCourseId"));
                     notList.add(notification);
                 }
                 if(!notificationsList.isEmpty()){
                     notificationsList.clear();
                 }
+
+
                 notificationsList.addAll(notList);
                 if(!notificationsList.isEmpty()){
-                    parentBinding.numOfNotifications.setText(""+notList.size());
-                    parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                    int notCount = 0 ;
+                    for(Notifications not : notificationsList){
+                        if(not.getIsNotificationRead() == 0)
+                            notCount++;
+                    }
+                    if(notCount == 0){
+                        parentBinding.numOfNotifications.setText("");
+                        parentBinding.numOfNotifications.setVisibility(View.GONE);
+                    }
+                    else {
+                        parentBinding.numOfNotifications.setText(""+notCount);
+                        parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+                    }
                 }
                 else {
                     parentBinding.numOfNotifications.setText("");
@@ -484,7 +580,7 @@ public class ParentActivity extends AppCompatActivity implements
     private void updateNotificationsPopupWindow(){
         if(!notificationsList.isEmpty()){
             notificationPopupWindowBinding.notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList, this));
+            notificationPopupWindowBinding.notificationsRecyclerView.setAdapter(new NotificationsAdapter(notificationsList, this,this));
             notificationPopupWindowBinding.noNotificationsText.setVisibility(View.GONE);
             notificationPopupWindowBinding.notificationsRecyclerView.setVisibility(View.VISIBLE);
         }
@@ -612,11 +708,13 @@ public class ParentActivity extends AppCompatActivity implements
         flexboxCoursesForMatchingTeacherLayout = dialogView.findViewById(R.id.flexboxLayoutMatchTeacher);
         addCourseButton = dialogView.findViewById(R.id.addCourseMatchingTeacherBtn);
         teachingMethodSpinner = dialogView.findViewById(R.id.teachingMethod);
+        priceFromEditText = dialogView.findViewById(R.id.priceFromEditText);
+        priceToEditText = dialogView.findViewById(R.id.priceToEditText);
+        startDateEdtText = dialogView.findViewById(R.id.startDateEdtText);
+        endDateEdtText = dialogView.findViewById(R.id.endDateEdtText);
 
         EditText startTimePickerEditText = dialogView.findViewById(R.id.startTimeEdtText);
         EditText endTimePickerEditText= dialogView.findViewById(R.id.endTimeEdtText);
-
-
 
         searchingForTeacherDialog = builder.create();
         searchingForTeacherDialog.show();
@@ -628,7 +726,7 @@ public class ParentActivity extends AppCompatActivity implements
         searchingForTeacherDialog.getWindow().setAttributes(layoutParams);
         searchingForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         if(searchingForTeacherDialog.getWindow() != null)
-            searchingForTeacherDialog.getWindow().setLayout(1300,2000);
+            searchingForTeacherDialog.getWindow().setLayout(1300,2500);
 
 
         CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this,childrenSpinnerList);
@@ -637,6 +735,15 @@ public class ParentActivity extends AppCompatActivity implements
         closeImageView.setOnClickListener(ad->{
             searchingForTeacherDialog.dismiss();
         });
+
+        startDateEdtText.setOnClickListener(z->{
+            setStartDate();
+        });
+        endDateEdtText.setOnClickListener(b->{
+            setEndDate();
+        });
+
+
 
         childrenSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -741,6 +848,32 @@ public class ParentActivity extends AppCompatActivity implements
             }
         });
     }
+
+    private void setEndDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select End Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            endDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
+
+    }
+
+    private void setStartDate(){
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Start Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
+            String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date(selection));
+            startDateEdtText.setText(date);
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"");
+    }
+
     @SuppressLint("SimpleDateFormat")
     private void setStartAndEndTime(){
         Calendar calendar = Calendar.getInstance();
@@ -796,43 +929,72 @@ public class ParentActivity extends AppCompatActivity implements
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Days Error","Please Choose at least one day a week to match a teacher data");
         }
         else {
-            if(!checkStartAndEndTime()){
-                MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
+            if(!checkStartAndEndDate()){
+                MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong Date","Please choose a valid start and end dates in future .. ");
             }
             else {
-                if(flexboxCoursesForMatchingTeacherLayout.getChildCount() == 0){
-                    MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please Choose At least one course ..");
+                if(!checkStartAndEndTime()){
+                    MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong timing","Please Choose valid start and end time, and make sure there are a least one hour..");
                 }
                 else {
-                    if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
-                        StringBuilder courses= new StringBuilder();
-                        for(int i=0 ; i < coursesListForMatchingTeacher.size() ; i++){
-                            if(i + 1 != coursesListForMatchingTeacher.size()){
-                                courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
-                            }
-                            else {
-                                courses.append(coursesListForMatchingTeacher.get(i));
+                    if(flexboxCoursesForMatchingTeacherLayout.getChildCount() == 0){
+                        MyAlertDialog.showCustomAlertDialogLoginError(this,"No Courses","Please Choose At least one course ..");
+                    }
+                    else {
+                        if(priceFromEditText.getText().toString().isEmpty() || priceToEditText.getText().toString().isEmpty() ||
+                                Double.parseDouble(priceFromEditText.getText().toString()) < 1.0 || Double.parseDouble(priceToEditText.getText().toString()) > 100.0 ||
+                                Double.parseDouble(priceFromEditText.getText().toString()) >= Double.parseDouble(priceToEditText.getText().toString()))
+                            MyAlertDialog.showCustomAlertDialogLoginError(this,"Wrong price","Please Choose Valid Price Range Values ..");
+                        else {
+                            if(flexboxCoursesForMatchingTeacherLayout.getChildCount() > 0){
+                                StringBuilder courses= new StringBuilder();
+                                for(int i=0 ; i < coursesListForMatchingTeacher.size() ; i++){
+                                    if(i + 1 != coursesListForMatchingTeacher.size()){
+                                        courses.append(coursesListForMatchingTeacher.get(i)).append(" , ");
+                                    }
+                                    else {
+                                        courses.append(coursesListForMatchingTeacher.get(i));
+                                    }
+                                }
+
+                                TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
+                                        ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime,Double.parseDouble(priceFromEditText.getText().toString()),
+                                        Double.parseDouble(priceToEditText.getText().toString()),startDateEdtText.getText().toString(),endDateEdtText.getText().toString());
+                                database.addNewTeacherMatching(email,teacherMatchModel,this);
                             }
                         }
-
-                        TeacherMatchModel teacherMatchModel=new TeacherMatchModel(new CustomChildData(selectedChildId,selectedChildName,Integer.parseInt(selectedChildGrade))
-                                ,selectedDays.toString(),courses.toString(),city,teachingMethodStr,startTime,endTime);
-
-                        TeacherMatchModel teacherMatchModel1 = new TeacherMatchModel(lastMatchingId+1
-                                ,email,
-                                new CustomChildData(selectedChildId,selectedChildName,
-                                Integer.parseInt(selectedChildGrade.trim())),
-                                selectedDays.toString(),courses.toString(),
-                                city,teachingMethodStr,
-                                new Children(selectedChildName,"12",selectedChildGender,
-                                        Integer.parseInt(selectedChildGrade.trim())),startTime,endTime);
-                       // intent.putExtra("addedTeacherRequest", (Parcelable)teacherMatchModel1);
-                       database.addNewTeacherMatching(email,teacherMatchModel,this);
                     }
                 }
             }
         }
     }
+
+    private boolean checkStartAndEndDate(){
+        try {
+            return areDatesValid(startDateEdtText.getText().toString(), endDateEdtText.getText().toString());
+        } catch (ParseException e) {
+            return false ;
+        }
+    }
+
+
+
+    public  boolean areDatesValid(String startDateStr, String endDateStr) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+
+        Date startDate = sdf.parse(startDateStr);
+        Date endDate = sdf.parse(endDateStr);
+
+        Date currentDate = new Date();
+
+        if (startDate.after(currentDate) && endDate.after(currentDate)) {
+            return startDate.before(endDate);
+        }
+
+        return false;
+    }
+
     private boolean checkStartAndEndTime() throws ParseException {
         Date startDate = timeFormat.parse(startTime);
         Date endDate = timeFormat.parse(endTime);
@@ -1053,7 +1215,7 @@ public class ParentActivity extends AppCompatActivity implements
         else if(resultFlag == 0){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Request Error","Something went wrong ,Please try again later ..");
         }
-        else {
+        else if(resultFlag == 1) {
             try {
                 ArrayList<TeacherMatchModel> tempTeacherMatchModelList = new ArrayList<>();
                 if(parentInformation.length() == 0){
@@ -1068,6 +1230,7 @@ public class ParentActivity extends AppCompatActivity implements
                         String courses = jsonObject.getString("courses");
                         String location = jsonObject.getString("location");
                         String teachingMethod = jsonObject.getString("teachingMethod");
+                        String postDate = jsonObject.getString("posted");
                         String startTime = jsonObject.getString("startTime");
                         String endTime = jsonObject.getString("endTime");
                         String childName = jsonObject.getString("childName");
@@ -1121,6 +1284,61 @@ public class ParentActivity extends AppCompatActivity implements
         else {
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Error","An error occurred please try again later ..");
             System.exit(-2);
+        }
+    }
+
+    @Override
+    public void onNotificationClicked(Notifications notification) {
+
+        for(Notifications not : notificationsList){
+            if (not.getNotificationId() == notification.getNotificationId())
+                not.setIsNotificationRead(1);
+        }
+
+        decrementNotificationsNumber();
+
+        if(notification.getNotificationType() == 0){
+            showParentInformationPopupWindow();
+        }
+        else if(notification.getNotificationType()==3){
+            database.setNotificationIsRead(notification.getNotificationId());
+            Intent intent = new Intent();
+            intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
+            sendBroadcast(intent);
+        }
+        else if(notification.getNotificationType() == 20){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_PARENT");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
+        }
+        else if(notification.getNotificationType() == 22){
+            Intent intent = new Intent();
+            intent.setAction("SHOW_DECLINED_DELETE_COURSE_FOR_PARENT");
+            intent.putExtra("notification",notification);
+            sendBroadcast(intent);
+        }
+    }
+
+    private void decrementNotificationsNumber(){
+        if(!notificationsList.isEmpty()){
+            int count = 0 ;
+            for(Notifications not : notificationsList){
+                if(not.getIsNotificationRead() == 0)
+                    count++;
+            }
+            if(count != 0){
+                parentBinding.numOfNotifications.setText(count+"");
+                parentBinding.numOfNotifications.setVisibility(View.VISIBLE);
+            }
+            else{
+                parentBinding.numOfNotifications.setText("");
+                parentBinding.numOfNotifications.setVisibility(View.GONE);
+            }
+        }
+        else {
+            parentBinding.numOfNotifications.setText("");
+            parentBinding.numOfNotifications.setVisibility(View.GONE);
         }
     }
 }

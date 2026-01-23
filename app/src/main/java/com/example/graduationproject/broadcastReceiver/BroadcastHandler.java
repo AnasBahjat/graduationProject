@@ -19,7 +19,6 @@ public class BroadcastHandler extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("Intent action ---->"+intent.getAction(),"Intent action ---->"+intent.getAction());
             if(context instanceof TeacherActivity && intent.getAction().equalsIgnoreCase("SHOW_TEACHER_INFORMATION_WINDOW")){
                 ((TeacherActivity) context).showTeacherInformationPopupWindow();
             }

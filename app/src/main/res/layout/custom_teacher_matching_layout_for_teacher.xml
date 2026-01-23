@@ -185,22 +185,22 @@
             android:layout_marginTop="12dp"
             android:src="@drawable/clock_icon"/>
         <TextView
-            android:id="@+id/timeTextViewTemp"
+            android:id="@+id/dateTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:text="Duration :"
+            android:text="Date Period : "
             android:layout_toEndOf="@id/clockIcon"
             android:layout_marginStart="8dp"
             android:layout_below="@id/availableTextView"
             android:layout_marginTop="10dp"/>
 
         <TextView
-            android:id="@+id/durationTextView"
+            android:id="@+id/dateTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:layout_toEndOf="@id/timeTextViewTemp"
+            android:layout_toEndOf="@id/dateTextViewTemp"
             android:layout_below="@id/availableTextView"
             android:layout_marginTop="10dp"
             android:layout_marginStart="8dp"
@@ -208,10 +208,79 @@
             android:layout_marginEnd="20dp"
             />
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/educationLevelImageView"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_below="@id/dateTextView"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/education_level_icon"/>
+        <TextView
+            android:id="@+id/educationLevelViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/durationTextView"
+            android:textSize="16sp"
+            android:text="Education Level :"
+            android:layout_toEndOf="@id/clockIcon"
+            android:layout_marginStart="8dp"
+            android:layout_below="@id/dateTextView"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/educationLevelTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_toEndOf="@id/educationLevelViewTemp"
+            android:layout_below="@id/dateTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
+        <ImageView
+            android:id="@+id/priceImageView"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_below="@id/educationLevelTextView"
+            android:layout_toEndOf="@id/profileImageView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/price_icon"/>
+        <TextView
+            android:id="@+id/priceTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Price :"
+            android:layout_toEndOf="@id/clockIcon"
+            android:layout_marginStart="8dp"
+            android:layout_below="@id/educationLevelTextView"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/priceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_toEndOf="@id/priceTextViewTemp"
+            android:layout_below="@id/educationLevelTextView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="8dp"
+            android:textColor="#1A8E9E"
+            android:layout_marginEnd="20dp"
+            />
+
+
+
+        <LinearLayout
+            android:id="@+id/moreDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/priceTextView"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="8dp"
             >
@@ -232,5 +301,27 @@
                 />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/postedTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Posted : "
+            android:textSize="14sp"
+            android:layout_below="@id/priceTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="12dp"/>
+
+        <TextView
+            android:id="@+id/postedTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/priceTextView"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/moreDetails"
+            android:layout_toEndOf="@id/postedTextViewTemp"
+            android:textSize="14sp" />
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

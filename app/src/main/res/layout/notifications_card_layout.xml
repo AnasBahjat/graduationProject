@@ -2,31 +2,47 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/notificationLayout"
-    android:layout_width="350dp"
+    android:layout_width="match_parent"
     android:layout_height="110dp"
-    app:cardCornerRadius="13dp">
-
+    app:cardElevation="5dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <TextView
             android:id="@+id/notificationTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
             android:layout_marginEnd="28dp"
             android:text="@string/notification_title_text"
             android:textSize="20sp" />
+        <ImageView
+            android:id="@+id/markImage"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/exc_icon_2"
+            android:visibility="gone"
+            />
 
-    <TextView
-        android:id="@+id/notificationBody"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="21dp"
-        android:text="@string/notification_body_text"
-        android:textSize="16sp" />
+        <TextView
+            android:id="@+id/notificationBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/notificationTitle"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:text="@string/notification_body_text"
+            android:textSize="16sp" />
 
-
+    </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>

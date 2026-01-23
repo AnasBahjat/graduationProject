@@ -43,20 +43,20 @@
 
                     <RelativeLayout
                         android:id="@+id/notificationLayout"
-                        android:layout_width="36dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
                         android:layout_marginStart="369dp"
-                        android:clickable="true"
                         android:layout_marginTop="12dp"
-                        android:layout_marginEnd="13dp">
+                        android:layout_marginEnd="13dp"
+                        android:clickable="true">
 
                         <ImageView
                             android:id="@+id/notificationImage"
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentEnd="true"
                             android:layout_marginEnd="0dp"
@@ -66,13 +66,43 @@
 
                         <TextView
                             android:id="@+id/numOfNotifications"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="16dp"
+                            android:layout_height="19dp"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentEnd="true"
-                            android:layout_marginEnd="7dp"
+                            android:textAlignment="center"
+                            android:textSize="13sp"
                             android:background="@drawable/custom_text_view_for_notification"
                             android:textColor="@color/white" />
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/messageIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginStart="320dp"
+                        android:layout_marginTop="12dp">
+
+                        <ImageView
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginStart="20dp"
+                            android:src="@drawable/parent_received_requests"
+                            />
+
+                        <TextView
+                            android:id="@+id/numOfMessagesReceivedToParent"
+                            android:layout_width="16dp"
+                            android:layout_height="19dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginStart ="48dp"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            android:background="@drawable/custom_text_view_for_notification" />
                     </RelativeLayout>
                 </RelativeLayout>
 

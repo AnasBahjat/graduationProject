@@ -2,19 +2,19 @@ package com.example.graduationproject.ui.register;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,8 +23,18 @@ import com.example.graduationproject.databinding.ActivityRegisterBinding;
 import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.R;
 import com.example.graduationproject.interfaces.RequestResult;
+import com.example.graduationproject.messaging.Users;
 import com.example.graduationproject.models.Profile;
-import com.hbb20.CountryCodePicker;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONArray;
 import java.time.LocalDate;
@@ -40,6 +50,16 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
     private int genderSelected,profileSelected;
     int validBirthDateFlag=0;
 
+
+    FirebaseAuth auth;
+    FirebaseDatabase database;
+    FirebaseStorage storage;
+    ProgressDialog progressDialog;
+    String imageuri;
+    Uri imageURI;
+
+
+
     private ActivityRegisterBinding binding ;
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -47,7 +67,20 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+        initFirebase();
         wrapViews();
+    }
+
+
+    private void initFirebase(){
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Establishing The Account");
+        progressDialog.setCancelable(false);
+        // getSupportActionBar().hide();
+        database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
+        auth = FirebaseAuth.getInstance();
+        String imageuri="https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
     }
 
 
@@ -341,11 +374,83 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             }
         }
         return uppercaseFlag && lowercaseFlag;
+
+
+
+
+
+
+
     }
 
     @Override
     public void onSuccess(int result) {
         if(result == 1){
+
+
+
+            auth.createUserWithEmailAndPassword(emailStr.trim(),passwordStr).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()){
+                        String id = task.getResult().getUser().getUid();
+                        DatabaseReference reference = database.getReference().child("user").child(id);
+                        StorageReference storageReference = storage.getReference().child("Upload").child(id);
+
+                        if (imageURI!=null){
+                            storageReference.putFile(imageURI).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                    if (task.isSuccessful()){
+                                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                imageuri = uri.toString();
+                                                Users users = new Users(id,firstnameStr.toLowerCase().concat(lastnameStr.trim()) ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
+                                                reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()){
+                                                            //   progressDialog.show();
+                                                            //    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                                            //    startActivity(intent);
+                                                            //      finish();
+                                                        }else {
+                                                            //  Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+
+                        }else {
+                            String status = "Hey I'm Using This Application";
+                            imageuri = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
+                            Users users = new Users(id,firstnameStr.toLowerCase() + " " + lastnameStr.trim() ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
+                            reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+                                        //  progressDialog.show();
+                                        //   Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
+                                        //    startActivity(intent);
+                                        //     finish();
+                                    }else {
+                                        // Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                        }
+                    }else {
+                        // Toast.makeText(RegisterActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+
             binding.progressBar.setVisibility(ProgressBar.VISIBLE);
             new Handler().postDelayed(new Runnable() {
                 @Override
