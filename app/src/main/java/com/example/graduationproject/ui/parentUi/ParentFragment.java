@@ -32,6 +32,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -920,19 +921,24 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void showClickedCardDialog(){
         if(requestModel != null && getContext() != null){
-             dialogParentPostedRequestCardBinding = DialogParentPostedRequestCardBinding.inflate(LayoutInflater.from(getContext()));
-             clickedCardDialog = new Dialog(getContext());
+            dialogParentPostedRequestCardBinding = DialogParentPostedRequestCardBinding.inflate(LayoutInflater.from(getContext()));
+            clickedCardDialog = new Dialog(requireContext());
             clickedCardDialog.setContentView(dialogParentPostedRequestCardBinding.getRoot());
             clickedCardDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(clickedCardDialog.getWindow()).getAttributes());
-            layoutParams.width = 1250;
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            clickedCardDialog.getWindow().setAttributes(layoutParams);
-            if(clickedCardDialog.getWindow() != null)
-                clickedCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = clickedCardDialog.getWindow();
+            if (window != null) {
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
             clickedCardDialog.show();
 
+            if (window != null) {
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                layoutParams.gravity = Gravity.CENTER;
+                window.setAttributes(layoutParams);
+            }
             dialogParentPostedRequestCardBinding.childNameTextView.setText(requestModel.getCustomChildData().getChildName());
 
             String parentFirstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
@@ -1019,17 +1025,20 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         postTeacherRequestPopupWindowBinding = UpdateParentPostedRequestBinding.inflate(LayoutInflater.from(getContext()));
         if(getContext() != null){
             updateParentPostedRequestDialog = new Dialog(getContext());
-            updateParentPostedRequestDialog.setContentView(postTeacherRequestPopupWindowBinding.getRoot());
+            updateParentPostedRequestDialog.setContentView(
+                    postTeacherRequestPopupWindowBinding.getRoot()
+            );
             updateParentPostedRequestDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(updateParentPostedRequestDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 2000;
-            updateParentPostedRequestDialog.getWindow().setAttributes(layoutParams);
-            updateParentPostedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            if(updateParentPostedRequestDialog.getWindow() != null)
-                updateParentPostedRequestDialog.getWindow().setLayout(1300,2000);
+            Window window = updateParentPostedRequestDialog.getWindow();
+            if (window != null) {
+                window.setLayout(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
             updateParentPostedRequestDialog.show();
 
 
@@ -1105,9 +1114,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             postTeacherRequestPopupWindowBinding.cancelButton.setOnClickListener(z->{
                 updateParentPostedRequestDialog.dismiss();
             });
-
-
-
 
             postTeacherRequestPopupWindowBinding.addCourseMatchingTeacherBtn.setOnClickListener(f->{
                 String selectedCourse = postTeacherRequestPopupWindowBinding.forParentCourses.getSelectedItem().toString();

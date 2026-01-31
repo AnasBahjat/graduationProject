@@ -1,39 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@drawable/rounded_corner_dialog"
-    >
-
-    <RelativeLayout
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_corner_dialog">
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:context=".ui.parentUi.AskForSpecificTeacherFragment"
-        >
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/closeTheDialog"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="10dp"
+            android:contentDescription="@string/close_popup_window_msg"
             android:src="@drawable/close_icon_2"
-            android:contentDescription="@string/close_popup_window_msg" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.041"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />-
 
         <LinearLayout
             android:id="@+id/SpecificTeacherHeader"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:orientation="horizontal"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="65dp"
-            android:layout_centerHorizontal="true"
-            android:orientation="horizontal">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <View
                 android:layout_width="20dp"
@@ -49,8 +50,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="7dp"
-                android:text="Request Details"
                 android:layout_marginEnd="5dp"
+                android:text="Request Details"
                 android:textSize="22sp"
                 tools:ignore="HardcodedText" />
 
@@ -69,11 +70,13 @@
             android:id="@+id/chooseChildLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginStart="15dp"
             android:layout_margin="15dp"
-            android:layout_below="@id/SpecificTeacherHeader"
-            android:layout_marginTop="20dp">
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/SpecificTeacherHeader">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -81,210 +84,228 @@
                 android:textSize="20sp"
 
                 />
+
             <Spinner
                 android:id="@+id/childrenSpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="70dp"
                 android:layout_marginStart="15dp"
-                android:spinnerMode="dropdown"
-                />
+                android:spinnerMode="dropdown" />
         </LinearLayout>
-
 
         <TextView
             android:id="@+id/teachingTimeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/chooseChildLayout"
-            android:layout_alignParentStart="true"
             android:layout_marginStart="15dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:text="@string/teaching_time_text"
-            android:textSize="20sp" />
-
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chooseChildLayout" />
 
         <LinearLayout
             android:id="@+id/daysLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/teachingTimeTextView"
-            android:layout_marginTop="10dp"
-            android:layout_centerHorizontal="true"
-            android:orientation="vertical">
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.666"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/teachingTimeTextView">
+
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                android:gravity="center_horizontal">
+
                 <CheckBox
                     android:id="@+id/saturday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="1dp"
                     android:text="Sat"
-                    android:textSize="13sp"
-                    android:padding="5dp"
-                    android:layout_margin="5dp"
+                    android:textSize="11sp"
                     tools:ignore="HardcodedText" />
+
                 <CheckBox
                     android:id="@+id/sunday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:ignore="HardcodedText"
-                    android:textSize="13sp"
-                    android:padding="5dp"
-                    android:layout_margin="5dp"
-                    android:text="Sun"/>
+                    android:padding="1dp"
+                    android:text="Sun"
+                    android:textSize="11sp"
+                    tools:ignore="HardcodedText" />
+
                 <CheckBox
                     android:id="@+id/monday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:ignore="HardcodedText"
-                    android:textSize="13sp"
-                    android:layout_margin="5dp"
-                    android:padding="5dp"
-                    android:text="Mon"/>
+                    android:padding="1dp"
+                    android:text="Mon"
+                    android:textSize="11sp"
+                    tools:ignore="HardcodedText" />
+
                 <CheckBox
                     android:id="@+id/tuesday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:ignore="HardcodedText"
-                    android:layout_margin="5dp"
-                    android:padding="5dp"
-                    android:textSize="13sp"
+                    android:padding="1dp"
+                    android:text="Tue"
+                    android:textSize="11sp"
 
-                    android:text="Tue"/>
+                    tools:ignore="HardcodedText" />
+
                 <CheckBox
                     android:id="@+id/wednesday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:ignore="HardcodedText"
-                    android:layout_margin="5dp"
-                    android:padding="5dp"
-                    android:textSize="13sp"
-                    android:text="Wed"/>
+                    android:padding="1dp"
+                    android:text="Wed"
+                    android:textSize="11sp"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
+
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal">
+                android:gravity="center_horizontal">
+
                 <CheckBox
                     android:id="@+id/thursday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:ignore="HardcodedText"
-                    android:textSize="13sp"
-                    android:padding="5dp"
-                    android:layout_margin="5dp"
-                    android:text="Thur"/>
+                    android:padding="1dp"
+                    android:text="Thur"
+                    android:textSize="11sp"
+                    tools:ignore="HardcodedText" />
+
                 <CheckBox
                     android:id="@+id/friday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:layout_margin="5dp"
-                    android:padding="5dp"
+                    android:padding="1dp"
                     android:text="Fri"
+                    android:textSize="11sp"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
         </LinearLayout>
 
+
         <LinearLayout
             android:id="@+id/dateLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/daysLayout"
-            android:layout_marginTop="10dp"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="15dp"
-            android:orientation="vertical">
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/daysLayout">
+
             <TextView
                 android:id="@+id/pickDateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Pick Date"
                 android:textSize="20sp"
-                />
+                android:textStyle="bold" />
+
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/startDateLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="30dp"
-                    android:layout_marginBottom="5dp"
-                    android:gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
                     android:hint="Start Date"
                     app:errorEnabled="false"
-                    app:errorIconDrawable="@drawable/baseline_error_24"
-                    app:errorTextAppearance="@style/error_text"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
-                    <EditText
+
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/startDateEdtText"
-                        android:layout_width="160dp"
-                        android:layout_height="66dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false"
                         android:background="@drawable/edit_text_style"
-                        android:editable="false"
+                        android:gravity="center"
                         android:text="1 / 1 / 2024"
-                        android:textAlignment="center"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/endDateLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginBottom="5dp"
-                    android:gravity="center"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
                     android:hint="End Date"
-                    android:layout_marginEnd="5dp"
                     app:errorEnabled="false"
-                    app:errorIconDrawable="@drawable/baseline_error_24"
-                    app:errorTextAppearance="@style/error_text"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
-                    <EditText
-                        android:id="@+id/endDateEdtText"
-                        android:layout_width="160dp"
-                        android:layout_height="66dp"
-                        android:background="@drawable/edit_text_style"
-                        android:editable="false"
-                        android:text="1 / 1 / 2024"
-                        android:textAlignment="center"
-                        android:textSize="20sp" />
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/endDateEdtText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:gravity="center"
+                        android:background="@drawable/edit_text_style"
+                        android:text="1 / 1 / 2024"
+                        android:textSize="18sp" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/timeLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/dateLayout"
-            android:layout_marginTop="10dp"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="15dp"
-            android:orientation="vertical">
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="10dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dateLayout">
+
             <TextView
                 android:id="@+id/pickTimeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Pick Time"
-                android:textSize="20sp"
-                />
+                android:textSize="20sp" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal">
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/startTimeLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="15dp"
                     android:layout_marginBottom="5dp"
                     android:gravity="center"
                     android:hint="Start Time"
@@ -292,10 +313,11 @@
                     app:errorIconDrawable="@drawable/baseline_error_24"
                     app:errorTextAppearance="@style/error_text"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
-                    <EditText
+
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/startTimeEdtText"
-                        android:layout_width="160dp"
-                        android:layout_height="66dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/edit_text_style"
                         android:editable="false"
                         android:text="12 : 00 PM"
@@ -306,21 +328,23 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/endTimeLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="15dp"
                     android:layout_marginBottom="5dp"
                     android:gravity="center"
                     android:hint="End Time"
-                    android:layout_marginEnd="5dp"
                     app:errorEnabled="false"
                     app:errorIconDrawable="@drawable/baseline_error_24"
                     app:errorTextAppearance="@style/error_text"
                     app:hintTextAppearance="@style/CustomHintTextAppearance">
-                    <EditText
+
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/endTimeEdtText"
-                        android:layout_width="160dp"
-                        android:layout_height="66dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/edit_text_style"
                         android:editable="false"
                         android:text="12 : 00 PM"
@@ -331,17 +355,17 @@
             </LinearLayout>
         </LinearLayout>
 
-
         <LinearLayout
             android:id="@+id/parentCoursesLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/timeLayout"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="5dp"
-            android:padding="5dp">
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/timeLayout">
 
             <TextView
                 android:id="@+id/coursesToTeach"
@@ -357,166 +381,173 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="27dp" />
+                android:layout_marginStart="12dp" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/addCourseMatchingTeacherBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="60dp"
-                android:text="@string/add_course_text"
-                android:textAllCaps="false"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="7dp"
                 android:background="@drawable/rounded_corners"
                 android:backgroundTint="@color/gray"
-                android:layout_marginStart="7dp"
-                />
+                android:text="@string/add_course_text"
+                android:textAllCaps="false" />
         </LinearLayout>
-
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/flexboxLayoutMatchTeacher"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/parentCoursesLayout"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginTop="4dp"
             android:padding="8dp"
             app:alignContent="flex_start"
-            app:flexWrap="wrap" />
+            app:flexWrap="wrap"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/parentCoursesLayout" />
 
         <LinearLayout
             android:id="@+id/locationLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/flexboxLayoutMatchTeacher"
-            android:layout_marginStart="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="5dp">
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.022"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/flexboxLayoutMatchTeacher">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/location_text"
-                android:textSize="18sp"
                 android:layout_gravity="center_vertical"
-                />
+                android:text="@string/location_text"
+                android:textSize="18sp" />
+
             <Spinner
                 android:id="@+id/locationSpinner"
-                android:layout_height="wrap_content"
                 android:layout_width="220dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
-                android:spinnerMode="dropdown"
                 android:entries="@array/locationArray"
-                />
+                android:spinnerMode="dropdown" />
         </LinearLayout>
-
 
         <LinearLayout
             android:id="@+id/onlineFaceToFaceLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/locationLayout"
-            android:layout_marginStart="20dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="20dp">
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/locationLayout">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Teaching Method"
-                android:textSize="18sp"
                 android:layout_gravity="center_vertical"
-                />
+                android:text="Teaching Method"
+                android:textSize="18sp" />
+
             <Spinner
                 android:id="@+id/teachingMethod"
-                android:layout_height="wrap_content"
                 android:layout_width="220dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
-                android:spinnerMode="dropdown"
                 android:entries="@array/teachingMethods"
-                />
+                android:spinnerMode="dropdown" />
         </LinearLayout>
-
 
         <LinearLayout
             android:id="@+id/priceLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/onlineFaceToFaceLayout"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp">
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/onlineFaceToFaceLayout">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="Price Range"
-                android:textSize="18sp"
-                />
+                android:textSize="18sp" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/priceFromEditTextLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="10dp"
                 android:hint="From "
                 app:hintTextAppearance="@style/CustomHintTextAppearance"
                 app:startIconDrawable="@drawable/price_icon">
 
                 <EditText
                     android:id="@+id/priceFromEditText"
-                    android:layout_width="110dp"
+                    android:layout_width="100dp"
                     android:layout_height="56dp"
-                    android:maxLength="3"
                     android:background="@drawable/edit_text_style"
                     android:inputType="numberDecimal"
+                    android:maxLength="3"
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ـ"
-                android:layout_marginStart="15dp"
                 android:layout_gravity="center"
-                android:textSize="28sp"/>
+                android:layout_marginStart="15dp"
+                android:text="ـ"
+                android:textSize="28sp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/priceToEditTextLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="15dp"
                 android:hint="To "
                 app:hintTextAppearance="@style/CustomHintTextAppearance"
                 app:startIconDrawable="@drawable/price_icon">
 
                 <EditText
                     android:id="@+id/priceToEditText"
-                    android:layout_width="110dp"
+                    android:layout_width="100dp"
                     android:layout_height="56dp"
-                    android:maxLength="3"
                     android:background="@drawable/edit_text_style"
                     android:inputType="numberDecimal"
+                    android:maxLength="3"
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
-
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/confirmTeachersInformation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/priceLayout"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="25dp"
             android:background="@drawable/rounded_corners"
             android:backgroundTint="@color/usedColor"
-            android:layout_marginBottom="20dp"
             android:text="@string/post_btn_text"
             android:textAllCaps="false"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/priceLayout" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

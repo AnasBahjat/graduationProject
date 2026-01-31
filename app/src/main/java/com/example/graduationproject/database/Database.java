@@ -189,16 +189,21 @@ public class Database {
             public void onResponse(String response) {
                 switch (response) {
                     case "email does not exist":
+                        Log.e("No Email ---->", "No Email ---->");
                         requestFlagSetResult.onLoginSuccess("email does not exist", null);
                         break;
                     case "wrong password":
+                        Log.e("Wrong Password  ---->", "Wrong Password ---->");
                         requestFlagSetResult.onLoginSuccess("wrong password", null);
                         break;
                     case "ERROR":
+                        Log.e("Error ---->", "Error ---->");
                         requestFlagSetResult.onLoginSuccess("ERROR", null);
                         break;
                     default:
                         try {
+                            Log.e("Correct Login ---->", "Correct Login---->");
+
                             requestFlagSetResult.onLoginSuccess("success", new JSONArray(response));
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
@@ -271,6 +276,7 @@ public class Database {
 
 
     public void registerNewProfile(Profile profile, final RequestResult requestFlagSetResult){
+
         StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.registrationURL, s -> {
             if(s.equals("True")){
                 requestFlagSetResult.onSuccess(1);

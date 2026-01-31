@@ -1,6 +1,8 @@
 plugins {
-    alias(libs.plugins.androidApplication)
-    id 'com.google.gms.google-services'
+    alias(libs.plugins.androidApplication) // only this one for android application
+    alias(libs.plugins.googleGmsGoogleServices) // for google-services plugin
+    // id 'com.android.application' // remove this
+    // id 'com.google.gms.google-services' // remove this
 }
 
 android {
@@ -13,7 +15,6 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -23,6 +24,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -31,45 +33,38 @@ android {
     viewBinding {
         enabled = true
     }
-
 }
 
 dependencies {
-
     implementation libs.appcompat
-    implementation (libs.material)
+    implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.firebase.messaging
     implementation libs.firebase.auth
     implementation libs.firebase.database
     implementation libs.firebase.storage
+    implementation libs.firebase.inappmessaging.display
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
     implementation(platform(libs.firebase.bom))
     implementation libs.volley
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation ("com.google.code.gson:gson:2.10.1")
-    implementation (libs.ccp)
-    implementation ("com.google.android.flexbox:flexbox:3.0.0")
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    implementation "com.google.code.gson:gson:2.10.1"
+    implementation libs.ccp
+    implementation "com.google.android.flexbox:flexbox:3.0.0"
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
-    def work_version = "2.9.0"
-
-    // (Java only)
-    implementation "androidx.work:work-runtime:$work_version"
+    implementation "androidx.work:work-runtime:2.9.0"
+    implementation "com.google.guava:guava:31.1-android"
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.github.bumptech.glide:glide:4.15.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
     implementation 'com.google.firebase:firebase-database:20.0.5'
-    // Firebase Auth (if you are using it for authentication)
     implementation 'com.google.firebase:firebase-auth:21.0.6'
-    apply plugin: 'com.android.application'
-    apply plugin: 'com.google.gms.google-services'
-
-
+    implementation platform('com.google.firebase:firebase-bom:34.8.0')
 }

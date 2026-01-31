@@ -3,7 +3,6 @@ package com.example.graduationproject.utils;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -13,7 +12,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.graduationproject.database.Database;
 import com.example.graduationproject.listeners.NotificationsListListener;
 
 import org.json.JSONArray;
@@ -26,8 +24,8 @@ import java.util.Map;
 public class FetchNotificationsPeriodically extends Worker {
 
     private static WeakReference<NotificationsListListener> callback ;
-    private Context context;
-    private String email ;
+    private final Context context;
+    private final String email ;
 
     public static void setCallback(NotificationsListListener notificationsListListener){
         callback = new WeakReference<>(notificationsListListener);

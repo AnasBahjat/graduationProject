@@ -9,11 +9,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -72,12 +76,15 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -168,25 +175,26 @@ public class ParentActivity extends AppCompatActivity implements
     }
 
     private void initFirebase(){
-        Toast.makeText(this, "111111111111", Toast.LENGTH_SHORT).show();
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        chatViewModel.fetchUnreadMessages(currentUserId);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null){
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            chatViewModel.fetchUnreadMessages(currentUserId);
 
-
-
-        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
-            if (unreadCount > 0) {
-                parentBinding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
-                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
-            } else {
-                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
-            }
-        });
-
+            chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+                if (unreadCount > 0) {
+                    parentBinding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                    parentBinding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
+                } else {
+                    parentBinding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
+                }
+            });
+        }
+        else {
+            Log.e("AuthError", "User is not logged in");
+        }
 
         if(doneInformation.equalsIgnoreCase("1")){
-            Toast.makeText(this, "01221312321312", Toast.LENGTH_SHORT).show();
             parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -239,8 +247,28 @@ public class ParentActivity extends AppCompatActivity implements
                     ((ViewGroup) popupView.getParent()).removeView(popupView);
                 }
 
-                notificationPopupWindow = new PopupWindow(popupView,950,1500,true);
-                notificationPopupWindow.showAsDropDown(parentBinding.notificationImage,-810,0);
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+                int width = (int) (displayMetrics.widthPixels * 0.95);
+                int height = (int) (displayMetrics.heightPixels * 0.6);
+
+                notificationPopupWindow = new PopupWindow(popupView, width, height, true);
+                notificationPopupWindow.setClippingEnabled(true);
+                notificationPopupWindow.setOutsideTouchable(true);
+                notificationPopupWindow.setFocusable(true);
+                View anchor = parentBinding.notificationImage;
+                int yOffset = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        8,
+                        getResources().getDisplayMetrics()
+                );
+
+                notificationPopupWindow.showAsDropDown(
+                        anchor,
+                        -(width / 2) + (anchor.getWidth() / 2),
+                        yOffset
+                );
                 notificationPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
                     if(doneInformation.equals("1"))
                         database.getNotifications(email,ParentActivity.this);
@@ -1055,6 +1083,7 @@ public class ParentActivity extends AppCompatActivity implements
 
     private void showNewChildrenDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(ParentActivity.this);
+
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.add_new_child_dialog, null);
         builder.setView(dialogView);
@@ -1066,20 +1095,27 @@ public class ParentActivity extends AppCompatActivity implements
         ImageView closeDialog = dialogView.findViewById(R.id.closeImage);
         addNewChildButton = dialogView.findViewById(R.id.addChildBtn);
         childNameText = dialogView.findViewById(R.id.childNameText);
-        ageText=dialogView.findViewById(R.id.ageText);
+        ageText = dialogView.findViewById(R.id.ageText);
 
         newChildDialog = builder.create();
-        newChildDialog.show();
         newChildDialog.setCancelable(false);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(newChildDialog.getWindow().getAttributes());
-        layoutParams.width = 1300;
-        layoutParams.height = 2000;
-        newChildDialog.getWindow().setAttributes(layoutParams);
-        newChildDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        if(newChildDialog.getWindow() != null)
-            newChildDialog.getWindow().setLayout(1300,2000);
 
+        newChildDialog.show();
+
+        Window window = newChildDialog.getWindow();
+        if (window != null) {
+
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.CENTER;
+            window.setAttributes(params);
+
+            window.setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
 
         onTextChangedIdText(childNameEditText,childNameText);
         onTextChangedIdText(childAgeEditText,ageText);
@@ -1087,9 +1123,6 @@ public class ParentActivity extends AppCompatActivity implements
         closeDialog.setOnClickListener(asd->{
             newChildDialog.dismiss();
         });
-
-
-
 
         addNewChildButton.setOnClickListener(x->{
             addNewChildButtonClicked();
@@ -1144,20 +1177,17 @@ public class ParentActivity extends AppCompatActivity implements
 
         if(!childAge.isEmpty() && !childName.isEmpty()){
             Children child = new Children(childName,childAge,newChildGender,Integer.parseInt(childGrade));
+            childNameText.setError(null);
+            ageText.setError(null);
             database.addNewChild(email,child,this);
         }
     }
 
     private void setSideNavigationData(){
 
-        View headerView = parentBinding.navigationView.getHeaderView(0);
-        TextView name = headerView.findViewById(R.id.sideNavName);
-        TextView emailTextView = headerView.findViewById(R.id.sideNavEmail);
         firstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
         lastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
 
-        name.setText(firstName+" "+lastName);
-        emailTextView.setText(email);
     }
 
 

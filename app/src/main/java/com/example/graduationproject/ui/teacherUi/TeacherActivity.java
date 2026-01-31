@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -241,17 +242,19 @@ public class TeacherActivity extends AppCompatActivity implements
     private void initFirebase(){
         mAuth = FirebaseAuth.getInstance();
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        chatViewModel.fetchUnreadMessages(currentUserId);
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            chatViewModel.fetchUnreadMessages(currentUserId);
+            chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+                if (unreadCount > 0) {
+                    binding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                    binding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
+                } else {
+                    binding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
+                }
+            });
+        }
 
-        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
-            if (unreadCount > 0) {
-                binding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
-                binding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
-            } else {
-                binding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
-            }
-        });
         binding.messageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -457,13 +460,8 @@ public class TeacherActivity extends AppCompatActivity implements
     private void setSideNavigationData(){
 
         View headerView = binding.navigationView.getHeaderView(0);
-        TextView name = headerView.findViewById(R.id.sideNavName);
-        TextView emailTextView = headerView.findViewById(R.id.sideNavEmail);
 
         SideNavigationHeaderBinding sideNavigationHeaderBinding = SideNavigationHeaderBinding.inflate(getLayoutInflater());
-
-        name.setText(firstName+" "+lastName);
-        emailTextView.setText(email);
     }
 
     @Override
@@ -850,19 +848,30 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     private void showTeacherLookForJobDialog(){
-        teacherLookForJobLayoutBinding = TeacherLookForJobLayoutBinding.inflate(getLayoutInflater());
+        teacherLookForJobLayoutBinding =
+                TeacherLookForJobLayoutBinding.inflate(getLayoutInflater());
+
         teacherLooksForJobDialog = new Dialog(this);
-        teacherLooksForJobDialog.setContentView(teacherLookForJobLayoutBinding.getRoot());
+        teacherLooksForJobDialog.setContentView(
+                teacherLookForJobLayoutBinding.getRoot()
+        );
         teacherLooksForJobDialog.setCancelable(false);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(Objects.requireNonNull(teacherLooksForJobDialog.getWindow()).getAttributes());
-        layoutParams.width = 1300;
-        layoutParams.height = 2000;
-        teacherLooksForJobDialog.getWindow().setAttributes(layoutParams);
-        teacherLooksForJobDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        if(teacherLooksForJobDialog.getWindow() != null)
-            teacherLooksForJobDialog.getWindow().setLayout(1300,2000);
+
         teacherLooksForJobDialog.show();
+
+        Window window = teacherLooksForJobDialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams params = window.getAttributes();
+
+            params.width  = WindowManager.LayoutParams.MATCH_PARENT;
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT; // or MATCH_PARENT if needed
+            params.gravity = Gravity.CENTER;
+
+            window.setAttributes(params);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+
 
         teacherLookForJobLayoutBinding.closeTheDialog.setOnClickListener(z->{
             teacherLooksForJobDialog.dismiss();

@@ -28,6 +28,7 @@ import com.example.graduationproject.interfaces.RequestResult;
 import com.example.graduationproject.ui.teacherUi.TeacherActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,7 +37,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.ktx.Firebase;
+import com.google.firebase.Firebase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,7 +84,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         database=new Database(this);
         sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
         checkIfDataSaved();
-
     }
 
     private void checkIfDataSaved(){
@@ -115,9 +115,11 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
         }
 
         if(binding.emailText.getEditText().getText().toString().isEmpty()){
+            binding.loginProgressBar.setVisibility(View.GONE);
             binding.emailText.setError("* Fill in this field");
         }
         if(binding.passwordText.getEditText().getText().toString().isEmpty()){
+            binding.loginProgressBar.setVisibility(View.GONE);
             binding.passwordText.setError("* Fill in this field");
         }
 
@@ -219,57 +221,53 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
                         binding.loginProgressBar.setVisibility(View.VISIBLE);
 
-
-                        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressDialog.dismiss();
-                                if (task.isSuccessful()) {
-                                    FirebaseUser user = auth.getCurrentUser();
-                                    if (user != null) {
-                                        String userId = user.getUid();
-                                        databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
-                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                if (snapshot.exists()) {
-                                                    String userName = snapshot.child("name").getValue(String.class);
-                                                    // Intent intent = new Intent(login.this, MainActivity.class);
-
-
-                                                    //  startActivity(intent);
-                                                    finish();
-                                                } else {
-                                                    //   Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                                //  Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-
-
-
-
-
-
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 binding.loginProgressBar.setVisibility(View.GONE);
                                 startActivity(intent);
-                                Log.d("login ----> "+auth.getCurrentUser().getUid(),"login ----> "+auth.getCurrentUser().getUid());
                             }
                         },1500);
+                        try{
+                            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    progressDialog.dismiss();
+                                    if (task.isSuccessful()) {
+                                        FirebaseUser user = auth.getCurrentUser();
+                                        if (user != null) {
+                                            String userId = user.getUid();
+                                            databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
+                                            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                    if (snapshot.exists()) {
+                                                        String userName = snapshot.child("name").getValue(String.class);
+                                                        // Intent intent = new Intent(login.this, MainActivity.class);
+                                                        //  startActivity(intent);
+                                                        finish();
+                                                    } else {
+                                                        //   Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
+                                                    //  Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                        }
+                        catch (Exception exc){
+                            Toast.makeText(LoginActivity.this, "Wrong with firebase ...", Toast.LENGTH_SHORT).show();
+                            Log.d("Error -----> "+exc.getMessage(), "Error -----> "+exc.getMessage());
+                        }
+
                     }
                     else {
                         Intent intent = new Intent(LoginActivity.this, ParentActivity.class);
@@ -288,49 +286,47 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
                         binding.loginProgressBar.setVisibility(View.VISIBLE);
 
+                        try{
+                            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    progressDialog.dismiss();
+                                    if (task.isSuccessful()) {
+                                        FirebaseUser user = auth.getCurrentUser();
+                                        if (user != null) {
+                                            String userId = user.getUid();
+                                            databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
+                                            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                    if (snapshot.exists()) {
+                                                        String userName = snapshot.child("name").getValue(String.class);
+                                                        // Intent intent = new Intent(login.this, MainActivity.class);
 
 
-
-                        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressDialog.dismiss();
-                                if (task.isSuccessful()) {
-                                    FirebaseUser user = auth.getCurrentUser();
-                                    if (user != null) {
-                                        String userId = user.getUid();
-                                        databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(userId);
-                                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                if (snapshot.exists()) {
-                                                    String userName = snapshot.child("name").getValue(String.class);
-                                                    // Intent intent = new Intent(login.this, MainActivity.class);
-
-
-                                                    //  startActivity(intent);
-                                                    finish();
-                                                } else {
-                                                    //   Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
+                                                        //  startActivity(intent);
+                                                        finish();
+                                                    } else {
+                                                        //   Toast.makeText(login.this, "User data not found", Toast.LENGTH_SHORT).show();
+                                                    }
                                                 }
-                                            }
 
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                                //  Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
+                                                    //  Toast.makeText(login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     }
-                                } else {
-                                    //  Toast.makeText(login.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
-                            }
-                        });
-
-
-
-
-
+                            });
+                        }
+                        catch (Exception exception){
+                            Toast.makeText(LoginActivity.this, "Wrong with firebase ...", Toast.LENGTH_SHORT).show();
+                            Log.d("Error -----> "+exception.getMessage(), "Error -----> "+exception.getMessage());
+                        }
 
 
                         new Handler().postDelayed(new Runnable() {

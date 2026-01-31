@@ -116,6 +116,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1329,29 +1331,32 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private boolean checkStartAndEndDate(int duration) {
         try {
-            return areDatesValid(updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.getText().toString(), updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.getText().toString(), duration);
-        } catch (ParseException e) {
+            return areDatesValid(
+                    updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.getText().toString(),
+                    updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.getText().toString(),
+                    duration
+            );
+        } catch (DateTimeParseException e) {
             return false;
         }
     }
 
 
-    public boolean areDatesValid(String startDateStr, String endDateStr, int duration) throws ParseException {
+    public boolean areDatesValid(String startDateStr, String endDateStr, int duration) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
         LocalDate startDate = LocalDate.parse(startDateStr, formatter);
-        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
-
-        LocalDate currentDate = LocalDate.now();
-
-        if (startDate.isAfter(currentDate) && endDate.isAfter(currentDate)) {
-            if (startDate.isBefore(endDate)) {
-                int monthsDifference = Period.between(startDate, endDate).getMonths() + (Period.between(startDate, endDate).getYears() * 12);
-                return monthsDifference == duration;
-            }
+        LocalDate endDate   = LocalDate.parse(endDateStr, formatter);
+        LocalDate today     = LocalDate.now();
+        if (startDate.isBefore(today) || endDate.isBefore(today)) {
+            return false;
         }
-        return false;
+        if (!endDate.isAfter(startDate)) {
+            return false;
+        }
+        long monthsDifference = ChronoUnit.MONTHS.between(startDate, endDate);
+        return monthsDifference == duration;
     }
+
 
     private boolean checkStartAndEndTime() throws ParseException {
         Date startDate = timeFormat.parse(startTime);

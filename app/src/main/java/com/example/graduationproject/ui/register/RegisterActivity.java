@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -328,11 +329,10 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             profileSelected = 0 ;
         }
 
-
         return (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
                 && !passwordStr.isEmpty() && !confPasswordStr.isEmpty()
                  && passwordStr.equals(confPasswordStr) && isEmailValid() &&
-                passwordStr.trim().length() > 10 && containsTwoCases() && gender && profileType && containsOnlyCharacters(firstnameStr) && containsOnlyCharacters(lastnameStr)
+                passwordStr.trim().length() >= 10 && containsTwoCases() && gender && profileType && containsOnlyCharacters(firstnameStr) && containsOnlyCharacters(lastnameStr)
         && validBirthDateFlag != 0 && !checkContainSpace(firstnameStr.trim()) && !checkContainSpace(lastnameStr.trim())) ;
     }
     public boolean isEmailValid() {
@@ -374,21 +374,11 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             }
         }
         return uppercaseFlag && lowercaseFlag;
-
-
-
-
-
-
-
     }
 
     @Override
     public void onSuccess(int result) {
         if(result == 1){
-
-
-
             auth.createUserWithEmailAndPassword(emailStr.trim(),passwordStr).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -427,6 +417,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                             });
 
                         }else {
+                            Log.e("Reginstartion Error---------------> ", "Reginstartion Error ---------------> Done");
                             String status = "Hey I'm Using This Application";
                             imageuri = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
                             Users users = new Users(id,firstnameStr.toLowerCase() + " " + lastnameStr.trim() ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
