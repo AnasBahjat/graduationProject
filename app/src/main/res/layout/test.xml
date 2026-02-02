@@ -1,210 +1,402 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawerLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:openDrawer="start"
-    tools:context=".ui.teacherUi.TeacherActivity">
+    android:background="@drawable/custom_dialog_rounded_corners">
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
+        <ImageView
+            android:id="@+id/closeImage"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/close_icon_2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/tempView1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:background="#58C3D1">
-
-                    <ImageView
-                        android:id="@+id/openSideNavigation"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginStart="10dp"
-                        android:contentDescription="@string/navigate"
-                        android:foreground="@drawable/menu_icon"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/notificationLayout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="10dp"
-                        android:clickable="true"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:id="@+id/notificationImage"
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
-                            android:contentDescription="@string/notifications_disc"
-                            android:onClick="notificationImageClicked"
-                            android:src="@drawable/notification_icon"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/numOfNotifications"
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true"
-                            android:background="@drawable/custom_text_view_for_notification"
-                            android:textAlignment="center"
-                            android:textColor="@color/white"
-                            android:textSize="13sp"
-                            android:visibility="gone"
-                            app:layout_constraintEnd_toEndOf="@+id/notificationImage"
-                            app:layout_constraintTop_toTopOf="@+id/notificationImage" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/messageIcon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginEnd="10dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/notificationLayout"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:id="@+id/imageView6"
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
-                            android:src="@drawable/parent_received_requests"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/numOfMessagesReceivedToParent"
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_alignParentTop="true"
-                            android:background="@drawable/custom_text_view_for_notification"
-                            android:textAlignment="center"
-                            android:textColor="@color/white"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            app:layout_constraintEnd_toEndOf="@+id/imageView6"
-                            app:layout_constraintTop_toTopOf="@+id/imageView6" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/fragments_container"
-                    android:name="com.example.graduationproject.ui.teacherUi.TeacherFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="68dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="1.0"
-                    />
-            </LinearLayout>
-
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/bottomNavigationView"
-                android:layout_width="match_parent"
-                android:layout_height="62dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                app:itemIconTint="@color/navBar"
-                android:layout_alignParentBottom="true"
-                android:layout_marginStart="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginBottom="2dp"
-                app:itemIconSize="27dp"
-                android:layout_gravity="bottom"
-                app:menu="@menu/bottom_nav_menu_employer_fragment" />
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-        <TextView
-            android:id="@+id/accountIsNotConfirmText"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Please Confirm Your Account Information\nCheck notifications."
-            android:gravity="center_vertical|center_horizontal"
-            android:textSize="25sp"
-            android:layout_gravity="center"
-            android:textColor="#989898"
-            android:textAlignment="center"
-            android:visibility="gone"
-            />
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/closeImage">
 
-        <RelativeLayout
-            android:id="@+id/progressBarLayout"
-            android:background="@drawable/rounded_corners"
-            android:backgroundTint="@color/gray"
-            android:layout_width="300dp"
-            android:layout_height="150dp"
-            android:layout_gravity="center"
-            android:visibility="gone">
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:indeterminateTint="#4EB2BF"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="15dp" />
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fetching Data"
-                android:textSize="24sp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="5dp"
-                android:layout_below="@id/progressBar" />
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:text="Request Details"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
 
-        </RelativeLayout>
 
-    </FrameLayout>
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
 
-    <View
-        android:id="@+id/overlayView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/teacherImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/tempView1"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/teacher_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tempView1" />
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigationView"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:visibility="gone"
-        app:headerLayout="@layout/side_navigation_header"
-        app:menu="@menu/side_nav_bar_menu_teacher" />
-</androidx.drawerlayout.widget.DrawerLayout>
+        <TextView
+            android:id="@+id/teacherTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tempView1"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/teacherImageView"
+            android:text="Teacher Name : "
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/teacherImageView"
+            app:layout_constraintTop_toBottomOf="@+id/tempView1" />
+
+        <TextView
+            android:id="@+id/teacherNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tempView1"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@id/teacherTextViewTemp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/teacherTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/tempView1" />
+
+        <ImageView
+            android:id="@+id/coursesImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/teacherNameTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/courses_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/teacherNameTextView" />
+
+        <TextView
+            android:id="@+id/coursesTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacherNameTextView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/coursesImageView"
+            android:text="Courses : "
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/coursesImageView"
+            app:layout_constraintTop_toBottomOf="@+id/teacherNameTextView" />
+
+        <TextView
+            android:id="@+id/coursesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teacherNameTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@id/coursesTextViewTemp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/coursesTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/teacherNameTextView" />
+
+        <ImageView
+            android:id="@+id/locationMethodImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/coursesTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/location_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
+
+        <TextView
+            android:id="@+id/locationTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coursesTextView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/locationMethodImageView"
+            android:text="Location : "
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/locationMethodImageView"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coursesTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@id/locationTextViewTemp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/locationTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
+
+        <ImageView
+            android:id="@+id/dateImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/locationTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/calendar_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
+
+        <TextView
+            android:id="@+id/dateTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/locationTextView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/dateImageView"
+            android:text="Date Period :"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/dateImageView"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/locationTextView"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@id/dateTextViewTemp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/dateTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
+
+        <ImageView
+            android:id="@+id/priceImageView"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/dateTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/price_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
+
+        <TextView
+            android:id="@+id/priceViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/dateTextView"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/priceImageView"
+            android:text="Price Per Hour :"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/priceImageView"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
+
+        <TextView
+            android:id="@+id/priceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/dateTextView"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@id/priceViewTemp"
+            android:textColor="#1A8E9E"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/priceViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
+
+        <LinearLayout
+            android:id="@+id/tempView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/priceTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/priceTextView">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:text="Children Details"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/chooseChildLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="15dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tempView2">
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_child_text"
+
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="@+id/childrenSpinner"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/childrenSpinner" />
+
+            <Spinner
+                android:id="@+id/childrenSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginStart="5dp"
+                android:spinnerMode="dropdown"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView5"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/addChildBtn"
+                android:layout_width="90dp"
+                android:layout_height="50dp"
+                android:background="@drawable/rounded_corners"
+                android:backgroundTint="@color/unreadColor"
+                android:text="Add Child"
+                android:textAllCaps="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/childrenSpinner"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/childrenFlexBoxLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/chooseChildLayout"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="15dp"
+            android:padding="8dp"
+            app:alignContent="flex_start"
+            app:flexWrap="wrap"
+            app:layout_constraintBottom_toTopOf="@+id/confirmRequestToSendToTeacherBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chooseChildLayout" />
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/confirmRequestToSendToTeacherBtn"
+            android:layout_width="160dp"
+            android:layout_height="60dp"
+            android:layout_below="@id/childrenFlexBoxLayout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/usedColor"
+            android:text="Confirm Request"
+            android:textAllCaps="false"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/childrenFlexBoxLayout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

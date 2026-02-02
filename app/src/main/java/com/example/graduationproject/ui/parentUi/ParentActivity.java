@@ -625,17 +625,25 @@ public class ParentActivity extends AppCompatActivity implements
         }
         else if(menuItem.getItemId() == R.id.lookForTeacher){
             if(doneInformation.equalsIgnoreCase("1"))
+            {
+                Toast.makeText(this, "Look For Teacher", Toast.LENGTH_SHORT).show();
                 database.getParentChildren(email,this);
-            else
+            }
+            else{
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first,check notifications");
+            }
         }
         else if(menuItem.getItemId() == R.id.addNewChild){
             if(doneInformation.equalsIgnoreCase("1"))
-                showNewChildrenDialog();
+                {
+                    Toast.makeText(this, "Add New Child", Toast.LENGTH_SHORT).show();
+                    showNewChildrenDialog();
+                }
             else
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
         }
         else if(menuItem.getItemId() == R.id.myReceivedRequests){
+            Log.d("11111------22222222", "11111------22222222");
            /* Intent intentFilter = new Intent();
             intentFilter.setAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
             sendBroadcast(intentFilter);*/
@@ -649,7 +657,9 @@ public class ParentActivity extends AppCompatActivity implements
             sendBroadcast(intentFilter);
         }
         else if(menuItem.getItemId() == R.id.profile){
-            loadFragment(new ParentProfileFragment());
+            Toast.makeText(this, "Look For Teacher", Toast.LENGTH_SHORT).show();
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"!!","Coming Soon !!");
+            // loadFragment(new ParentProfileFragment());
         }
             parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;

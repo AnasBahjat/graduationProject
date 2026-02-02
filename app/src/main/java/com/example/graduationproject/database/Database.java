@@ -713,6 +713,7 @@ public class Database {
     }
 
     public void getParentPostedMatchingInformation(String parentEmail , final ParentListenerForParentPostedRequests parentInformationListener){
+        Log.d("111111111111111111111111111", "1111111111111111111111111111");
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentPostedMatchingInformation,resp->{
             if (resp.equalsIgnoreCase("ERROR")){
@@ -1090,6 +1091,7 @@ public class Database {
                 onTeacherReceivedRequests.onRequestsReceived(0,null);
             else {
                 try {
+                    Log.d("----------------->","Requests Fetched ....");
                     onTeacherReceivedRequests.onRequestsReceived(1,new JSONArray(res));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -1308,20 +1310,25 @@ public class Database {
     public void getParentReceivedRequest(String parentEmail, final OnReceivedRequestsListener onReceivedRequestsListener){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentReceivedRequest,resp->{
-            Log.d("-----> "+resp,"-----> "+resp);
             if(resp.equalsIgnoreCase("No Requests")){
+                Log.d("----------------->1111111111111111","Requests Fetched ....");
+
                 onReceivedRequestsListener.onRequestsReceived(0,null);
             }
             else if(resp.equalsIgnoreCase("Error")){
+                Log.d("----------------->222222222222222222","Requests Fetched ....");
+
                 onReceivedRequestsListener.onRequestsReceived(-1,null);
 
             }
             else if(resp.equalsIgnoreCase("Connection Error")){
-                onReceivedRequestsListener.onRequestsReceived(-2,null);
+                Log.d("----------------->33333333333333333333","Requests Fetched ....");
 
+                onReceivedRequestsListener.onRequestsReceived(-2,null);
             }
             else {
                 try {
+                    Log.d("----------------->444444444444444444","Requests Fetched ....");
                     onReceivedRequestsListener.onRequestsReceived(1,new JSONArray(resp));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);

@@ -26,6 +26,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -226,6 +227,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
             else if("SHOW_RECEIVED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
+                Log.d("-------------------------> 123123123", "-------------------------> 123123123");
                 database.getParentReceivedRequest(email,ParentFragment.this);
             }
 
@@ -773,6 +775,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             try {
+                Log.d("22222222222222222222222", "22222222222222222222222");
                 ArrayList<TeacherMatchModel> tempTeacherMatchModelList = new ArrayList<>();
                 if(!phoneNumbersList.isEmpty())
                     phoneNumbersList.clear();
@@ -1861,7 +1864,16 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             teacherPostedRequestsCardToShowToParentBinding = TeacherPostedRequestsCardToShowToParentBinding.inflate(LayoutInflater.from(getContext()));
             teacherPostedCardDialog.setContentView(teacherPostedRequestsCardToShowToParentBinding.getRoot());
             teacherPostedCardDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            Window window = teacherPostedCardDialog.getWindow();
+            if(window != null){
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                int dialogWidth = (int) (metrics.widthPixels * 0.95);
+                window.setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
+            /*WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(Objects.requireNonNull(teacherPostedCardDialog.getWindow()).getAttributes());
             layoutParams.width = 1300;
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -1869,7 +1881,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             teacherPostedCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             if(teacherPostedCardDialog.getWindow() != null)
                 teacherPostedCardDialog.getWindow().setLayout(1300,ViewGroup.LayoutParams.WRAP_CONTENT);
-            //teacherPostedCardDialog.show();sss
+            //teacherPostedCardDialog.show();sss*/
 
             tempReceivedParentRequestDateTimeModel =
                     new DateTimeModel(teacherPostRequest.getStartDate(),
@@ -1955,7 +1967,19 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             sendRequestToTeacherDialog.setContentView(dialogSendRequestToTeacherLayoutBinding.getRoot());
             sendRequestToTeacherDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            Window window = sendRequestToTeacherDialog.getWindow();
+            if(window != null){
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                int dialogWidth = (int) (metrics.widthPixels * 0.95);
+                window.setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+                window.setGravity(Gravity.CENTER);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
+            sendRequestToTeacherDialog.show();
+
+            /*WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(Objects.requireNonNull(sendRequestToTeacherDialog.getWindow()).getAttributes());
             layoutParams.width = 1300;
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -1963,7 +1987,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             sendRequestToTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             if(sendRequestToTeacherDialog.getWindow() != null)
                 sendRequestToTeacherDialog.getWindow().setLayout(1300,ViewGroup.LayoutParams.WRAP_CONTENT);
-            sendRequestToTeacherDialog.show();
+            sendRequestToTeacherDialog.show();*/
 
             dialogSendRequestToTeacherLayoutBinding.closeImage.setOnClickListener(c->{
                 sendRequestToTeacherDialog.dismiss();
@@ -2707,26 +2731,39 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             parentReceivedRequestsDialogLayoutBinding.refreshRecyclerView.setRefreshing(false);
         }
         else if(flag == -1){
-
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error","Unable to fetch requests, try again later please.");
         }
         else {
-
+            MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error","Unable to fetch requests, try again later please.");
         }
     }
 
     private void showParentReceivedRequestsDialog(int flag){
         if(getContext() != null){
-            parentReceivedRequestDialog = new Dialog(getContext());
-            parentReceivedRequestsDialogLayoutBinding = ParentReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
-            parentReceivedRequestDialog.setContentView(parentReceivedRequestsDialogLayoutBinding.getRoot());
+            parentReceivedRequestDialog = new Dialog(requireContext());
+            parentReceivedRequestsDialogLayoutBinding =
+                    ParentReceivedRequestsDialogLayoutBinding.inflate(
+                            LayoutInflater.from(requireContext())
+                    );
+            parentReceivedRequestDialog.setContentView(
+                    parentReceivedRequestsDialogLayoutBinding.getRoot()
+            );
             parentReceivedRequestDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(parentReceivedRequestDialog.getWindow()).getAttributes());
-            layoutParams.width = 1250;
-            layoutParams.height = 2500;
-            parentReceivedRequestDialog.getWindow().setAttributes(layoutParams);
-            if(parentReceivedRequestDialog.getWindow() != null)
-                parentReceivedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = parentReceivedRequestDialog.getWindow();
+            if (window != null) {
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+
+                WindowManager.LayoutParams params = window.getAttributes();
+                DisplayMetrics metrics = new DisplayMetrics();
+                requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                params.width=(int) (metrics.widthPixels * 0.9);
+                params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                //params.width = WindowManager.LayoutParams.MATCH_PARENT;
+                //params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                params.gravity = Gravity.CENTER;
+                window.setAttributes(params);
+            }
             parentReceivedRequestDialog.show();
 
             parentReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(v->{
