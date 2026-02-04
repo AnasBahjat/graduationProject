@@ -286,6 +286,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -365,7 +366,7 @@ public class ChatWindowActivity extends AppCompatActivity {
         senderRoom = senderUID + reciverUid;
         reciverRoom = reciverUid + senderUID;
 
-        DatabaseReference reference = database.getReference().child("user").child(firebaseAuth.getUid());
+        DatabaseReference reference = database.getReference().child("users").child(firebaseAuth.getUid());
 
         // Call the method to update the read status
         updateReadStatus();
@@ -395,7 +396,13 @@ public class ChatWindowActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                senderImg = snapshot.child("profilepic").getValue().toString();
+
+                if (snapshot.exists() && snapshot.child("profilePic").exists()) {
+                    senderImg = snapshot.child("profilePic").getValue(String.class);
+                } else {
+                    senderImg = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd"; // or default image URL
+                }
+
                 reciverIImg = reciverimg;
             }
 
@@ -403,6 +410,19 @@ public class ChatWindowActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+
+
+        /*reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                senderImg = snapshot.child("profilepic").getValue().toString();
+                reciverIImg = reciverimg;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });*/
 
         sendbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -414,34 +434,36 @@ public class ChatWindowActivity extends AppCompatActivity {
                 }
                 textmsg.setText("");
                 Date date = new Date();
-                msgModelclass messagess = new msgModelclass(message, senderUID, reciverUid, date.getTime(), true);
+                msgModelclass messages = new msgModelclass(message, senderUID, reciverUid, date.getTime(), true);
 
                 database.getReference().child("chats")
                         .child(senderRoom)
                         .child("messages")
                         .push()
-                        .setValue(messagess)
+                        .setValue(messages)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     // Create a new message instance for the receiver with isRead set to false
-                                    msgModelclass messagess1 = new msgModelclass(message, senderUID, reciverUid, date.getTime(), false);
+                                    msgModelclass message1 = new msgModelclass(message, senderUID, reciverUid, date.getTime(), false);
                                     database.getReference().child("chats")
                                             .child(reciverRoom)
                                             .child("messages")
                                             .push()
-                                            .setValue(messagess1)
+                                            .setValue(message1)
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (!task.isSuccessful()) {
+                                                        MyAlertDialog.showCustomAlertDialogSpinnerError(ChatWindowActivity.this, "Message Error", "Failed to send message to receiver ...");
                                                         Toast.makeText(ChatWindowActivity.this, "Failed to send message to receiver", Toast.LENGTH_SHORT).show();
                                                         Log.e("Firebase", "Failed to send message to receiver", task.getException());
                                                     }
                                                 }
                                             });
                                 } else {
+                                    MyAlertDialog.showCustomAlertDialogSpinnerError(ChatWindowActivity.this, "Message Error", "Failed to send message to receiver ...");
                                     Toast.makeText(ChatWindowActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
                                     Log.e("Firebase", "Failed to send message", task.getException());
                                 }

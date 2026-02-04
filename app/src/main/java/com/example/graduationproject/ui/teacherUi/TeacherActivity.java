@@ -206,7 +206,6 @@ public class TeacherActivity extends AppCompatActivity implements
         email=intent.getStringExtra("email");
         firstName=intent.getStringExtra("firstName");
         lastName=intent.getStringExtra("lastName");
-        password=intent.getStringExtra("password");
         birthDate=intent.getStringExtra("birthDate");
         phoneNumber=intent.getStringExtra("phoneNumber");
         city=intent.getStringExtra("city");
@@ -217,7 +216,7 @@ public class TeacherActivity extends AppCompatActivity implements
 
     private void initialize(){
         database=new Database(this);
-        if(Integer.parseInt(doneInformation)==1)
+        if(Integer.parseInt(doneInformation) == 1)
             database.getNotifications(email,this);
         initFirebase();
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
@@ -258,9 +257,13 @@ public class TeacherActivity extends AppCompatActivity implements
         binding.messageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create an Intent to start MainActivity
-                Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
-                startActivity(intent);
+                try{
+                    Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
+                    startActivity(intent);
+                }
+                catch (Exception e){
+                    MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
+                }
             }
         });
     }

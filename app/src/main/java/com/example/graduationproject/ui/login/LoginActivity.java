@@ -198,6 +198,116 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
             binding.loginProgressBar.setVisibility(View.GONE);
         }
         else {
+            binding.loginProgressBar.setVisibility(View.VISIBLE);
+            String email = binding.emailEditText.getText().toString().trim();
+            String password = binding.passwordEditText.getText().toString().trim();
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Email and password are required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            try{
+                JSONObject jsonObject=loginSuccessData.getJSONObject(0);
+                if(jsonObject.getString("profileType").equals("1")){
+                    // Teacher Login
+                    Intent intent=new Intent(this, TeacherActivity.class);
+                    email=jsonObject.getString("email");
+                    String firstName=jsonObject.getString("firstname");
+                    String lastName=jsonObject.getString("lastname");
+                    String birthDate=jsonObject.getString("birthDate");
+                    String profileType = jsonObject.getString("profileType");
+
+                    intent.putExtra("email",email);
+                    intent.putExtra("firstName",firstName);
+                    intent.putExtra("lastName",lastName);
+                    intent.putExtra("birthDate",birthDate);
+                    intent.putExtra("profileType",profileType);
+
+                    intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
+                    binding.loginProgressBar.setVisibility(View.VISIBLE);
+
+                    auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(this, task -> {
+                                binding.loginProgressBar.setVisibility(View.GONE);
+
+                                if(!task.isSuccessful()){
+                                    MyAlertDialog.warningDialog(LoginActivity.this, "Login Error", "Login Error, try again later..");
+                                    return;
+                                }
+
+                                FirebaseUser teacherUser = auth.getCurrentUser();
+                                if(teacherUser == null){
+                                    MyAlertDialog.warningDialog(LoginActivity.this, "Login Error", "Login Error, try again later..");
+                                    return;
+                                }
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        binding.loginProgressBar.setVisibility(View.GONE);
+                                        startActivity(intent);
+                                        //finish();
+                                    }
+                                },1500);
+                            });
+                }
+                else{
+                    // Parent Login
+                    Intent intent = new Intent(LoginActivity.this, ParentActivity.class);
+                    email=jsonObject.getString("email");
+                    String firstName=jsonObject.getString("firstname");
+                    String lastName=jsonObject.getString("lastname");
+                    String birthDate=jsonObject.getString("birthDate");
+                    String profileType = jsonObject.getString("profileType");
+                    intent.putExtra("email",email);
+                    intent.putExtra("firstName",firstName);
+                    intent.putExtra("lastName",lastName);
+                    intent.putExtra("birthDate",birthDate);
+                    intent.putExtra("profileType",profileType);
+                    intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
+                    binding.loginProgressBar.setVisibility(View.VISIBLE);
+
+                    auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(this, task -> {
+                                binding.loginProgressBar.setVisibility(View.GONE);
+
+                                if(!task.isSuccessful()){
+                                    MyAlertDialog.warningDialog(LoginActivity.this, "Login Error", "Login Error, try again later..");
+                                    return;
+                                }
+
+                                FirebaseUser teacherUser = auth.getCurrentUser();
+                                if(teacherUser == null){
+                                    MyAlertDialog.warningDialog(LoginActivity.this, "Login Error", "Login Error, try again later..");
+                                    return;
+                                }
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        binding.loginProgressBar.setVisibility(View.GONE);
+                                        startActivity(intent);
+                                        //finish();
+                                    }
+                                },1500);
+                            });
+                }
+            }
+            catch (Exception e){
+                MyAlertDialog.warningDialog(LoginActivity.this, "Login Error", "Cannot find user credentials, please try again later.");
+            }
+        }
+        /*else {
+            binding.loginProgressBar.setVisibility(View.GONE);
+            String email = binding.emailEditText.getText().toString().trim();
+            String password = binding.passwordEditText.getText().toString().trim();
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Email and password are required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            binding.loginProgressBar.setVisibility(View.VISIBLE);
+
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+
             binding.loginProgressBar.setVisibility(View.GONE);
                 try {
 
@@ -205,17 +315,15 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
 
                     if(jsonObject.getString("profileType").equals("1")){
                         Intent intent=new Intent(this, TeacherActivity.class);
-                        String email=jsonObject.getString("email");
+                        email=jsonObject.getString("email");
                         String firstName=jsonObject.getString("firstname");
                         String lastName=jsonObject.getString("lastname");
-                        String password=jsonObject.getString("password");
                         String birthDate=jsonObject.getString("birthDate");
                         String profileType = jsonObject.getString("profileType");
 
                         intent.putExtra("email",email);
                         intent.putExtra("firstName",firstName);
                         intent.putExtra("lastName",lastName);
-                        intent.putExtra("password",password);
                         intent.putExtra("birthDate",birthDate);
                         intent.putExtra("profileType",profileType);
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
@@ -271,16 +379,15 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                     }
                     else {
                         Intent intent = new Intent(LoginActivity.this, ParentActivity.class);
-                        String email=jsonObject.getString("email");
+                        email=jsonObject.getString("email");
                         String firstName=jsonObject.getString("firstname");
                         String lastName=jsonObject.getString("lastname");
-                        String password=jsonObject.getString("password");
+                        password=jsonObject.getString("password");
                         String birthDate=jsonObject.getString("birthDate");
                         String profileType = jsonObject.getString("profileType");
                         intent.putExtra("email",email);
                         intent.putExtra("firstName",firstName);
                         intent.putExtra("lastName",lastName);
-                        intent.putExtra("password",password);
                         intent.putExtra("birthDate",birthDate);
                         intent.putExtra("profileType",profileType);
                         intent.putExtra("accountDone",jsonObject.getString("doneInformation"));
@@ -341,6 +448,6 @@ public class LoginActivity extends AppCompatActivity implements RequestResult {
                 catch (JSONException e){
                     e.printStackTrace();
                 }
-        }
+        }*/
     }
 }

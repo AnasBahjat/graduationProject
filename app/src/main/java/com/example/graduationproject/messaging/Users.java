@@ -22,6 +22,14 @@ public class Users {
         this.status = status;
         this.profileType = profileType;
     }
+    public Users(String userId, String userName, String email, String profilepic, String status,String profileType) {
+        this.userId = userId;
+        this.userName = userName;
+        this.mail = email;
+        this.profilepic = profilepic;
+        this.status = status;
+        this.profileType = profileType;
+    }
 
 
     public String getProfilepic() {

@@ -2,7 +2,7 @@ package com.example.graduationproject.utils;
 
 
 public class Constants {
-    public static String ip = "192.168.1.21";
+    public static String ip = "192.168.1.19";
     public static String registrationURL = "http://"+ip+"/graduationProject/registration.php/";
     public static String loginURL = "http://"+ip+"/graduationProject/login.php";
     public static String checkAccountDoneURL = "http://"+ip+"/graduationProject/checkAccountDone.php";

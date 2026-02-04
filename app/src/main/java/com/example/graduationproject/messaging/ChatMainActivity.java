@@ -62,13 +62,12 @@ public class ChatMainActivity extends AppCompatActivity {
        // FirebaseUser currentUser1 = auth.getCurrentUser();
 
 
-
-        DatabaseReference reference = database.getReference().child("user");
+        DatabaseReference reference = database.getReference().child("users");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("user").child(currentUserId);
+                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserId);
 
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -127,7 +126,7 @@ public class ChatMainActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
-            DatabaseReference userReference = database.getReference().child("user").child(currentUser.getUid());
+            DatabaseReference userReference = database.getReference().child("users").child(currentUser.getUid());
             userReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -211,7 +210,7 @@ public class ChatMainActivity extends AppCompatActivity {
                 startActivityForResult(intent, 10);
             }
         });
-        DatabaseReference userReference = database.getReference().child("user").child(currentUser.getUid()).child("profileType");
+        DatabaseReference userReference = database.getReference().child("users").child(currentUser.getUid()).child("profileType");
         if (auth.getCurrentUser() == null) {
             super.getClass();
         }

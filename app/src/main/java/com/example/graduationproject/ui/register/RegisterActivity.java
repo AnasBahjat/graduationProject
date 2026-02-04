@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,6 +40,8 @@ import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONArray;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -95,11 +98,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                 }
             });
         }
-
-
-
-
-
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.genderSpinner,R.layout.spinner_custom);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.genderSpinner.setAdapter(adapter);
@@ -302,6 +300,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             dataValidFlag=true ;
         }
         else if(!checkAll()){
+            MyAlertDialog.showCustomAlertDialogLoginError(this, "Register Error", "Please make sure you added correct personal information, check inputs.");
             Toast.makeText(RegisterActivity.this,"ERROR ..",Toast.LENGTH_SHORT).show();
         }
     }
@@ -378,69 +377,181 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
 
     @Override
     public void onSuccess(int result) {
+
         if(result == 1){
-            auth.createUserWithEmailAndPassword(emailStr.trim(),passwordStr).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()){
-                        String id = task.getResult().getUser().getUid();
-                        DatabaseReference reference = database.getReference().child("user").child(id);
-                        StorageReference storageReference = storage.getReference().child("Upload").child(id);
 
-                        if (imageURI!=null){
-                            storageReference.putFile(imageURI).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                    if (task.isSuccessful()){
-                                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                            @Override
-                                            public void onSuccess(Uri uri) {
-                                                imageuri = uri.toString();
-                                                Users users = new Users(id,firstnameStr.toLowerCase().concat(lastnameStr.trim()) ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
-                                                reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()){
-                                                            //   progressDialog.show();
-                                                            //    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                                            //    startActivity(intent);
-                                                            //      finish();
-                                                        }else {
-                                                            //  Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                }
-                            });
+            FirebaseAuth auth = FirebaseAuth.getInstance();
 
-                        }else {
-                            Log.e("Reginstartion Error---------------> ", "Reginstartion Error ---------------> Done");
-                            String status = "Hey I'm Using This Application";
-                            imageuri = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
-                            Users users = new Users(id,firstnameStr.toLowerCase() + " " + lastnameStr.trim() ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
-                            reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-                                        //  progressDialog.show();
-                                        //   Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
-                                        //    startActivity(intent);
-                                        //     finish();
-                                    }else {
-                                        // Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
+            auth.createUserWithEmailAndPassword(emailStr, passwordStr)
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            Log.e("FirebaseAuth", "User creation failed", task.getException());
+                            return;
                         }
-                    }else {
-                        // Toast.makeText(RegisterActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
 
+                        FirebaseUser firebaseUser = auth.getCurrentUser();
+                        if (firebaseUser == null) return;
+
+                        String userId = firebaseUser.getUid();
+                        String userName = firstnameStr + " " + lastnameStr;
+
+                        String defaultProfilePic =
+                                "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
+
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference userRef = database
+                                .getReference("users")
+                                .child(userId);
+
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("userId", userId);
+                        userData.put("mail", emailStr);
+                        userData.put("userName", userName);
+                        userData.put("profileType", profileSelected); // int 0 or 1
+                        userData.put("profilePic", defaultProfilePic);
+                        userData.put("status", "status");
+                        userData.put("unreadMessageCount", 0);
+
+                        userRef.setValue(userData)
+                                .addOnSuccessListener(aVoid ->
+                                        Log.d("Firebase", "User added under users/" + userId))
+                                .addOnFailureListener(e ->
+                                        Log.e("Firebase", "Failed to add user to DB", e));
+                    });
+
+           /* FirebaseAuth auth = FirebaseAuth.getInstance();
+            auth.createUserWithEmailAndPassword(emailStr, passwordStr)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = auth.getCurrentUser();
+                            if (firebaseUser == null) return;
+
+                            String userId = firebaseUser.getUid();
+                            String userName = firstnameStr + " " + lastnameStr;
+
+                            String defaultProfilePic =
+                                    "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
+
+                            // Step 2: Add user to Realtime Database
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            DatabaseReference userRef = database.getReference("users").child(userId);
+
+                            Map<String, Object> userData = new HashMap<>();
+                            userData.put("userId", userId);
+                            userData.put("mail", emailStr);
+                            userData.put("userName", userName);
+                            userData.put("profileType", profileSelected + "");
+                            userData.put("profilePic", defaultProfilePic);
+                            userData.put("status", "status");
+                            userData.put("unreadMessageCount", 0);
+
+                            // Use updateChildren to avoid overwriting existing data
+                            userRef.updateChildren(userData)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("Firebase", "User added successfully to DB");
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("Firebase", "Failed to add user", e);
+                                    });
+
+                        } else {
+                            Log.e("FirebaseAuth", "User creation failed", task.getException());
+                        }
+                    });*/
+
+
+            /*FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (firebaseUser == null) return;
+
+            String userId = firebaseUser.getUid();
+
+            String mail = emailStr;
+            String userName = firstnameStr + " " + lastnameStr;
+
+            String defaultProfilePic =
+                    "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference userRef = database.getReference("users").child(userId);
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("userId", userId);
+            userData.put("mail", mail);
+            userData.put("userName", userName);
+            userData.put("profileType", profileSelected+"");
+            userData.put("profilePic", defaultProfilePic);
+            userData.put("status", "status");
+            userData.put("unreadMessageCount", 0);
+
+            userRef.setValue(userData)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("Firebase", "User added successfully");
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("Firebase", "Failed to add user", e);
+                    });*/
+            /*auth.createUserWithEmailAndPassword(emailStr.trim(), passwordStr)
+                    .addOnCompleteListener(task -> {
+
+                        if (!task.isSuccessful()) {
+                            Log.e("Register", "Auth failed", task.getException());
+                            return;
+                        }
+
+                        String id = task.getResult().getUser().getUid();
+
+                        DatabaseReference reference =
+                                database.getReference().child("users").child(id);
+
+                        StorageReference storageReference =
+                                storage.getReference().child("Upload").child(id);
+
+                        String defaultImage =
+                                "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
+
+                        // ✅ CASE 1: user selected an image
+                        if (imageURI != null) {
+
+                            storageReference.putFile(imageURI)
+                                    .addOnSuccessListener(taskSnapshot ->
+                                            storageReference.getDownloadUrl()
+                                                    .addOnSuccessListener(uri -> {
+
+                                                        Users users = new Users(
+                                                                id,
+                                                                firstnameStr.trim() + " " + lastnameStr.trim(),
+                                                                emailStr.trim(),
+                                                                uri.toString(),
+                                                                "Hi, I'm using this application",
+                                                                profileSelected+""
+                                                        );
+
+                                                        reference.setValue(users);
+                                                    })
+                                    )
+                                    .addOnFailureListener(e ->
+                                            Log.e("Register", "Image upload failed", e)
+                                    );
+
+                        }
+                        // ✅ CASE 2: no image selected → use default
+                        else {
+
+                            Users users = new Users(
+                                    id,
+                                    firstnameStr.trim() + " " + lastnameStr.trim(),
+                                    emailStr.trim(),
+                                    defaultImage,
+                                    "Hi, I'm using this application",
+                                    profileSelected+""
+                            );
+
+                            reference.setValue(users)
+                                    .addOnSuccessListener(unused ->
+                                            Log.d("Register", "User added successfully"))
+                                    .addOnFailureListener(e ->
+                                            Log.e("Register", "DB error", e));
+                        }
+                    });*/
 
             binding.progressBar.setVisibility(ProgressBar.VISIBLE);
             new Handler().postDelayed(new Runnable() {
@@ -452,7 +563,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                 }
             },1500);
 
-            //MyAlertDialog.showCustomAlerDialogForRegistrationDone(this);
+            //MyAlertDialog.showCustomAlerDialogForRegistrationDone(this);*/
         }
         else if(result == -2){
             binding.email.setError("Email already registered ...");

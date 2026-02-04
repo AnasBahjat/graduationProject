@@ -87,6 +87,7 @@ import com.example.graduationproject.listeners.ParentPostRequestDeleteListener;
 import com.example.graduationproject.listeners.ParentRequestToSendListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
+import com.example.graduationproject.messaging.ChatWindowActivity;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Course;
@@ -107,6 +108,12 @@ import com.example.graduationproject.utils.FilterData;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -219,6 +226,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private Map<String, String> dayMapping = new HashMap<>();
     private Dialog courseDialog;
+    private String receiverEmail;
 
     private final BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -1499,6 +1507,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 String birthDate;
                 if(parentInformation.length() == 1){
                     JSONObject jsonObject = parentInformation.getJSONObject(0);
+                    //receiverEmail = jsonObject.getString("email");
                     firstName = jsonObject.getString("firstname").toLowerCase();
                     lastName = jsonObject.getString("lastname").toLowerCase();
                     firstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
@@ -1897,7 +1906,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             teacherPostedRequestsCardToShowToParentBinding.teacherNameTextView.setText(teacherPostRequest.getTeacherData().getTeacherName());
             teacherPostedRequestsCardToShowToParentBinding.teacherEmailTextView.setText(teacherPostRequest.getTeacherEmail());
-
+            receiverEmail = teacherPostedRequestsCardToShowToParentBinding.teacherEmailTextView.getText().toString();
             StringBuilder teacherPhones = new StringBuilder();
             List<String> tempList = teacherPostRequest.getTeacherData().getPhoneNumbersList();
             for(int i=0;i < tempList.size();i++){
@@ -1949,6 +1958,7 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
            // teacherPostRequest.getTeacherEmail();
             teacherPostedRequestsCardToShowToParentBinding.sendMessageToTeacherBtn.setOnClickListener(v->{
+                getUserInfoByEmail(receiverEmail);
                 // teacher email = teacherPostRequest.getTeacherEmail();
                 //naseembar
             });
@@ -1957,6 +1967,54 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 sendRequestToTeacherBtnClicked(teacherPostRequest);
             });*/
         }
+    }
+
+    private void getUserInfoByEmail(String teacherEmailToSendMessage){
+        Log.d("Receiver Email"+ teacherEmailToSendMessage, "Receiver Email"+ teacherEmailToSendMessage);
+        DatabaseReference receiverUser = FirebaseDatabase.getInstance()
+                .getReference("users");
+
+        Query query = receiverUser
+                .orderByChild("mail")
+                .equalTo(teacherEmailToSendMessage);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(!snapshot.exists()){
+                    Log.e("---->", "USER eRROR");
+                    MyAlertDialog.warning(getContext(), "No Parent", "Cannot find teacher for messaging, please try again later");
+                    return;
+                }
+                for(DataSnapshot user: snapshot.getChildren()){
+                    //Users targetUser = user.getValue(Users.class);
+                    String userId = user.getKey();
+                    String userName = user.child("userName").getValue(String.class);
+                    String userImage = user.child("profilePic").getValue(String.class);
+                   /* if(targetUser == null) {
+                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error", "Parent Error..");
+                        return;
+                    }*/
+                    // Start Chatting here
+                    startChatWindowActivity(userId, userName, userImage);
+                    break;
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("---->", "USER eRROR "+error);
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "No User", "Cannot Find Teacher, please call the phone number or try again later");
+                return;
+            }
+        });
+    }
+
+    private void startChatWindowActivity(/*Users user*/String userId, String userName, String profilePic) {
+        Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
+        intent.putExtra("nameeee",userName);
+        intent.putExtra("reciverImg",profilePic);
+        intent.putExtra("uid",userId);
+        startActivity(intent);
     }
 
     private void sendRequestToTeacherBtnClicked(TeacherPostRequest teacherPostRequest){

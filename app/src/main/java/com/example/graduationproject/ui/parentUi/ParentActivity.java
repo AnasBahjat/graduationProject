@@ -70,6 +70,7 @@ import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.ui.teacherUi.TeacherActivity;
 import com.example.graduationproject.utils.FetchNotificationsPeriodically;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -198,8 +199,13 @@ public class ParentActivity extends AppCompatActivity implements
             parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(ParentActivity.this, ChatMainActivity.class);
-                    startActivity(intent);
+                    try {
+                        Intent intent = new Intent(ParentActivity.this, ChatMainActivity.class);
+                        startActivity(intent);
+                    }
+                    catch (Exception e){
+                        MyAlertDialog.showCustomAlertDialogSpinnerError(ParentActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
+                    }
                 }
             });
         }

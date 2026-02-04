@@ -105,6 +105,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
@@ -1696,44 +1697,119 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
 
     private void getUserInfoByEmail(String tempMail) {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("user");
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference receiverUser = FirebaseDatabase.getInstance()
+                .getReference("users");
+
+        Query query = receiverUser
+                .orderByChild("mail")
+                .equalTo(receiverEmail);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Iterate through all the users
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                    String userEmail = userSnapshot.child("mail").getValue(String.class);
-                    Log.d("--------> "+userEmail,"--------> "+userEmail);
-                    Log.d("--------> "+tempMail,"--------> "+tempMail);
-                    if (userEmail != null && userEmail.equalsIgnoreCase(tempMail)) {
-                        // Get user info
-                        Users user = userSnapshot.getValue(Users.class);
-                        Log.d("User ---------> "+user.getUserId(),"User ---------> "+user.getUserId());
-                        Log.d("User ---------> "+user.getUserName(),"User ---------> "+user.getUserName());
-
-                        // Pass the user object to another activity
-
-
-                        // Break the loop as we found the user
-                        startChatWindowActivit(user);
-                        break;
-                    }
-
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(!snapshot.exists()){
+                    MyAlertDialog.warning(getContext(), "No Parent", "Cannot find parent for messaging, please try again later");
+                    return;
+                }
+                for(DataSnapshot user: snapshot.getChildren()){
+                    String userId = user.getKey();
+                    String userName = user.child("userName").getValue(String.class);
+                    String userImage = user.child("profilePic").getValue(String.class);
+                   /* if(targetUser == null) {
+                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error", "Parent Error..");
+                        return;
+                    }*/
+                    // Start Chatting here
+                    startChatWindowActivity(userId, userName, userImage);
+                    break;
                 }
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "No User", "Cannot Find Parent, please call the phone number or try again later");
+                return;
             }
         });
+
+        /*DatabaseReference mDatabase =
+                FirebaseDatabase.getInstance().getReference("users");
+
+        mDatabase.orderByChild("mail")
+                .equalTo(tempMail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (!snapshot.exists()) {
+                            Log.d("USER_SEARCH", "No user found with this email");
+                            MyAlertDialog.showCustomAlertDialogSpinnerError(
+                                    getContext(),
+                                    "Cannot Find Parent",
+                                    "Cannot find the parent for messaging now, please try again later."
+                            );
+                            return;
+                        }
+
+                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            Users user = userSnapshot.getValue(Users.class);
+                            if (user == null) return;
+
+                            Log.d("USER_ID", user.getUserId());
+                            Log.d("USER_NAME", user.getUserName());
+
+                            // Launch chat window with the retrieved user
+                            startChatWindowActivity(user);
+                            break; // stop after first match
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("FIREBASE_ERROR",
+                                "Code: " + error.getCode() +
+                                        " | Message: " + error.getMessage(),
+                                error.toException());
+                    }
+                });*/
+
+        /*DatabaseReference mDatabase =
+                FirebaseDatabase.getInstance().getReference("users");
+
+        mDatabase.orderByChild("email")
+                .equalTo(tempMail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (!snapshot.exists()) {
+                            Log.d("USER_SEARCH", "No user found with this email");
+                            MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(), "Cannot Find Parent", "Cannot find the parent for messaging now, please try again later.");
+                            return;
+                        }
+                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            Users user = userSnapshot.getValue(Users.class);
+                            if (user == null) return;
+                            Log.d("USER_ID", user.getUserId());
+                            Log.d("USER_NAME", user.getUserName());
+                            startChatWindowActivity(user);
+                            break;
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("FIREBASE_ERROR",
+                                "Code: " + error.getCode() +
+                                        " | Message: " + error.getMessage(),
+                                error.toException());
+                    }
+                });*/
     }
 
 
-    private void startChatWindowActivit(Users user) {
+
+    private void startChatWindowActivity(/*Users user*/String userId, String userName, String profilePic) {
         Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
-        intent.putExtra("nameeee",user.getUserName());
-        intent.putExtra("reciverImg",user.getProfilepic());
-        intent.putExtra("uid",user.getUserId());
+        intent.putExtra("nameeee",userName);
+        intent.putExtra("reciverImg",profilePic);
+        intent.putExtra("uid",userId);
         startActivity(intent);
     }
 

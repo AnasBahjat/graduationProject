@@ -279,12 +279,15 @@ public class Database {
 
         StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.registrationURL, s -> {
             if(s.equals("True")){
+                Log.d("------> True","------> True");
                 requestFlagSetResult.onSuccess(1);
             }
             else if (s.equals("exist")){
+                Log.d("------> Exists","------> Exists");
                 requestFlagSetResult.onSuccess(-2);
             }
             else {
+                Log.d("------> Error","------> Error");
                 requestFlagSetResult.onSuccess(0);
             }
         }, volleyError -> {

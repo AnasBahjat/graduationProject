@@ -133,7 +133,7 @@ public class MyAlertDialog {
         imageView.setImageResource(R.drawable.baseline_error_24);
         TextView titleTextView = view.findViewById(R.id.titleTextView);
         TextView errorTextView = view.findViewById(R.id.errorTextView);
-        titleTextView.setText("Error");
+        titleTextView.setText("ErrorRRRR");
         errorTextView.setText("Something Went Wrong , please Try again Later ");
         errorTextView.setTextColor(context.getColor(R.color.red));
         builder.setView(view);
