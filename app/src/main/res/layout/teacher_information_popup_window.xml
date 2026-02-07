@@ -6,12 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="#F2ECF6"
-    android:background="@drawable/rounded_corners"
-    >
-    <RelativeLayout
+    android:background="@drawable/rounded_corners">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/teacherInformationLayoutParent"
-        android:layout_width="wrap_content"
-        android:layout_height="570dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/closeTeacherInformationPopupWindow"
@@ -19,17 +19,22 @@
             android:layout_height="25dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
+            android:contentDescription="@string/close_popup_window_msg"
             android:src="@drawable/close_icon_2"
-            android:contentDescription="@string/close_popup_window_msg" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
+            android:id="@+id/linearLayout4"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="55dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/closeTeacherInformationPopupWindow">
 
             <View
                 android:layout_width="20dp"
@@ -50,7 +55,7 @@
 
 
             <View
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="7dp"
@@ -58,7 +63,6 @@
                 android:layout_marginEnd="15dp"
                 android:background="#7FE1EE" />
         </LinearLayout>
-
 
 
         <com.google.android.material.textfield.TextInputLayout
@@ -69,40 +73,47 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="32dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="120dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
             android:hint="@string/university_id_text"
             app:counterEnabled="true"
             app:counterMaxLength="15"
             app:endIconMode="clear_text"
             app:errorEnabled="true"
-            app:startIconDrawable="@drawable/university_id_icon"
             app:errorIconDrawable="@drawable/baseline_error_24"
             app:errorTextAppearance="@style/error_text"
-            app:hintTextAppearance="@style/CustomHintTextAppearance">
+            app:hintTextAppearance="@style/CustomHintTextAppearance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
+            app:startIconDrawable="@drawable/university_id_icon">
 
             <EditText
                 android:id="@+id/idText"
                 android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/edit_text_style"
                 android:inputType="number"
                 android:maxLength="15"
-                android:layout_height="50dp"
-                android:background="@drawable/edit_text_style" />
+                android:textSize="12sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:id="@+id/phoneLinearLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:orientation="horizontal"
-            android:layout_centerHorizontal="true"
             android:layout_below="@+id/idTextLayout"
-            app:errorTextAppearance="@style/error_text">
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="horizontal"
+            app:errorTextAppearance="@style/error_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/idTextLayout">
 
             <!--     <EditText
                      android:layout_width="80dp"
@@ -116,29 +127,26 @@
                 android:id="@+id/phoneNumberPrefix"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:ccp_showFullName="false"
-                app:ccp_showPhoneCode="true"
-                app:ccp_showNameCode="false"
-                app:ccp_showFlag="true"
-                app:ccp_showArrow="true"
-                app:ccp_autoFormatNumber="true"
                 android:layout_marginTop="20dp"
-                app:ccp_textSize="16sp"
                 app:ccpDialog_keyboardAutoPopup="false"
-                />
-
+                app:ccp_autoFormatNumber="true"
+                app:ccp_showArrow="true"
+                app:ccp_showFlag="true"
+                app:ccp_showFullName="false"
+                app:ccp_showNameCode="false"
+                app:ccp_showPhoneCode="true"
+                app:ccp_textSize="16sp" />
 
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/phoneNumber"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
+                android:layout_marginTop="4dp"
                 android:hint="Phone Number"
-                tools:ignore="HardcodedText"
                 app:counterEnabled="true"
                 app:counterMaxLength="10"
                 app:endIconMode="clear_text"
@@ -146,11 +154,12 @@
                 app:errorIconDrawable="@drawable/baseline_error_24"
                 app:errorTextAppearance="@style/error_text"
                 app:hintTextAppearance="@style/CustomHintTextAppearance"
-                app:startIconDrawable="@drawable/phone_number_icon">
+                app:startIconDrawable="@drawable/phone_number_icon"
+                tools:ignore="HardcodedText">
 
                 <EditText
                     android:id="@+id/edtTextPhoneNumber"
-                    android:layout_width="250dp"
+                    android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@drawable/edit_text_style"
                     android:inputType="phone"
@@ -161,64 +170,75 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
-            android:layout_width="350dp"
-            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/phoneLinearLayout"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="15dp">
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phoneLinearLayout">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/textView8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
                     android:text="@string/i_am_text"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <RadioGroup
                     android:id="@+id/studentOrGraduateRadioGroup"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_gravity="center_horizontal"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginStart="12dp"
+                    app:layout_constraintStart_toEndOf="@id/textView8"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/textView8"
+                    app:layout_constraintBottom_toBottomOf="@id/textView8">
 
                     <RadioButton
                         android:id="@+id/studentRadioButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="13dp"
+                        android:layout_weight="1"
+                        android:checked="true"
                         android:text="Undergraduate"
-                        tools:ignore="HardcodedText"
-                        android:checked="true"/>
+                        tools:ignore="HardcodedText" />
 
                     <RadioButton
                         android:id="@+id/graduateRadioButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="40dp"
-                        tools:ignore="HardcodedText"
-                        android:text="Graduate" />
+                        android:layout_weight="1"
+                        android:text="Graduate"
+                        tools:ignore="HardcodedText" />
                 </RadioGroup>
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/graduationYearLayout"
-            android:layout_width="350dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/textInputLayout"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="32dp"
-            android:layout_centerHorizontal="true">
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -226,16 +246,15 @@
 
                 <TextView
                     android:id="@+id/textView4"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/if_you_are_a_student_expected_graduation_year_text" />
 
                 <Spinner
                     android:id="@+id/graduationYearSpinner"
-                    android:layout_width="150dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginStart="88dp"
+                    android:layout_marginTop="10dp"
                     android:entries="@array/graduationYears"
                     android:spinnerMode="dropdown" />
 
@@ -250,15 +269,18 @@
             android:layout_below="@+id/textInputLayout"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="95dp"
-            android:layout_marginEnd="32dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
             android:hint="@string/college_text"
+            app:errorEnabled="true"
             app:errorIconDrawable="@drawable/baseline_error_24"
             app:errorTextAppearance="@style/error_text"
-            app:errorEnabled="true"
-            android:layout_centerHorizontal="true"
-            app:hintTextAppearance="@style/CustomHintTextAppearance">
+            app:hintTextAppearance="@style/CustomHintTextAppearance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/graduationYearLayout">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -273,43 +295,51 @@
 
                 <Spinner
                     android:id="@+id/collegeSpinner"
-                    android:layout_width="250dp"
+                    android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginStart="20dp"
                     android:entries="@array/collegeSpinner"
                     android:spinnerMode="dropdown" />
             </LinearLayout>
+
             <TextView
                 android:id="@+id/collegeErrorText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/red"
-                android:layout_marginTop="3dp"
                 android:layout_marginStart="10dp"
-                android:visibility="gone"/>
+                android:layout_marginTop="3dp"
+                android:textColor="@color/red"
+                android:visibility="gone" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/fieldInformationLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/collegeLayout"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="32dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
             app:errorEnabled="true"
             app:errorIconDrawable="@drawable/baseline_error_24"
             app:errorTextAppearance="@style/error_text"
-            android:layout_centerHorizontal="true">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/collegeLayout">
 
             <LinearLayout
+                android:id="@+id/linearLayout6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fieldInformationLayout">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -319,172 +349,248 @@
 
                 <Spinner
                     android:id="@+id/fieldSpinner"
-                    android:layout_width="250dp"
+                    android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginStart="43dp"
                     android:entries="@array/collegeSpinner"
                     android:spinnerMode="dropdown" />
+                <TextView
+                    android:id="@+id/fieldErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:visibility="gone"
+                    android:layout_marginTop="3dp"
+                    android:textColor="@color/red"
+                    android:textSize="15sp" />
             </LinearLayout>
-            <TextView
-                android:id="@+id/fieldErrorText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/red"
-                android:layout_marginTop="3dp"
-                android:layout_marginStart="10dp"
-                android:visibility="gone"
-                android:textSize="15sp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:id="@+id/educationalLevelLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/fieldInformationLayout"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="42dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
             android:orientation="vertical"
-            android:layout_marginTop="25dp">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fieldInformationLayout">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:text="Educational Level"
-                android:textSize="20sp"
-                android:layout_marginTop="5dp"/>
+                android:textSize="20sp" />
+
             <Spinner
                 android:id="@+id/educationalLevelSpinner"
-                android:layout_width="250dp"
+                android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:layout_marginStart="90dp"
-                android:layout_marginTop="15dp"
-                android:spinnerMode="dropdown"
+                android:layout_marginTop="4dp"
                 android:entries="@array/teacherEducationLevel"
-                />
+                android:spinnerMode="dropdown" />
 
 
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/availabilityLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/educationalLevelLayout"
-            android:layout_marginTop="25dp"
             android:layout_centerHorizontal="true"
-            android:orientation="vertical">
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/educationalLevelLayout">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Availability"
-                tools:ignore="HardcodedText"
                 android:textSize="20sp"
-                />
+                tools:ignore="HardcodedText" />
+
             <RadioGroup
                 android:id="@+id/availabilityRadioGroup"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
                 <RadioButton
                     android:id="@+id/availAnyTime"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:text="Any time"
-                    tools:ignore="HardcodedText"
-                    android:textSize="16sp"
-                    android:layout_marginStart="5dp"
-                    android:checked="true"/>
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText" />
+
                 <RadioButton
                     android:id="@+id/availWeekend"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:ignore="HardcodedText"
                     android:text="Weekend only"
-                    android:textSize="16sp"
-                    android:layout_marginStart="5dp"
-                    />
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText" />
+
                 <RadioButton
                     android:id="@+id/availSpecificDays"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="specific days"
-                    tools:ignore="HardcodedText"
-                    android:textSize="16sp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"/>
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText" />
             </RadioGroup>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/daysLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/availabilityLayout"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone">
-            <CheckBox
-                android:id="@+id/saturday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sat"
-                android:textSize="13sp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintTop_toBottomOf="@+id/availabilityLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-                tools:ignore="HardcodedText" />
-            <CheckBox
-                android:id="@+id/sunday"
+            <!-- First Row: 4 items -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:ignore="HardcodedText"
-                android:textSize="13sp"
-                android:text="Sun"/>
-            <CheckBox
-                android:id="@+id/monday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:ignore="HardcodedText"
-                android:textSize="13sp"
-                android:text="Mon"/>
-            <CheckBox
-                android:id="@+id/tuesday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:ignore="HardcodedText"
-                android:textSize="13sp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="5dp">
 
-                android:text="Tue"/>
-            <CheckBox
-                android:id="@+id/wednesday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:ignore="HardcodedText"
-                android:textSize="13sp"
+                <CheckBox
+                    android:id="@+id/saturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="-5dp"
+                    android:text="Sat"
+                    android:textSize="13sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/sunday"
+                    tools:ignore="HardcodedText" />
 
-                android:text="Wed"/>
-            <CheckBox
-                android:id="@+id/thursday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:ignore="HardcodedText"
-                android:textSize="13sp"
+                <CheckBox
+                    android:id="@+id/sunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:text="Sun"
+                    android:textSize="13sp"
+                    app:layout_constraintStart_toEndOf="@+id/saturday"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText" />
 
-                android:text="Thur"/>
-            <CheckBox
-                android:id="@+id/friday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:text="Fri"
-                tools:ignore="HardcodedText" />
+                <CheckBox
+                    android:id="@+id/monday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:text="Mon"
+                    android:textSize="13sp"
+                    app:layout_constraintStart_toEndOf="@+id/sunday"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText" />
+
+                <CheckBox
+                    android:id="@+id/tuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:text="Tue"
+                    android:textSize="13sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.966"
+                    app:layout_constraintStart_toEndOf="@+id/monday"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Second Row: 3 items -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <CheckBox
+                        android:id="@+id/wednesday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Wed"
+                        android:textSize="13sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="HardcodedText" />
+
+                    <CheckBox
+                        android:id="@+id/thursday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="25dp"
+                        android:text="Thu"
+                        android:textSize="13sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/wednesday"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="HardcodedText" />
+
+                    <CheckBox
+                        android:id="@+id/friday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="25dp"
+                        android:text="Fri"
+                        android:textSize="13sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/thursday"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="HardcodedText" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/addressInformation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/availabilityLayout"
-            android:layout_marginTop="50dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/cityLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/daysLayout">
 
             <View
                 android:layout_width="20dp"
@@ -519,20 +625,20 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/addressInformation"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            app:hintEnabled="true"
-            app:errorEnabled="true"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            app:errorIconDrawable="@drawable/baseline_error_24"
+            android:layout_marginEnd="20dp"
             android:hint="City"
-            tools:ignore="HardcodedText"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:hintEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/addressInformation"
             app:startIconDrawable="@drawable/icon_city"
-            app:endIconMode="clear_text" >
+            tools:ignore="HardcodedText">
 
             <EditText
                 android:id="@+id/cityText"
@@ -542,31 +648,32 @@
                 android:maxLength="15" />
         </com.google.android.material.textfield.TextInputLayout>
 
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/countryLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_below="@id/addressInformation"
-            android:layout_marginTop="80dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            app:hintEnabled="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="20dp"
             android:hint="Country"
-            tools:ignore="HardcodedText"
-            app:startIconDrawable="@drawable/icon_country"
             app:endIconMode="clear_text"
             app:errorEnabled="true"
             app:errorIconDrawable="@drawable/baseline_error_24"
-            >
+            app:hintEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cityLayout"
+            app:startIconDrawable="@drawable/icon_country"
+            tools:ignore="HardcodedText">
+
             <EditText
                 android:id="@+id/countryText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:maxLength="15"
-                android:background="@drawable/edit_text_style"/>
+                android:background="@drawable/edit_text_style"
+                android:maxLength="15" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -574,14 +681,19 @@
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/addressInformation"
-            android:layout_marginTop="165dp"
-            android:text="@string/confirm_information_text"
-            android:textAllCaps="false"
-            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="25dp"
             android:background="@drawable/rounded_corners"
             android:backgroundTint="@color/usedColor"
-            android:layout_marginBottom="25dp"
-            android:textColor="@color/white"/>
-    </RelativeLayout>
+            android:text="@string/confirm_information_text"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/countryLayout"
+            app:layout_goneMarginTop="20dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

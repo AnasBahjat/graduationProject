@@ -1,11 +1,13 @@
 package com.example.graduationproject.errorHandling;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -194,6 +196,31 @@ public class MyAlertDialog {
         messageTextView.setTextColor(context.getColor(R.color.black));
         builder.setView(view);
         builder.setPositiveButton("OK", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public static void registrationDone(Activity activity, String title, String message){
+        if(activity == null || activity.isFinishing() || activity.isDestroyed()){
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        LayoutInflater inflater = LayoutInflater.from(activity);
+        View view = inflater.inflate(R.layout.custom_dialog_builder, null);
+        ImageView imageView = view.findViewById(R.id.imageView);
+        imageView.setImageResource(R.drawable.icon_done);
+        TextView titleTextView = view.findViewById(R.id.titleTextView);
+        TextView messageTextView = view.findViewById(R.id.errorTextView);
+        titleTextView.setText(title);
+        messageTextView.setText(message);
+        messageTextView.setTextColor(activity.getColor(R.color.black));
+        builder.setView(view);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            dialog.dismiss();
+            activity.finish();
+        });
 
         AlertDialog dialog = builder.create();
         dialog.show();

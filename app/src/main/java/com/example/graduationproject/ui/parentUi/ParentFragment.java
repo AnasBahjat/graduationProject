@@ -88,6 +88,7 @@ import com.example.graduationproject.listeners.ParentRequestToSendListener;
 import com.example.graduationproject.listeners.TeacherPostRequestClickListener;
 import com.example.graduationproject.listeners.UpdateTeacherPostedRequestListener;
 import com.example.graduationproject.messaging.ChatWindowActivity;
+import com.example.graduationproject.messaging.ChatWindowActivity2;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
 import com.example.graduationproject.models.Course;
@@ -1959,8 +1960,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
            // teacherPostRequest.getTeacherEmail();
             teacherPostedRequestsCardToShowToParentBinding.sendMessageToTeacherBtn.setOnClickListener(v->{
                 getUserInfoByEmail(receiverEmail);
-                // teacher email = teacherPostRequest.getTeacherEmail();
-                //naseembar
             });
 
            /* teacherPostedRequestsCardToShowToParentBinding.sendRequestToTeacherBtn.setOnClickListener(m->{
@@ -1990,13 +1989,14 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     //Users targetUser = user.getValue(Users.class);
                     String userId = user.getKey();
                     String userName = user.child("userName").getValue(String.class);
+                    String userEmail = user.child("mail").getValue(String.class);
                     String userImage = user.child("profilePic").getValue(String.class);
                    /* if(targetUser == null) {
                         MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error", "Parent Error..");
                         return;
                     }*/
                     // Start Chatting here
-                    startChatWindowActivity(userId, userName, userImage);
+                    startChatWindowActivity(userId, userName, userImage, userEmail);
                     break;
                 }
             }
@@ -2009,9 +2009,10 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         });
     }
 
-    private void startChatWindowActivity(/*Users user*/String userId, String userName, String profilePic) {
-        Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
+    private void startChatWindowActivity(/*Users user*/String userId, String userName, String profilePic, String parentEmail) {
+        Intent intent = new Intent(getActivity(), ChatWindowActivity2.class);
         intent.putExtra("nameeee",userName);
+        intent.putExtra("email", parentEmail);
         intent.putExtra("reciverImg",profilePic);
         intent.putExtra("uid",userId);
         startActivity(intent);
@@ -2174,22 +2175,35 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
 
     private void showFilterDialogForParent(){
-        if(getContext() != null){
-            filterDialog = new Dialog(getContext());
-            filterLayoutBinding = FilterLayoutBinding.inflate(LayoutInflater.from(getContext()));
-            filterDialog = new Dialog(getContext());
-            filterDialog.setContentView(filterLayoutBinding.getRoot());
-            filterDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(filterDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 2500;
-            filterDialog.getWindow().setAttributes(layoutParams);
-            if(filterDialog.getWindow() != null)
-                filterDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        filterDialog = new Dialog(requireContext());
+        filterLayoutBinding = FilterLayoutBinding.inflate(LayoutInflater.from(getContext()));
+        filterDialog.setContentView(filterLayoutBinding.getRoot());
+        filterDialog.setCancelable(false);
 
-            isFilterDialogShowing = true;
-            filterDialog.show();
+        Window window = filterDialog.getWindow();
+        if (window != null) {
+
+            // Get screen size
+            DisplayMetrics metrics = new DisplayMetrics();
+            requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+            int screenWidth = metrics.widthPixels;
+            int screenHeight = metrics.heightPixels;
+
+            WindowManager.LayoutParams params = window.getAttributes();
+
+            // Responsive sizes (percentages)
+            params.width = (int) (screenWidth * 0.90);   // 90% of screen width
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            // OR if you want max height control:
+            // params.height = (int) (screenHeight * 0.85); // 85% of screen height
+
+            window.setAttributes(params);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        isFilterDialogShowing = true;
+        filterDialog.show();
 
             filterLayoutBinding.closeImage.setOnClickListener(z->{
                 isFilterDialogShowing=false;
@@ -2280,7 +2294,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 }
                 filterDialog.dismiss();
             });
-        }
     }
     private List<TeacherPostRequest> filter(List<TeacherPostRequest> listToFilter, FilterCriteria criteria){
         List<TeacherPostRequest> filteredList = new ArrayList<>();

@@ -305,7 +305,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatWindowActivity extends AppCompatActivity {
-    String reciverimg, reciverUid, reciverName, senderUID;
+    String reciverimg, reciverUid, reciverName,receiverEmail, senderUID;
     CircleImageView profile;
     TextView reciverNName;
     FirebaseDatabase database;
@@ -316,9 +316,9 @@ public class ChatWindowActivity extends AppCompatActivity {
     EditText textmsg;
 
     String senderRoom, reciverRoom;
-    RecyclerView messageAdpter;
+    RecyclerView messagesRecyclerView;
     ArrayList<msgModelclass> messagesArrayList;
-    messagesAdpter mmessagesAdpter;
+    messagesAdpter messagesAdapter;
     ImageView backImage ;
 
     @Override
@@ -330,6 +330,7 @@ public class ChatWindowActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         reciverName = getIntent().getStringExtra("nameeee");
+        receiverEmail = getIntent().getStringExtra("email");
         reciverimg = getIntent().getStringExtra("reciverImg");
         reciverUid = getIntent().getStringExtra("uid");
 
@@ -339,22 +340,21 @@ public class ChatWindowActivity extends AppCompatActivity {
         textmsg = findViewById(R.id.textmsg);
         reciverNName = findViewById(R.id.recivername);
         profile = findViewById(R.id.profileimgg);
-        messageAdpter = findViewById(R.id.msgadpter);
+        messagesRecyclerView = findViewById(R.id.msgadpter);
         backImage = findViewById(R.id.back_arrow);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
-        messageAdpter.setLayoutManager(linearLayoutManager);
-        mmessagesAdpter = new messagesAdpter(ChatWindowActivity.this, messagesArrayList);
-        messageAdpter.setAdapter(mmessagesAdpter);
+        messagesRecyclerView.setLayoutManager(linearLayoutManager);
+        messagesAdapter = new messagesAdpter(ChatWindowActivity.this, messagesArrayList);
+        messagesRecyclerView.setAdapter(messagesAdapter);
 
         Picasso.get().load(reciverimg).into(profile);
-        reciverNName.setText(reciverName);
+        reciverNName.setText(receiverEmail);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
             senderUID = auth.getCurrentUser().getUid();
-            Log.d("current user ---> "+auth.getCurrentUser().getUid(),"current user ---> "+auth.getCurrentUser().getUid());
         } else {
             return;
         }
@@ -362,6 +362,8 @@ public class ChatWindowActivity extends AppCompatActivity {
         backImage.setOnClickListener(v->{
             finish();
         });
+        Log.d("Sender UID --------> "+senderUID,"Sender UID --------> "+senderUID);
+        Log.d("Reciever UID --------> "+reciverUid,"Reciver Uid --------> "+reciverUid);
 
         senderRoom = senderUID + reciverUid;
         reciverRoom = reciverUid + senderUID;
@@ -384,7 +386,8 @@ public class ChatWindowActivity extends AppCompatActivity {
                         Log.d("msgad", "msg adapter run: " + "++++++++++++++++++++++++++++++++++++++++++++++++");
                     }
                 }
-                mmessagesAdpter.notifyDataSetChanged(); // Notify adapter after updating data
+                messagesAdapter.notifyDataSetChanged();
+                messagesRecyclerView.scrollToPosition(messagesArrayList.size() - 1);
             }
 
             @Override
@@ -411,18 +414,6 @@ public class ChatWindowActivity extends AppCompatActivity {
             }
         });
 
-
-        /*reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                senderImg = snapshot.child("profilepic").getValue().toString();
-                reciverIImg = reciverimg;
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });*/
 
         sendbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -473,16 +464,15 @@ public class ChatWindowActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
     public void onBackPressed() {
         updateReadStatus();
         super.onBackPressed();
     }
 
-
     private void updateReadStatus() {
         DatabaseReference chatReference = FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages");
-
         chatReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

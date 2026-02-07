@@ -205,6 +205,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 binding.password.setError(null);
+                binding.passwordConfirm.setError(null);
             }
 
             @Override
@@ -222,6 +223,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 binding.passwordConfirm.setError(null);
+                binding.password.setError(null);
             }
 
             @Override
@@ -246,12 +248,10 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         }
 
         if(binding.genderSpinner.getSelectedItem().toString().equalsIgnoreCase("Choose Gender")){
-            MyAlertDialog.showCustomAlertDialogSpinnerError(this,"Wrong gender value","Please Choose A Valid Gender Value");
             binding.genderTextView.setTextColor(Color.RED);
         }
 
         if(binding.profileSpinner.getSelectedItem().toString().equalsIgnoreCase("Choose Type")){
-            MyAlertDialog.showCustomAlertDialogSpinnerError(this,"Wrong type value","Please Choose A Valid Value");
             binding.profileTypeText.setTextColor(Color.RED);
         }
 
@@ -296,6 +296,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             binding.birthDateLayout.setError(null);
             Database insertNewProfile=new Database(getApplicationContext());
             Profile profile=new Profile(firstnameStr.toLowerCase(),lastnameStr.trim(),emailStr.trim(),passwordStr,selectedDate,genderSelected+"",profileSelected+"");
+            binding.progressBar.setVisibility(ProgressBar.VISIBLE);
             insertNewProfile.registerNewProfile(profile,this);
             dataValidFlag=true ;
         }
@@ -377,32 +378,25 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
 
     @Override
     public void onSuccess(int result) {
-
+        binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
         if(result == 1){
-
             FirebaseAuth auth = FirebaseAuth.getInstance();
-
             auth.createUserWithEmailAndPassword(emailStr, passwordStr)
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) {
                             Log.e("FirebaseAuth", "User creation failed", task.getException());
                             return;
                         }
-
                         FirebaseUser firebaseUser = auth.getCurrentUser();
                         if (firebaseUser == null) return;
-
                         String userId = firebaseUser.getUid();
                         String userName = firstnameStr + " " + lastnameStr;
-
                         String defaultProfilePic =
                                 "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
-
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
                         DatabaseReference userRef = database
                                 .getReference("users")
                                 .child(userId);
-
                         Map<String, Object> userData = new HashMap<>();
                         userData.put("userId", userId);
                         userData.put("mail", emailStr);
@@ -418,157 +412,18 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                                 .addOnFailureListener(e ->
                                         Log.e("Firebase", "Failed to add user to DB", e));
                     });
-
-           /* FirebaseAuth auth = FirebaseAuth.getInstance();
-            auth.createUserWithEmailAndPassword(emailStr, passwordStr)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            FirebaseUser firebaseUser = auth.getCurrentUser();
-                            if (firebaseUser == null) return;
-
-                            String userId = firebaseUser.getUid();
-                            String userName = firstnameStr + " " + lastnameStr;
-
-                            String defaultProfilePic =
-                                    "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
-
-                            // Step 2: Add user to Realtime Database
-                            FirebaseDatabase database = FirebaseDatabase.getInstance();
-                            DatabaseReference userRef = database.getReference("users").child(userId);
-
-                            Map<String, Object> userData = new HashMap<>();
-                            userData.put("userId", userId);
-                            userData.put("mail", emailStr);
-                            userData.put("userName", userName);
-                            userData.put("profileType", profileSelected + "");
-                            userData.put("profilePic", defaultProfilePic);
-                            userData.put("status", "status");
-                            userData.put("unreadMessageCount", 0);
-
-                            // Use updateChildren to avoid overwriting existing data
-                            userRef.updateChildren(userData)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("Firebase", "User added successfully to DB");
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Firebase", "Failed to add user", e);
-                                    });
-
-                        } else {
-                            Log.e("FirebaseAuth", "User creation failed", task.getException());
-                        }
-                    });*/
-
-
-            /*FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (firebaseUser == null) return;
-
-            String userId = firebaseUser.getUid();
-
-            String mail = emailStr;
-            String userName = firstnameStr + " " + lastnameStr;
-
-            String defaultProfilePic =
-                    "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
-
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference userRef = database.getReference("users").child(userId);
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("userId", userId);
-            userData.put("mail", mail);
-            userData.put("userName", userName);
-            userData.put("profileType", profileSelected+"");
-            userData.put("profilePic", defaultProfilePic);
-            userData.put("status", "status");
-            userData.put("unreadMessageCount", 0);
-
-            userRef.setValue(userData)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d("Firebase", "User added successfully");
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("Firebase", "Failed to add user", e);
-                    });*/
-            /*auth.createUserWithEmailAndPassword(emailStr.trim(), passwordStr)
-                    .addOnCompleteListener(task -> {
-
-                        if (!task.isSuccessful()) {
-                            Log.e("Register", "Auth failed", task.getException());
-                            return;
-                        }
-
-                        String id = task.getResult().getUser().getUid();
-
-                        DatabaseReference reference =
-                                database.getReference().child("users").child(id);
-
-                        StorageReference storageReference =
-                                storage.getReference().child("Upload").child(id);
-
-                        String defaultImage =
-                                "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
-
-                        // ✅ CASE 1: user selected an image
-                        if (imageURI != null) {
-
-                            storageReference.putFile(imageURI)
-                                    .addOnSuccessListener(taskSnapshot ->
-                                            storageReference.getDownloadUrl()
-                                                    .addOnSuccessListener(uri -> {
-
-                                                        Users users = new Users(
-                                                                id,
-                                                                firstnameStr.trim() + " " + lastnameStr.trim(),
-                                                                emailStr.trim(),
-                                                                uri.toString(),
-                                                                "Hi, I'm using this application",
-                                                                profileSelected+""
-                                                        );
-
-                                                        reference.setValue(users);
-                                                    })
-                                    )
-                                    .addOnFailureListener(e ->
-                                            Log.e("Register", "Image upload failed", e)
-                                    );
-
-                        }
-                        // ✅ CASE 2: no image selected → use default
-                        else {
-
-                            Users users = new Users(
-                                    id,
-                                    firstnameStr.trim() + " " + lastnameStr.trim(),
-                                    emailStr.trim(),
-                                    defaultImage,
-                                    "Hi, I'm using this application",
-                                    profileSelected+""
-                            );
-
-                            reference.setValue(users)
-                                    .addOnSuccessListener(unused ->
-                                            Log.d("Register", "User added successfully"))
-                                    .addOnFailureListener(e ->
-                                            Log.e("Register", "DB error", e));
-                        }
-                    });*/
-
-            binding.progressBar.setVisibility(ProgressBar.VISIBLE);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    MyAlertDialog.showDialogForDone(RegisterActivity.this,"Account created","Account created you can sign in know ..");
-                    finish();
-                }
-            },1500);
-
-            //MyAlertDialog.showCustomAlerDialogForRegistrationDone(this);*/
+            MyAlertDialog.registrationDone(
+                    RegisterActivity.this,
+                    "Account Created",
+                    "Your account has been created successfully. You can now sign in."
+            );
         }
         else if(result == -2){
+            binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
             binding.email.setError("Email already registered ...");
         }
         else if (result==0){
+            binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
             Toast.makeText(this,"Error registration",Toast.LENGTH_SHORT).show();
         }
     }
@@ -584,28 +439,43 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         int month = calendar.get(Calendar.MONTH);
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
 
-        int currentYear = LocalDate.now().getYear();
-        selectedDate=year +"-"+ (month+1) + dayOfMonth;
-        validBirthDateFlag=1;
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        selectedDate = year +"-"+ (month+1) + "-" +dayOfMonth;
-                        if(currentYear - year < 18){
-                            binding.birthDateLayout.setError("* You must be at least 18 years old");
-                        }
-                        else{
-                            binding.birthDateLayout.setError(null);
-                            validBirthDateFlag=1;
-                        }
-                        binding.birthDateLayout.getEditText().setText(dayOfMonth+"-"+(month+1)+"-"+year);
-                    }
-                },
-                year, month, dayOfMonth);
+                (view, y, m, d) -> {
 
+                    // Format selected date
+                    selectedDate = y + "-" + (m + 1) + "-" + d;
+
+                    // Current date
+                    Calendar today = Calendar.getInstance();
+                    Calendar dob = Calendar.getInstance();
+                    dob.set(y, m, d);
+
+                    int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+
+                    // Adjust if birthday not reached yet this year
+                    if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)) {
+                        age--;
+                    }
+
+                    if (age < 18) {
+                        binding.birthDateLayout.setError("* You must be at least 18 years old");
+                        validBirthDateFlag = 0;
+                    } else {
+                        binding.birthDateLayout.setError(null);
+                        validBirthDateFlag = 1;
+                    }
+
+                    // Display format
+                    binding.birthDateLayout.getEditText()
+                            .setText(d + "-" + (m + 1) + "-" + y);
+                },
+                year, month, dayOfMonth
+        );
         datePickerDialog.show();
+    }
+
+    public void backToLogin(View view) {
+        finish();
     }
 }

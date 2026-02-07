@@ -63,6 +63,7 @@ import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.messaging.ChatMainActivity2;
 import com.example.graduationproject.messaging.ChatViewModel;
 import com.example.graduationproject.messaging.ChatMainActivity;
 import com.example.graduationproject.models.Children;
@@ -196,11 +197,13 @@ public class ParentActivity extends AppCompatActivity implements
         }
 
         if(doneInformation.equalsIgnoreCase("1")){
-            parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
+            parentBinding.messagesLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Toast.makeText(ParentActivity.this,"Error", Toast.LENGTH_SHORT).show();
                     try {
-                        Intent intent = new Intent(ParentActivity.this, ChatMainActivity.class);
+                        Intent intent = new Intent(ParentActivity.this, ChatMainActivity2.class);
+                        intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
                         startActivity(intent);
                     }
                     catch (Exception e){

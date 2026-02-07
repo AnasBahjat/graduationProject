@@ -81,6 +81,7 @@ import com.example.graduationproject.listeners.PostedTeacherRequestsListener;
 import com.example.graduationproject.listeners.TeacherMatchCardClickListener;
 import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.messaging.ChatWindowActivity;
+import com.example.graduationproject.messaging.ChatWindowActivity2;
 import com.example.graduationproject.messaging.Users;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
@@ -1714,13 +1715,14 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 for(DataSnapshot user: snapshot.getChildren()){
                     String userId = user.getKey();
                     String userName = user.child("userName").getValue(String.class);
+                    String teacherEmail = user.child("mail").getValue(String.class);
                     String userImage = user.child("profilePic").getValue(String.class);
                    /* if(targetUser == null) {
                         MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error", "Parent Error..");
                         return;
                     }*/
                     // Start Chatting here
-                    startChatWindowActivity(userId, userName, userImage);
+                    startChatWindowActivity(userId, userName, userImage, teacherEmail);
                     break;
                 }
             }
@@ -1805,9 +1807,10 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
 
 
-    private void startChatWindowActivity(/*Users user*/String userId, String userName, String profilePic) {
+    private void startChatWindowActivity(/*Users user*/String userId, String userName, String profilePic, String teacherEmail) {
         Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
         intent.putExtra("nameeee",userName);
+        intent.putExtra("email",teacherEmail);
         intent.putExtra("reciverImg",profilePic);
         intent.putExtra("uid",userId);
         startActivity(intent);

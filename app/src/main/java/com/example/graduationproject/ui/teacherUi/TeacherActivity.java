@@ -74,6 +74,7 @@ import com.example.graduationproject.listeners.TeacherAccountConfirmationListene
 import com.example.graduationproject.listeners.TeacherAvailabilityListener;
 import com.example.graduationproject.listeners.TeacherPostListener;
 import com.example.graduationproject.messaging.ChatMainActivity;
+import com.example.graduationproject.messaging.ChatMainActivity2;
 import com.example.graduationproject.messaging.ChatViewModel;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
@@ -211,7 +212,6 @@ public class TeacherActivity extends AppCompatActivity implements
         city=intent.getStringExtra("city");
         country=intent.getStringExtra("country");
         doneInformation=intent.getStringExtra("accountDone");
-
     }
 
     private void initialize(){
@@ -258,7 +258,10 @@ public class TeacherActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 try{
-                    Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
+                    /*Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
+                    startActivity(intent);*/
+                    Intent intent = new Intent(TeacherActivity.this, ChatMainActivity2.class);
+                    intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
                     startActivity(intent);
                 }
                 catch (Exception e){
