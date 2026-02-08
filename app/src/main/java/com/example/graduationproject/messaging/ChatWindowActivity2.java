@@ -110,7 +110,7 @@ public class ChatWindowActivity2 extends AppCompatActivity {
     private void listenForMessages(){
         DatabaseReference chatReference = database.getReference()
                 .child("chats")
-                .child("senderRoom")
+                .child(senderRoom)
                 .child("messages");
         chatReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -172,7 +172,7 @@ public class ChatWindowActivity2 extends AppCompatActivity {
                         .push()
                         .setValue(receiverMsg)
                         .addOnCompleteListener(task1 ->{
-                            if(!task.isSuccessful()){
+                            if(!task1.isSuccessful()){
                                 MyAlertDialog.showCustomAlertDialogSpinnerError(
                                         ChatWindowActivity2.this,
                                         "Message Error",
@@ -180,6 +180,7 @@ public class ChatWindowActivity2 extends AppCompatActivity {
                                 );
                             }
                         });
+                messagesAdapter.notifyDataSetChanged();
                  }
             else{
                 MyAlertDialog.showCustomAlertDialogSpinnerError(

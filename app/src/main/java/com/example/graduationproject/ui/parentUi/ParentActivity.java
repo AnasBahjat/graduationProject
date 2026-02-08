@@ -13,6 +13,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -469,21 +470,77 @@ public class ParentActivity extends AppCompatActivity implements
 
     private void buildChildPopupWindow(){
         parentInformationPopupWindowBinding.parentInformationLayout.setVisibility(View.GONE);
-        childrenInformationPopupWindowBinding = ChildrenInformationPopupWindowBinding.inflate(getLayoutInflater());
-        childrenPopupWindow = new PopupWindow(childrenInformationPopupWindowBinding.getRoot(),1300,1500,true);
-        childrenPopupWindow.showAtLocation(childrenInformationPopupWindowBinding.childrenLayout,Gravity.CENTER,0,0);
+
+        childrenInformationPopupWindowBinding =
+                ChildrenInformationPopupWindowBinding.inflate(getLayoutInflater());
+
+// Get screen size
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+// Calculate popup dimensions as percentage of screen (adjust as needed)
+        int margin = (int) (16 * getResources().getDisplayMetrics().density); // 16dp
+        int maxWidth = (int) (screenWidth * 0.9); // 90% of screen width
+        int maxHeight = (int) (screenHeight * 0.85); // 85% of screen height
+
+// Option 1: Use WRAP_CONTENT for height (simpler)
+        childrenPopupWindow = new PopupWindow(
+                childrenInformationPopupWindowBinding.getRoot(),
+                Math.min(screenWidth - margin, maxWidth),
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                true
+        );
+
+        childrenPopupWindow.setFocusable(true);
         childrenPopupWindow.setOutsideTouchable(false);
-        childrenInformationPopupWindowBinding.closeImage.setOnClickListener(close->{
-            childrenPopupWindow.dismiss();
-        });
-        childrenPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                parentInformationPopupWindowBinding.parentInformationLayout.setVisibility(View.VISIBLE);
+        childrenPopupWindow.setClippingEnabled(false);
+
+// Optional: Add background dim
+        WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+        layoutParams.dimAmount = 0.5f; // Dim background to 50%
+        getWindow().setAttributes(layoutParams);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+
+// Optional: Add elevation/shadow for dialog effect
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            childrenPopupWindow.setElevation(16f);
+        }
+
+// Optional: Add enter/exit animations
+
+// Show centered
+        childrenPopupWindow.showAtLocation(
+                childrenInformationPopupWindowBinding.getRoot(),
+                Gravity.CENTER,
+                0,
+                0
+        );
+
+// Optional: Handle back button press
+        childrenPopupWindow.getContentView().setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                childrenPopupWindow.dismiss();
+                return true;
             }
+            return false;
         });
 
-        childrenInformationPopupWindowBinding.addChildBtn.setOnClickListener(cx->{
+
+// Close button
+        childrenInformationPopupWindowBinding.closeImage.setOnClickListener(v -> {
+            childrenPopupWindow.dismiss();
+        });
+
+// Restore parent view on dismiss
+        childrenPopupWindow.setOnDismissListener(() -> {
+            parentInformationPopupWindowBinding.parentInformationLayout.setVisibility(View.VISIBLE);
+        });
+
+// Button click
+        childrenInformationPopupWindowBinding.addChildBtn.setOnClickListener(v -> {
             addChildBtnClicked();
         });
     }

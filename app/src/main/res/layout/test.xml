@@ -1,448 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/childrenLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_height="wrap_content"
+    android:backgroundTint="#F2ECF6"
+    android:background="@drawable/rounded_corners"
+    android:padding="8dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <!-- Close button positioned top-end -->
+    <ImageView
+        android:id="@+id/closeImage"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_margin="8dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/close_icon_2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Title section with decorative lines -->
+    <LinearLayout
+        android:id="@+id/childInformation"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="#F4F5F6"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="16dp">
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/closeImage">
 
-        <!-- Close Button -->
-        <ImageView
-            android:id="@+id/closeImage"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="8dp"
-            android:src="@drawable/close_icon_2"
+        <!-- Left decorative line - using weight to be responsive -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_weight="1"
+            android:background="#7FE1EE" />
+
+        <!-- Title text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingHorizontal="12dp"
+            android:text="@string/child_information_text"
+            android:textSize="22sp" />
+
+        <!-- Right decorative line - using weight to be responsive -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_weight="1"
+            android:background="#7FE1EE" />
+    </LinearLayout>
+
+    <!-- Child Name Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/childNameText"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Child Name"
+        app:endIconMode="clear_text"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/baseline_error_24"
+        app:errorTextAppearance="@style/error_text"
+        app:hintEnabled="true"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/childInformation"
+        app:startIconDrawable="@drawable/firstname_icon">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/childNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:background="@drawable/edit_text_style"
+            android:inputType="text"
+            android:maxLength="25" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Age Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/ageText"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Age"
+        app:endIconMode="clear_text"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/baseline_error_24"
+        app:errorTextAppearance="@style/error_text"
+        app:hintEnabled="true"
+        app:hintTextAppearance="@style/CustomHintTextAppearance"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/childNameText"
+        app:startIconDrawable="@drawable/age_icon">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/childAgeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:background="@drawable/edit_text_style"
+            android:inputType="number"
+            android:maxLength="2" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Gender Selection -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/genderSpinnerLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ageText">
+
+        <TextView
+            android:id="@+id/genderLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gender"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/childGenderSpinner"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/childGenderSpinner" />
+
+        <Spinner
+            android:id="@+id/childGenderSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:layout_marginStart="16dp"
+            android:entries="@array/childGender"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/genderLabel"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Location Header -->
-        <LinearLayout
-            android:id="@+id/locationTextViewTemp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/closeImage">
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="#7FE1EE" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="Location"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:background="#7FE1EE" />
-        </LinearLayout>
-
-        <!-- Location Input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/locationTextInputLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Location"
-            app:endIconMode="clear_text"
-            app:hintTextAppearance="@style/CustomHintTextAppearance"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locationTextViewTemp"
-            app:startIconDrawable="@drawable/location_icon">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/locationEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:textSize="16sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Location Flexbox -->
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/locationFlexBox1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:padding="4dp"
-            app:alignContent="flex_start"
-            app:flexWrap="wrap"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locationTextInputLayout" />
-
-        <!-- Courses Header -->
-        <LinearLayout
-            android:id="@+id/coursesTextViewTemp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locationFlexBox1">
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="#7FE1EE" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="Courses"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:background="#7FE1EE" />
-        </LinearLayout>
-
-        <!-- Courses Input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/coursesTextInputLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Courses"
-            app:endIconMode="clear_text"
-            app:hintTextAppearance="@style/CustomHintTextAppearance"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/coursesTextViewTemp"
-            app:startIconDrawable="@drawable/courses_icon">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/coursesEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:textSize="16sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Courses Flexbox -->
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/coursesFlexBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:padding="4dp"
-            app:alignContent="flex_start"
-            app:flexWrap="wrap"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/coursesTextInputLayout" />
-
-        <!-- Gender Header -->
-        <LinearLayout
-            android:id="@+id/childrenTextViewTemp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/coursesFlexBox">
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="#7FE1EE" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="Gender"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:background="#7FE1EE" />
-        </LinearLayout>
-
-        <!-- Gender Flexbox -->
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/childrenGenderFlexBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:padding="4dp"
-            app:alignContent="flex_start"
-            app:flexWrap="wrap"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/childrenTextViewTemp" />
-
-        <!-- Grades Header -->
-        <LinearLayout
-            android:id="@+id/gradeTextViewTemp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/childrenGenderFlexBox">
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="#7FE1EE" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="Grades"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:background="#7FE1EE" />
-        </LinearLayout>
-
-        <!-- Grades Flexbox -->
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/childrenGradeFlexBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:padding="4dp"
-            app:alignContent="flex_start"
-            app:flexWrap="wrap"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/gradeTextViewTemp" />
-
-        <!-- Teaching Method Header -->
-        <LinearLayout
-            android:id="@+id/teachingMethodTextViewTemp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/childrenGradeFlexBox">
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="#7FE1EE" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="Teaching Method"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:background="#7FE1EE" />
-        </LinearLayout>
-
-        <!-- Teaching Method Flexbox -->
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/teachingMethodFlexBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:padding="4dp"
-            app:alignContent="flex_start"
-            app:flexWrap="wrap"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/teachingMethodTextViewTemp" />
-
-        <!-- Price Range Header -->
-        <LinearLayout
-            android:id="@+id/tempView3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/teachingMethodFlexBox">
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="2dp"
-                android:layout_gravity="center"
-                android:layout_marginEnd="8dp"
-                android:background="#7FE1EE" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="Price Range"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:background="#7FE1EE" />
-        </LinearLayout>
-
-        <!-- Price Range Inputs -->
-        <LinearLayout
-            android:id="@+id/linearLayout9"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tempView3">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/priceFromEditTextLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:hint="From"
-                app:hintTextAppearance="@style/CustomHintTextAppearance"
-                app:startIconDrawable="@drawable/price_icon">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/priceFromEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="56dp"
-                    android:inputType="numberDecimal"
-                    android:maxLength="3"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/priceToEditTextLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:hint="To"
-                app:hintTextAppearance="@style/CustomHintTextAppearance"
-                app:startIconDrawable="@drawable/price_icon">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/priceToEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="56dp"
-                    android:inputType="numberDecimal"
-                    android:maxLength="3"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-
-        <!-- Buttons -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="24dp"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/linearLayout9">
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/filterCancelBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginEnd="16dp"
-                android:layout_weight="1"
-                android:background="@drawable/rounded_corners"
-                android:backgroundTint="@color/usedColor"
-                android:text="Cancel"
-                android:textAllCaps="false"
-                android:textSize="18sp"
-                android:minWidth="100dp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/filterConfirmBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:background="@drawable/rounded_corners"
-                android:backgroundTint="@color/usedColor"
-                android:text="Filter"
-                android:textAllCaps="false"
-                android:textSize="18sp"
-                android:minWidth="100dp" />
-        </LinearLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+
+    <!-- Grade Selection -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/gradeLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/genderSpinnerLayout">
+
+        <TextView
+            android:id="@+id/gradeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grade"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/childGrade"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/childGrade" />
+
+        <Spinner
+            android:id="@+id/childGrade"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:layout_marginStart="16dp"
+            android:entries="@array/childGrade"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/gradeLabel"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Add Child Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/addChildBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="24dp"
+        android:minHeight="56dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/usedColor"
+        android:text="Add Child"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gradeLayout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
