@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -258,11 +259,17 @@ public class TeacherActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 try{
+                    if(doneInformation.equals("1")){
+                        Intent intent = new Intent(TeacherActivity.this, ChatMainActivity2.class);
+                        intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
+                        startActivity(intent);
+                    }
+                    else {
+                        MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this, "Confirm", "Please Confirm your account first ..");
+                    }
                     /*Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
                     startActivity(intent);*/
-                    Intent intent = new Intent(TeacherActivity.this, ChatMainActivity2.class);
-                    intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
-                    startActivity(intent);
+
                 }
                 catch (Exception e){
                     MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
@@ -579,47 +586,56 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     public void showTeacherInformationPopupWindow(){
-        TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
-        decrementNotificationsNumber();
-        teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),1380,2000,true);
+        TeacherInformationPopupWindowBinding binding =
+                TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
 
-        teacherInformationPopupWindow.showAtLocation(teacherInformationPopupWindowBinding.teacherInformationLayout, Gravity.CENTER,0,0);
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        int width = (int) (metrics.widthPixels * 0.95f);
+        int height = (int) (metrics.heightPixels * 0.95f);
+
+        teacherInformationPopupWindow =
+                new PopupWindow(binding.getRoot(), width, height, true);
+
+        teacherInformationPopupWindow.setOutsideTouchable(false);
+        teacherInformationPopupWindow.setFocusable(true);
+
+        teacherInformationPopupWindow.showAtLocation(
+                binding.teacherInformationLayout,
+                Gravity.CENTER,
+                0,
+                0
+        );
+
         notificationPopupWindow.dismiss();
 
-        teacherInformationPopupWindowBinding.closeTeacherInformationPopupWindow.setOnClickListener(v ->{
-            teacherInformationPopupWindow.dismiss();
-        });
+        binding.closeTeacherInformationPopupWindow.setOnClickListener(v ->
+                teacherInformationPopupWindow.dismiss()
+        );
 
-
-
-        teacherInformationPopupWindowBinding.collegeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.collegeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateFieldSpinner(teacherInformationPopupWindowBinding,teacherInformationPopupWindowBinding.collegeSpinner);
+                updateFieldSpinner(binding, binding.collegeSpinner);
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        teacherInformationPopupWindowBinding.confirmInformationBtn.setOnClickListener(ss->{
-            checkConfirmationButtonClicked(teacherInformationPopupWindowBinding);
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        teacherInformationPopupWindowBinding.availabilityRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                setAvailabilityForStudent(teacherInformationPopupWindowBinding,checkedId);
-            }
-        });
+        binding.confirmInformationBtn.setOnClickListener(v ->
+                checkConfirmationButtonClicked(binding)
+        );
 
+        binding.availabilityRadioGroup.setOnCheckedChangeListener((group, checkedId) ->
+                setAvailabilityForStudent(binding, checkedId)
+        );
 
-        onTextChangedIdText(teacherInformationPopupWindowBinding.idText,teacherInformationPopupWindowBinding.idTextLayout);
-        onTextChangedIdText(teacherInformationPopupWindowBinding.cityText,teacherInformationPopupWindowBinding.cityLayout);
-        onTextChangedIdText(teacherInformationPopupWindowBinding.countryText,teacherInformationPopupWindowBinding.countryLayout);
-        onTextChangedIdText(teacherInformationPopupWindowBinding.edtTextPhoneNumber,teacherInformationPopupWindowBinding.phoneNumber);
-        onItemSelectedSpinner(teacherInformationPopupWindowBinding);
+        onTextChangedIdText(binding.idText, binding.idTextLayout);
+        onTextChangedIdText(binding.cityText, binding.cityLayout);
+        onTextChangedIdText(binding.countryText, binding.countryLayout);
+        onTextChangedIdText(binding.edtTextPhoneNumber, binding.phoneNumber);
+        onItemSelectedSpinner(binding);
     }
 
 

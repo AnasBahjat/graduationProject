@@ -201,11 +201,15 @@ public class ParentActivity extends AppCompatActivity implements
             parentBinding.messagesLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(ParentActivity.this,"Error", Toast.LENGTH_SHORT).show();
                     try {
-                        Intent intent = new Intent(ParentActivity.this, ChatMainActivity2.class);
-                        intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
-                        startActivity(intent);
+                        if(doneInformation.equals("1")){
+                            Intent intent = new Intent(ParentActivity.this, ChatMainActivity2.class);
+                            intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
+                            startActivity(intent);
+                        }
+                        else{
+                            MyAlertDialog.showCustomAlertDialogSpinnerError(ParentActivity.this, "Confirm", "Please Confirm your account first ..");
+                        }
                     }
                     catch (Exception e){
                         MyAlertDialog.showCustomAlertDialogSpinnerError(ParentActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
@@ -418,9 +422,32 @@ public class ParentActivity extends AppCompatActivity implements
 
     public void showParentInformationPopupWindow(){
         parentInformationPopupWindowBinding = ParentInformationPopupWindowBinding.inflate(getLayoutInflater());
-        parentInformationPopupWindow = new PopupWindow(parentInformationPopupWindowBinding.getRoot(),1300,2000,true);
-        parentInformationPopupWindow.showAtLocation(parentInformationPopupWindowBinding.parentInformationLayout, Gravity.CENTER,0,0);
-        notificationPopupWindow.dismiss();
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+        int popupWidth = (int) (screenWidth * 0.9);
+        int popupHeight = (int) (screenHeight * 0.7);
+
+        parentInformationPopupWindow = new PopupWindow(
+                parentInformationPopupWindowBinding.getRoot(),
+                popupWidth,
+                popupHeight,
+                true
+        );
+
+        parentInformationPopupWindow.showAtLocation(
+                parentInformationPopupWindowBinding.parentInformationLayout,
+                Gravity.CENTER,
+                0,
+                0
+        );
+
+        if (notificationPopupWindow != null && notificationPopupWindow.isShowing()) {
+            notificationPopupWindow.dismiss();
+        }
 
         onTextChangedIdText(parentInformationPopupWindowBinding.idTextParent,parentInformationPopupWindowBinding.idTextParentLayout);
         onTextChangedIdText(parentInformationPopupWindowBinding.edtTextPhoneNumber,parentInformationPopupWindowBinding.phoneNumber);

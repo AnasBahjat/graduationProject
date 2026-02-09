@@ -68,7 +68,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/idTextLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
@@ -102,7 +102,7 @@
 
         <LinearLayout
             android:id="@+id/phoneLinearLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/idTextLayout"
             android:layout_centerHorizontal="true"
@@ -190,19 +190,16 @@
                     android:text="@string/i_am_text"
                     android:textSize="20sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <RadioGroup
                     android:id="@+id/studentOrGraduateRadioGroup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginStart="12dp"
-                    app:layout_constraintStart_toEndOf="@id/textView8"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/textView8"
-                    app:layout_constraintBottom_toBottomOf="@id/textView8">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textView8">
 
                     <RadioButton
                         android:id="@+id/studentRadioButton"
@@ -264,7 +261,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/collegeLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/textInputLayout"
             android:layout_alignParentStart="true"
@@ -316,7 +313,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/fieldInformationLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/collegeLayout"
             android:layout_alignParentStart="true"
@@ -369,11 +366,11 @@
 
         <LinearLayout
             android:id="@+id/educationalLevelLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/fieldInformationLayout"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="20dp"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
@@ -391,7 +388,7 @@
                 android:id="@+id/educationalLevelSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="10dp"
                 android:entries="@array/teacherEducationLevel"
                 android:spinnerMode="dropdown" />
 
@@ -400,12 +397,12 @@
 
         <LinearLayout
             android:id="@+id/availabilityLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/educationalLevelLayout"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="20dp"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
@@ -623,7 +620,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/cityLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="20dp"
@@ -651,7 +648,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/countryLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="20dp"
@@ -682,7 +679,7 @@
             android:layout_height="50dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="25dp"
+            android:layout_marginBottom="35dp"
             android:background="@drawable/rounded_corners"
             android:backgroundTint="@color/usedColor"
             android:text="@string/confirm_information_text"
