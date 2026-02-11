@@ -213,7 +213,7 @@ public class ChatWindowActivity2 extends AppCompatActivity {
                         updates.put("read", true);
                         ds.getRef().updateChildren(updates)
                                 .addOnFailureListener( e -> {
-                                    Log.e("Firebase", "Read update failed: " + e.getMessage());});
+                                    });
                     }
                 }
             }

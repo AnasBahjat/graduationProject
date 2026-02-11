@@ -58,7 +58,6 @@ public class ChatMainActivity extends AppCompatActivity {
         adapter = new UserAdpter(ChatMainActivity.this, usersArrayList);
         mainUserRecyclerView.setAdapter(adapter);
 
-        Log.d("2222222222222222222","2222222222222222222");
 
         DatabaseReference reference = database.getReference().child("users");
         reference.addValueEventListener(new ValueEventListener() {
@@ -76,13 +75,11 @@ public class ChatMainActivity extends AppCompatActivity {
                             title.setText(userName);
 
                         } else {
-                            Log.d("ProfileType", "User not found in database: " + currentUserId);
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.d("ProfileType", "Error retrieving profile type: " + databaseError.getMessage());
                     }
                 });
                 usersArrayList.clear();
@@ -103,7 +100,6 @@ public class ChatMainActivity extends AppCompatActivity {
             }
         });
 
-        Log.d("333333333333333333333","333333333333333333333");
 
 
        /* FirebaseUser currentUser = auth.getCurrentUser();
@@ -135,7 +131,6 @@ public class ChatMainActivity extends AppCompatActivity {
             //finish();
         }*/
 
-        Log.d("44444444444444444444","44444444444444444444");
 
 
         reference.addChildEventListener(new ChildEventListener() {
@@ -173,7 +168,6 @@ public class ChatMainActivity extends AppCompatActivity {
             }
         });
 
-        Log.d("555555555555555555555","555555555555555555555");
 
 
         imglogout = findViewById(R.id.logoutimg);
@@ -187,7 +181,6 @@ public class ChatMainActivity extends AppCompatActivity {
             }
         });
 
-        Log.d("666666666666666666","666666666666666666");
 
         /*setbut.setOnClickListener(new View.OnClickListener() {
             @Override

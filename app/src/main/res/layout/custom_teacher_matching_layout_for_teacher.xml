@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/teacherPostJobLayout"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="30dp"
@@ -11,270 +11,341 @@
     app:cardElevation="5dp"
     android:backgroundTint="#E4ECEC"
     >
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/rounded_corners_recycler_view"
-        android:layout_marginBottom="10dp">
+        android:background="@drawable/rounded_corners_recycler_view">
 
         <ImageView
             android:id="@+id/profileImageView"
             android:layout_width="50dp"
-            android:layout_height="85dp"
+            android:layout_height="125dp"
+            android:layout_marginStart="10dp"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="15dp"
             android:layout_centerVertical="true"
-            android:layout_marginTop="25dp"
-            android:src="@drawable/user"/>
+            android:src="@drawable/user"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/coursesTextViewTemp" />
 
         <ImageView
             android:id="@+id/coursesImage"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/courses_icon"
+            android:layout_marginTop="20dp"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="25dp"
+            android:layout_marginStart="10dp"
+
             android:layout_toEndOf="@id/profileImageView"
-            android:layout_marginStart="10dp"/>
+            android:src="@drawable/courses_icon"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/coursesTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="5dp"
+
             android:layout_toEndOf="@id/coursesImage"
-            android:layout_marginTop="25dp"
             android:text="Courses : "
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/coursesImage"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/coursesTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginTop="21dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:layout_toEndOf="@+id/coursesTextViewTemp"
             android:textColor="#1A8E9E"
-            android:textSize="12sp" />
-
-       <!-- <View
-            android:id="@+id/tempView1"
-            android:layout_width="405dp"
-            android:layout_height="2dp"
-            android:layout_below="@id/coursesTextView"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
-            android:layout_marginStart="1dp"
-            android:layout_marginTop="15dp"
-            android:background="#B9E9EF" />-->
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/coursesTextViewTemp"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/locationIcon"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:layout_toEndOf="@id/profileImageView"
-            android:layout_below="@id/coursesTextView"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:layout_marginStart="10dp"
-            android:src="@drawable/location_icon"/>
+
+            android:layout_below="@id/coursesTextView"
+            android:layout_toEndOf="@id/profileImageView"
+            android:src="@drawable/location_icon"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
 
         <TextView
             android:id="@+id/locationTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location : "
+            android:layout_marginTop="15dp"
             android:layout_below="@id/coursesTextView"
             android:layout_toEndOf="@id/locationIcon"
-            android:layout_marginTop="7dp"
+            android:text="Location : "
             android:textSize="12sp"
-            android:layout_marginStart="8dp"/>
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/locationIcon"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
 
         <TextView
             android:id="@+id/locationTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:layout_below="@id/coursesTextView"
             android:layout_toEndOf="@id/locationTextViewTemp"
-            android:layout_marginTop="7dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="20dp"
             android:textColor="#1A8E9E"
             android:textSize="12sp"
-            />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/locationTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
 
         <ImageView
             android:id="@+id/teachingMethodImageView"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:layout_toEndOf="@id/profileImageView"
-            android:layout_below="@id/locationTextView"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="12dp"
-            android:src="@drawable/teaching_method_icon_2" />
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/locationTextView"
+            android:layout_toEndOf="@id/profileImageView"
+            android:src="@drawable/teaching_method_icon_2"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
+
         <TextView
             android:id="@+id/teachingMethodTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Teaching Method : "
-            android:layout_toEndOf="@id/teachingMethodImageView"
             android:layout_below="@id/locationTextView"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/teachingMethodImageView"
+            android:text="Teaching Method : "
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
             android:textSize="12sp"
-            />
+            app:layout_constraintStart_toEndOf="@+id/teachingMethodImageView"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
 
         <TextView
             android:id="@+id/teachingMethodTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/teachingMethodTextViewTemp"
             android:layout_below="@id/locationTextView"
-            android:textSize="12sp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/teachingMethodTextViewTemp"
             android:textColor="#1A8E9E"
-            android:layout_marginEnd="20dp"
-            />
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/teachingMethodTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
 
         <ImageView
+            android:id="@+id/imageView4"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/availability_icon"
-            android:layout_toEndOf="@id/profileImageView"
+            android:layout_marginTop="15dp"
             android:layout_marginStart="10dp"
             android:layout_below="@id/teachingMethodTextView"
-            android:layout_marginTop="12dp"
-            />
+            android:layout_toEndOf="@id/profileImageView"
+            android:src="@drawable/availability_icon"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toBottomOf="@+id/teachingMethodTextView" />
+
         <TextView
             android:id="@+id/availableTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Availability : "
-            android:layout_toEndOf="@id/teachingMethodImageView"
             android:layout_below="@id/teachingMethodTextView"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/teachingMethodImageView"
+            android:text="Availability : "
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
             android:textSize="12sp"
-            />
+            app:layout_constraintStart_toEndOf="@+id/imageView4"
+            app:layout_constraintTop_toBottomOf="@+id/teachingMethodTextView" />
 
         <TextView
             android:id="@+id/availableTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/availableTextViewTemp"
             android:layout_below="@id/teachingMethodTextView"
-            android:textSize="12sp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/availableTextViewTemp"
             android:textColor="#1A8E9E"
-            android:layout_marginEnd="20dp"
-            />
-
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/availableTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/teachingMethodTextView" />
 
 
         <ImageView
             android:id="@+id/clockIcon"
             android:layout_width="18dp"
             android:layout_height="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="10dp"
             android:layout_below="@id/availableTextView"
             android:layout_toEndOf="@id/profileImageView"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="12dp"
-            android:src="@drawable/clock_icon"/>
+            android:src="@drawable/clock_icon"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toBottomOf="@+id/availableTextView" />
+
         <TextView
             android:id="@+id/dateTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="Date Period : "
-            android:layout_toEndOf="@id/clockIcon"
-            android:layout_marginStart="8dp"
             android:layout_below="@id/availableTextView"
-            android:layout_marginTop="10dp"/>
+            android:layout_toEndOf="@id/clockIcon"
+            android:text="Date Period : "
+            android:textSize="12sp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/clockIcon"
+            app:layout_constraintTop_toBottomOf="@+id/availableTextView" />
 
         <TextView
             android:id="@+id/dateTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:layout_toEndOf="@id/dateTextViewTemp"
             android:layout_below="@id/availableTextView"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/dateTextViewTemp"
             android:textColor="#1A8E9E"
-            android:layout_marginEnd="20dp"
-            />
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/dateTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/availableTextView" />
 
         <ImageView
             android:id="@+id/educationLevelImageView"
             android:layout_width="18dp"
             android:layout_height="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="10dp"
             android:layout_below="@id/dateTextView"
             android:layout_toEndOf="@id/profileImageView"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="12dp"
-            android:src="@drawable/education_level_icon"/>
+            android:src="@drawable/education_level_icon"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
+
         <TextView
             android:id="@+id/educationLevelViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="Education Level :"
-            android:layout_toEndOf="@id/clockIcon"
-            android:layout_marginStart="8dp"
             android:layout_below="@id/dateTextView"
-            android:layout_marginTop="10dp"/>
+            android:layout_toEndOf="@id/clockIcon"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            android:text="Education Level :"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/educationLevelImageView"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
 
         <TextView
             android:id="@+id/educationLevelTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:layout_toEndOf="@id/educationLevelViewTemp"
             android:layout_below="@id/dateTextView"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/educationLevelViewTemp"
             android:textColor="#1A8E9E"
-            android:layout_marginEnd="20dp"
-            />
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/educationLevelViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
 
         <ImageView
             android:id="@+id/priceImageView"
             android:layout_width="18dp"
             android:layout_height="18dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="10dp"
             android:layout_below="@id/educationLevelTextView"
             android:layout_toEndOf="@id/profileImageView"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="12dp"
-            android:src="@drawable/price_icon"/>
+            android:src="@drawable/price_icon"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toBottomOf="@+id/educationLevelTextView" />
+
         <TextView
             android:id="@+id/priceTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="Price :"
-            android:layout_toEndOf="@id/clockIcon"
-            android:layout_marginStart="8dp"
             android:layout_below="@id/educationLevelTextView"
-            android:layout_marginTop="10dp"/>
+            android:layout_toEndOf="@id/clockIcon"
+            android:text="Price :"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/priceImageView"
+            app:layout_constraintTop_toBottomOf="@+id/educationLevelTextView" />
 
         <TextView
             android:id="@+id/priceTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:layout_toEndOf="@id/priceTextViewTemp"
             android:layout_below="@id/educationLevelTextView"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/priceTextViewTemp"
             android:textColor="#1A8E9E"
-            android:layout_marginEnd="20dp"
-            />
+            android:textSize="12sp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
 
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/priceTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/educationLevelTextView" />
 
+        <TextView
+            android:id="@+id/postedTextViewTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/priceTextView"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="20dp"
+            android:text="Posted : "
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/priceTextView" />
+
+        <TextView
+            android:id="@+id/postedTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/priceTextView"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_toStartOf="@+id/moreDetails"
+            android:layout_toEndOf="@id/postedTextViewTemp"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/moreDetails"
+            app:layout_constraintStart_toEndOf="@+id/postedTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/priceTextView" />
 
         <LinearLayout
             android:id="@+id/moreDetails"
@@ -282,46 +353,27 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/priceTextView"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
-            >
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/priceTextView">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:text="More details"
                 android:layout_gravity="center_vertical"
-                android:layout_marginTop="-2dp"
-                android:layout_marginEnd="-5dp"
-                />
+                android:text="More details"
+                android:textSize="12sp" />
+
             <ImageView
                 android:id="@+id/arrowImageView"
-                android:layout_width="55dp"
+                android:layout_width="35dp"
                 android:layout_height="30dp"
-                android:src="@drawable/right_arrow_icon"
-                />
+                android:src="@drawable/right_arrow_icon" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/postedTextViewTemp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Posted : "
-            android:textSize="12sp"
-            android:layout_below="@id/priceTextView"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="12dp"/>
-
-        <TextView
-            android:id="@+id/postedTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/priceTextView"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="10dp"
-            android:layout_toStartOf="@+id/moreDetails"
-            android:layout_toEndOf="@id/postedTextViewTemp"
-            android:textSize="12sp" />
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

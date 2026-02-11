@@ -44,8 +44,26 @@
 
         <receiver
             android:name=".broadcastReceiver.BroadcastHandler"
-            android:exported="true"
-            android:permission="TODO" />
+            android:exported="false"
+            android:permission="TODO">
+            <intent-filter>
+                <action android:name="UPDATE_TEACHER_UI" />
+                <action android:name="SHOW_RECEIVED_REQUESTS_FOR_PARENT" />
+                <action android:name="UPDATE_NOTIFICATIONS_RECYCLER_VIEW" />
+                <action android:name="SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT" />
+                <action android:name="UPDATE_POSTED_DATA_FOR_PARENT" />
+                <action android:name="NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED" />
+                <action android:name="SHOW_RECEIVED_REQUESTS_FOR_PARENT" />
+                <action android:name="SHOW_DELETE_COURSE_REQUEST_FOR_PARENT" />
+                <action android:name="SHOW_DECLINED_DELETE_COURSE_FOR_PARENT" />
+                <action android:name="SHOW_TEACHER_RECEIVED_REQUESTS" />
+                <action android:name="SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER" />
+                <action android:name="UPDATE_TEACHER_POSTED_REQUESTS" />
+                <action android:name="SHOW_TEACHER_RECEIVED_REQUESTS" />
+                <action android:name="SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER" />
+                <action android:name="SHOW_DELETE_DECLINED_COURSE_REQUEST_FOR_TEACHER" />
+            </intent-filter>
+        </receiver>
 
         <service android:name=".backgroundActions.NotificationsService" />
 

@@ -40,7 +40,6 @@ public class ChatViewModel extends ViewModel {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("ChatViewModel", "Database error: " + error.getMessage());
             }
         });
     }

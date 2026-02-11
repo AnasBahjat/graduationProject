@@ -194,7 +194,6 @@ public class ParentActivity extends AppCompatActivity implements
             });
         }
         else {
-            Log.e("AuthError", "User is not logged in");
         }
 
         if(doneInformation.equalsIgnoreCase("1")){
@@ -719,7 +718,6 @@ public class ParentActivity extends AppCompatActivity implements
         else if(menuItem.getItemId() == R.id.lookForTeacher){
             if(doneInformation.equalsIgnoreCase("1"))
             {
-                Toast.makeText(this, "Look For Teacher", Toast.LENGTH_SHORT).show();
                 database.getParentChildren(email,this);
             }
             else{
@@ -729,28 +727,27 @@ public class ParentActivity extends AppCompatActivity implements
         else if(menuItem.getItemId() == R.id.addNewChild){
             if(doneInformation.equalsIgnoreCase("1"))
                 {
-                    Toast.makeText(this, "Add New Child", Toast.LENGTH_SHORT).show();
                     showNewChildrenDialog();
                 }
             else
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
         }
         else if(menuItem.getItemId() == R.id.myReceivedRequests){
-            Log.d("11111------22222222", "11111------22222222");
            /* Intent intentFilter = new Intent();
             intentFilter.setAction("PARENT_POSTED_REQUESTS_ITEM_CLICKED");
             sendBroadcast(intentFilter);*/
             Intent intent = new Intent();
             intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(menuItem.getItemId() == R.id.teacherPostedRequests){
             Intent intentFilter = new Intent();
             intentFilter.setAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
+            intentFilter.setPackage(getPackageName());
             sendBroadcast(intentFilter);
         }
         else if(menuItem.getItemId() == R.id.profile){
-            Toast.makeText(this, "Look For Teacher", Toast.LENGTH_SHORT).show();
             MyAlertDialog.showCustomAlertDialogLoginError(this,"!!","Coming Soon !!");
             // loadFragment(new ParentProfileFragment());
         }
@@ -776,6 +773,7 @@ public class ParentActivity extends AppCompatActivity implements
             parentInformationPopupWindow.dismiss();
             Intent broadcastIntent = new Intent();
             broadcastIntent.setAction("UPDATE_POSTED_DATA_FOR_PARENT");
+            broadcastIntent.setPackage(getPackageName());
             sendBroadcast(broadcastIntent);
         }
         else {
@@ -848,16 +846,24 @@ public class ParentActivity extends AppCompatActivity implements
         EditText endTimePickerEditText= dialogView.findViewById(R.id.endTimeEdtText);
 
         searchingForTeacherDialog = builder.create();
-        searchingForTeacherDialog.show();
         searchingForTeacherDialog.setCancelable(false);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(searchingForTeacherDialog.getWindow().getAttributes());
-        layoutParams.width = 1300;
-        layoutParams.height = 2000;
-        searchingForTeacherDialog.getWindow().setAttributes(layoutParams);
-        searchingForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        if(searchingForTeacherDialog.getWindow() != null)
-            searchingForTeacherDialog.getWindow().setLayout(1300,2500);
+        searchingForTeacherDialog.show();
+        Window window = searchingForTeacherDialog.getWindow();
+        if(window != null){
+
+            // Get screen size
+            DisplayMetrics metrics = ParentActivity.this.getResources().getDisplayMetrics();
+            int screenWidth = metrics.widthPixels;
+            int screenHeight = metrics.heightPixels;
+
+            // 95% width, 100% height
+            int dialogWidth = (int) (screenWidth * 0.95);
+            int dialogHeight = screenHeight;
+
+            window.setLayout(dialogWidth, dialogHeight);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setGravity(Gravity.CENTER); // optional, for nice centering
+        }
 
 
         CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this,childrenSpinnerList);
@@ -1315,6 +1321,7 @@ public class ParentActivity extends AppCompatActivity implements
             searchingForTeacherDialog.dismiss();
             Intent intent = new Intent();
             intent.setAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(resultFlag == -1){
@@ -1437,18 +1444,22 @@ public class ParentActivity extends AppCompatActivity implements
             database.setNotificationIsRead(notification.getNotificationId());
             Intent intent = new Intent();
             intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(notification.getNotificationType() == 20){
             Intent intent = new Intent();
             intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_PARENT");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(notification.getNotificationType() == 22){
             Intent intent = new Intent();
             intent.setAction("SHOW_DECLINED_DELETE_COURSE_FOR_PARENT");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
     }

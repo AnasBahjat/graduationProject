@@ -5,6 +5,7 @@ import android.os.Message;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -45,7 +46,7 @@ public class ChatMainActivity2 extends AppCompatActivity {
     Set<String> loadedUsers;
     ImageView backImage;
     String currentUserName ;
-    TextView userNameTextView;
+    TextView userNameTextView, noChatsView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +58,7 @@ public class ChatMainActivity2 extends AppCompatActivity {
     private void init(){
         backImage = findViewById(R.id.logoutimg);
         recyclerView = findViewById(R.id.chatsRecycler);
+        noChatsView = findViewById(R.id.noChatsView);
         currentUserName = getIntent().getStringExtra("userName");
         userNameTextView = findViewById(R.id.userName);
         userNameTextView.setText(currentUserName);
@@ -91,7 +93,7 @@ public class ChatMainActivity2 extends AppCompatActivity {
         });
     }*/
 
-    private void loadUserChats(){
+    /*private void loadUserChats(){
         chatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -115,6 +117,58 @@ public class ChatMainActivity2 extends AppCompatActivity {
 
             }
         });
+    }*/
+
+    private void loadUserChats(){
+        chatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                usersList.clear();
+                lastMessagesMap.clear();
+                loadedUsers.clear();
+
+                for(DataSnapshot chatSnap : snapshot.getChildren()){
+
+                    DataSnapshot messagesSnap = chatSnap.child("messages");
+
+                    if(!messagesSnap.exists()) continue;
+
+                    for(DataSnapshot msgSnap : messagesSnap.getChildren()){
+                        MessageModel msg = msgSnap.getValue(MessageModel.class);
+
+                        if(msg == null) continue;
+
+                        // Check if current user is part of this chat
+                        if(msg.getSenderId().equals(currentUserId) ||
+                                msg.getReceiverId().equals(currentUserId)){
+
+                            String otherUserId;
+
+                            if(msg.getSenderId().equals(currentUserId)){
+                                otherUserId = msg.getReceiverId();
+                            } else {
+                                otherUserId = msg.getSenderId();
+                            }
+
+                            if(!loadedUsers.contains(otherUserId)){
+                                loadedUsers.add(otherUserId);
+                                fetchUser(otherUserId, chatSnap.getKey());
+                            }
+
+                            break; // one message is enough to identify the chat
+                        }
+                    }
+                }
+
+                // Update no chats view visibility based on loaded users
+                updateNoChatsViewVisibility();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateNoChatsViewVisibility();
+            }
+        });
     }
 
     private void fetchUser(String otherUserId, String chatId){
@@ -126,11 +180,12 @@ public class ChatMainActivity2 extends AppCompatActivity {
                     usersList.add(user);
                     loadLastMessage(chatId, otherUserId);
                 }
+                updateNoChatsViewVisibility();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                updateNoChatsViewVisibility();
             }
         });
     }
@@ -147,10 +202,23 @@ public class ChatMainActivity2 extends AppCompatActivity {
                             lastMessagesMap.put(otherUserId, msg);
                             chatsAdapter.notifyDataSetChanged();
                         }
+                        updateNoChatsViewVisibility();
                     }
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {}
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        updateNoChatsViewVisibility();
+                    }
                 });
+    }
+
+    private void updateNoChatsViewVisibility() {
+        if (usersList.isEmpty()) {
+            noChatsView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            noChatsView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     public void finishChatActivity(View view) {

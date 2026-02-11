@@ -362,8 +362,6 @@ public class ChatWindowActivity extends AppCompatActivity {
         backImage.setOnClickListener(v->{
             finish();
         });
-        Log.d("Sender UID --------> "+senderUID,"Sender UID --------> "+senderUID);
-        Log.d("Reciever UID --------> "+reciverUid,"Reciver Uid --------> "+reciverUid);
 
         senderRoom = senderUID + reciverUid;
         reciverRoom = reciverUid + senderUID;
@@ -383,7 +381,6 @@ public class ChatWindowActivity extends AppCompatActivity {
                     msgModelclass messages = dataSnapshot.getValue(msgModelclass.class);
                     if (messages != null) {
                         messagesArrayList.add(messages);
-                        Log.d("msgad", "msg adapter run: " + "++++++++++++++++++++++++++++++++++++++++++++++++");
                     }
                 }
                 messagesAdapter.notifyDataSetChanged();
@@ -448,14 +445,11 @@ public class ChatWindowActivity extends AppCompatActivity {
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (!task.isSuccessful()) {
                                                         MyAlertDialog.showCustomAlertDialogSpinnerError(ChatWindowActivity.this, "Message Error", "Failed to send message to receiver ...");
-                                                        Toast.makeText(ChatWindowActivity.this, "Failed to send message to receiver", Toast.LENGTH_SHORT).show();
-                                                        Log.e("Firebase", "Failed to send message to receiver", task.getException());
                                                     }
                                                 }
                                             });
                                 } else {
                                     MyAlertDialog.showCustomAlertDialogSpinnerError(ChatWindowActivity.this, "Message Error", "Failed to send message to receiver ...");
-                                    Toast.makeText(ChatWindowActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
                                     Log.e("Firebase", "Failed to send message", task.getException());
                                 }
                             }
@@ -489,9 +483,7 @@ public class ChatWindowActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    Log.d("Firebase", "Message updated successfully.");
                                 } else {
-                                    Log.e("Firebase", "Failed to update message: " + task.getException().getMessage());
                                 }
                             }
                         });

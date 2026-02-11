@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -130,7 +131,7 @@ public class Database {
             else {
                 Intent intent = new Intent();
                 intent.setAction("UPDATE_NOTIFICATIONS_RECYCLER_VIEW");
-                context.sendBroadcast(intent);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
         },err->{
             if(err.toString().equalsIgnoreCase("Error")){
@@ -189,20 +190,16 @@ public class Database {
             public void onResponse(String response) {
                 switch (response) {
                     case "email does not exist":
-                        Log.e("No Email ---->", "No Email ---->");
                         requestFlagSetResult.onLoginSuccess("email does not exist", null);
                         break;
                     case "wrong password":
-                        Log.e("Wrong Password  ---->", "Wrong Password ---->");
                         requestFlagSetResult.onLoginSuccess("wrong password", null);
                         break;
                     case "ERROR":
-                        Log.e("Error ---->", "Error ---->");
                         requestFlagSetResult.onLoginSuccess("ERROR", null);
                         break;
                     default:
                         try {
-                            Log.e("Correct Login ---->", "Correct Login---->");
 
                             requestFlagSetResult.onLoginSuccess("success", new JSONArray(response));
                         } catch (JSONException e) {
@@ -212,7 +209,6 @@ public class Database {
                 }
             }
         }, volleyError -> {
-            Log.d("errorr---> "+volleyError,"errorr---> "+volleyError);
             requestFlagSetResult.onLoginSuccess("volleyError",null);
             successFlag=-1;
         }){
@@ -260,7 +256,6 @@ public class Database {
                         }
                     }
                 else {
-                    Log.d("Database", "Request failed");
                 }
 
             }
@@ -268,7 +263,6 @@ public class Database {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 successFlag=-1;
                 requestResult.onSuccess(-1);
-                Log.e("MainActivity", "Request failed", t);
             }
         });
     }
@@ -279,15 +273,12 @@ public class Database {
 
         StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.registrationURL, s -> {
             if(s.equals("True")){
-                Log.d("------> True","------> True");
                 requestFlagSetResult.onSuccess(1);
             }
             else if (s.equals("exist")){
-                Log.d("------> Exists","------> Exists");
                 requestFlagSetResult.onSuccess(-2);
             }
             else {
-                Log.d("------> Error","------> Error");
                 requestFlagSetResult.onSuccess(0);
             }
         }, volleyError -> {
@@ -323,10 +314,8 @@ public class Database {
             public void onResponse(Call<String> call, retrofit2.Response<String> response) {
                 if(response.isSuccessful() && response.body() != null){
                     if(response.body().equals("done")){
-                        Log.d("Data updated ---->","Data updated ---->");
                     }
                     else {
-                        Log.d("ERRRRORRRRRRRR !!!!1","ERRRRRRRORRRRRR!!!!!");
                     }
                 }
             }
@@ -339,62 +328,8 @@ public class Database {
 
     }
 
-    public void updateLogin(String email) {
-        StringRequest stringRequest=new StringRequest(Request.Method.POST, updateLoginURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                if(s.equals("done")){
-                    Log.d("Data updated ---->","Data updated ---->");
-                }
-                else {
-                    Log.d("ERRRRORRRRRRRR !!!!1","ERRRRRRRORRRRRR!!!!!");
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String>data=new HashMap<>();
-                data.put("email",email);
-                return data;
-            }
-        };
-        requestQueue=Volley.newRequestQueue(context);
-        requestQueue.add(stringRequest);
-    }
 
 
-    public void updateLogout(String email){
-        StringRequest stringRequest=new StringRequest(Request.Method.POST, updateLogoutURL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                if(s.equals("done")){
-                    Log.d("Data updated ---->","Data updated ---->");
-                }
-                else {
-                    Log.d("ERRRRORRRRRRRR !!!!1","ERRRRRRRORRRRRR!!!!!");
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String>data=new HashMap<>();
-                data.put("email",email);
-                return data;
-            }
-        };
-        requestQueue=Volley.newRequestQueue(context);
-        requestQueue.add(stringRequest);
-    }
 
     public void updateTeacherInformation(Teacher teacher,String fullPhoneNumber,final TeacherAccountConfirmationListener requestResult){
         StringRequest stringRequest=new StringRequest(Request.Method.POST, Constants.updateTeacherInformation, s-> {
@@ -405,11 +340,9 @@ public class Database {
                     requestResult.onResult(1);
                 }
                 else {
-                    Log.d(s,s);
                     requestResult.onResult(-1);
                 }
         }, err-> {
-                Log.d(err.toString(),err.toString());
                 requestResult.onResult(-2);
         }){
             @Override
@@ -475,11 +408,9 @@ public class Database {
                 updateParentInformation.onResult(1);
             }
             else {
-                Log.d("--------> parent "+resp,"------> parent"+resp);
                 updateParentInformation.onResult(0);
             }
         },err->{
-            Log.d("--------> parent "+err.toString(),"------> parent"+err.toString());
 
             updateParentInformation.onResult(-1);
         }){
@@ -504,7 +435,6 @@ public class Database {
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllTeacherData,resp->{
             try {
-                Log.d("Reqesttt---> "+resp,"Reqesttt---> "+resp);
                 if(resp.equalsIgnoreCase("Connection Error")){
                     tellParentDataIsReady.onDataReady(-3,null);
                 }
@@ -716,7 +646,6 @@ public class Database {
     }
 
     public void getParentPostedMatchingInformation(String parentEmail , final ParentListenerForParentPostedRequests parentInformationListener){
-        Log.d("111111111111111111111111111", "1111111111111111111111111111");
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentPostedMatchingInformation,resp->{
             if (resp.equalsIgnoreCase("ERROR")){
@@ -823,7 +752,6 @@ public class Database {
             else if(resp.equalsIgnoreCase("Done"))
                 teacherPostListener.onTeacherPostAdded(1);
         },err->{
-            Log.d("the error is ++++ "+err,"the error is ++++ "+err);
             teacherPostListener.onTeacherPostAdded(0);
         }){
             @Override
@@ -1094,7 +1022,6 @@ public class Database {
                 onTeacherReceivedRequests.onRequestsReceived(0,null);
             else {
                 try {
-                    Log.d("----------------->","Requests Fetched ....");
                     onTeacherReceivedRequests.onRequestsReceived(1,new JSONArray(res));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -1314,24 +1241,20 @@ public class Database {
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getParentReceivedRequest,resp->{
             if(resp.equalsIgnoreCase("No Requests")){
-                Log.d("----------------->1111111111111111","Requests Fetched ....");
 
                 onReceivedRequestsListener.onRequestsReceived(0,null);
             }
             else if(resp.equalsIgnoreCase("Error")){
-                Log.d("----------------->222222222222222222","Requests Fetched ....");
 
                 onReceivedRequestsListener.onRequestsReceived(-1,null);
 
             }
             else if(resp.equalsIgnoreCase("Connection Error")){
-                Log.d("----------------->33333333333333333333","Requests Fetched ....");
 
                 onReceivedRequestsListener.onRequestsReceived(-2,null);
             }
             else {
                 try {
-                    Log.d("----------------->444444444444444444","Requests Fetched ....");
                     onReceivedRequestsListener.onRequestsReceived(1,new JSONArray(resp));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -1684,7 +1607,6 @@ public class Database {
     public void getAllParentCoursesDatesBeforeSendRequest(String parentEmail,final OnParentCoursesFetchedForConflictListener onParentCOursesFetchedForConflictListener){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllParentCoursesDatesAndTime,resp->{
-            Log.d("RRRESSSPPP ----> "+resp,"RRRESSSPPP ----> "+resp);
             try {
                 if(resp.equalsIgnoreCase("Error")){
                     onParentCOursesFetchedForConflictListener.onParentCoursesFetched(-1,null);
@@ -1731,7 +1653,6 @@ public class Database {
     public void getAllParentCourses(String email,final FetchCoursesListener onCoursesFetched){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getAllParentCourses,resp->{
-            Log.d("RRRESSSPPP ----> "+resp,"RRRESSSPPP ----> "+resp);
             try {
                 if(resp.equalsIgnoreCase("Error")){
                     onCoursesFetched.onCoursesFetched(-1,null);
@@ -1935,7 +1856,6 @@ public class Database {
     public void getSpecificParentCourse(int courseId , final OnCourseFetchedForParentListener onCourseFetchedForParentListener){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getSpecificParentCourse,resp->{
-            Log.d("33333333 "+resp,"33333333 "+resp);
             if(resp.equalsIgnoreCase("No Course")){
                 onCourseFetchedForParentListener.onCourseFetched(0,null);
             }
@@ -2005,10 +1925,6 @@ public class Database {
     public void getSpecificTeacherDeclinedCourse(int parentRequestId,int teacherRequestId,int courseId , final OnCourseDeclinedFetchedListener onCourseDeclinedFetchedListener){
         requestQueue = Volley.newRequestQueue(context);
         StringRequest stringRequest = new StringRequest(Request.Method.POST,Constants.getSpecificDeclinedCourseForParent,resp->{
-            Log.d("-------> "+parentRequestId,"-------> "+parentRequestId);
-            Log.d("-------> "+teacherRequestId,"-------> "+teacherRequestId);
-            Log.d("-------> "+courseId,"-------> "+courseId);
-            Log.d("-------> "+resp,"-------> "+resp);
             if(resp.equalsIgnoreCase("No Course")){
                 onCourseDeclinedFetchedListener.onCourseDeclined(0,null);
             }

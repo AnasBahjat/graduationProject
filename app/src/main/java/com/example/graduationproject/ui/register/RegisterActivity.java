@@ -302,7 +302,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         }
         else if(!checkAll()){
             MyAlertDialog.showCustomAlertDialogLoginError(this, "Register Error", "Please make sure you added correct personal information, check inputs.");
-            Toast.makeText(RegisterActivity.this,"ERROR ..",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -384,7 +383,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             auth.createUserWithEmailAndPassword(emailStr, passwordStr)
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) {
-                            Log.e("FirebaseAuth", "User creation failed", task.getException());
                             return;
                         }
                         FirebaseUser firebaseUser = auth.getCurrentUser();
@@ -408,9 +406,9 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
 
                         userRef.setValue(userData)
                                 .addOnSuccessListener(aVoid ->
-                                        Log.d("Firebase", "User added under users/" + userId))
+                                {})
                                 .addOnFailureListener(e ->
-                                        Log.e("Firebase", "Failed to add user to DB", e));
+                                {});
                     });
             MyAlertDialog.registrationDone(
                     RegisterActivity.this,

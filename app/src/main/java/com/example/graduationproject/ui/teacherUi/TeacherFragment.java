@@ -21,12 +21,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -1074,14 +1076,22 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             teacherPostedRequestCardLayoutBinding = TeacherPostedRequestCardLayoutBinding.inflate(LayoutInflater.from(getContext()));
             teacherPostedRequestCardDialog.setContentView(teacherPostedRequestCardLayoutBinding.getRoot());
             teacherPostedRequestCardDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(teacherPostedRequestCardDialog.getWindow()).getAttributes());
-            layoutParams.width = 1250;
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            teacherPostedRequestCardDialog.getWindow().setAttributes(layoutParams);
-            if (teacherPostedRequestCardDialog.getWindow() != null)
-                teacherPostedRequestCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            //teacherPostedRequestCardDialog.show();
+
+// Get display metrics to calculate screen width
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+            int screenWidth = displayMetrics.widthPixels;
+            int screenHeight = displayMetrics.heightPixels;
+
+            Window window = teacherPostedRequestCardDialog.getWindow();
+            if (window != null) {
+                window.setLayout((int) (screenWidth * 0.9), ViewGroup.LayoutParams.WRAP_CONTENT);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+
+                // Optional: Set gravity to center
+                window.setGravity(Gravity.CENTER);
+            }
 
             isTeacherPostedRequestCardDialogShowing = true;
             new Handler().postDelayed(() -> {
@@ -1536,7 +1546,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 updatePostedTeacherLookForAJobLayoutBinding.coursesFlexBoxLayout.addView(customView);
             }
         } catch (Exception e) {
-            Log.e("The exception is -------> " + e.getMessage(), "The exception is -------> " + e.getMessage());
         }
     }
 
@@ -1559,13 +1568,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
         } else if (flag == 1) {
             database.getTeacherPostedRequests(email, this);
-            Log.d("Showing the progress bar ..", "Showing the progress bar ..");
             updatePostedRequestDialog.dismiss();
             isTeacherPostedRequestCardDialogShowing=false;
             teacherPostedRequestCardDialog.dismiss();
             new Handler().postDelayed(() -> {
                 binding.progressBarLayout.setVisibility(View.GONE);
-                Log.d("hiding the progress bar ..", "hiding the progress bar ..");
             }, 1500);
         } else {
 
@@ -1655,25 +1662,36 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             parentPostedRequestsForTeacherDialog = new Dialog(getContext());
             parentPostedRequestsForTeacherDialog.setContentView(dialogTeacherMatchingOnCardClickedBinding.getRoot());
             parentPostedRequestsForTeacherDialog.setCancelable(false);
+
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            parentPostedRequestsForTeacherDialog.getWindow().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int screenWidth = displayMetrics.widthPixels;
+            int screenHeight = displayMetrics.heightPixels;
+
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(parentPostedRequestsForTeacherDialog.getWindow().getAttributes());
-            layoutParams.width = 1250;
+
+            layoutParams.width = (int) (screenWidth * 0.90);
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+
             parentPostedRequestsForTeacherDialog.getWindow().setAttributes(layoutParams);
-            if (parentPostedRequestsForTeacherDialog.getWindow() != null)
+
+            // Set transparent background
+            if (parentPostedRequestsForTeacherDialog.getWindow() != null) {
                 parentPostedRequestsForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            // parentPostedRequestsForTeacherDialog.show();
+
+                // Optional: Add window animations
+                //parentPostedRequestsForTeacherDialog.getWindow().setWindowAnimations(R.style.);
+            }
+
             tempRequestToSendDateTimeModel = new DateTimeModel(teacherMatchModel.getStartDate(),
                     teacherMatchModel.getEndDate(),
                     teacherMatchModel.getStartTime(),
                     teacherMatchModel.getEndTime(),
                     teacherMatchModel.getChoseDays());
 
-
             database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
-           // database.getAllTeacherCoursesDatesBeforeSendRequest(email,this);
-
-          //ToDo ----> after there is no conflict do this -->  database.checkIfTeacherRequestSentBefore(email, teacherMatchModel, this);
 
             dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z -> {
                 parentPostedRequestsForTeacherDialog.dismiss();
@@ -1686,7 +1704,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             dialogTeacherMatchingOnCardClickedBinding.sendMessageToParentBtn.setOnClickListener(a->{
                 getUserInfoByEmail(receiverEmail);
             });
-
 
             dialogTeacherMatchingOnCardClickedBinding.requestSentTextView.setOnClickListener(v -> {
                 database.deleteTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
@@ -1940,17 +1957,34 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private void setTeacherReceivedRequestsToRequestsDialog(List<TeacherReceivedRequest> teacherReceivedRequests) {
         if (getContext() != null) {
             tempTeacherReceivedRequestsList = teacherReceivedRequests;
-            teacherReceivedRequestDialog = new Dialog(getContext());
-            teacherReceivedRequestsDialogLayoutBinding = TeacherReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+
+            teacherReceivedRequestDialog = new Dialog(requireContext());
+            teacherReceivedRequestsDialogLayoutBinding =
+                    TeacherReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(requireContext()));
+
             teacherReceivedRequestDialog.setContentView(teacherReceivedRequestsDialogLayoutBinding.getRoot());
             teacherReceivedRequestDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(teacherReceivedRequestDialog.getWindow()).getAttributes());
-            layoutParams.width = 1250;
-            layoutParams.height = 2500;
-            teacherReceivedRequestDialog.getWindow().setAttributes(layoutParams);
-            if (teacherReceivedRequestDialog.getWindow() != null)
-                teacherReceivedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+            Window window = teacherReceivedRequestDialog.getWindow();
+            if (window != null) {
+
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+                int screenWidth = displayMetrics.widthPixels;
+                int screenHeight = displayMetrics.heightPixels;
+
+                layoutParams.width = (int) (screenWidth * 0.95);
+                layoutParams.height = (int) (screenHeight * 0.90);
+
+                window.setAttributes(layoutParams);
+
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
             teacherReceivedRequestDialog.show();
 
             teacherReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(z -> {

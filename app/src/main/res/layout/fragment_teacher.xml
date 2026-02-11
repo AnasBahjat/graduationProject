@@ -1,98 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/employerFragment"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/employerFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="#2196F3"
     android:fitsSystemWindows="true">
 
-
     <SearchView
         android:id="@+id/teacherFragmentSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginEnd="45dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="25dp"
         android:background="@drawable/search_view_bg"
-        android:queryHint="Search For Matching , location ..." />
-
-
-   <!-- <SearchView
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginEnd="45dp"
-        android:background="@drawable/edit_text_style"
-        android:queryHint="search here"
+        android:queryHint="Search For Matching , location ..."
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"/>-->
+        app:layout_constraintTop_toTopOf="parent" />
 
-
-    <LinearLayout
-        android:id="@+id/teacherSuggestionLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/teacherFragmentSearch"
-        android:layout_alignParentStart="true"
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/myCoursesBtn"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="50dp"
-        android:orientation="horizontal">
+        android:layout_marginTop="25dp"
+        android:background="@drawable/rounded_button"
+        android:focusable="true"
+        android:text="My Courses"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/teacherFragmentSearch" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/myCoursesBtn"
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/rounded_button"
-            android:text="My Courses"
-            android:focusable="true"
-            android:textSize="17sp"
-            android:textAllCaps="false"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/myPostedRequestsBtn"
-            android:layout_width="170dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/rounded_button"
-            android:text="My Posted Requests"
-            android:focusable="true"
-            android:textSize="17sp"
-            android:layout_marginStart="10dp"
-            android:layout_marginBottom="10dp"
-            android:textAllCaps="false"/>
-    </LinearLayout>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/myPostedRequestsBtn"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/rounded_button"
+        android:focusable="true"
+        android:text="My Posted Requests"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/myCoursesBtn"
+        app:layout_constraintTop_toBottomOf="@+id/teacherFragmentSearch" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refreshRecyclerView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/teacherSuggestionLayout"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="0dp"
-        android:layout_marginEnd="5dp"
 
-        android:layout_marginStart="5dp">
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="160dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myPostedRequestsBtn">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/addedCoursesRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="634dp"
+            android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="0dp"
-            android:layout_marginEnd="5dp"
             android:layout_marginStart="5dp"
-            android:background="@drawable/rounded_corners_recycler_view"/>
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="0dp"
+            android:background="@drawable/rounded_corners_recycler_view" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
 
     <TextView
         android:id="@+id/pleaseConfirmAccountText"
@@ -100,11 +81,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_centerInParent="true"
-        android:layout_marginTop="330dp"
         android:text="@string/please_confirm_your_account_msg"
         android:textColor="#7E7A7A"
         android:textSize="20sp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/noDataAddedText"
@@ -112,11 +96,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_centerInParent="true"
-        android:layout_marginTop="330dp"
         android:text="You Don't Have Any Courses"
         android:textColor="#7E7A7A"
         android:textSize="20sp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
@@ -125,24 +112,29 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_centerInParent="true"
-        android:layout_marginTop="330dp"
         android:text="You Posted Requests"
         android:textColor="#7E7A7A"
         android:textSize="20sp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/noMatchedData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/teacherFragmentSearch"
+        android:layout_centerInParent="true"
         android:text="No Matched Data .."
         android:textColor="#7E7A7A"
-        android:layout_below="@+id/teacherFragmentSearch"
         android:textSize="20sp"
         android:visibility="gone"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="330dp"/>
-
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
         android:id="@+id/loadingProgressBar"
@@ -150,56 +142,64 @@
         android:layout_height="65dp"
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_centerInParent="true"
-        android:layout_marginTop="330dp"
         android:visibility="gone"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <RelativeLayout
         android:id="@+id/loadingProgressBar2"
         android:layout_width="220dp"
         android:layout_height="120dp"
-        android:background="@drawable/rounded_corners"
         android:layout_centerInParent="true"
+        android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/unreadColor"
-        android:visibility="gone">
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:orientation="vertical">
+
             <ProgressBar
                 android:layout_width="55dp"
                 android:layout_height="55dp"
                 android:layout_gravity="center"
-                android:indeterminateTint="@color/usedColor"
-                />
+                android:indeterminateTint="@color/usedColor" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fetching Data"
-                android:layout_marginTop="5dp"
-                android:textSize="17sp"
                 android:layout_gravity="center"
-                />
+                android:layout_marginTop="5dp"
+                android:text="Fetching Data"
+                android:textSize="17sp" />
         </LinearLayout>
-
     </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/filterLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
         android:layout_below="@+id/teacherFragmentSearch"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="15dp"
-        android:layout_toEndOf="@+id/teacherSuggestionLayout"
-        android:visibility="gone">
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/refreshRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/teacherFragmentSearch">
 
         <ImageView
             android:id="@+id/filterImage"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_margin="5dp"
             android:contentDescription="Filter"
             android:src="@drawable/filter_icon"
@@ -217,32 +217,37 @@
 
     <RelativeLayout
         android:id="@+id/progressBarLayout"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/gray"
         android:layout_width="300dp"
         android:layout_height="150dp"
         android:layout_centerInParent="true"
-        android:visibility="gone">
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/gray"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:indeterminateTint="#4EB2BF"
-            android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="15dp"
-            android:indeterminate="true"/>
+            android:indeterminate="true"
+            android:indeterminateTint="#4EB2BF" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Updating ..."
-            android:textSize="24sp"
+            android:layout_below="@id/progressBar"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="5dp"
-            android:layout_below="@id/progressBar" />
+            android:text="Updating ..."
+            android:textSize="24sp" />
 
     </RelativeLayout>
 
-</RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

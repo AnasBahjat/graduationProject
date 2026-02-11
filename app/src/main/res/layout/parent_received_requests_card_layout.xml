@@ -8,99 +8,102 @@
     android:layout_marginStart="5dp"
     android:layout_marginEnd="5dp"
     app:cardElevation="5dp"
-    android:backgroundTint="#E4ECEC"
-    >
-    <RelativeLayout
+    android:backgroundTint="#E4ECEC">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/profileImageView"
             android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="10dp"
+            android:layout_height="65dp"
             android:layout_marginTop="15dp"
-            android:src="@drawable/user" />
+            android:src="@drawable/user"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-
-
-        <ImageView
-            android:id="@+id/teacherNameImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/profile_icon"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_toEndOf="@id/profileImageView"
-            android:layout_alignParentTop="true"/>
-
-        <TextView
-            android:id="@+id/teacherNameTextViewTemp"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/teacherNameLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Teacher Name : "
-            android:layout_toEndOf="@id/teacherNameImageView"
-            android:textSize="16sp" />
+            android:layout_marginStart="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/teacherNameTextView"
-            android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/teacherNameImageView"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/profile_icon" />
+
+            <TextView
+                android:id="@+id/teacherNameTextViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Teacher Name : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/teacherNameTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/phoneNumberLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/teacherNameTextViewTemp"
-            android:textColor="#1A8E9E"
-            android:textSize="16sp" />
+            android:layout_marginStart="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/teacherNameLayout"
+            app:layout_constraintStart_toEndOf="@id/profileImageView"
+            >
 
+            <ImageView
+                android:id="@+id/phoneNumberImageView"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/phone_icon2"
+                android:layout_marginStart="10dp"
+                />
 
-        <ImageView
-            android:id="@+id/phoneNumberImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/phone_icon2"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_toEndOf="@id/profileImageView"
-            android:layout_below="@id/teacherNameTextView"/>
+            <TextView
+                android:id="@+id/phoneNumberViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Phone Numbers :"
+                android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/phoneNumberViewTemp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Phone Numbers :"
-            android:layout_toEndOf="@id/phoneNumberImageView"
-            android:layout_below="@id/teacherNameTextView"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/phoneNumberTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/phoneNumberViewTemp"
-            android:layout_below="@id/teacherNameTextView"
-            android:textColor="#1A8E9E"
-            android:textSize="15sp" />
+            <TextView
+                android:id="@+id/phoneNumberTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="15sp" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/tempView1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
-            android:layout_below="@id/phoneNumberTextView"
-            android:layout_marginTop="20dp">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phoneNumberLayout">
 
             <View
                 android:layout_width="20dp"
@@ -128,277 +131,276 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginRight="15dp"
                 android:background="#7FE1EE" />
-
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/coursesImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/courses_icon"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/tempView1"/>
-
-        <TextView
-            android:id="@+id/coursesViewTemp"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/coursesLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
             android:layout_marginTop="15dp"
-            android:text="Courses : "
-            android:layout_toEndOf="@id/coursesImageView"
-            android:layout_below="@id/tempView1"
-            android:textSize="16sp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tempView1">
 
-        <TextView
-            android:id="@+id/coursesTextView"
-            android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/coursesImageView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/courses_icon" />
+
+            <TextView
+                android:id="@+id/coursesViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Courses : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/coursesTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/dateLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/coursesViewTemp"
-            android:layout_below="@id/tempView1"
-            android:textColor="#1A8E9E"
-            android:textSize="16sp" />
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/coursesLayout">
 
-        <ImageView
-            android:id="@+id/daysImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/days_icon"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/dateTextView"/>
+            <ImageView
+                android:id="@+id/dateImageView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/days_icon"
+                android:layout_marginStart="10dp" />
 
-        <TextView
-            android:id="@+id/daysTextViewTemp"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/dateTextViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Start - End Date : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/dateTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/daysLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Days : "
-            android:layout_toEndOf="@id/daysImageView"
-            android:layout_below="@id/dateTextView"
-            android:textSize="16sp" />
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dateLayout">
 
-        <TextView
-            android:id="@+id/daysTextView"
-            android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/daysImageView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/days_icon"
+                android:layout_marginStart="10dp"
+                />
+
+            <TextView
+                android:id="@+id/daysTextViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Days : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/daysTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/timeLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/daysTextViewTemp"
-            android:layout_below="@id/dateTextView"
-            android:textColor="#1A8E9E"
-            android:textSize="16sp" />
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/daysLayout">
 
-        <ImageView
-            android:id="@+id/dateImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/days_icon"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/coursesTextView"/>
+            <ImageView
+                android:id="@+id/timeImageView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/clock_icon"
+                android:layout_marginStart="10dp" />
 
-        <TextView
-            android:id="@+id/dateTextViewTemp"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/timeTextViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Start - End Time : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/timeTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/locationLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Start - End Date : "
-            android:layout_toEndOf="@id/timeImageView"
-            android:layout_below="@id/coursesTextView"
-            android:textSize="16sp" />
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/timeLayout">
 
-        <TextView
-            android:id="@+id/dateTextView"
-            android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/locationImageView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/location_icon"
+                android:layout_marginStart="10dp" />
+
+            <TextView
+                android:id="@+id/locationViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Location : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/locationTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/teachingMethodLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/timeTextViewTemp"
-            android:layout_below="@id/coursesTextView"
-            android:textColor="#1A8E9E"
-            android:textSize="15sp" />
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/locationLayout">
 
-        <ImageView
-            android:id="@+id/timeImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/days_icon"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/daysImageView"/>
+            <ImageView
+                android:id="@+id/teachingMethodImageView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/teaching_method_icon_2"
+                android:layout_marginStart="10dp" />
 
-        <TextView
-            android:id="@+id/timeTextViewTemp"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/teachingMethodViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Teaching Method : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/teachingMethodTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/priceLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Start - End Time : "
-            android:layout_toEndOf="@id/timeImageView"
-            android:layout_below="@id/daysImageView"
-            android:textSize="16sp" />
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/teachingMethodLayout">
 
-        <TextView
-            android:id="@+id/timeTextView"
-            android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/priceImageView"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/price_icon"
+                android:layout_marginStart="10dp" />
+
+            <TextView
+                android:id="@+id/priceViewTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Price Per Hour : "
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/priceTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:textColor="#1A8E9E"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/timeTextViewTemp"
-            android:layout_below="@id/daysImageView"
-            android:textColor="#1A8E9E"
-            android:textSize="15sp" />
-
-        <ImageView
-            android:id="@+id/locationImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/location_icon"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/timeTextView"/>
-
-        <TextView
-            android:id="@+id/locationViewTemp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Location : "
-            android:layout_toEndOf="@id/locationImageView"
-            android:layout_below="@id/timeTextView"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/locationTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/locationViewTemp"
-            android:layout_below="@id/timeTextView"
-            android:textColor="#1A8E9E"
-            android:textSize="15sp" />
-
-
-        <ImageView
-            android:id="@+id/teachingMethodImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/teaching_method_icon_2"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/locationTextView"/>
-
-        <TextView
-            android:id="@+id/teachingMethodViewTemp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Teaching Method : "
-            android:layout_toEndOf="@id/teachingMethodImageView"
-            android:layout_below="@id/locationTextView"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/teachingMethodTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/teachingMethodViewTemp"
-            android:layout_below="@id/locationTextView"
-            android:textColor="#1A8E9E"
-            android:textSize="15sp" />
-
-        <ImageView
-            android:id="@+id/priceImageView"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/price_icon"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/teachingMethodTextView"/>
-
-        <TextView
-            android:id="@+id/priceViewTemp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Price Per Hour : "
-            android:layout_toEndOf="@id/priceImageView"
-            android:layout_below="@id/teachingMethodTextView"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/priceTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@id/priceViewTemp"
-            android:layout_below="@id/teachingMethodTextView"
-            android:textColor="#1A8E9E"
-            android:textSize="15sp" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/acceptBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/priceTextView"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="17dp"
-            android:backgroundTint="@color/usedColor"
-            android:text="Accept"
-            android:textAllCaps="false"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="15dp"
             android:layout_marginBottom="10dp"
-            android:textSize="16sp" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/priceLayout">
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/declineBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/usedColor"
+                android:layout_marginEnd="10dp"
+                android:text="Decline"
+                android:textAllCaps="false"
+                android:textSize="16sp" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/declineBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/priceTextView"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="110dp"
-            android:backgroundTint="@color/usedColor"
-            android:text="Decline"
-            android:layout_marginBottom="10dp"
-            android:textAllCaps="false"
-            android:textSize="16sp" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/acceptBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/usedColor"
+                android:text="Accept"
+                android:textAllCaps="false"
+                android:textSize="16sp" />
+        </LinearLayout>
 
 
-    </RelativeLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -64,6 +64,7 @@ public class NotificationsService extends Service {
                 Type listType = new TypeToken<ArrayList<Notifications>>(){}.getType();
                 List<Notifications> notificationsList = gson.fromJson(res,listType);
                 Intent intent = new Intent("UPDATE_TEACHER_UI");
+                intent.setPackage(getPackageName());
                 intent.putParcelableArrayListExtra("notificationsData",new ArrayList<>(notificationsList));
                 sendBroadcast(intent);
             }

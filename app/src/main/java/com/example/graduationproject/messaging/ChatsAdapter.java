@@ -57,7 +57,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatViewHold
         // TODO: Open chat screen when chat clicked, there are userID, user email within the User object in the adapter.
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ChatWindowActivity.class);
+            Intent intent = new Intent(context, ChatWindowActivity2.class);
             intent.putExtra("nameeee",user.getUserName());
             intent.putExtra("email", user.getMail());
             intent.putExtra("reciverImg",user.getProfilePic());

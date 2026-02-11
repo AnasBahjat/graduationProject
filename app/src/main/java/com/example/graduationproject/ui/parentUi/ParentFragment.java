@@ -236,7 +236,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 database.getParentPostedMatchingInformation(email,ParentFragment.this);
             }
             else if("SHOW_RECEIVED_REQUESTS_FOR_PARENT".equals(intent.getAction())){
-                Log.d("-------------------------> 123123123", "-------------------------> 123123123");
                 database.getParentReceivedRequest(email,ParentFragment.this);
             }
 
@@ -252,7 +251,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                 setPostedTeacherRequestsForParent();
             }
             else if("PARENT_RECEIVED_REQUEST_NOTIFICATION_CLICKED".equalsIgnoreCase(intent.getAction())){
-                Toast.makeText(getContext(), "Show Parent Received Request ..", Toast.LENGTH_SHORT).show();
             }
             else if("SHOW_DELETE_COURSE_REQUEST_FOR_PARENT".equalsIgnoreCase(intent.getAction())){
                 Notifications notification ;
@@ -784,7 +782,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
         }
         else {
             try {
-                Log.d("22222222222222222222222", "22222222222222222222222");
                 ArrayList<TeacherMatchModel> tempTeacherMatchModelList = new ArrayList<>();
                 if(!phoneNumbersList.isEmpty())
                     phoneNumbersList.clear();
@@ -957,7 +954,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             String parentLastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
             dialogParentPostedRequestCardBinding.parentNameTextView.setText(parentFirstName+" "+parentLastName);
             StringBuilder phoneNumbersStr = new StringBuilder();
-            Log.d("isPhoneNumersList empty ? --> "+phoneNumbersList.isEmpty(),"isPhoneNumersList empty ? --> "+phoneNumbersList.isEmpty());
             if(phoneNumbersList.size() > 1){
                 for(int i=0;i<phoneNumbersList.size();i++){
                     if( i + 1 != phoneNumbersList.size())
@@ -1044,10 +1040,17 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
             Window window = updateParentPostedRequestDialog.getWindow();
             if (window != null) {
-                window.setLayout(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
+
+                // Get screen size
+                DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+                int screenWidth = metrics.widthPixels;
+                int screenHeight = metrics.heightPixels;
+
+                // Set 95% width, 100% height
+                int dialogWidth = (int) (screenWidth * 0.95);
+                int dialogHeight = screenHeight;
+
+                window.setLayout(dialogWidth, dialogHeight);
                 window.setBackgroundDrawableResource(android.R.color.transparent);
             }
 
@@ -1969,7 +1972,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     }
 
     private void getUserInfoByEmail(String teacherEmailToSendMessage){
-        Log.d("Receiver Email"+ teacherEmailToSendMessage, "Receiver Email"+ teacherEmailToSendMessage);
         DatabaseReference receiverUser = FirebaseDatabase.getInstance()
                 .getReference("users");
 
@@ -2816,25 +2818,29 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
                     ParentReceivedRequestsDialogLayoutBinding.inflate(
                             LayoutInflater.from(requireContext())
                     );
+
             parentReceivedRequestDialog.setContentView(
                     parentReceivedRequestsDialogLayoutBinding.getRoot()
             );
             parentReceivedRequestDialog.setCancelable(false);
+
             Window window = parentReceivedRequestDialog.getWindow();
             if (window != null) {
                 window.setBackgroundDrawableResource(android.R.color.transparent);
 
+                // Set window attributes BEFORE showing the dialog
                 WindowManager.LayoutParams params = window.getAttributes();
-                DisplayMetrics metrics = new DisplayMetrics();
-                requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-                params.width=(int) (metrics.widthPixels * 0.9);
-                params.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                //params.width = WindowManager.LayoutParams.MATCH_PARENT;
-                //params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                DisplayMetrics metrics = new DisplayMetrics();
+                requireActivity().getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+
+                params.width = (int) (metrics.widthPixels * 0.95); // 90% of screen
+                params.height = WindowManager.LayoutParams.MATCH_PARENT;
                 params.gravity = Gravity.CENTER;
+
                 window.setAttributes(params);
             }
+
             parentReceivedRequestDialog.show();
 
             parentReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(v->{
@@ -2855,7 +2861,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
             else {
                 parentReceivedRequestsDialogLayoutBinding.noReceivedRequestsForParent.setVisibility(View.VISIBLE);
                 parentReceivedRequestsDialogLayoutBinding.parentReceivedRequestsRecyclerView.setVisibility(View.GONE);
-
             }
         }
     }
@@ -2908,7 +2913,6 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     @Override
     public void onParentCoursesReceived(int flag, JSONArray parentCourses) {
-        Toast.makeText(getContext(), "Flag dd -> "+flag, Toast.LENGTH_SHORT).show();
         if (flag == 0) {
             double price = (currentParentReceivedRequest.getTeacherMatchModel().getPriceMaximum() + currentParentReceivedRequest.getTeacherMatchModel().getPriceMinimum()) / 2 ;
             database.insertParentCourse(price,currentParentReceivedRequest,this);
@@ -3795,18 +3799,28 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
     private void showDeclinedRemoveCourseForParent(Course declinedCourse){
         if(getContext() != null){
             Dialog declinedCourseDialog = new Dialog(getContext());
-            CourseDeclinedNotificaationForParentLayoutBinding tempParentCourseCardClickedLayoutBinding = CourseDeclinedNotificaationForParentLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            CourseDeclinedNotificaationForParentLayoutBinding tempParentCourseCardClickedLayoutBinding =
+                    CourseDeclinedNotificaationForParentLayoutBinding.inflate(LayoutInflater.from(getContext()));
+
             declinedCourseDialog.setContentView(tempParentCourseCardClickedLayoutBinding.getRoot());
             declinedCourseDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(declinedCourseDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 2300;
-            declinedCourseDialog.getWindow().setAttributes(layoutParams);
-            if(declinedCourseDialog.getWindow() != null)
-                declinedCourseDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            if (declinedCourseDialog.getWindow() != null) {
+
+                Window window = declinedCourseDialog.getWindow();
+
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                int width = (int) (metrics.widthPixels * 0.95);   // 95% of screen width
+                int height = (int) (metrics.heightPixels * 0.90); // 90% of screen height
+
+                window.setLayout(width, height);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
             declinedCourseDialog.show();
+
 
             tempParentCourseCardClickedLayoutBinding.closeImageView.setOnClickListener(p->{
                 declinedCourseDialog.dismiss();

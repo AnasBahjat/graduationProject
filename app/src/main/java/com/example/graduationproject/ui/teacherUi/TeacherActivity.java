@@ -255,6 +255,7 @@ public class TeacherActivity extends AppCompatActivity implements
             });
         }
 
+
         binding.messageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -269,7 +270,6 @@ public class TeacherActivity extends AppCompatActivity implements
                     }
                     /*Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
                     startActivity(intent);*/
-
                 }
                 catch (Exception e){
                     MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
@@ -295,7 +295,6 @@ public class TeacherActivity extends AppCompatActivity implements
                     }
                 }
             }
-            Log.d("Not list --->"+notList,"Not list --->"+notList);
             updateNotificationsAdapter();
             binding.accountIsNotConfirmText.setVisibility(View.GONE);
             binding.fragmentsContainer.setVisibility(View.VISIBLE);
@@ -485,11 +484,14 @@ public class TeacherActivity extends AppCompatActivity implements
         else if(menuItem.getItemId() == R.id.viewTeacherReceivedRequests){
             Intent intent = new Intent();
             intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
         else if(menuItem.getItemId() == R.id.availablePosts){
             Intent intent = new Intent();
             intent.setAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
@@ -1314,8 +1316,7 @@ public class TeacherActivity extends AppCompatActivity implements
     }
 
     public void updateNotificationsList(ArrayList<Notifications> newNotifications){
-        Toast.makeText(this,"Notificatons updated ..",Toast.LENGTH_SHORT).show();
-        Log.d("----------->service -->"+newNotifications,"----------->service -->"+newNotifications);
+        Toast.makeText(this,"Notifications updated ..",Toast.LENGTH_SHORT).show();
     }
 
     private void startNotificationsService(){
@@ -1360,7 +1361,6 @@ public class TeacherActivity extends AppCompatActivity implements
                     int childGrade = jsonObject.getInt("childGrade");
                     String startTime = jsonObject.getString("startTime");
                     String endTime = jsonObject.getString("endTime");
-                    Log.d("Child name --------> "+childName,"Child name --------> "+childName);
                     TeacherMatchModel teacherMatchModel=new TeacherMatchModel(matchingId,parentEmail,new CustomChildData(childId,childName,childGrade),
                             choseDays,choseCourses,location,teachingMethod,
                             new Children(childName,childAge,childGender,childGrade),startTime,endTime);
@@ -1563,7 +1563,9 @@ public class TeacherActivity extends AppCompatActivity implements
            Intent intent = new Intent();
            intent.setAction("UPDATE_TEACHER_POSTED_REQUESTS");
             //intent.putExtra("newAddedJobRequest",tpr);
-           sendBroadcast(intent);
+            intent.setPackage(getPackageName());
+
+            sendBroadcast(intent);
         }
         else if(flag == -2){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Connection Error","Something went wrong with your connection please try again later ..");
@@ -1618,12 +1620,16 @@ public class TeacherActivity extends AppCompatActivity implements
             database.setNotificationIsRead(notification.getNotificationId());
             Intent intent = new Intent();
             intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
         else if(notification.getNotificationType() == 30){
             Intent intent = new Intent();
             intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
 
@@ -1631,6 +1637,8 @@ public class TeacherActivity extends AppCompatActivity implements
             Intent intent = new Intent();
             intent.setAction("SHOW_DELETE_DECLINED_COURSE_REQUEST_FOR_TEACHER");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
     }
