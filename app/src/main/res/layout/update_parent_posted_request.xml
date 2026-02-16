@@ -68,7 +68,7 @@
 
         <LinearLayout
             android:id="@+id/chooseChildLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:layout_marginTop="10dp"
@@ -81,13 +81,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/choose_child_text"
-                android:textSize="20sp"
+                android:textColor="#00BCD4"
 
-                />
+                android:textSize="20sp" />
 
             <Spinner
                 android:id="@+id/childrenSpinner"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginStart="15dp"
                 android:spinnerMode="dropdown" />
@@ -100,6 +100,8 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="5dp"
             android:text="@string/teaching_time_text"
+            android:textColor="#00BCD4"
+
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -108,7 +110,7 @@
 
         <LinearLayout
             android:id="@+id/daysLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="15dp"
@@ -213,7 +215,7 @@
 
         <LinearLayout
             android:id="@+id/dateLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:orientation="vertical"
@@ -226,10 +228,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Pick Date"
+                android:textColor="#00BCD4"
+
                 android:textSize="20sp" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp">
 
@@ -289,7 +293,7 @@
 
         <LinearLayout
             android:id="@+id/timeLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:orientation="vertical"
@@ -302,6 +306,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Pick Time"
+                android:textColor="#00BCD4"
+
                 android:textSize="20sp" />
 
             <LinearLayout
@@ -364,7 +370,7 @@
 
         <LinearLayout
             android:id="@+id/parentCoursesLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
@@ -382,6 +388,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/courses_text"
+                android:textColor="#00BCD4"
+
                 android:textSize="20sp" />
 
             <Spinner
@@ -417,7 +425,7 @@
 
         <LinearLayout
             android:id="@+id/locationLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
@@ -431,6 +439,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/location_text"
+                android:textColor="#00BCD4"
+
                 android:textSize="20sp" />
 
             <Spinner
@@ -444,7 +454,7 @@
 
         <LinearLayout
             android:id="@+id/onlineFaceToFaceLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/locationLayout"
             android:layout_alignParentStart="true"
@@ -460,6 +470,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="Teaching Method"
+                android:textColor="#00BCD4"
+
                 android:textSize="20sp" />
 
             <Spinner
@@ -473,7 +485,7 @@
 
         <LinearLayout
             android:id="@+id/priceLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
@@ -486,6 +498,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Price Range"
+                android:textColor="#00BCD4"
+
                 android:textSize="23sp" />
 
             <com.google.android.material.textfield.TextInputLayout

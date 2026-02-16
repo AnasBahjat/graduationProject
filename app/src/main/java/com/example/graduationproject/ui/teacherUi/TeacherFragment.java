@@ -1147,18 +1147,32 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private void deleteTeacherPostedRequest(TeacherPostRequest teacherPostRequest) {
         if (getContext() != null) {
-            ConfirmDeleteDialogLayoutBinding confirmDeleteDialogLayoutBinding = ConfirmDeleteDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            ConfirmDeleteDialogLayoutBinding confirmDeleteDialogLayoutBinding =
+                    ConfirmDeleteDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+
             deleteRequestConfirmationDialog = new Dialog(getContext());
             deleteRequestConfirmationDialog.setContentView(confirmDeleteDialogLayoutBinding.getRoot());
             deleteRequestConfirmationDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(deleteRequestConfirmationDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 600;
-            deleteRequestConfirmationDialog.getWindow().setAttributes(layoutParams);
-            if (deleteRequestConfirmationDialog.getWindow() != null)
-                deleteRequestConfirmationDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = deleteRequestConfirmationDialog.getWindow();
+            if (window != null) {
+                // Get screen size
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                int screenWidth = metrics.widthPixels;
+                int screenHeight = metrics.heightPixels;
+
+                // 95% width, wrap height
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+                layoutParams.width = (int) (screenWidth * 0.95);   // 95% of screen width
+                layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT; // auto height
+
+                window.setAttributes(layoutParams);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
             deleteRequestConfirmationDialog.show();
 
             confirmDeleteDialogLayoutBinding.deleteBtn.setOnClickListener(x -> {
@@ -1182,15 +1196,29 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             updatePostedRequestDialog.setContentView(updatePostedTeacherLookForAJobLayoutBinding.getRoot());
             updatePostedRequestDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(updatePostedRequestDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 2300;
-            updatePostedRequestDialog.getWindow().setAttributes(layoutParams);
-            if (updatePostedRequestDialog.getWindow() != null)
-                updatePostedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            updatePostedRequestDialog.show();
+            Window window = updatePostedRequestDialog.getWindow();
+            if (window != null) {
 
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                int screenWidth = metrics.widthPixels;
+                int screenHeight = metrics.heightPixels;
+
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+
+                // 95% of screen width
+                layoutParams.width = (int) (screenWidth * 0.95);
+
+                // Max 90% of screen height (scrollable content friendly)
+                layoutParams.height = (int) (screenHeight * 0.9);
+
+                window.setAttributes(layoutParams);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
+            updatePostedRequestDialog.show();
             updatePostedTeacherLookForAJobLayoutBinding.closeTheDialog.setOnClickListener(z -> {
                 updatePostedRequestDialog.dismiss();
             });

@@ -1004,19 +1004,37 @@ public class ParentFragment extends Fragment implements ParentListenerForParentP
 
     private void showDeleteDialog(){
         if(getContext() != null){
-            ConfirmDeleteDialogLayoutBinding confirmDeleteDialogLayoutBinding = ConfirmDeleteDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            ConfirmDeleteDialogLayoutBinding confirmDeleteDialogLayoutBinding =
+                    ConfirmDeleteDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+
             deleteParentPostedTeacherMatchingDialog = new Dialog(getContext());
             deleteParentPostedTeacherMatchingDialog.setContentView(confirmDeleteDialogLayoutBinding.getRoot());
             deleteParentPostedTeacherMatchingDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(deleteParentPostedTeacherMatchingDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 600;
-            deleteParentPostedTeacherMatchingDialog.getWindow().setAttributes(layoutParams);
-            if(deleteParentPostedTeacherMatchingDialog.getWindow() != null)
-                deleteParentPostedTeacherMatchingDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = deleteParentPostedTeacherMatchingDialog.getWindow();
+            if (window != null) {
+
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                int screenWidth = metrics.widthPixels;
+                int screenHeight = metrics.heightPixels;
+
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+
+                // 95% of screen width
+                layoutParams.width = (int) (screenWidth * 0.95);
+
+                // Auto height (content-based)
+                layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+                window.setAttributes(layoutParams);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
             deleteParentPostedTeacherMatchingDialog.show();
+
 
             confirmDeleteDialogLayoutBinding.deleteBtn.setOnClickListener(x->{
                // deleteParentPostedTeacherMatchingDialog(teacherPostRequest);

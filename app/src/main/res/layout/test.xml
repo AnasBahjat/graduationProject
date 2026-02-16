@@ -1,99 +1,558 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/matchTeacherCardView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="25dp"
-    android:layout_marginBottom="2dp"
-    android:layout_marginStart="5dp"
-    android:layout_marginEnd="5dp"
-    app:cardElevation="5dp"
-    android:backgroundTint="#E4ECEC">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corner_dialog"
+        android:paddingBottom="20dp">
 
         <ImageView
-            android:id="@+id/profileImageView"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
+            android:id="@+id/closeTheDialog"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_alignParentStart="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="10dp"
             android:layout_alignParentTop="true"
-            android:src="@drawable/user"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="14dp"
+            android:contentDescription="@string/close_popup_window_msg"
+            android:src="@drawable/close_icon_2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/childNameTextViewTemp"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/SpecificTeacherHeader"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toEndOf="@id/profileImageView"
-            android:text="Name : "
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:textSize="13sp"
-            app:layout_constraintStart_toEndOf="@+id/profileImageView"
-            app:layout_constraintTop_toBottomOf="@+id/childNameTextView" />
-
-        <TextView
-            android:id="@+id/childNameTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toEndOf="@id/childNameTextViewTemp"
-            android:textColor="#1A8E9E"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:textSize="13sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/coursesTextViewTemp"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/closeTheDialog">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="1dp"
+                android:background="#7FE1EE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="5dp"
+                android:text="Request Details"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
+
+
+            <View
+                android:layout_width="280dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="7dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="15dp"
+                android:background="#7FE1EE" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/coursesTextViewTemp"
+            android:id="@+id/textView10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/childNameTextView"
-            android:layout_toEndOf="@id/profileImageView"
-            android:text="Courses : "
-            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
             android:layout_marginStart="10dp"
-            android:textSize="13sp"
-            app:layout_constraintStart_toEndOf="@+id/profileImageView"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginTop="20dp"
+            android:text="Courses"
+            android:textColor="#00BCD4"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/SpecificTeacherHeader" />
 
-        <TextView
-            android:id="@+id/coursesTextView"
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/coursesFlexBoxLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/childNameTextView"
-            android:layout_toEndOf="@+id/coursesTextViewTemp"
-            android:textColor="#1A8E9E"
-            android:layout_marginEnd="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:padding="8dp"
+            app:alignContent="flex_start"
+            android:layout_marginTop="5dp"
+            app:flexWrap="wrap"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/addCourseTeacherLooksForJob"/>
+
+        <Spinner
+            android:id="@+id/coursesSpinner"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
             android:layout_marginStart="5dp"
-            android:textSize="13sp"
+            android:layout_marginTop="22dp"
+            android:layout_marginEnd="5dp"
+            android:entries="@array/allCoursesArray"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toStartOf="@+id/addCourseTeacherLooksForJob"
+            app:layout_constraintStart_toEndOf="@+id/textView10"
+            app:layout_constraintTop_toBottomOf="@+id/SpecificTeacherHeader" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/addCourseTeacherLooksForJob"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/gray"
+            android:text="@string/add_course_text"
+            android:textAllCaps="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/SpecificTeacherHeader" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:text="Education Level"
+            android:textColor="#00BCD4"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/coursesFlexBoxLayout" />
+
+        <Spinner
+            android:id="@+id/educationalLevelSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="22dp"
+            android:layout_marginEnd="5dp"
+            android:entries="@array/teacherEducationLevel"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView11"
+            app:layout_constraintTop_toBottomOf="@+id/coursesFlexBoxLayout" />
+
+        <LinearLayout
+            android:id="@+id/daysLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/educationalLevelSpinner">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/saturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Sat"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+
+                <CheckBox
+                    android:id="@+id/sunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Sun"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+
+                <CheckBox
+                    android:id="@+id/monday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Mon"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+
+                <CheckBox
+                    android:id="@+id/tuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Tue"
+                    android:textSize="13sp"
+
+                    tools:ignore="HardcodedText" />
+
+                <CheckBox
+                    android:id="@+id/wednesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Wed"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <CheckBox
+                    android:id="@+id/thursday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Thur"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+
+                <CheckBox
+                    android:id="@+id/friday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="Fri"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:text="Duration"
+            android:textColor="#00BCD4"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/daysLayout" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout2"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:hint="Number Of Months"
+            app:endIconMode="clear_text"
+
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:hintEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView12"
+            app:layout_constraintTop_toBottomOf="@+id/daysLayout">
+
+            <EditText
+                android:id="@+id/numberOfMonthsEdtText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/edit_text_style"
+                android:inputType="number"
+                android:maxLength="2" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:id="@+id/dateLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout2">
+
+            <TextView
+                android:id="@+id/pickDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pick Date"
+                android:textColor="#00BCD4"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/startDateLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:hint="Start Date"
+                    app:errorEnabled="false"
+                    app:errorIconDrawable="@drawable/baseline_error_24"
+                    app:errorTextAppearance="@style/error_text"
+                    app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+                    <EditText
+                        android:id="@+id/startDateEdtText"
+                        android:layout_width="160dp"
+                        android:layout_height="66dp"
+                        android:background="@drawable/edit_text_style"
+                        android:editable="false"
+                        android:text="1 / 1 / 2024"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/endDateLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:hint="End Date"
+                    app:errorEnabled="false"
+                    app:errorIconDrawable="@drawable/baseline_error_24"
+                    app:errorTextAppearance="@style/error_text"
+                    app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+                    <EditText
+                        android:id="@+id/endDateEdtText"
+                        android:layout_width="160dp"
+                        android:layout_height="66dp"
+                        android:background="@drawable/edit_text_style"
+                        android:editable="false"
+                        android:text="1 / 1 / 2024"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/timeLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/dateLayout"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dateLayout">
+
+            <TextView
+                android:id="@+id/pickTimeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pick Time"
+                android:textColor="#00BCD4"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/startTimeLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:hint="Start Time"
+                    app:errorEnabled="false"
+                    app:errorIconDrawable="@drawable/baseline_error_24"
+                    app:errorTextAppearance="@style/error_text"
+                    app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+                    <EditText
+                        android:id="@+id/startTimeEdtText"
+                        android:layout_width="160dp"
+                        android:layout_height="66dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/edit_text_style"
+                        android:editable="false"
+                        android:text="12 : 00 PM"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/endTimeLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:hint="End Time"
+                    app:errorEnabled="false"
+                    app:errorIconDrawable="@drawable/baseline_error_24"
+                    app:errorTextAppearance="@style/error_text"
+                    app:hintTextAppearance="@style/CustomHintTextAppearance">
+
+                    <EditText
+                        android:id="@+id/endTimeEdtText"
+                        android:layout_width="160dp"
+                        android:layout_height="66dp"
+                        android:background="@drawable/edit_text_style"
+                        android:editable="false"
+                        android:text="12 : 00 PM"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/locationLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/timeLayout"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/childNameTextViewTemp"
-            app:layout_constraintTop_toBottomOf="@+id/childNameTextView" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/timeLayout">
 
-        <View
-            android:id="@+id/tempView1"
-            android:layout_width="405dp"
-            android:layout_height="6dp"
-            android:layout_below="@id/coursesTextView"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:textColor="#00BCD4"
+                android:textSize="20sp" />
+
+            <Spinner
+                android:id="@+id/locationSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:entries="@array/locationArray"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/teachingMethodLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/locationLayout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.526"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/locationLayout">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Teaching Method"
+                android:textColor="#00BCD4"
+                android:textSize="20sp" />
+
+            <Spinner
+                android:id="@+id/teachingMethodSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:entries="@array/teachingMethods"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/priceLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/teachingMethodLayout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/teachingMethodLayout">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Price Per Hour"
+                android:textSize="20sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/priceEditTextLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:hint="Price "
+                app:endIconMode="clear_text"
+                app:hintTextAppearance="@style/CustomHintTextAppearance"
+                app:startIconDrawable="@drawable/price_icon">
+
+                <EditText
+                    android:id="@+id/priceEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="numberDecimal"
+                    android:maxLength="3"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/updateTeacherRequestBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/priceLayout"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
-            android:background="#B9E9EF"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/usedColor"
+            android:text="Update"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
-
+            app:layout_constraintTop_toBottomOf="@id/priceLayout" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+</ScrollView>
