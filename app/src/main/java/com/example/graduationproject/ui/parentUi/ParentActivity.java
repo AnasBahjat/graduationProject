@@ -9,11 +9,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -59,6 +64,7 @@ import com.example.graduationproject.listeners.NotificationClickListener;
 import com.example.graduationproject.listeners.NotificationsListListener;
 import com.example.graduationproject.listeners.ParentListenerForParentPostedRequests;
 import com.example.graduationproject.listeners.UpdateParentInformation;
+import com.example.graduationproject.messaging.ChatMainActivity2;
 import com.example.graduationproject.messaging.ChatViewModel;
 import com.example.graduationproject.messaging.ChatMainActivity;
 import com.example.graduationproject.models.Children;
@@ -66,18 +72,22 @@ import com.example.graduationproject.models.CustomChildData;
 import com.example.graduationproject.models.Notifications;
 import com.example.graduationproject.models.Parent;
 import com.example.graduationproject.models.TeacherMatchModel;
+import com.example.graduationproject.ui.teacherUi.TeacherActivity;
 import com.example.graduationproject.utils.FetchNotificationsPeriodically;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -168,30 +178,41 @@ public class ParentActivity extends AppCompatActivity implements
     }
 
     private void initFirebase(){
-        Toast.makeText(this, "111111111111", Toast.LENGTH_SHORT).show();
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        chatViewModel.fetchUnreadMessages(currentUserId);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null){
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            chatViewModel.fetchUnreadMessages(currentUserId);
 
-
-
-        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
-            if (unreadCount > 0) {
-                parentBinding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
-                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
-            } else {
-                parentBinding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
-            }
-        });
-
+            chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+                if (unreadCount > 0) {
+                    parentBinding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                    parentBinding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
+                } else {
+                    parentBinding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
+                }
+            });
+        }
+        else {
+        }
 
         if(doneInformation.equalsIgnoreCase("1")){
-            Toast.makeText(this, "01221312321312", Toast.LENGTH_SHORT).show();
-            parentBinding.messageIcon.setOnClickListener(new View.OnClickListener() {
+            parentBinding.messagesLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(ParentActivity.this, ChatMainActivity.class);
-                    startActivity(intent);
+                    try {
+                        if(doneInformation.equals("1")){
+                            Intent intent = new Intent(ParentActivity.this, ChatMainActivity2.class);
+                            intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
+                            startActivity(intent);
+                        }
+                        else{
+                            MyAlertDialog.showCustomAlertDialogSpinnerError(ParentActivity.this, "Confirm", "Please Confirm your account first ..");
+                        }
+                    }
+                    catch (Exception e){
+                        MyAlertDialog.showCustomAlertDialogSpinnerError(ParentActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
+                    }
                 }
             });
         }
@@ -218,6 +239,24 @@ public class ParentActivity extends AppCompatActivity implements
         notificationPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
         initFirebase();
         if(Integer.parseInt(doneInformation) == 1){
+            parentBinding.messagesLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        if(doneInformation.equals("1")){
+                            Intent intent = new Intent(ParentActivity.this, ChatMainActivity2.class);
+                            intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
+                            startActivity(intent);
+                        }
+                        else{
+                            MyAlertDialog.showCustomAlertDialogSpinnerError(ParentActivity.this, "Confirm", "Please Confirm your account first ..");
+                        }
+                    }
+                    catch (Exception e){
+                        MyAlertDialog.showCustomAlertDialogSpinnerError(ParentActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
+                    }
+                }
+            });
             database.getNotifications(email,this);
         }
         notificationsList = new ArrayList<>();
@@ -226,6 +265,7 @@ public class ParentActivity extends AppCompatActivity implements
         initBroadcastReceiver();
 
         if(doneInformation.equals("1")){
+
             loadParentFragment(null);
         }
         database.getLastMatchingId(this);
@@ -239,8 +279,28 @@ public class ParentActivity extends AppCompatActivity implements
                     ((ViewGroup) popupView.getParent()).removeView(popupView);
                 }
 
-                notificationPopupWindow = new PopupWindow(popupView,950,1500,true);
-                notificationPopupWindow.showAsDropDown(parentBinding.notificationImage,-810,0);
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+                int width = (int) (displayMetrics.widthPixels * 0.95);
+                int height = (int) (displayMetrics.heightPixels * 0.6);
+
+                notificationPopupWindow = new PopupWindow(popupView, width, height, true);
+                notificationPopupWindow.setClippingEnabled(true);
+                notificationPopupWindow.setOutsideTouchable(true);
+                notificationPopupWindow.setFocusable(true);
+                View anchor = parentBinding.notificationImage;
+                int yOffset = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        8,
+                        getResources().getDisplayMetrics()
+                );
+
+                notificationPopupWindow.showAsDropDown(
+                        anchor,
+                        -(width / 2) + (anchor.getWidth() / 2),
+                        yOffset
+                );
                 notificationPopupWindowBinding.refreshNotificationsRecyclerView.setOnRefreshListener(()->{
                     if(doneInformation.equals("1"))
                         database.getNotifications(email,ParentActivity.this);
@@ -380,9 +440,32 @@ public class ParentActivity extends AppCompatActivity implements
 
     public void showParentInformationPopupWindow(){
         parentInformationPopupWindowBinding = ParentInformationPopupWindowBinding.inflate(getLayoutInflater());
-        parentInformationPopupWindow = new PopupWindow(parentInformationPopupWindowBinding.getRoot(),1300,2000,true);
-        parentInformationPopupWindow.showAtLocation(parentInformationPopupWindowBinding.parentInformationLayout, Gravity.CENTER,0,0);
-        notificationPopupWindow.dismiss();
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+        int popupWidth = (int) (screenWidth * 0.9);
+        int popupHeight = (int) (screenHeight * 0.7);
+
+        parentInformationPopupWindow = new PopupWindow(
+                parentInformationPopupWindowBinding.getRoot(),
+                popupWidth,
+                popupHeight,
+                true
+        );
+
+        parentInformationPopupWindow.showAtLocation(
+                parentInformationPopupWindowBinding.parentInformationLayout,
+                Gravity.CENTER,
+                0,
+                0
+        );
+
+        if (notificationPopupWindow != null && notificationPopupWindow.isShowing()) {
+            notificationPopupWindow.dismiss();
+        }
 
         onTextChangedIdText(parentInformationPopupWindowBinding.idTextParent,parentInformationPopupWindowBinding.idTextParentLayout);
         onTextChangedIdText(parentInformationPopupWindowBinding.edtTextPhoneNumber,parentInformationPopupWindowBinding.phoneNumber);
@@ -432,21 +515,77 @@ public class ParentActivity extends AppCompatActivity implements
 
     private void buildChildPopupWindow(){
         parentInformationPopupWindowBinding.parentInformationLayout.setVisibility(View.GONE);
-        childrenInformationPopupWindowBinding = ChildrenInformationPopupWindowBinding.inflate(getLayoutInflater());
-        childrenPopupWindow = new PopupWindow(childrenInformationPopupWindowBinding.getRoot(),1300,1500,true);
-        childrenPopupWindow.showAtLocation(childrenInformationPopupWindowBinding.childrenLayout,Gravity.CENTER,0,0);
+
+        childrenInformationPopupWindowBinding =
+                ChildrenInformationPopupWindowBinding.inflate(getLayoutInflater());
+
+// Get screen size
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
+// Calculate popup dimensions as percentage of screen (adjust as needed)
+        int margin = (int) (16 * getResources().getDisplayMetrics().density); // 16dp
+        int maxWidth = (int) (screenWidth * 0.9); // 90% of screen width
+        int maxHeight = (int) (screenHeight * 0.85); // 85% of screen height
+
+// Option 1: Use WRAP_CONTENT for height (simpler)
+        childrenPopupWindow = new PopupWindow(
+                childrenInformationPopupWindowBinding.getRoot(),
+                Math.min(screenWidth - margin, maxWidth),
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                true
+        );
+
+        childrenPopupWindow.setFocusable(true);
         childrenPopupWindow.setOutsideTouchable(false);
-        childrenInformationPopupWindowBinding.closeImage.setOnClickListener(close->{
-            childrenPopupWindow.dismiss();
-        });
-        childrenPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                parentInformationPopupWindowBinding.parentInformationLayout.setVisibility(View.VISIBLE);
+        childrenPopupWindow.setClippingEnabled(false);
+
+// Optional: Add background dim
+        WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+        layoutParams.dimAmount = 0.5f; // Dim background to 50%
+        getWindow().setAttributes(layoutParams);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+
+// Optional: Add elevation/shadow for dialog effect
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            childrenPopupWindow.setElevation(16f);
+        }
+
+// Optional: Add enter/exit animations
+
+// Show centered
+        childrenPopupWindow.showAtLocation(
+                childrenInformationPopupWindowBinding.getRoot(),
+                Gravity.CENTER,
+                0,
+                0
+        );
+
+// Optional: Handle back button press
+        childrenPopupWindow.getContentView().setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                childrenPopupWindow.dismiss();
+                return true;
             }
+            return false;
         });
 
-        childrenInformationPopupWindowBinding.addChildBtn.setOnClickListener(cx->{
+
+// Close button
+        childrenInformationPopupWindowBinding.closeImage.setOnClickListener(v -> {
+            childrenPopupWindow.dismiss();
+        });
+
+// Restore parent view on dismiss
+        childrenPopupWindow.setOnDismissListener(() -> {
+            parentInformationPopupWindowBinding.parentInformationLayout.setVisibility(View.VISIBLE);
+        });
+
+// Button click
+        childrenInformationPopupWindowBinding.addChildBtn.setOnClickListener(v -> {
             addChildBtnClicked();
         });
     }
@@ -597,13 +736,18 @@ public class ParentActivity extends AppCompatActivity implements
         }
         else if(menuItem.getItemId() == R.id.lookForTeacher){
             if(doneInformation.equalsIgnoreCase("1"))
+            {
                 database.getParentChildren(email,this);
-            else
+            }
+            else{
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first,check notifications");
+            }
         }
         else if(menuItem.getItemId() == R.id.addNewChild){
             if(doneInformation.equalsIgnoreCase("1"))
-                showNewChildrenDialog();
+                {
+                    showNewChildrenDialog();
+                }
             else
                 MyAlertDialog.showCustomAlertDialogLoginError(this,"Confirm Account","Please Confirm your account first, check notifications");
         }
@@ -613,15 +757,18 @@ public class ParentActivity extends AppCompatActivity implements
             sendBroadcast(intentFilter);*/
             Intent intent = new Intent();
             intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(menuItem.getItemId() == R.id.teacherPostedRequests){
             Intent intentFilter = new Intent();
             intentFilter.setAction("SHOW_TEACHER_POSTED_REQUESTS_FOR_PARENT");
+            intentFilter.setPackage(getPackageName());
             sendBroadcast(intentFilter);
         }
         else if(menuItem.getItemId() == R.id.profile){
-            loadFragment(new ParentProfileFragment());
+            MyAlertDialog.showCustomAlertDialogLoginError(this,"!!","Coming Soon !!");
+            // loadFragment(new ParentProfileFragment());
         }
             parentBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -645,6 +792,7 @@ public class ParentActivity extends AppCompatActivity implements
             parentInformationPopupWindow.dismiss();
             Intent broadcastIntent = new Intent();
             broadcastIntent.setAction("UPDATE_POSTED_DATA_FOR_PARENT");
+            broadcastIntent.setPackage(getPackageName());
             sendBroadcast(broadcastIntent);
         }
         else {
@@ -717,16 +865,24 @@ public class ParentActivity extends AppCompatActivity implements
         EditText endTimePickerEditText= dialogView.findViewById(R.id.endTimeEdtText);
 
         searchingForTeacherDialog = builder.create();
-        searchingForTeacherDialog.show();
         searchingForTeacherDialog.setCancelable(false);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(searchingForTeacherDialog.getWindow().getAttributes());
-        layoutParams.width = 1300;
-        layoutParams.height = 2000;
-        searchingForTeacherDialog.getWindow().setAttributes(layoutParams);
-        searchingForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        if(searchingForTeacherDialog.getWindow() != null)
-            searchingForTeacherDialog.getWindow().setLayout(1300,2500);
+        searchingForTeacherDialog.show();
+        Window window = searchingForTeacherDialog.getWindow();
+        if(window != null){
+
+            // Get screen size
+            DisplayMetrics metrics = ParentActivity.this.getResources().getDisplayMetrics();
+            int screenWidth = metrics.widthPixels;
+            int screenHeight = metrics.heightPixels;
+
+            // 95% width, 100% height
+            int dialogWidth = (int) (screenWidth * 0.95);
+            int dialogHeight = screenHeight;
+
+            window.setLayout(dialogWidth, dialogHeight);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setGravity(Gravity.CENTER); // optional, for nice centering
+        }
 
 
         CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this,childrenSpinnerList);
@@ -1055,6 +1211,7 @@ public class ParentActivity extends AppCompatActivity implements
 
     private void showNewChildrenDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(ParentActivity.this);
+
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.add_new_child_dialog, null);
         builder.setView(dialogView);
@@ -1066,20 +1223,27 @@ public class ParentActivity extends AppCompatActivity implements
         ImageView closeDialog = dialogView.findViewById(R.id.closeImage);
         addNewChildButton = dialogView.findViewById(R.id.addChildBtn);
         childNameText = dialogView.findViewById(R.id.childNameText);
-        ageText=dialogView.findViewById(R.id.ageText);
+        ageText = dialogView.findViewById(R.id.ageText);
 
         newChildDialog = builder.create();
-        newChildDialog.show();
         newChildDialog.setCancelable(false);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(newChildDialog.getWindow().getAttributes());
-        layoutParams.width = 1300;
-        layoutParams.height = 2000;
-        newChildDialog.getWindow().setAttributes(layoutParams);
-        newChildDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        if(newChildDialog.getWindow() != null)
-            newChildDialog.getWindow().setLayout(1300,2000);
 
+        newChildDialog.show();
+
+        Window window = newChildDialog.getWindow();
+        if (window != null) {
+
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.CENTER;
+            window.setAttributes(params);
+
+            window.setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
 
         onTextChangedIdText(childNameEditText,childNameText);
         onTextChangedIdText(childAgeEditText,ageText);
@@ -1087,9 +1251,6 @@ public class ParentActivity extends AppCompatActivity implements
         closeDialog.setOnClickListener(asd->{
             newChildDialog.dismiss();
         });
-
-
-
 
         addNewChildButton.setOnClickListener(x->{
             addNewChildButtonClicked();
@@ -1144,20 +1305,17 @@ public class ParentActivity extends AppCompatActivity implements
 
         if(!childAge.isEmpty() && !childName.isEmpty()){
             Children child = new Children(childName,childAge,newChildGender,Integer.parseInt(childGrade));
+            childNameText.setError(null);
+            ageText.setError(null);
             database.addNewChild(email,child,this);
         }
     }
 
     private void setSideNavigationData(){
 
-        View headerView = parentBinding.navigationView.getHeaderView(0);
-        TextView name = headerView.findViewById(R.id.sideNavName);
-        TextView emailTextView = headerView.findViewById(R.id.sideNavEmail);
         firstName = firstName.substring(0,1).toUpperCase()+firstName.substring(1).toLowerCase();
         lastName = lastName.substring(0,1).toUpperCase()+lastName.substring(1).toLowerCase();
 
-        name.setText(firstName+" "+lastName);
-        emailTextView.setText(email);
     }
 
 
@@ -1182,6 +1340,7 @@ public class ParentActivity extends AppCompatActivity implements
             searchingForTeacherDialog.dismiss();
             Intent intent = new Intent();
             intent.setAction("NOTIFY_PARENT_FRAGMENT_NEW_TEACHER_MATCH_MODEL_ADDED");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(resultFlag == -1){
@@ -1304,18 +1463,22 @@ public class ParentActivity extends AppCompatActivity implements
             database.setNotificationIsRead(notification.getNotificationId());
             Intent intent = new Intent();
             intent.setAction("SHOW_RECEIVED_REQUESTS_FOR_PARENT");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(notification.getNotificationType() == 20){
             Intent intent = new Intent();
             intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_PARENT");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         else if(notification.getNotificationType() == 22){
             Intent intent = new Intent();
             intent.setAction("SHOW_DECLINED_DELETE_COURSE_FOR_PARENT");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
     }

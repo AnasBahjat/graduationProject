@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -91,7 +92,7 @@ public class SettingMessagingActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 // Handle possible errors
-                Toast.makeText(SettingMessagingActivity.this, "Failed to load data.", Toast.LENGTH_SHORT).show();
+
             }
         });
 

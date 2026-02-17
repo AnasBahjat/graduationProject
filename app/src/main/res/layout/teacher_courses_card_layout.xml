@@ -42,7 +42,7 @@
             android:layout_toEndOf="@id/dateImageView"
             android:text="Date :"
             android:layout_alignParentTop="true"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:layout_marginTop="11dp"
             android:layout_marginStart="8dp"/>
 
@@ -56,7 +56,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginTop="11dp"
             android:layout_marginStart="7dp"
-            android:textSize="16sp"
+            android:textSize="13sp"
             />
 
         <ImageView
@@ -76,7 +76,7 @@
             android:layout_toEndOf="@id/dateImageView"
             android:text="Time :"
             android:layout_below="@id/dateTextView"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:layout_marginTop="15dp"
             android:layout_marginStart="8dp"/>
 
@@ -91,7 +91,7 @@
             android:layout_below="@id/dateTextView"
             android:layout_marginTop="15dp"
             android:layout_marginStart="7dp"
-            android:textSize="16sp"
+            android:textSize="13sp"
             />
 
         <ImageView
@@ -111,7 +111,7 @@
             android:layout_toEndOf="@id/daysImageView"
             android:text="Days :"
             android:layout_below="@id/timeTextView"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:layout_marginTop="15dp"
             android:layout_marginStart="8dp"/>
 
@@ -126,7 +126,7 @@
 
             android:layout_marginTop="15dp"
             android:layout_marginStart="7dp"
-            android:textSize="16sp"
+            android:textSize="13sp"
             />
 
         <LinearLayout
@@ -182,7 +182,7 @@
             android:layout_toEndOf="@id/childNameImageView"
             android:text="Child Name :"
             android:layout_below="@id/tempView3"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:layout_marginTop="20dp"
             android:layout_marginStart="8dp"/>
 
@@ -197,7 +197,7 @@
             android:textColor="#1A8E9E"
 
             android:layout_marginStart="7dp"
-            android:textSize="16sp"
+            android:textSize="13sp"
             />
         <ImageView
             android:id="@+id/childAgeImageView"
@@ -216,7 +216,7 @@
             android:layout_toEndOf="@id/childAgeImageView"
             android:text="Child Age :"
             android:layout_below="@id/childNameTextView"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:layout_marginTop="15dp"
             android:layout_marginStart="8dp"/>
 
@@ -230,7 +230,7 @@
             android:textColor="#1A8E9E"
             android:layout_marginTop="15dp"
             android:layout_marginStart="7dp"
-            android:textSize="16sp"
+            android:textSize="13sp"
             />
         <ImageView
             android:id="@+id/childGradeImageView"
@@ -249,7 +249,7 @@
             android:layout_toEndOf="@id/childGradeImageView"
             android:text="Child Grade :"
             android:layout_below="@id/childAgeTextView"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:layout_marginTop="15dp"
             android:layout_marginStart="8dp"/>
 
@@ -264,7 +264,7 @@
             android:textColor="#1A8E9E"
 
             android:layout_marginStart="7dp"
-            android:textSize="16sp"
+            android:textSize="13sp"
             />
 
         <ImageView
@@ -284,7 +284,7 @@
             android:layout_toEndOf="@id/childGenderImageView"
             android:text="Child Gender :"
             android:layout_below="@id/childGradeTextView"
-            android:textSize="16sp"
+            android:textSize="13sp"
             android:layout_marginTop="15dp"
             android:layout_marginStart="8dp"/>
 
@@ -299,7 +299,7 @@
             android:textColor="#1A8E9E"
 
             android:layout_marginStart="7dp"
-            android:textSize="16sp"
+            android:textSize="13sp"
             />
 
         <LinearLayout
@@ -314,7 +314,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:text="More details"
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="-2dp"

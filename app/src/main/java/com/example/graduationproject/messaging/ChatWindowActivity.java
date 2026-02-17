@@ -286,6 +286,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -304,7 +305,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatWindowActivity extends AppCompatActivity {
-    String reciverimg, reciverUid, reciverName, senderUID;
+    String reciverimg, reciverUid, reciverName,receiverEmail, senderUID;
     CircleImageView profile;
     TextView reciverNName;
     FirebaseDatabase database;
@@ -315,9 +316,9 @@ public class ChatWindowActivity extends AppCompatActivity {
     EditText textmsg;
 
     String senderRoom, reciverRoom;
-    RecyclerView messageAdpter;
+    RecyclerView messagesRecyclerView;
     ArrayList<msgModelclass> messagesArrayList;
-    messagesAdpter mmessagesAdpter;
+    messagesAdpter messagesAdapter;
     ImageView backImage ;
 
     @Override
@@ -329,6 +330,7 @@ public class ChatWindowActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         reciverName = getIntent().getStringExtra("nameeee");
+        receiverEmail = getIntent().getStringExtra("email");
         reciverimg = getIntent().getStringExtra("reciverImg");
         reciverUid = getIntent().getStringExtra("uid");
 
@@ -338,22 +340,21 @@ public class ChatWindowActivity extends AppCompatActivity {
         textmsg = findViewById(R.id.textmsg);
         reciverNName = findViewById(R.id.recivername);
         profile = findViewById(R.id.profileimgg);
-        messageAdpter = findViewById(R.id.msgadpter);
+        messagesRecyclerView = findViewById(R.id.msgadpter);
         backImage = findViewById(R.id.back_arrow);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
-        messageAdpter.setLayoutManager(linearLayoutManager);
-        mmessagesAdpter = new messagesAdpter(ChatWindowActivity.this, messagesArrayList);
-        messageAdpter.setAdapter(mmessagesAdpter);
+        messagesRecyclerView.setLayoutManager(linearLayoutManager);
+        messagesAdapter = new messagesAdpter(ChatWindowActivity.this, messagesArrayList);
+        messagesRecyclerView.setAdapter(messagesAdapter);
 
         Picasso.get().load(reciverimg).into(profile);
-        reciverNName.setText(reciverName);
+        reciverNName.setText(receiverEmail);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
             senderUID = auth.getCurrentUser().getUid();
-            Log.d("current user ---> "+auth.getCurrentUser().getUid(),"current user ---> "+auth.getCurrentUser().getUid());
         } else {
             return;
         }
@@ -365,7 +366,7 @@ public class ChatWindowActivity extends AppCompatActivity {
         senderRoom = senderUID + reciverUid;
         reciverRoom = reciverUid + senderUID;
 
-        DatabaseReference reference = database.getReference().child("user").child(firebaseAuth.getUid());
+        DatabaseReference reference = database.getReference().child("users").child(firebaseAuth.getUid());
 
         // Call the method to update the read status
         updateReadStatus();
@@ -380,10 +381,10 @@ public class ChatWindowActivity extends AppCompatActivity {
                     msgModelclass messages = dataSnapshot.getValue(msgModelclass.class);
                     if (messages != null) {
                         messagesArrayList.add(messages);
-                        Log.d("msgad", "msg adapter run: " + "++++++++++++++++++++++++++++++++++++++++++++++++");
                     }
                 }
-                mmessagesAdpter.notifyDataSetChanged(); // Notify adapter after updating data
+                messagesAdapter.notifyDataSetChanged();
+                messagesRecyclerView.scrollToPosition(messagesArrayList.size() - 1);
             }
 
             @Override
@@ -395,7 +396,13 @@ public class ChatWindowActivity extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                senderImg = snapshot.child("profilepic").getValue().toString();
+
+                if (snapshot.exists() && snapshot.child("profilePic").exists()) {
+                    senderImg = snapshot.child("profilePic").getValue(String.class);
+                } else {
+                    senderImg = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd"; // or default image URL
+                }
+
                 reciverIImg = reciverimg;
             }
 
@@ -403,6 +410,7 @@ public class ChatWindowActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+
 
         sendbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -414,35 +422,34 @@ public class ChatWindowActivity extends AppCompatActivity {
                 }
                 textmsg.setText("");
                 Date date = new Date();
-                msgModelclass messagess = new msgModelclass(message, senderUID, reciverUid, date.getTime(), true);
+                msgModelclass messages = new msgModelclass(message, senderUID, reciverUid, date.getTime(), true);
 
                 database.getReference().child("chats")
                         .child(senderRoom)
                         .child("messages")
                         .push()
-                        .setValue(messagess)
+                        .setValue(messages)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     // Create a new message instance for the receiver with isRead set to false
-                                    msgModelclass messagess1 = new msgModelclass(message, senderUID, reciverUid, date.getTime(), false);
+                                    msgModelclass message1 = new msgModelclass(message, senderUID, reciverUid, date.getTime(), false);
                                     database.getReference().child("chats")
                                             .child(reciverRoom)
                                             .child("messages")
                                             .push()
-                                            .setValue(messagess1)
+                                            .setValue(message1)
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (!task.isSuccessful()) {
-                                                        Toast.makeText(ChatWindowActivity.this, "Failed to send message to receiver", Toast.LENGTH_SHORT).show();
-                                                        Log.e("Firebase", "Failed to send message to receiver", task.getException());
+                                                        MyAlertDialog.showCustomAlertDialogSpinnerError(ChatWindowActivity.this, "Message Error", "Failed to send message to receiver ...");
                                                     }
                                                 }
                                             });
                                 } else {
-                                    Toast.makeText(ChatWindowActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
+                                    MyAlertDialog.showCustomAlertDialogSpinnerError(ChatWindowActivity.this, "Message Error", "Failed to send message to receiver ...");
                                     Log.e("Firebase", "Failed to send message", task.getException());
                                 }
                             }
@@ -451,16 +458,15 @@ public class ChatWindowActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
     public void onBackPressed() {
         updateReadStatus();
         super.onBackPressed();
     }
 
-
     private void updateReadStatus() {
         DatabaseReference chatReference = FirebaseDatabase.getInstance().getReference().child("chats").child(senderRoom).child("messages");
-
         chatReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -477,9 +483,7 @@ public class ChatWindowActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    Log.d("Firebase", "Message updated successfully.");
                                 } else {
-                                    Log.e("Firebase", "Failed to update message: " + task.getException().getMessage());
                                 }
                             }
                         });

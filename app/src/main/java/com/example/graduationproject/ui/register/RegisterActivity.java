@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +31,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -38,6 +40,8 @@ import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONArray;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,11 +98,6 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
                 }
             });
         }
-
-
-
-
-
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.genderSpinner,R.layout.spinner_custom);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.genderSpinner.setAdapter(adapter);
@@ -206,6 +205,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 binding.password.setError(null);
+                binding.passwordConfirm.setError(null);
             }
 
             @Override
@@ -223,6 +223,7 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 binding.passwordConfirm.setError(null);
+                binding.password.setError(null);
             }
 
             @Override
@@ -247,12 +248,10 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         }
 
         if(binding.genderSpinner.getSelectedItem().toString().equalsIgnoreCase("Choose Gender")){
-            MyAlertDialog.showCustomAlertDialogSpinnerError(this,"Wrong gender value","Please Choose A Valid Gender Value");
             binding.genderTextView.setTextColor(Color.RED);
         }
 
         if(binding.profileSpinner.getSelectedItem().toString().equalsIgnoreCase("Choose Type")){
-            MyAlertDialog.showCustomAlertDialogSpinnerError(this,"Wrong type value","Please Choose A Valid Value");
             binding.profileTypeText.setTextColor(Color.RED);
         }
 
@@ -297,11 +296,12 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             binding.birthDateLayout.setError(null);
             Database insertNewProfile=new Database(getApplicationContext());
             Profile profile=new Profile(firstnameStr.toLowerCase(),lastnameStr.trim(),emailStr.trim(),passwordStr,selectedDate,genderSelected+"",profileSelected+"");
+            binding.progressBar.setVisibility(ProgressBar.VISIBLE);
             insertNewProfile.registerNewProfile(profile,this);
             dataValidFlag=true ;
         }
         else if(!checkAll()){
-            Toast.makeText(RegisterActivity.this,"ERROR ..",Toast.LENGTH_SHORT).show();
+            MyAlertDialog.showCustomAlertDialogLoginError(this, "Register Error", "Please make sure you added correct personal information, check inputs.");
         }
     }
 
@@ -328,11 +328,10 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             profileSelected = 0 ;
         }
 
-
         return (!firstnameStr.isEmpty() && !lastnameStr.isEmpty() && !emailStr.isEmpty()
                 && !passwordStr.isEmpty() && !confPasswordStr.isEmpty()
                  && passwordStr.equals(confPasswordStr) && isEmailValid() &&
-                passwordStr.trim().length() > 10 && containsTwoCases() && gender && profileType && containsOnlyCharacters(firstnameStr) && containsOnlyCharacters(lastnameStr)
+                passwordStr.trim().length() >= 10 && containsTwoCases() && gender && profileType && containsOnlyCharacters(firstnameStr) && containsOnlyCharacters(lastnameStr)
         && validBirthDateFlag != 0 && !checkContainSpace(firstnameStr.trim()) && !checkContainSpace(lastnameStr.trim())) ;
     }
     public boolean isEmailValid() {
@@ -374,99 +373,55 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
             }
         }
         return uppercaseFlag && lowercaseFlag;
-
-
-
-
-
-
-
     }
 
     @Override
     public void onSuccess(int result) {
+        binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
         if(result == 1){
-
-
-
-            auth.createUserWithEmailAndPassword(emailStr.trim(),passwordStr).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()){
-                        String id = task.getResult().getUser().getUid();
-                        DatabaseReference reference = database.getReference().child("user").child(id);
-                        StorageReference storageReference = storage.getReference().child("Upload").child(id);
-
-                        if (imageURI!=null){
-                            storageReference.putFile(imageURI).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                    if (task.isSuccessful()){
-                                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                            @Override
-                                            public void onSuccess(Uri uri) {
-                                                imageuri = uri.toString();
-                                                Users users = new Users(id,firstnameStr.toLowerCase().concat(lastnameStr.trim()) ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
-                                                reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()){
-                                                            //   progressDialog.show();
-                                                            //    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                                            //    startActivity(intent);
-                                                            //      finish();
-                                                        }else {
-                                                            //  Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-
-                        }else {
-                            String status = "Hey I'm Using This Application";
-                            imageuri = "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
-                            Users users = new Users(id,firstnameStr.toLowerCase() + " " + lastnameStr.trim() ,emailStr.trim(),passwordStr,imageuri,"hi im using chat",profileSelected+"");
-                            reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-                                        //  progressDialog.show();
-                                        //   Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
-                                        //    startActivity(intent);
-                                        //     finish();
-                                    }else {
-                                        // Toast.makeText(RegisterActivity.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            auth.createUserWithEmailAndPassword(emailStr, passwordStr)
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            return;
                         }
-                    }else {
-                        // Toast.makeText(RegisterActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+                        FirebaseUser firebaseUser = auth.getCurrentUser();
+                        if (firebaseUser == null) return;
+                        String userId = firebaseUser.getUid();
+                        String userName = firstnameStr + " " + lastnameStr;
+                        String defaultProfilePic =
+                                "https://firebasestorage.googleapis.com/v0/b/graduationproject-81f3e.appspot.com/o/user.png?alt=media&token=014e8f21-6436-4de5-b52b-e61a685a4dbd";
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference userRef = database
+                                .getReference("users")
+                                .child(userId);
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("userId", userId);
+                        userData.put("mail", emailStr);
+                        userData.put("userName", userName);
+                        userData.put("profileType", profileSelected); // int 0 or 1
+                        userData.put("profilePic", defaultProfilePic);
+                        userData.put("status", "status");
+                        userData.put("unreadMessageCount", 0);
 
-
-            binding.progressBar.setVisibility(ProgressBar.VISIBLE);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    MyAlertDialog.showDialogForDone(RegisterActivity.this,"Account created","Account created you can sign in know ..");
-                    finish();
-                }
-            },1500);
-
-            //MyAlertDialog.showCustomAlerDialogForRegistrationDone(this);
+                        userRef.setValue(userData)
+                                .addOnSuccessListener(aVoid ->
+                                {})
+                                .addOnFailureListener(e ->
+                                {});
+                    });
+            MyAlertDialog.registrationDone(
+                    RegisterActivity.this,
+                    "Account Created",
+                    "Your account has been created successfully. You can now sign in."
+            );
         }
         else if(result == -2){
+            binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
             binding.email.setError("Email already registered ...");
         }
         else if (result==0){
+            binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
             Toast.makeText(this,"Error registration",Toast.LENGTH_SHORT).show();
         }
     }
@@ -482,28 +437,43 @@ public class RegisterActivity extends AppCompatActivity implements RequestResult
         int month = calendar.get(Calendar.MONTH);
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
 
-        int currentYear = LocalDate.now().getYear();
-        selectedDate=year +"-"+ (month+1) + dayOfMonth;
-        validBirthDateFlag=1;
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        selectedDate = year +"-"+ (month+1) + "-" +dayOfMonth;
-                        if(currentYear - year < 18){
-                            binding.birthDateLayout.setError("* You must be at least 18 years old");
-                        }
-                        else{
-                            binding.birthDateLayout.setError(null);
-                            validBirthDateFlag=1;
-                        }
-                        binding.birthDateLayout.getEditText().setText(dayOfMonth+"-"+(month+1)+"-"+year);
-                    }
-                },
-                year, month, dayOfMonth);
+                (view, y, m, d) -> {
 
+                    // Format selected date
+                    selectedDate = y + "-" + (m + 1) + "-" + d;
+
+                    // Current date
+                    Calendar today = Calendar.getInstance();
+                    Calendar dob = Calendar.getInstance();
+                    dob.set(y, m, d);
+
+                    int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+
+                    // Adjust if birthday not reached yet this year
+                    if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)) {
+                        age--;
+                    }
+
+                    if (age < 18) {
+                        binding.birthDateLayout.setError("* You must be at least 18 years old");
+                        validBirthDateFlag = 0;
+                    } else {
+                        binding.birthDateLayout.setError(null);
+                        validBirthDateFlag = 1;
+                    }
+
+                    // Display format
+                    binding.birthDateLayout.getEditText()
+                            .setText(d + "-" + (m + 1) + "-" + y);
+                },
+                year, month, dayOfMonth
+        );
         datePickerDialog.show();
+    }
+
+    public void backToLogin(View view) {
+        finish();
     }
 }

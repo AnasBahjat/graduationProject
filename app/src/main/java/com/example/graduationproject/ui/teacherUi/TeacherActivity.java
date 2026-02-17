@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -73,6 +75,7 @@ import com.example.graduationproject.listeners.TeacherAccountConfirmationListene
 import com.example.graduationproject.listeners.TeacherAvailabilityListener;
 import com.example.graduationproject.listeners.TeacherPostListener;
 import com.example.graduationproject.messaging.ChatMainActivity;
+import com.example.graduationproject.messaging.ChatMainActivity2;
 import com.example.graduationproject.messaging.ChatViewModel;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
@@ -205,18 +208,16 @@ public class TeacherActivity extends AppCompatActivity implements
         email=intent.getStringExtra("email");
         firstName=intent.getStringExtra("firstName");
         lastName=intent.getStringExtra("lastName");
-        password=intent.getStringExtra("password");
         birthDate=intent.getStringExtra("birthDate");
         phoneNumber=intent.getStringExtra("phoneNumber");
         city=intent.getStringExtra("city");
         country=intent.getStringExtra("country");
         doneInformation=intent.getStringExtra("accountDone");
-
     }
 
     private void initialize(){
         database=new Database(this);
-        if(Integer.parseInt(doneInformation)==1)
+        if(Integer.parseInt(doneInformation) == 1)
             database.getNotifications(email,this);
         initFirebase();
         notificationsPopupWindowBinding = NotificationsPopupWindowBinding.inflate(getLayoutInflater());
@@ -241,23 +242,38 @@ public class TeacherActivity extends AppCompatActivity implements
     private void initFirebase(){
         mAuth = FirebaseAuth.getInstance();
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        chatViewModel.fetchUnreadMessages(currentUserId);
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            chatViewModel.fetchUnreadMessages(currentUserId);
+            chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
+                if (unreadCount > 0) {
+                    binding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
+                    binding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
+                } else {
+                    binding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
+                }
+            });
+        }
 
-        chatViewModel.getUnreadMessageCount().observe(this, unreadCount -> {
-            if (unreadCount > 0) {
-                binding.numOfMessagesReceivedToParent.setText(String.valueOf(unreadCount));
-                binding.numOfMessagesReceivedToParent.setVisibility(View.VISIBLE);
-            } else {
-                binding.numOfMessagesReceivedToParent.setVisibility(View.GONE);
-            }
-        });
+
         binding.messageIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create an Intent to start MainActivity
-                Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
-                startActivity(intent);
+                try{
+                    if(doneInformation.equals("1")){
+                        Intent intent = new Intent(TeacherActivity.this, ChatMainActivity2.class);
+                        intent.putExtra("userName", firstName.substring(0,1).toUpperCase()+firstName.substring(1)+" "+lastName.substring(0, 1).toUpperCase()+lastName.substring(1));
+                        startActivity(intent);
+                    }
+                    else {
+                        MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this, "Confirm", "Please Confirm your account first ..");
+                    }
+                    /*Intent intent = new Intent(TeacherActivity.this, ChatMainActivity.class);
+                    startActivity(intent);*/
+                }
+                catch (Exception e){
+                    MyAlertDialog.showCustomAlertDialogSpinnerError(TeacherActivity.this, "Feature Error", "Cannot Access Messaging feature for now, try again later.");
+                }
             }
         });
     }
@@ -279,7 +295,6 @@ public class TeacherActivity extends AppCompatActivity implements
                     }
                 }
             }
-            Log.d("Not list --->"+notList,"Not list --->"+notList);
             updateNotificationsAdapter();
             binding.accountIsNotConfirmText.setVisibility(View.GONE);
             binding.fragmentsContainer.setVisibility(View.VISIBLE);
@@ -457,13 +472,8 @@ public class TeacherActivity extends AppCompatActivity implements
     private void setSideNavigationData(){
 
         View headerView = binding.navigationView.getHeaderView(0);
-        TextView name = headerView.findViewById(R.id.sideNavName);
-        TextView emailTextView = headerView.findViewById(R.id.sideNavEmail);
 
         SideNavigationHeaderBinding sideNavigationHeaderBinding = SideNavigationHeaderBinding.inflate(getLayoutInflater());
-
-        name.setText(firstName+" "+lastName);
-        emailTextView.setText(email);
     }
 
     @Override
@@ -474,11 +484,14 @@ public class TeacherActivity extends AppCompatActivity implements
         else if(menuItem.getItemId() == R.id.viewTeacherReceivedRequests){
             Intent intent = new Intent();
             intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
         else if(menuItem.getItemId() == R.id.availablePosts){
             Intent intent = new Intent();
             intent.setAction("SHOW_PARENT_POSTED_REQUESTS_FOR_TEACHER");
+            intent.setPackage(getPackageName());
             sendBroadcast(intent);
         }
         if(menuItem.getItemId() == R.id.logoutId){
@@ -575,47 +588,56 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     public void showTeacherInformationPopupWindow(){
-        TeacherInformationPopupWindowBinding teacherInformationPopupWindowBinding = TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
-        decrementNotificationsNumber();
-        teacherInformationPopupWindow = new PopupWindow(teacherInformationPopupWindowBinding.getRoot(),1380,2000,true);
+        TeacherInformationPopupWindowBinding binding =
+                TeacherInformationPopupWindowBinding.inflate(getLayoutInflater());
 
-        teacherInformationPopupWindow.showAtLocation(teacherInformationPopupWindowBinding.teacherInformationLayout, Gravity.CENTER,0,0);
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        int width = (int) (metrics.widthPixels * 0.95f);
+        int height = (int) (metrics.heightPixels * 0.95f);
+
+        teacherInformationPopupWindow =
+                new PopupWindow(binding.getRoot(), width, height, true);
+
+        teacherInformationPopupWindow.setOutsideTouchable(false);
+        teacherInformationPopupWindow.setFocusable(true);
+
+        teacherInformationPopupWindow.showAtLocation(
+                binding.teacherInformationLayout,
+                Gravity.CENTER,
+                0,
+                0
+        );
+
         notificationPopupWindow.dismiss();
 
-        teacherInformationPopupWindowBinding.closeTeacherInformationPopupWindow.setOnClickListener(v ->{
-            teacherInformationPopupWindow.dismiss();
-        });
+        binding.closeTeacherInformationPopupWindow.setOnClickListener(v ->
+                teacherInformationPopupWindow.dismiss()
+        );
 
-
-
-        teacherInformationPopupWindowBinding.collegeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.collegeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateFieldSpinner(teacherInformationPopupWindowBinding,teacherInformationPopupWindowBinding.collegeSpinner);
+                updateFieldSpinner(binding, binding.collegeSpinner);
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        teacherInformationPopupWindowBinding.confirmInformationBtn.setOnClickListener(ss->{
-            checkConfirmationButtonClicked(teacherInformationPopupWindowBinding);
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        teacherInformationPopupWindowBinding.availabilityRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                setAvailabilityForStudent(teacherInformationPopupWindowBinding,checkedId);
-            }
-        });
+        binding.confirmInformationBtn.setOnClickListener(v ->
+                checkConfirmationButtonClicked(binding)
+        );
 
+        binding.availabilityRadioGroup.setOnCheckedChangeListener((group, checkedId) ->
+                setAvailabilityForStudent(binding, checkedId)
+        );
 
-        onTextChangedIdText(teacherInformationPopupWindowBinding.idText,teacherInformationPopupWindowBinding.idTextLayout);
-        onTextChangedIdText(teacherInformationPopupWindowBinding.cityText,teacherInformationPopupWindowBinding.cityLayout);
-        onTextChangedIdText(teacherInformationPopupWindowBinding.countryText,teacherInformationPopupWindowBinding.countryLayout);
-        onTextChangedIdText(teacherInformationPopupWindowBinding.edtTextPhoneNumber,teacherInformationPopupWindowBinding.phoneNumber);
-        onItemSelectedSpinner(teacherInformationPopupWindowBinding);
+        onTextChangedIdText(binding.idText, binding.idTextLayout);
+        onTextChangedIdText(binding.cityText, binding.cityLayout);
+        onTextChangedIdText(binding.countryText, binding.countryLayout);
+        onTextChangedIdText(binding.edtTextPhoneNumber, binding.phoneNumber);
+        onItemSelectedSpinner(binding);
     }
 
 
@@ -850,19 +872,30 @@ public class TeacherActivity extends AppCompatActivity implements
 
 
     private void showTeacherLookForJobDialog(){
-        teacherLookForJobLayoutBinding = TeacherLookForJobLayoutBinding.inflate(getLayoutInflater());
+        teacherLookForJobLayoutBinding =
+                TeacherLookForJobLayoutBinding.inflate(getLayoutInflater());
+
         teacherLooksForJobDialog = new Dialog(this);
-        teacherLooksForJobDialog.setContentView(teacherLookForJobLayoutBinding.getRoot());
+        teacherLooksForJobDialog.setContentView(
+                teacherLookForJobLayoutBinding.getRoot()
+        );
         teacherLooksForJobDialog.setCancelable(false);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.copyFrom(Objects.requireNonNull(teacherLooksForJobDialog.getWindow()).getAttributes());
-        layoutParams.width = 1300;
-        layoutParams.height = 2000;
-        teacherLooksForJobDialog.getWindow().setAttributes(layoutParams);
-        teacherLooksForJobDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        if(teacherLooksForJobDialog.getWindow() != null)
-            teacherLooksForJobDialog.getWindow().setLayout(1300,2000);
+
         teacherLooksForJobDialog.show();
+
+        Window window = teacherLooksForJobDialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams params = window.getAttributes();
+
+            params.width  = WindowManager.LayoutParams.MATCH_PARENT;
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT; // or MATCH_PARENT if needed
+            params.gravity = Gravity.CENTER;
+
+            window.setAttributes(params);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+
 
         teacherLookForJobLayoutBinding.closeTheDialog.setOnClickListener(z->{
             teacherLooksForJobDialog.dismiss();
@@ -1283,8 +1316,7 @@ public class TeacherActivity extends AppCompatActivity implements
     }
 
     public void updateNotificationsList(ArrayList<Notifications> newNotifications){
-        Toast.makeText(this,"Notificatons updated ..",Toast.LENGTH_SHORT).show();
-        Log.d("----------->service -->"+newNotifications,"----------->service -->"+newNotifications);
+        Toast.makeText(this,"Notifications updated ..",Toast.LENGTH_SHORT).show();
     }
 
     private void startNotificationsService(){
@@ -1329,7 +1361,6 @@ public class TeacherActivity extends AppCompatActivity implements
                     int childGrade = jsonObject.getInt("childGrade");
                     String startTime = jsonObject.getString("startTime");
                     String endTime = jsonObject.getString("endTime");
-                    Log.d("Child name --------> "+childName,"Child name --------> "+childName);
                     TeacherMatchModel teacherMatchModel=new TeacherMatchModel(matchingId,parentEmail,new CustomChildData(childId,childName,childGrade),
                             choseDays,choseCourses,location,teachingMethod,
                             new Children(childName,childAge,childGender,childGrade),startTime,endTime);
@@ -1532,7 +1563,9 @@ public class TeacherActivity extends AppCompatActivity implements
            Intent intent = new Intent();
            intent.setAction("UPDATE_TEACHER_POSTED_REQUESTS");
             //intent.putExtra("newAddedJobRequest",tpr);
-           sendBroadcast(intent);
+            intent.setPackage(getPackageName());
+
+            sendBroadcast(intent);
         }
         else if(flag == -2){
             MyAlertDialog.showCustomAlertDialogLoginError(this,"Connection Error","Something went wrong with your connection please try again later ..");
@@ -1587,12 +1620,16 @@ public class TeacherActivity extends AppCompatActivity implements
             database.setNotificationIsRead(notification.getNotificationId());
             Intent intent = new Intent();
             intent.setAction("SHOW_TEACHER_RECEIVED_REQUESTS");
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
         else if(notification.getNotificationType() == 30){
             Intent intent = new Intent();
             intent.setAction("SHOW_DELETE_COURSE_REQUEST_FOR_TEACHER");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
 
@@ -1600,6 +1637,8 @@ public class TeacherActivity extends AppCompatActivity implements
             Intent intent = new Intent();
             intent.setAction("SHOW_DELETE_DECLINED_COURSE_REQUEST_FOR_TEACHER");
             intent.putExtra("notification",notification);
+            intent.setPackage(getPackageName());
+
             sendBroadcast(intent);
         }
     }

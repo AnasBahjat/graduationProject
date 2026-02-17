@@ -3,7 +3,6 @@ package com.example.graduationproject.messaging;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.graduationproject.R;
+import com.example.graduationproject.errorHandling.MyAlertDialog;
 import com.example.graduationproject.ui.parentUi.ParentActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -45,12 +45,10 @@ public class ChatMainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.chats_activity);
 
         database = FirebaseDatabase.getInstance();
         auth = FirebaseAuth.getInstance();
-        cumbut = findViewById(R.id.camBut);
-        setbut = findViewById(R.id.settingBut);
         title = findViewById(R.id.title1);
 
         usersArrayList = new ArrayList<>();
@@ -59,60 +57,39 @@ public class ChatMainActivity extends AppCompatActivity {
         mainUserRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new UserAdpter(ChatMainActivity.this, usersArrayList);
         mainUserRecyclerView.setAdapter(adapter);
-       // FirebaseUser currentUser1 = auth.getCurrentUser();
 
 
-
-        DatabaseReference reference = database.getReference().child("user");
+        DatabaseReference reference = database.getReference().child("users");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("user").child(currentUserId);
+                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserId);
 
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
+                            String userName = dataSnapshot.child("userName").getValue(String.class);
                             profileType = (String) dataSnapshot.child("profileType").getValue();
-                            if (profileType != null) {
-                                Log.d("ProfileType", "Profile Type: " + profileType);
-                                // Use profileType as needed
-                            } else {
-                                Log.d("ProfileType", "Profile Type not found for user: " + currentUserId);
-                            }
+                            title.setText(userName);
+
                         } else {
-                            Log.d("ProfileType", "User not found in database: " + currentUserId);
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.d("ProfileType", "Error retrieving profile type: " + databaseError.getMessage());
                     }
                 });
                 usersArrayList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
-                //    if(profileType!=null){
-                    if (currentUserId.equals(users.userId) ){
+                    if(users != null){
+                        if(!currentUserId.equals(users.userId)){
+                            usersArrayList.add(users);
+                        }
                     }
-                    else if ((users.profileType.equals(profileType))) {
-
-                    } else if (currentUserId.equals(users.userId) || (users.profileType.equals(profileType))) {
-
-                    } else if(!currentUserId.equals(users.userId)){
-                        usersArrayList.add(users);
-                        // String reciverName = getIntent().getStringExtra("nameeee");
-                        //  String reciverimg = getIntent().getStringExtra("reciverImg");
-                        // String reciverUid = getIntent().getStringExtra("uid");
-                        //  Log.d("BadgeCount", "Current Badge Count: " + reciverUid);
-                        //  fetchUnreadMessages(reciverUid);
-                    }
-                    else {
-
-                    }
-                //}
                 }
                 adapter.notifyDataSetChanged();
             }
@@ -125,9 +102,9 @@ public class ChatMainActivity extends AppCompatActivity {
 
 
 
-        FirebaseUser currentUser = auth.getCurrentUser();
+       /* FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
-            DatabaseReference userReference = database.getReference().child("user").child(currentUser.getUid());
+            DatabaseReference userReference = database.getReference().child("users").child(currentUser.getUid());
             userReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -140,15 +117,21 @@ public class ChatMainActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    // Handle error
+                    MyAlertDialog.showCustomAlertDialogLoginError(ChatMainActivity.this, "Error 1","Error fetching users ...");
                 }
             });
-        } else {
-            // Handle case where currentUser is null
-            Intent intent = new Intent(ChatMainActivity.this, ParentActivity.class);
-            startActivity(intent);
-            finish();
         }
+
+        else {
+            // Handle case where currentUser is null
+            //Intent intent = new Intent(ChatMainActivity.this, ParentActivity.class);
+            //startActivity(intent);
+            MyAlertDialog.showCustomAlertDialogLoginError(ChatMainActivity.this, "Error 2","Error fetching users ...");
+
+            //finish();
+        }*/
+
+
 
         reference.addChildEventListener(new ChildEventListener() {
             @Override
@@ -185,6 +168,8 @@ public class ChatMainActivity extends AppCompatActivity {
             }
         });
 
+
+
         imglogout = findViewById(R.id.logoutimg);
 
         imglogout.setOnClickListener(new View.OnClickListener() {
@@ -196,24 +181,25 @@ public class ChatMainActivity extends AppCompatActivity {
             }
         });
 
-        setbut.setOnClickListener(new View.OnClickListener() {
+
+        /*setbut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ChatMainActivity.this, SettingMessagingActivity.class);
                 startActivity(intent);
             }
-        });
+        });*/
 
-        cumbut.setOnClickListener(new View.OnClickListener() {
+       /* cumbut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, 10);
             }
-        });
-        DatabaseReference userReference = database.getReference().child("user").child(currentUser.getUid()).child("profileType");
+        });*/
+        /*DatabaseReference userReference = database.getReference().child("users").child(currentUser.getUid()).child("profileType");
         if (auth.getCurrentUser() == null) {
             super.getClass();
-        }
+        }*/
     }
 }

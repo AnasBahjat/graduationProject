@@ -7,28 +7,32 @@
     android:layout_height="wrap_content"
     android:backgroundTint="#F2ECF6"
     android:background="@drawable/rounded_corners">
-    <RelativeLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/parentInformationLayoutParent"
-        android:layout_width="wrap_content"
-        android:layout_height="570dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/closeParentInformationPopupWindow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
+            android:contentDescription="@string/close_popup_window_msg"
             android:src="@drawable/close_icon_2"
-            android:contentDescription="@string/close_popup_window_msg" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
+            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="55dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/closeParentInformationPopupWindow">
 
             <View
                 android:layout_width="20dp"
@@ -61,75 +65,74 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/idTextParentLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="32dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="105dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="20dp"
             android:hint="@string/university_id_text"
             app:counterEnabled="true"
             app:counterMaxLength="15"
             app:endIconMode="clear_text"
             app:errorEnabled="true"
-            app:startIconDrawable="@drawable/university_id_icon"
             app:errorIconDrawable="@drawable/baseline_error_24"
             app:errorTextAppearance="@style/error_text"
-            app:hintTextAppearance="@style/CustomHintTextAppearance">
+            app:hintTextAppearance="@style/CustomHintTextAppearance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+            app:startIconDrawable="@drawable/university_id_icon">
 
             <EditText
                 android:id="@+id/idTextParent"
                 android:layout_width="match_parent"
-                android:inputType="number"
-                android:maxLength="15"
                 android:layout_height="50dp"
-                android:background="@drawable/edit_text_style" />
+                android:background="@drawable/edit_text_style"
+                android:inputType="number"
+                android:textSize="12sp"
+                android:maxLength="15" />
         </com.google.android.material.textfield.TextInputLayout>
-
 
         <LinearLayout
             android:id="@+id/phoneLinearLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:orientation="horizontal"
-            android:layout_centerHorizontal="true"
             android:layout_below="@+id/idTextParentLayout"
-            app:errorTextAppearance="@style/error_text">
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="horizontal"
+            app:errorTextAppearance="@style/error_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/idTextParentLayout">
 
 
             <com.hbb20.CountryCodePicker
                 android:id="@+id/phoneNumberPrefix"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:ccp_showFullName="false"
-                app:ccp_showPhoneCode="true"
-                app:ccp_showNameCode="false"
-                app:ccp_showFlag="true"
-                app:ccp_showArrow="true"
-                app:ccp_autoFormatNumber="true"
                 android:layout_marginTop="20dp"
-                app:ccp_textSize="16sp"
                 app:ccpDialog_keyboardAutoPopup="false"
-                />
-
+                app:ccp_autoFormatNumber="true"
+                app:ccp_showArrow="true"
+                app:ccp_showFlag="true"
+                app:ccp_showFullName="false"
+                app:ccp_showNameCode="false"
+                app:ccp_showPhoneCode="true"
+                app:ccp_textSize="16sp" />
 
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/phoneNumber"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="10dp"
                 android:hint="Phone Number"
-                tools:ignore="HardcodedText"
                 app:counterEnabled="true"
                 app:counterMaxLength="10"
                 app:endIconMode="clear_text"
@@ -137,11 +140,12 @@
                 app:errorIconDrawable="@drawable/baseline_error_24"
                 app:errorTextAppearance="@style/error_text"
                 app:hintTextAppearance="@style/CustomHintTextAppearance"
-                app:startIconDrawable="@drawable/phone_number_icon">
+                app:startIconDrawable="@drawable/phone_number_icon"
+                tools:ignore="HardcodedText">
 
                 <EditText
                     android:id="@+id/edtTextPhoneNumber"
-                    android:layout_width="250dp"
+                    android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@drawable/edit_text_style"
                     android:inputType="phone"
@@ -150,46 +154,42 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/addChildBtn"
             android:layout_width="120dp"
             android:layout_height="40dp"
-            android:layout_below="@id/phoneLinearLayout"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="32dp"
-
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/rounded_corners"
             android:backgroundTint="#C6CECF"
             android:text="Add Child"
             android:textAllCaps="false"
-            android:textColor="@color/black" />
-
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/phoneLinearLayout" />
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/flexboxLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/addChildBtn"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"
             android:padding="8dp"
             app:alignContent="flex_start"
-            app:flexWrap="wrap" />
-
+            app:flexWrap="wrap"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addChildBtn" />
 
 
         <LinearLayout
             android:id="@+id/addressInformation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/flexboxLayout"
-            android:layout_marginTop="15dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/flexboxLayout">
 
             <View
                 android:layout_width="20dp"
@@ -222,69 +222,78 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/cityLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/addressInformation"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            app:hintEnabled="true"
-            app:errorEnabled="true"
-            android:layout_marginTop="10dp"
-            app:errorIconDrawable="@drawable/baseline_error_24"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
             android:hint="City"
-            app:startIconDrawable="@drawable/icon_city"
-            app:endIconMode="clear_text" >
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/baseline_error_24"
+            app:hintEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addressInformation"
+            app:startIconDrawable="@drawable/icon_city">
 
             <EditText
                 android:id="@+id/cityText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/edit_text_style"
-                android:maxLength="15" />
+                android:maxLength="15"
+                android:textSize="12sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/countryLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_below="@id/addressInformation"
-            android:layout_marginTop="80dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            app:hintEnabled="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:hint="Country"
-            app:startIconDrawable="@drawable/icon_country"
             app:endIconMode="clear_text"
             app:errorEnabled="true"
             app:errorIconDrawable="@drawable/baseline_error_24"
-            >
+            app:hintEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cityLayout"
+            app:startIconDrawable="@drawable/icon_country">
+
             <EditText
                 android:id="@+id/countryText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:background="@drawable/edit_text_style"
                 android:maxLength="15"
-                android:background="@drawable/edit_text_style"/>
+                android:textSize="12sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/confirmInformationBtn"
-            android:layout_width="100dp"
+            android:layout_width="120dp"
             android:layout_height="50dp"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/addressInformation"
-            android:layout_marginTop="165dp"
-            android:text="@string/confirm_information_text"
-            android:textAllCaps="false"
-            android:textSize="16sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="20dp"
             android:background="@drawable/rounded_corners"
             android:backgroundTint="@color/usedColor"
-            android:layout_marginBottom="25dp"
-            android:textColor="@color/white"/>
-    </RelativeLayout>
+            android:text="@string/confirm_information_text"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/countryLayout" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

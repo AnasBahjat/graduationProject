@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <RelativeLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
@@ -31,77 +31,100 @@
                     android:id="@+id/openSideNavigation"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="17dp"
+                    android:layout_marginStart="10dp"
                     android:contentDescription="@string/navigate"
                     android:foreground="@drawable/menu_icon"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <RelativeLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Parent Screen"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/notificationLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginStart="369dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginEnd="13dp"
-                    android:clickable="true">
+                    android:layout_marginEnd="10dp"
+                    android:clickable="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/notificationImage"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="0dp"
                         android:contentDescription="@string/notifications_disc"
                         android:onClick="notificationImageClicked"
-                        android:src="@drawable/notification_icon" />
+                        android:src="@drawable/notification_icon"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/numOfNotifications"
-                        android:layout_width="16dp"
-                        android:layout_height="19dp"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:textAlignment="center"
-                        android:textSize="13sp"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
                         android:background="@drawable/custom_text_view_for_notification"
-                        android:textColor="@color/white" />
-                </RelativeLayout>
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/notificationImage" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <RelativeLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/messagesLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
                     android:layout_alignParentStart="true"
-                    android:layout_marginStart="320dp"
-                    android:layout_marginTop="12dp">
+                    android:layout_alignParentTop="true"
+                    android:layout_marginEnd="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/notificationLayout"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/messageIcon"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginStart="20dp"
                         android:src="@drawable/parent_received_requests"
-                        />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/numOfMessagesReceivedToParent"
-                        android:layout_width="16dp"
-                        android:layout_height="19dp"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
                         android:layout_alignParentTop="true"
-                        android:layout_marginStart ="48dp"
+                        android:background="@drawable/custom_text_view_for_notification"
                         android:textAlignment="center"
                         android:textColor="@color/white"
                         android:textSize="12sp"
+                        android:gravity="center"
                         android:visibility="gone"
-                        android:background="@drawable/custom_text_view_for_notification" />
-                </RelativeLayout>
-            </RelativeLayout>
+                        app:layout_constraintEnd_toEndOf="@+id/messageIcon"
+                        app:layout_constraintTop_toTopOf="@+id/messageIcon" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
         <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -141,12 +164,12 @@
         android:id="@+id/accountIsNotConfirmText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Please Confirm Your Account Information\nCheck notifications."
         android:gravity="center_vertical|center_horizontal"
-        android:textSize="25sp"
-        android:textColor="#989898"
+        android:text="Please Confirm Your Account Information\nCheck notifications."
         android:textAlignment="center"
-        />
+        android:textColor="#989898"
+        android:textSize="25sp"
+        android:visibility="gone" />
 
 
     <com.google.android.material.navigation.NavigationView
@@ -155,11 +178,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:headerLayout="@layout/side_navigation_header"
-        app:menu="@menu/side_nav_menu_parent"
-        />
-
-
-
-
+        app:menu="@menu/side_nav_menu_parent" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -1,13 +1,14 @@
 {
   "project_info": {
     "project_number": "895719360204",
+    "firebase_url": "https://graduationproject-81f3e-default-rtdb.firebaseio.com",
     "project_id": "graduationproject-81f3e",
     "storage_bucket": "graduationproject-81f3e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:895719360204:android:4f0b202624aa79c88f6469",
+        "mobilesdk_app_id": "1:895719360204:android:2b108091722f0c898f6469",
         "android_client_info": {
           "package_name": "com.example.graduationproject"
         }

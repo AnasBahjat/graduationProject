@@ -21,12 +21,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -81,6 +83,7 @@ import com.example.graduationproject.listeners.PostedTeacherRequestsListener;
 import com.example.graduationproject.listeners.TeacherMatchCardClickListener;
 import com.example.graduationproject.adapters.TeacherPostedRequestsAdapter;
 import com.example.graduationproject.messaging.ChatWindowActivity;
+import com.example.graduationproject.messaging.ChatWindowActivity2;
 import com.example.graduationproject.messaging.Users;
 import com.example.graduationproject.models.Address;
 import com.example.graduationproject.models.Children;
@@ -105,6 +108,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
@@ -116,6 +120,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1070,14 +1076,22 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             teacherPostedRequestCardLayoutBinding = TeacherPostedRequestCardLayoutBinding.inflate(LayoutInflater.from(getContext()));
             teacherPostedRequestCardDialog.setContentView(teacherPostedRequestCardLayoutBinding.getRoot());
             teacherPostedRequestCardDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(teacherPostedRequestCardDialog.getWindow()).getAttributes());
-            layoutParams.width = 1250;
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            teacherPostedRequestCardDialog.getWindow().setAttributes(layoutParams);
-            if (teacherPostedRequestCardDialog.getWindow() != null)
-                teacherPostedRequestCardDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            //teacherPostedRequestCardDialog.show();
+
+// Get display metrics to calculate screen width
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+            int screenWidth = displayMetrics.widthPixels;
+            int screenHeight = displayMetrics.heightPixels;
+
+            Window window = teacherPostedRequestCardDialog.getWindow();
+            if (window != null) {
+                window.setLayout((int) (screenWidth * 0.9), ViewGroup.LayoutParams.WRAP_CONTENT);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+
+                // Optional: Set gravity to center
+                window.setGravity(Gravity.CENTER);
+            }
 
             isTeacherPostedRequestCardDialogShowing = true;
             new Handler().postDelayed(() -> {
@@ -1133,18 +1147,32 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private void deleteTeacherPostedRequest(TeacherPostRequest teacherPostRequest) {
         if (getContext() != null) {
-            ConfirmDeleteDialogLayoutBinding confirmDeleteDialogLayoutBinding = ConfirmDeleteDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+            ConfirmDeleteDialogLayoutBinding confirmDeleteDialogLayoutBinding =
+                    ConfirmDeleteDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+
             deleteRequestConfirmationDialog = new Dialog(getContext());
             deleteRequestConfirmationDialog.setContentView(confirmDeleteDialogLayoutBinding.getRoot());
             deleteRequestConfirmationDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(deleteRequestConfirmationDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 600;
-            deleteRequestConfirmationDialog.getWindow().setAttributes(layoutParams);
-            if (deleteRequestConfirmationDialog.getWindow() != null)
-                deleteRequestConfirmationDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = deleteRequestConfirmationDialog.getWindow();
+            if (window != null) {
+                // Get screen size
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                int screenWidth = metrics.widthPixels;
+                int screenHeight = metrics.heightPixels;
+
+                // 95% width, wrap height
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+                layoutParams.width = (int) (screenWidth * 0.95);   // 95% of screen width
+                layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT; // auto height
+
+                window.setAttributes(layoutParams);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
             deleteRequestConfirmationDialog.show();
 
             confirmDeleteDialogLayoutBinding.deleteBtn.setOnClickListener(x -> {
@@ -1168,15 +1196,29 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             updatePostedRequestDialog.setContentView(updatePostedTeacherLookForAJobLayoutBinding.getRoot());
             updatePostedRequestDialog.setCancelable(false);
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(updatePostedRequestDialog.getWindow()).getAttributes());
-            layoutParams.width = 1300;
-            layoutParams.height = 2300;
-            updatePostedRequestDialog.getWindow().setAttributes(layoutParams);
-            if (updatePostedRequestDialog.getWindow() != null)
-                updatePostedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            updatePostedRequestDialog.show();
+            Window window = updatePostedRequestDialog.getWindow();
+            if (window != null) {
 
+                DisplayMetrics metrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                int screenWidth = metrics.widthPixels;
+                int screenHeight = metrics.heightPixels;
+
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+
+                // 95% of screen width
+                layoutParams.width = (int) (screenWidth * 0.95);
+
+                // Max 90% of screen height (scrollable content friendly)
+                layoutParams.height = (int) (screenHeight * 0.9);
+
+                window.setAttributes(layoutParams);
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
+            updatePostedRequestDialog.show();
             updatePostedTeacherLookForAJobLayoutBinding.closeTheDialog.setOnClickListener(z -> {
                 updatePostedRequestDialog.dismiss();
             });
@@ -1329,29 +1371,32 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
     private boolean checkStartAndEndDate(int duration) {
         try {
-            return areDatesValid(updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.getText().toString(), updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.getText().toString(), duration);
-        } catch (ParseException e) {
+            return areDatesValid(
+                    updatePostedTeacherLookForAJobLayoutBinding.startDateEdtText.getText().toString(),
+                    updatePostedTeacherLookForAJobLayoutBinding.endDateEdtText.getText().toString(),
+                    duration
+            );
+        } catch (DateTimeParseException e) {
             return false;
         }
     }
 
 
-    public boolean areDatesValid(String startDateStr, String endDateStr, int duration) throws ParseException {
+    public boolean areDatesValid(String startDateStr, String endDateStr, int duration) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
         LocalDate startDate = LocalDate.parse(startDateStr, formatter);
-        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
-
-        LocalDate currentDate = LocalDate.now();
-
-        if (startDate.isAfter(currentDate) && endDate.isAfter(currentDate)) {
-            if (startDate.isBefore(endDate)) {
-                int monthsDifference = Period.between(startDate, endDate).getMonths() + (Period.between(startDate, endDate).getYears() * 12);
-                return monthsDifference == duration;
-            }
+        LocalDate endDate   = LocalDate.parse(endDateStr, formatter);
+        LocalDate today     = LocalDate.now();
+        if (startDate.isBefore(today) || endDate.isBefore(today)) {
+            return false;
         }
-        return false;
+        if (!endDate.isAfter(startDate)) {
+            return false;
+        }
+        long monthsDifference = ChronoUnit.MONTHS.between(startDate, endDate);
+        return monthsDifference == duration;
     }
+
 
     private boolean checkStartAndEndTime() throws ParseException {
         Date startDate = timeFormat.parse(startTime);
@@ -1529,7 +1574,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 updatePostedTeacherLookForAJobLayoutBinding.coursesFlexBoxLayout.addView(customView);
             }
         } catch (Exception e) {
-            Log.e("The exception is -------> " + e.getMessage(), "The exception is -------> " + e.getMessage());
         }
     }
 
@@ -1552,13 +1596,11 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
         } else if (flag == 1) {
             database.getTeacherPostedRequests(email, this);
-            Log.d("Showing the progress bar ..", "Showing the progress bar ..");
             updatePostedRequestDialog.dismiss();
             isTeacherPostedRequestCardDialogShowing=false;
             teacherPostedRequestCardDialog.dismiss();
             new Handler().postDelayed(() -> {
                 binding.progressBarLayout.setVisibility(View.GONE);
-                Log.d("hiding the progress bar ..", "hiding the progress bar ..");
             }, 1500);
         } else {
 
@@ -1648,25 +1690,36 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
             parentPostedRequestsForTeacherDialog = new Dialog(getContext());
             parentPostedRequestsForTeacherDialog.setContentView(dialogTeacherMatchingOnCardClickedBinding.getRoot());
             parentPostedRequestsForTeacherDialog.setCancelable(false);
+
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            parentPostedRequestsForTeacherDialog.getWindow().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int screenWidth = displayMetrics.widthPixels;
+            int screenHeight = displayMetrics.heightPixels;
+
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
             layoutParams.copyFrom(parentPostedRequestsForTeacherDialog.getWindow().getAttributes());
-            layoutParams.width = 1250;
+
+            layoutParams.width = (int) (screenWidth * 0.90);
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+
             parentPostedRequestsForTeacherDialog.getWindow().setAttributes(layoutParams);
-            if (parentPostedRequestsForTeacherDialog.getWindow() != null)
+
+            // Set transparent background
+            if (parentPostedRequestsForTeacherDialog.getWindow() != null) {
                 parentPostedRequestsForTeacherDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            // parentPostedRequestsForTeacherDialog.show();
+
+                // Optional: Add window animations
+                //parentPostedRequestsForTeacherDialog.getWindow().setWindowAnimations(R.style.);
+            }
+
             tempRequestToSendDateTimeModel = new DateTimeModel(teacherMatchModel.getStartDate(),
                     teacherMatchModel.getEndDate(),
                     teacherMatchModel.getStartTime(),
                     teacherMatchModel.getEndTime(),
                     teacherMatchModel.getChoseDays());
 
-
             database.checkIfTeacherRequestSentBefore(email, currentCourseToSendRequestMatchModel, this);
-           // database.getAllTeacherCoursesDatesBeforeSendRequest(email,this);
-
-          //ToDo ----> after there is no conflict do this -->  database.checkIfTeacherRequestSentBefore(email, teacherMatchModel, this);
 
             dialogTeacherMatchingOnCardClickedBinding.closeImageView.setOnClickListener(z -> {
                 parentPostedRequestsForTeacherDialog.dismiss();
@@ -1680,7 +1733,6 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
                 getUserInfoByEmail(receiverEmail);
             });
 
-
             dialogTeacherMatchingOnCardClickedBinding.requestSentTextView.setOnClickListener(v -> {
                 database.deleteTeacherSentRequestToParent(email, tempTeacherMatchModelForCheckTeacherSentRequest, this);
             });
@@ -1691,44 +1743,121 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
 
 
     private void getUserInfoByEmail(String tempMail) {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("user");
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference receiverUser = FirebaseDatabase.getInstance()
+                .getReference("users");
+
+        Query query = receiverUser
+                .orderByChild("mail")
+                .equalTo(receiverEmail);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Iterate through all the users
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                    String userEmail = userSnapshot.child("mail").getValue(String.class);
-                    Log.d("--------> "+userEmail,"--------> "+userEmail);
-                    Log.d("--------> "+tempMail,"--------> "+tempMail);
-                    if (userEmail != null && userEmail.equalsIgnoreCase(tempMail)) {
-                        // Get user info
-                        Users user = userSnapshot.getValue(Users.class);
-                        Log.d("User ---------> "+user.getUserId(),"User ---------> "+user.getUserId());
-                        Log.d("User ---------> "+user.getUserName(),"User ---------> "+user.getUserName());
-
-                        // Pass the user object to another activity
-
-
-                        // Break the loop as we found the user
-                        startChatWindowActivit(user);
-                        break;
-                    }
-
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(!snapshot.exists()){
+                    MyAlertDialog.warning(getContext(), "No Parent", "Cannot find parent for messaging, please try again later");
+                    return;
+                }
+                for(DataSnapshot user: snapshot.getChildren()){
+                    String userId = user.getKey();
+                    String userName = user.child("userName").getValue(String.class);
+                    String teacherEmail = user.child("mail").getValue(String.class);
+                    String userImage = user.child("profilePic").getValue(String.class);
+                   /* if(targetUser == null) {
+                        MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "Error", "Parent Error..");
+                        return;
+                    }*/
+                    // Start Chatting here
+                    startChatWindowActivity(userId, userName, userImage, teacherEmail);
+                    break;
                 }
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("UserInfo", "loadPost:onCancelled", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+                MyAlertDialog.showCustomAlertDialogLoginError(getContext(), "No User", "Cannot Find Parent, please call the phone number or try again later");
+                return;
             }
         });
+
+        /*DatabaseReference mDatabase =
+                FirebaseDatabase.getInstance().getReference("users");
+
+        mDatabase.orderByChild("mail")
+                .equalTo(tempMail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (!snapshot.exists()) {
+                            Log.d("USER_SEARCH", "No user found with this email");
+                            MyAlertDialog.showCustomAlertDialogSpinnerError(
+                                    getContext(),
+                                    "Cannot Find Parent",
+                                    "Cannot find the parent for messaging now, please try again later."
+                            );
+                            return;
+                        }
+
+                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            Users user = userSnapshot.getValue(Users.class);
+                            if (user == null) return;
+
+                            Log.d("USER_ID", user.getUserId());
+                            Log.d("USER_NAME", user.getUserName());
+
+                            // Launch chat window with the retrieved user
+                            startChatWindowActivity(user);
+                            break; // stop after first match
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("FIREBASE_ERROR",
+                                "Code: " + error.getCode() +
+                                        " | Message: " + error.getMessage(),
+                                error.toException());
+                    }
+                });*/
+
+        /*DatabaseReference mDatabase =
+                FirebaseDatabase.getInstance().getReference("users");
+
+        mDatabase.orderByChild("email")
+                .equalTo(tempMail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (!snapshot.exists()) {
+                            Log.d("USER_SEARCH", "No user found with this email");
+                            MyAlertDialog.showCustomAlertDialogSpinnerError(getContext(), "Cannot Find Parent", "Cannot find the parent for messaging now, please try again later.");
+                            return;
+                        }
+                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            Users user = userSnapshot.getValue(Users.class);
+                            if (user == null) return;
+                            Log.d("USER_ID", user.getUserId());
+                            Log.d("USER_NAME", user.getUserName());
+                            startChatWindowActivity(user);
+                            break;
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("FIREBASE_ERROR",
+                                "Code: " + error.getCode() +
+                                        " | Message: " + error.getMessage(),
+                                error.toException());
+                    }
+                });*/
     }
 
 
-    private void startChatWindowActivit(Users user) {
+
+    private void startChatWindowActivity(/*Users user*/String userId, String userName, String profilePic, String teacherEmail) {
         Intent intent = new Intent(getActivity(), ChatWindowActivity.class);
-        intent.putExtra("nameeee",user.getUserName());
-        intent.putExtra("reciverImg",user.getProfilepic());
-        intent.putExtra("uid",user.getUserId());
+        intent.putExtra("nameeee",userName);
+        intent.putExtra("email",teacherEmail);
+        intent.putExtra("reciverImg",profilePic);
+        intent.putExtra("uid",userId);
         startActivity(intent);
     }
 
@@ -1856,17 +1985,34 @@ public class TeacherFragment extends Fragment implements TeacherMatchCardClickLi
     private void setTeacherReceivedRequestsToRequestsDialog(List<TeacherReceivedRequest> teacherReceivedRequests) {
         if (getContext() != null) {
             tempTeacherReceivedRequestsList = teacherReceivedRequests;
-            teacherReceivedRequestDialog = new Dialog(getContext());
-            teacherReceivedRequestsDialogLayoutBinding = TeacherReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(getContext()));
+
+            teacherReceivedRequestDialog = new Dialog(requireContext());
+            teacherReceivedRequestsDialogLayoutBinding =
+                    TeacherReceivedRequestsDialogLayoutBinding.inflate(LayoutInflater.from(requireContext()));
+
             teacherReceivedRequestDialog.setContentView(teacherReceivedRequestsDialogLayoutBinding.getRoot());
             teacherReceivedRequestDialog.setCancelable(false);
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(Objects.requireNonNull(teacherReceivedRequestDialog.getWindow()).getAttributes());
-            layoutParams.width = 1250;
-            layoutParams.height = 2500;
-            teacherReceivedRequestDialog.getWindow().setAttributes(layoutParams);
-            if (teacherReceivedRequestDialog.getWindow() != null)
-                teacherReceivedRequestDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+            Window window = teacherReceivedRequestDialog.getWindow();
+            if (window != null) {
+
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                window.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+                int screenWidth = displayMetrics.widthPixels;
+                int screenHeight = displayMetrics.heightPixels;
+
+                layoutParams.width = (int) (screenWidth * 0.95);
+                layoutParams.height = (int) (screenHeight * 0.90);
+
+                window.setAttributes(layoutParams);
+
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
             teacherReceivedRequestDialog.show();
 
             teacherReceivedRequestsDialogLayoutBinding.closeImage.setOnClickListener(z -> {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,98 +9,110 @@
     android:layout_marginStart="5dp"
     android:layout_marginEnd="5dp"
     app:cardElevation="5dp"
-    android:backgroundTint="#E4ECEC"
-    >
-    <RelativeLayout
+    android:backgroundTint="#E4ECEC">
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/profileImageView"
             android:layout_width="55dp"
-            android:layout_height="55dp"
+            android:layout_height="60dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
+            android:layout_marginTop="20dp"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:src="@drawable/user" />
+            android:src="@drawable/user"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <ImageView
             android:id="@+id/teacherNameImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@drawable/profile_icon"
+            android:layout_alignParentTop="true"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="25dp"
             android:layout_toEndOf="@id/profileImageView"
-            android:layout_alignParentTop="true"/>
+            android:src="@drawable/profile_icon"
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/teacherNameTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Sender Name : "
+            android:layout_marginTop="27dp"
             android:layout_toEndOf="@id/teacherNameImageView"
-            android:textSize="16sp" />
+            android:text="Sender Name : "
+            android:layout_marginStart="5dp"
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@+id/teacherNameImageView"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/parentNameTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="15dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/teacherNameTextViewTemp"
             android:textColor="#1A8E9E"
-            android:textSize="16sp" />
-
+            android:textSize="13sp"
+            android:layout_marginTop="27dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/teacherNameTextViewTemp"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/phoneNumberImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
+            android:layout_toEndOf="@id/profileImageView"
             android:src="@drawable/phone_icon2"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_toEndOf="@id/profileImageView"
-            android:layout_below="@id/parentNameTextView"/>
+            android:layout_marginTop="12dp"
+
+            app:layout_constraintStart_toEndOf="@+id/profileImageView"
+            app:layout_constraintTop_toBottomOf="@+id/parentNameTextView" />
 
         <TextView
             android:id="@+id/phoneNumberViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
             android:text="Phone Numbers :"
-            android:layout_toEndOf="@id/phoneNumberImageView"
-            android:layout_below="@id/parentNameTextView"
-            android:textSize="16sp" />
+            android:textSize="13sp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintStart_toEndOf="@+id/phoneNumberImageView"
+            app:layout_constraintTop_toBottomOf="@+id/parentNameTextView" />
 
         <TextView
             android:id="@+id/phoneNumberTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
+            android:layout_marginTop="15dp"
             android:layout_toEndOf="@id/phoneNumberViewTemp"
-            android:layout_below="@id/parentNameTextView"
             android:textColor="#1A8E9E"
-            android:textSize="15sp" />
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/phoneNumberViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/parentNameTextView" />
 
         <LinearLayout
             android:id="@+id/tempView1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_below="@id/phoneNumberTextView"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/phoneNumberTextView">
 
             <View
                 android:layout_width="20dp"
@@ -130,42 +143,41 @@
 
         </LinearLayout>
 
-
-
         <ImageView
             android:id="@+id/coursesImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@drawable/courses_icon"
+            android:layout_marginTop="20dp"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/tempView1"/>
+            android:src="@drawable/courses_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tempView1" />
 
         <TextView
             android:id="@+id/coursesTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tempView1"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Courses : "
+            android:layout_marginTop="22dp"
+            android:layout_marginStart="5dp"
             android:layout_toEndOf="@id/coursesImageView"
-            android:textSize="16sp" />
+            android:text="Courses : "
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@+id/coursesImageView"
+            app:layout_constraintTop_toBottomOf="@+id/tempView1" />
 
         <TextView
             android:id="@+id/coursesTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/tempView1"
+            android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/coursesTextViewTemp"
             android:textColor="#1A8E9E"
-            android:textSize="16sp" />
-
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="22dp"
+            app:layout_constraintStart_toEndOf="@+id/coursesTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/tempView1" />
 
         <ImageView
             android:id="@+id/dateImageView"
@@ -173,200 +185,214 @@
             android:layout_height="25dp"
             android:src="@drawable/calendar_icon"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/coursesTextView"/>
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
 
         <TextView
             android:id="@+id/dateTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Date Range:"
             android:layout_toEndOf="@id/dateImageView"
-            android:layout_below="@id/coursesTextView"
-            android:textSize="16sp" />
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="12dp"
+
+            android:text="Date Range:"
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@+id/dateImageView"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
 
         <TextView
             android:id="@+id/dateTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/dateTextViewTemp"
-            android:layout_below="@id/coursesTextView"
             android:textColor="#1A8E9E"
-            android:textSize="15sp" />
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/dateTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/coursesTextView" />
 
         <ImageView
             android:id="@+id/daysImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@drawable/days_icon"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/dateTextView"/>
+            android:layout_marginTop="10dp"
+            android:src="@drawable/days_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
 
         <TextView
             android:id="@+id/daysTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
             android:text="Days : "
-            android:layout_toEndOf="@id/daysImageView"
-            android:layout_below="@id/dateTextView"
-            android:textSize="16sp" />
+            android:textSize="13sp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/daysImageView"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
 
         <TextView
             android:id="@+id/daysTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/daysTextViewTemp"
-            android:layout_below="@id/dateTextView"
             android:textColor="#1A8E9E"
-            android:textSize="16sp" />
+            android:textSize="13sp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/daysTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/dateTextView" />
 
         <ImageView
             android:id="@+id/timeImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@drawable/days_icon"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/daysTextView"/>
+            android:layout_marginTop="10dp"
+            android:src="@drawable/days_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/daysTextView" />
 
         <TextView
             android:id="@+id/timeTextViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Start - End Time : "
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="5dp"
             android:layout_toEndOf="@id/timeImageView"
-            android:layout_below="@id/daysTextView"
-            android:textSize="16sp" />
+            android:text="Start - End Time : "
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@+id/timeImageView"
+            app:layout_constraintTop_toBottomOf="@+id/daysTextView" />
 
         <TextView
             android:id="@+id/timeTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/timeTextViewTemp"
-            android:layout_below="@id/daysTextView"
             android:textColor="#1A8E9E"
-            android:textSize="15sp" />
+            android:textSize="13sp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp"
+            app:layout_constraintStart_toEndOf="@+id/timeTextViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/daysTextView" />
 
         <ImageView
             android:id="@+id/locationImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@drawable/location_icon"
+            android:layout_marginTop="10dp"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/timeTextView"/>
+            android:src="@drawable/location_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/timeTextView" />
 
         <TextView
             android:id="@+id/locationViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
             android:text="Location : "
-            android:layout_toEndOf="@id/locationImageView"
-            android:layout_below="@id/timeTextView"
-            android:textSize="16sp" />
+            android:textSize="13sp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/locationImageView"
+            app:layout_constraintTop_toBottomOf="@+id/timeTextView" />
 
         <TextView
             android:id="@+id/locationTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
+            android:layout_marginTop="12dp"
             android:layout_toEndOf="@id/locationViewTemp"
-            android:layout_below="@id/timeTextView"
             android:textColor="#1A8E9E"
-            android:textSize="15sp" />
-
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/locationViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/timeTextView"
+            app:layout_goneMarginEnd="5dp"
+            app:layout_goneMarginStart="5dp"
+            app:layout_goneMarginTop="12dp" />
 
         <ImageView
             android:id="@+id/teachingMethodImageView"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@drawable/teaching_method_icon_2"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/locationTextView"/>
+
+            android:layout_marginTop="10dp"
+            android:src="@drawable/teaching_method_icon_2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
 
         <TextView
             android:id="@+id/teachingMethodViewTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Teaching Method : "
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="12dp"
             android:layout_toEndOf="@id/teachingMethodImageView"
-            android:layout_below="@id/locationTextView"
-            android:textSize="16sp" />
+            android:text="Teaching Method : "
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@+id/teachingMethodImageView"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
 
         <TextView
             android:id="@+id/teachingMethodTextView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginTop="17dp"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/teachingMethodViewTemp"
-            android:layout_below="@id/locationTextView"
             android:textColor="#1A8E9E"
-            android:textSize="15sp" />
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/teachingMethodViewTemp"
+            app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/acceptBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/teachingMethodTextView"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="17dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="10dp"
             android:backgroundTint="@color/usedColor"
             android:text="Accept"
             android:textAllCaps="false"
-            android:layout_marginBottom="10dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/teachingMethodTextView" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/declineBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/teachingMethodTextView"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="110dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="10dp"
             android:backgroundTint="@color/usedColor"
             android:text="Decline"
-            android:layout_marginBottom="10dp"
             android:textAllCaps="false"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/acceptBtn"
+            app:layout_constraintTop_toBottomOf="@+id/teachingMethodTextView" />
 
-
-    </RelativeLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
